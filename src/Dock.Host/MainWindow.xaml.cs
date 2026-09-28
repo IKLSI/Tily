@@ -50,6 +50,7 @@ public sealed partial class MainWindow : Window
         core.SetVirtualHostNameToFolderMapping(VirtualHost, Path.Combine(AppContext.BaseDirectory, "wwwroot"), CoreWebView2HostResourceAccessKind.Allow);
         _bridge.Attach(core);
         core.Navigate(ResolveStartUrl());
+        View.Focus(FocusState.Programmatic);
     }
 
     private void ApplyDarkTitleBar()
