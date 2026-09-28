@@ -102,6 +102,12 @@ Travail autonome sur la branche `night-session`. Chaque itération apporte une a
 - **Pourquoi** : le terminal mort gardait le focus et capturait même Tab. Les boutons du message étaient inaccessibles au clavier, et après un clic sur « Relancer » il fallait encore cliquer dans le terminal pour taper.
 - **Vérifié** : dans l'instance de test, `exit` affiche le message avec le focus sur « Relancer ». Entrée relance le shell, le message disparaît et `echo relance-ok` s'exécute sans clic.
 
+### 16. Messages de commit lisibles dans un graphe étroit
+
+- **Quoi** : le graphe Git mesure sa largeur et masque à l'affichage la colonne Date, puis Auteur, tant que la colonne Message aurait moins de 200 px (`fitGraphColumns` dans `gitGraphStyles.ts`). Le réglage enregistré n'est pas modifié : les colonnes réapparaissent dès que la place revient, et le menu de l'en-tête garde la main.
+- **Pourquoi** : Auteur (130 px) et Date (120 px) gardaient leur largeur fixe quoi qu'il arrive. Dans une fenêtre de 1300 px avec le panneau de droite ouvert, le message des commits tombait à environ 60 px (« Ren… », « Réor… »), illisible.
+- **Vérifié** : mesures dans l'instance de test. Fenêtre maximisée, toutes les colonnes sont là (Message 709 px). À 1300 px, Auteur et Date sont masqués et Message passe à 323 px (capture). À 1100 px, Message fait 123 px avec les seules colonnes fixes restantes.
+
 ## Reste à faire et idées
 
 - Taille de police et zoom du terminal : absents (police fixe à 14 px). La spécification les classe « À décider » (section 4), donc je n'y ai pas touché ; c'est à trancher.

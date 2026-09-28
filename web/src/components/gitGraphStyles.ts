@@ -1,4 +1,5 @@
 import type { GitCommit, GitRefLabel } from '../bridge/gitMessages'
+import type { GitGraphLayout } from '../model/session'
 
 export enum GitNodeKind {
   Commit = 'commit',
@@ -15,6 +16,7 @@ export enum ResizerSide {
 export const GRAPH_ROW_HEIGHT = 28
 export const GRAPH_HEADER_HEIGHT = 26
 export const WORKING_TREE_KEY = 'wip'
+const MESSAGE_MIN_WIDTH = 200
 export const ROW_FOCUS_OUTLINE = 'group-focus-visible:outline-2 group-focus-visible:-outline-offset-2 group-focus-visible:outline-dock-focus'
 
 const LANE_STROKES = ['stroke-dock-lane-0', 'stroke-dock-lane-1', 'stroke-dock-lane-2', 'stroke-dock-lane-3', 'stroke-dock-lane-4', 'stroke-dock-lane-5', 'stroke-dock-lane-6', 'stroke-dock-lane-7']
@@ -27,6 +29,16 @@ const LANE_HOVER_TINTS = ['hover:bg-dock-lane-0/45', 'hover:bg-dock-lane-1/45', 
 const LANE_STRONG_HOVER_TINTS = ['hover:bg-dock-lane-0/65', 'hover:bg-dock-lane-1/65', 'hover:bg-dock-lane-2/65', 'hover:bg-dock-lane-3/65', 'hover:bg-dock-lane-4/65', 'hover:bg-dock-lane-5/65', 'hover:bg-dock-lane-6/65', 'hover:bg-dock-lane-7/65']
 
 const pick = (classes: string[], color: number): string => classes[color % classes.length]
+
+const messageWidth = (layout: GitGraphLayout, width: number, authorShown: boolean, dateShown: boolean): number =>
+  width - layout.labelsWidth - layout.graphWidth - (authorShown ? layout.authorWidth : 0) - (dateShown ? layout.dateWidth : 0)
+
+export const fitGraphColumns = (layout: GitGraphLayout, width: number): Pick<GitGraphLayout, 'authorShown' | 'dateShown'> => {
+  const fits = (authorShown: boolean, dateShown: boolean): boolean => width <= 0 || messageWidth(layout, width, authorShown, dateShown) >= MESSAGE_MIN_WIDTH
+  const dateShown = layout.dateShown && fits(layout.authorShown, true)
+  const authorShown = layout.authorShown && fits(true, dateShown)
+  return { authorShown, dateShown }
+}
 
 export const laneStroke = (color: number): string => pick(LANE_STROKES, color)
 
