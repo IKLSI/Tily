@@ -71,6 +71,12 @@ Travail autonome sur la branche `night-session`. Chaque itération apporte une a
 - **Pourquoi** : avec 13 onglets dans une fenêtre de 1300 px, la barre débordait. L'onglet actif, le « + » et le bouton du panneau de droite étaient poussés hors de la fenêtre et impossibles à atteindre à la souris.
 - **Vérifié** : mesures avant et après dans l'instance de test (bouton « + » à 1694 px dans une fenêtre de 1284 px avant, à 1250 px après), onglet actif ramené en vue après un rétrécissement de la fenêtre et après Ctrl + Tab, défilement par une vraie molette.
 
+### 11. Build des tests sans avertissement
+
+- **Quoi** : `TerminalManagerTests` utilise `Assert.DoesNotContain(processIds, IsAlive)` au lieu de `Assert.Empty(processIds.Where(IsAlive))`.
+- **Pourquoi** : l'analyseur xUnit (xUnit2029) levait un avertissement à chaque compilation des tests ; l'assertion est la même, et en cas d'échec le message indique le processus encore vivant.
+- **Vérifié** : `dotnet build` affiche 0 avertissement et les 176 tests passent.
+
 ## Reste à faire et idées
 
 - Taille de police et zoom du terminal : absents (police fixe à 14 px). La spécification les classe « À décider » (section 4), donc je n'y ai pas touché ; c'est à trancher.

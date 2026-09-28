@@ -43,7 +43,7 @@ public sealed class TerminalManagerTests
         manager.Stop("pane-job");
         await Task.Delay(TimeSpan.FromSeconds(2));
 
-        Assert.Empty(processIds.Where(IsAlive));
+        Assert.DoesNotContain(processIds, IsAlive);
     }
 
     [Fact]
