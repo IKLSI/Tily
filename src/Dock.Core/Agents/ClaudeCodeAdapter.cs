@@ -3,7 +3,6 @@ namespace Dock.Core.Agents;
 public sealed class ClaudeCodeAdapter : IAgentAdapter
 {
     public string Id => "claude";
-    public string Name => "Claude Code";
 
     public PaneAgentModel? Detect(PaneProbeModel probe, AgentStateModel? reported)
     {

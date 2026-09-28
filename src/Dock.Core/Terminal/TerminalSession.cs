@@ -14,17 +14,12 @@ public sealed class TerminalSession : IDisposable
     private readonly JobObject _job;
     private readonly OscCwdParser _cwdParser = new();
     private readonly Thread _readerThread;
-    private readonly Stopwatch _clock = Stopwatch.StartNew();
     private readonly object _writeLock = new();
-    private long _bytesRead;
     private int _closed;
 
     public string PaneId { get; }
     public DateTime StartedAtUtc { get; } = DateTime.UtcNow;
-    public PseudoConsoleProvider Provider => _console.Provider;
     public int ProcessId => _process.ProcessId;
-    public long BytesRead => Interlocked.Read(ref _bytesRead);
-    public TimeSpan Elapsed => _clock.Elapsed;
     public string? CurrentDirectory { get; private set; }
     public bool HasExited { get; private set; }
     public uint ExitCode { get; private set; }
@@ -125,7 +120,6 @@ public sealed class TerminalSession : IDisposable
                     break;
                 }
 
-                Interlocked.Add(ref _bytesRead, count);
                 _cwdParser.Feed(buffer.AsSpan(0, count));
                 OutputReceived?.Invoke(buffer.AsMemory(0, count).ToArray());
             }

@@ -35,9 +35,6 @@ public static class PseudoConsoleApi
         }
     }
 
-    public static bool IsEmbeddedAvailable() =>
-        File.Exists(Path.Combine(AppContext.BaseDirectory, EmbeddedLibraryName));
-
     private static class Windows
     {
         [DllImport("kernel32.dll", SetLastError = true)]

@@ -84,8 +84,6 @@ public sealed class TerminalManager : IDisposable
     public TerminalSession Require(string paneId) =>
         _sessions.TryGetValue(paneId, out var session) ? session : throw new InvalidOperationException($"Aucun terminal pour le pane {paneId}.");
 
-    public bool TryGet(string paneId, out TerminalSession session) => _sessions.TryGetValue(paneId, out session!);
-
     public void Stop(string paneId)
     {
         if (_sessions.TryRemove(paneId, out var session))

@@ -7,7 +7,6 @@ export interface ShellProfile {
   executable: string
   arguments: string
   available: boolean
-  reportsCurrentDirectory: boolean
 }
 
 export enum PickTarget {
@@ -140,7 +139,6 @@ export type HostToWebMessage =
   | ({ type: 'settings.result'; shells: ShellProfile[]; persistence: PersistenceSettings; saved: boolean } & SettingsSnapshot)
   | { type: 'settings.exported'; path: string }
   | ({ type: 'settings.imported' } & ImportedPreferences)
-  | { type: 'terminal.created'; pane: string; pid: number }
   | { type: 'terminal.output'; pane: string; data: string }
   | { type: 'terminal.cwd'; pane: string; path: string }
   | { type: 'terminal.exit'; pane: string; code: number }
