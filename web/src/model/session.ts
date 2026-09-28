@@ -84,6 +84,7 @@ export interface Session {
 
 export const SIDEBAR_MIN = 220
 export const SIDEBAR_MAX = 450
+export const SIDEBAR_DEFAULT = 292
 export const EXPLORER_MIN = 200
 export const EXPLORER_MAX = 600
 export const EXPLORER_DEFAULT = 280
@@ -105,7 +106,7 @@ export const DEFAULT_SHELL = 'powershell'
 export const CLOSED_TABS_MAX = 5
 export const SPLIT_RATIO_MIN = 0.15
 export const SPLIT_RATIO_MAX = 0.85
-const SPLIT_RATIO_DEFAULT = 0.5
+export const SPLIT_RATIO_DEFAULT = 0.5
 
 const clampRatio = (ratio: number): number => Math.min(SPLIT_RATIO_MAX, Math.max(SPLIT_RATIO_MIN, ratio))
 

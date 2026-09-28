@@ -120,6 +120,12 @@ Travail autonome sur la branche `night-session`. Chaque itération apporte une a
 - **Pourquoi** : ces raccourcis n'étaient interceptés que dans xterm.js. Après un clic dans le graphe ou le panneau, Ctrl + Maj + T ou Ctrl + Maj + D ne faisaient plus rien, et il fallait d'abord recliquer dans un terminal.
 - **Vérifié** : dans l'instance de test, Ctrl + Maj + T depuis le graphe Git crée un onglet (13 → 14) et Ctrl + Maj + D depuis une ligne du panneau découpe le pane actif (1 → 2). Dans le message de commit, Ctrl + Maj + T ne fait rien et le focus reste dans le champ.
 
+### 19. Double-clic sur un séparateur : taille par défaut
+
+- **Quoi** : un double-clic sur un séparateur rétablit sa taille par défaut. Un split revient à parts égales ; le panneau des workspaces à 292 px, le panneau de droite à 280 px ; la colonne des branches et les colonnes Branche / Tag, Graphe, Auteur et Date du graphe Git reprennent leur largeur initiale. Les infobulles des séparateurs le signalent. `SidebarResizer` et `GitColumnResizer` reçoivent pour cela leur largeur par défaut (`defaultWidth`), et `SPLIT_RATIO_DEFAULT` et `SIDEBAR_DEFAULT` sont exportés par le modèle.
+- **Pourquoi** : c'est la convention de VS Code et de la plupart des éditeurs. Sans elle, retrouver un partage égal ou une largeur d'origine demandait un réglage à l'œil.
+- **Vérifié** : dans l'instance de test, chaque séparateur est d'abord modifié au clavier puis double-cliqué avec une vraie souris : panneau des workspaces 337 → 292, colonne Graphe 170 → 100, panneau de droite 200 → 280, split 65 % → 50 %.
+
 ## Reste à faire et idées
 
 - Taille de police et zoom du terminal : absents (police fixe à 14 px). La spécification les classe « À décider » (section 4), donc je n'y ai pas touché ; c'est à trancher.

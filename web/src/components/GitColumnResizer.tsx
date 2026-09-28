@@ -5,6 +5,7 @@ import { ResizerSide } from './gitGraphStyles'
 interface GitColumnResizerProps {
   side: ResizerSide
   width: number
+  defaultWidth: number
   label: string
   onResize: (width: number) => void
 }
@@ -13,7 +14,7 @@ const KEYBOARD_STEP = 10
 
 const stopClick = (event: MouseEvent) => event.stopPropagation()
 
-export function GitColumnResizer({ side, width, label, onResize }: GitColumnResizerProps) {
+export function GitColumnResizer({ side, width, defaultWidth, label, onResize }: GitColumnResizerProps) {
   const dragRef = useRef<{ startX: number; startWidth: number } | null>(null)
   const direction = side === ResizerSide.Right ? 1 : -1
 
@@ -33,6 +34,10 @@ export function GitColumnResizer({ side, width, label, onResize }: GitColumnResi
     dragRef.current = null
     document.body.style.cursor = ''
   }
+  const handleDoubleClick = (event: MouseEvent) => {
+    event.stopPropagation()
+    onResize(defaultWidth)
+  }
   const handleKeyDown = (event: KeyboardEvent<HTMLSpanElement>) => {
     if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
       event.preventDefault()
@@ -50,13 +55,14 @@ export function GitColumnResizer({ side, width, label, onResize }: GitColumnResi
       aria-valuemax={GIT_COLUMN_MAX}
       aria-valuenow={width}
       tabIndex={0}
-      data-tip={`${label} (glisser ou flèches)`}
+      data-tip={`${label} (glisser ou flèches, double-clic pour la largeur par défaut)`}
       className={`group absolute inset-y-0 z-10 flex w-[7px] cursor-ew-resize justify-center focus-visible:outline-none ${side === ResizerSide.Right ? '-right-[4px]' : '-left-[4px]'}`}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
       onPointerCancel={handlePointerUp}
       onClick={stopClick}
+      onDoubleClick={handleDoubleClick}
       onKeyDown={handleKeyDown}
     >
       <span className="h-full w-px bg-dock-line group-hover:w-0.5 group-hover:bg-dock-green group-focus-visible:w-0.5 group-focus-visible:bg-dock-focus" />

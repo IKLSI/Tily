@@ -2,7 +2,7 @@ import { useEffect, useMemo } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { bridge } from '../bridge/bridge'
 import { PickTarget, type NotificationSettings, type Project, type Settings } from '../bridge/messages'
-import { activePane, activeTab, activeWorkspace, DEFAULT_SHELL, EXPLORER_MAX, EXPLORER_MIN, findWorkspace, RightPanelView, SIDEBAR_MAX, SIDEBAR_MIN, type Session, type SplitAxis, type SplitPath, type Workspace } from '../model/session'
+import { activePane, activeTab, activeWorkspace, DEFAULT_SHELL, EXPLORER_DEFAULT, EXPLORER_MAX, EXPLORER_MIN, findWorkspace, RightPanelView, SIDEBAR_DEFAULT, SIDEBAR_MAX, SIDEBAR_MIN, type Session, type SplitAxis, type SplitPath, type Workspace } from '../model/session'
 import type { PaletteItem } from '../palette/paletteItems'
 import { waitingPanes } from '../agents/agentSummary'
 import { Command, handleDocumentShortcut, runCommand } from '../keyboard/shortcuts'
@@ -350,7 +350,7 @@ export function AppShell({ session }: AppShellProps) {
               renamingTabId={tabRenameOrigin === RenameOrigin.Panel ? renamingTabId : null}
               actions={panelActions}
             />
-            <SidebarResizer width={session.sidebar} min={SIDEBAR_MIN} max={SIDEBAR_MAX} label="Largeur du panneau des workspaces" onResize={setSidebarWidth} />
+            <SidebarResizer width={session.sidebar} min={SIDEBAR_MIN} max={SIDEBAR_MAX} defaultWidth={SIDEBAR_DEFAULT} label="Largeur du panneau des workspaces" onResize={setSidebarWidth} />
           </>
         )}
         <main className="relative flex min-h-0 min-w-0 flex-1 flex-col">
@@ -358,7 +358,7 @@ export function AppShell({ session }: AppShellProps) {
         </main>
         {tab?.explorer && (
           <>
-            <SidebarResizer width={session.explorerWidth} min={EXPLORER_MIN} max={EXPLORER_MAX} label="Largeur du panneau de droite" reversed onResize={setExplorerWidth} />
+            <SidebarResizer width={session.explorerWidth} min={EXPLORER_MIN} max={EXPLORER_MAX} defaultWidth={EXPLORER_DEFAULT} label="Largeur du panneau de droite" reversed onResize={setExplorerWidth} />
             <RightPanel view={panelView} root={activePane(tab).path} width={session.explorerWidth} onClose={toggleRightPanel} onOpenTerminal={handleOpenTerminalAt} />
           </>
         )}
