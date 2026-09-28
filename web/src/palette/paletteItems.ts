@@ -2,7 +2,7 @@ import { waitingPanes } from '../agents/agentSummary'
 import { bridge } from '../bridge/bridge'
 import type { ShellProfile } from '../bridge/messages'
 import { Command, runCommand } from '../keyboard/shortcuts'
-import { activeTab, activeWorkspace, panesOf, type Session } from '../model/session'
+import { activeTab, activeWorkspace, folderName, panesOf, type Session } from '../model/session'
 import { useAgentStore } from '../store/agentStore'
 import { useSessionStore } from '../store/sessionStore'
 import { RenameOrigin, useUiStore } from '../store/uiStore'
@@ -108,7 +108,7 @@ const navigationItems = (session: Session): PaletteItem[] => {
       ...panesOf(tab.tree).map((pane) => ({
         id: `pane-${pane.id}`,
         kind: PaletteKind.Pane,
-        label: `Pane${SEPARATOR}${workspace.name} / ${tab.name} / ${pane.shell}`,
+        label: `Pane${SEPARATOR}${workspace.name} / ${tab.name} / ${folderName(pane.path)} (${pane.shell})`,
         hint: pane.path,
         run: () => selectPane(pane.id),
       })),

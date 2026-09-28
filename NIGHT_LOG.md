@@ -126,6 +126,12 @@ Travail autonome sur la branche `night-session`. Chaque itération apporte une a
 - **Pourquoi** : c'est la convention de VS Code et de la plupart des éditeurs. Sans elle, retrouver un partage égal ou une largeur d'origine demandait un réglage à l'œil.
 - **Vérifié** : dans l'instance de test, chaque séparateur est d'abord modifié au clavier puis double-cliqué avec une vraie souris : panneau des workspaces 337 → 292, colonne Graphe 170 → 100, panneau de droite 200 → 280, split 65 % → 50 %.
 
+### 20. Panes distincts dans la palette
+
+- **Quoi** : dans la palette, un pane est désormais libellé « Pane · workspace / onglet / dossier (shell) » au lieu de « Pane · workspace / onglet / shell ».
+- **Pourquoi** : les panes d'un même onglet avaient des libellés identiques (« Pane · Dock / dock-terminal / powershell » trois fois), et seul le chemin, en petit et tronqué, les distinguait. Le nom du dossier dans le libellé les rend reconnaissables et fait remonter la recherche par nom de dossier.
+- **Vérifié** : la recherche « src » donne directement le pane `src`, et « pane dock » liste les trois panes de l'onglet dock-terminal sous des noms différents (capture).
+
 ## Reste à faire et idées
 
 - Taille de police et zoom du terminal : absents (police fixe à 14 px). La spécification les classe « À décider » (section 4), donc je n'y ai pas touché ; c'est à trancher.
