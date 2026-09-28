@@ -5,7 +5,7 @@
 <h1 align="center">Dock Terminal</h1>
 
 <p align="center">
-  Terminal Windows organisé en <strong>workspaces → onglets → panes</strong>, avec une interface compacte verte et un panneau en arborescence.
+  Terminal Windows organisé en <strong>workspaces → onglets → panes</strong>, avec une interface compacte et un panneau en arborescence.
 </p>
 
 <p align="center">
