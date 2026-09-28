@@ -35,6 +35,18 @@ Travail autonome sur la branche `night-session`. Chaque itération apporte une a
 - **Pourquoi** : les menus natifs de la WebView2 sont désactivés, donc un clic droit dans un terminal ne faisait rien, alors que le reste de l'interface (panneau, fichiers, Git) a ses menus contextuels.
 - **Vérifié** : clic droit sans sélection (Copier grisé), double-clic sur un mot puis clic droit (Copier actif, la sélection reste visible), Copier puis Coller dans l'invite, touche Menu (menu au curseur), Échap (le focus revient au terminal).
 
+### 5. Les noms restent visibles dans la palette et le sélecteur de projets
+
+- **Quoi** : dans `SearchDialog` (palette et sélecteur de projets), le libellé garde maintenant sa largeur. L'indication (chemin, raccourci) prend la place restante et se tronque en fin, alignée à droite.
+- **Pourquoi** : l'indication ne rétrécissait jamais (`shrink-0`). Avec une racine de projets un peu longue, le chemin prenait toute la ligne : le nom du projet disparaissait complètement et la liste débordait avec une barre de défilement horizontale. Je l'ai découvert en testant l'itération suivante.
+- **Vérifié** : captures du sélecteur avec des chemins de plus de 100 caractères et de la palette filtrée sur « pane ».
+
+### 6. Worktrees dans le sélecteur de projets
+
+- **Quoi** : Leader puis F liste d'abord les projets, puis les dossiers de `<racine>\worktrees` avec l'indication « worktree · chemin ». En choisir un ouvre un workspace comme pour un projet. Côté hôte, `ProjectCatalog` ajoute ces dossiers marqués `Worktree` : un sous-dossier absent ou illisible ne gêne pas la liste des projets. Deux tests xUnit ont été ajoutés. La spécification (en « Convention proposée »), le README et les deux documents d'architecture sont à jour.
+- **Pourquoi** : ton sélecteur WezTerm listait déjà ces worktrees avec un préfixe `[wt]`, et la spécification prévoyait de « l'exposer séparément si nécessaire ». Pour revenir sur un worktree créé par `wtr`, il fallait jusqu'ici passer par un terminal.
+- **Vérifié** : sur une racine de démonstration avec deux projets et deux worktrees, la liste est triée puis filtrée par « wor » ; 176 tests passent.
+
 ## Reste à faire et idées
 
 - Taille de police et zoom du terminal : absents (police fixe à 14 px). La spécification les classe « À décider » (section 4), donc je n'y ai pas touché ; c'est à trancher.

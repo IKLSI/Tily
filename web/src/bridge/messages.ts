@@ -108,6 +108,7 @@ export interface SettingsSnapshot {
 export interface Project {
   name: string
   path: string
+  worktree: boolean
 }
 
 export interface PaneActivity {

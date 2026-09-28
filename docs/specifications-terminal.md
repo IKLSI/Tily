@@ -214,6 +214,8 @@ Ce sélecteur recherche des dossiers, pas du texte dans les fichiers. L’interf
 
 **Décision prise.** Le chemin est `C:\\Files\\Projects`. Reprendre la profondeur de premier niveau de WezTerm, exclure `worktrees` de la liste des projets puis l’exposer séparément si nécessaire. Le sélecteur ne recherche que des dossiers et ne détecte pas les workspaces déjà ouverts : chaque sélection peut créer un nouveau workspace. Le nom initial est celui du dossier sélectionné.
 
+**Convention proposée.** Les dossiers de premier niveau de `worktrees` sont listés à part, après les projets, avec la mention « worktree », comme le préfixe `[wt]` du sélecteur WezTerm ; en choisir un ouvre un workspace comme pour un projet.
+
 ## 11. Actions contextuelles et worktrees
 
 Les actions utilisent le **dossier du pane actif**, jamais un hypothétique dossier unique du workspace.

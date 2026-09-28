@@ -22,7 +22,7 @@
 - **Splits** : plusieurs terminaux côte à côte ou l’un sous l’autre dans le même onglet, redimensionnables et navigables au clavier.
 - **Palette Ctrl + P** : retrouver une commande, un workspace, un onglet ou un terminal en quelques lettres.
 - **Touche Leader Ctrl + Espace** : toutes les actions au clavier, sans gêner la saisie dans le terminal.
-- **Sélecteur de projets** : ouvrir un nouveau workspace directement dans un dossier de projet.
+- **Sélecteur de projets** : ouvrir un nouveau workspace directement dans un dossier de projet ou dans l’un de ses worktrees.
 - **Explorateur de fichiers** : parcourir le dossier du terminal actif dans un panneau à droite.
 - **Vue Git** : graphe de l’historique, branches et tags, Stage et commit, Push et Pull, Merge, Rebase, Stash, résolution des conflits et bouton « Annuler », sans taper de commande.
 - **Suivi de Claude Code** : repérer d’un coup d’œil le workspace et l’onglet où Claude Code travaille, attend une réponse ou a terminé.
