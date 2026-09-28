@@ -65,6 +65,12 @@ Travail autonome sur la branche `night-session`. Chaque itération apporte une a
 - **Pourquoi** : la colonne implicite de la grille prenait la largeur du chemin complet. Dès qu'un pane était un peu étroit (splits, fenêtre non maximisée, panneau de droite ouvert), les boutons Split et Fermer disparaissaient hors du pane, sans aucun moyen de les atteindre.
 - **Vérifié** : fenêtre de 1300 px avec trois panes. Avant, des en-têtes de 479 et 505 px pour des panes de 366 et 300 px, et une croix à 107 px hors du pane. Après, des en-têtes de 364 et 298 px, tous les boutons visibles et le chemin terminé par des points de suspension (capture).
 
+### 10. Barre d'onglets utilisable avec beaucoup d'onglets
+
+- **Quoi** : quand les onglets ne tiennent plus, ils défilent horizontalement dans une bande sans barre visible (molette verticale convertie en défilement horizontal). L'onglet actif est ramené en vue à chaque changement, création comprise, et quand la bande change de taille. Le « + » et le bouton du panneau de droite sont sortis de la bande : ils restent toujours visibles. Seuls les onglets portent désormais `role="tablist"`, ce qui est aussi plus juste pour l'accessibilité.
+- **Pourquoi** : avec 13 onglets dans une fenêtre de 1300 px, la barre débordait. L'onglet actif, le « + » et le bouton du panneau de droite étaient poussés hors de la fenêtre et impossibles à atteindre à la souris.
+- **Vérifié** : mesures avant et après dans l'instance de test (bouton « + » à 1694 px dans une fenêtre de 1284 px avant, à 1250 px après), onglet actif ramené en vue après un rétrécissement de la fenêtre et après Ctrl + Tab, défilement par une vraie molette.
+
 ## Reste à faire et idées
 
 - Taille de police et zoom du terminal : absents (police fixe à 14 px). La spécification les classe « À décider » (section 4), donc je n'y ai pas touché ; c'est à trancher.

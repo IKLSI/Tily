@@ -1,4 +1,4 @@
-import { Fragment, useCallback, useRef, useState, type KeyboardEvent, type MouseEvent, type PointerEvent } from 'react'
+import { Fragment, useCallback, useEffect, useRef, useState, type KeyboardEvent, type MouseEvent, type PointerEvent, type WheelEvent } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import type { ShellProfile } from '../bridge/messages'
 import { tabAgents } from '../agents/agentSummary'
@@ -29,13 +29,27 @@ interface TabBarProps {
 
 const MIDDLE_BUTTON = 1
 
+const tabSelector = (tabId: string): string => `[data-drop-tab="${tabId}"]`
+
 const isMenuKey = (event: KeyboardEvent): boolean => (event.shiftKey && event.key === 'F10') || event.key === 'ContextMenu'
 
 export function TabBar({ workspace, shells, renamingTabId, panelOpen, onTogglePanel, onSelect, onStartRename, onCommitRename, onCancelRename, onClose, onNew, onMove }: TabBarProps) {
   const [menuOpen, setMenuOpen] = useState(false)
   const addButtonRef = useRef<HTMLButtonElement>(null)
+  const stripRef = useRef<HTMLDivElement>(null)
   const { draggingTabId, tabDropTarget } = useUiStore(useShallow((state) => ({ draggingTabId: state.draggingTabId, tabDropTarget: state.tabDropTarget })))
   const agents = useAgentStore((state) => state.agents)
+
+  useEffect(() => {
+    const strip = stripRef.current
+    if (!strip) {
+      return
+    }
+    const revealActiveTab = () => strip.querySelector(tabSelector(workspace.active))?.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+    const observer = new ResizeObserver(revealActiveTab)
+    observer.observe(strip)
+    return () => observer.disconnect()
+  }, [workspace.active, workspace.tabs.length])
 
   const handleNewDefault = () => onNew(DEFAULT_SHELL)
   const handleContextMenu = (event: MouseEvent) => {
@@ -56,63 +70,66 @@ export function TabBar({ workspace, shells, renamingTabId, panelOpen, onTogglePa
     setMenuOpen(false)
     onNew(shellId)
   }
+  const handleWheel = (event: WheelEvent<HTMLDivElement>) => {
+    if (stripRef.current && event.deltaY !== 0) {
+      stripRef.current.scrollLeft += event.deltaY
+    }
+  }
   const dropLine = (targeted: boolean) => `h-6 w-0.5 shrink-0 rounded ${targeted ? 'bg-dock-focus' : 'bg-transparent'}`
 
   return (
-    <div
-      role="tablist"
-      data-drop-workspace={workspace.id}
-      className="flex shrink-0 items-center gap-0.5 px-2 pt-1 select-none"
-    >
-      {workspace.tabs.map((tab) => {
-        const active = tab.id === workspace.active
-        const targeted = isDropTarget(tabDropTarget, workspace.id, tab.id)
-        const agentSummary = tabAgents(tab, agents)
-        const handleSelect = () => onSelect(tab.id)
-        const handleStartRename = () => onStartRename(tab.id)
-        const handleClose = () => onClose(tab.id)
-        const handleAuxClick = (event: MouseEvent) => {
-          if (event.button === MIDDLE_BUTTON) {
-            event.preventDefault()
-            onClose(tab.id)
+    <div data-drop-workspace={workspace.id} className="flex shrink-0 items-center gap-0.5 px-2 pt-1 select-none">
+      <div ref={stripRef} role="tablist" className="flex min-w-0 items-center gap-0.5 overflow-x-auto [scrollbar-width:none]" onWheel={handleWheel}>
+        {workspace.tabs.map((tab) => {
+          const active = tab.id === workspace.active
+          const targeted = isDropTarget(tabDropTarget, workspace.id, tab.id)
+          const agentSummary = tabAgents(tab, agents)
+          const handleSelect = () => onSelect(tab.id)
+          const handleStartRename = () => onStartRename(tab.id)
+          const handleClose = () => onClose(tab.id)
+          const handleAuxClick = (event: MouseEvent) => {
+            if (event.button === MIDDLE_BUTTON) {
+              event.preventDefault()
+              onClose(tab.id)
+            }
           }
-        }
-        const handlePointerDown = (event: PointerEvent<HTMLElement>) => beginTabDrag(event, tab.id, onMove)
-        return (
-          <Fragment key={tab.id}>
-            <span aria-hidden="true" className={dropLine(targeted)} />
-            <div
-              data-drop-workspace={workspace.id}
-              data-drop-tab={tab.id}
-              className={`flex min-w-[100px] items-center rounded-t-md border border-b-0 ${active ? 'border-dock-line bg-dock-panel text-dock-green-deep' : 'border-transparent text-dock-muted hover:bg-dock-green-hover'} ${draggingTabId === tab.id ? 'opacity-50' : ''}`}
-              onAuxClick={handleAuxClick}
-            >
-              {tab.id === renamingTabId ? (
-                <InlineNameEditor value={tab.name} label="Nom de l’onglet" className="mx-1 my-1 min-w-0 flex-1 text-xs" onCommit={onCommitRename} onCancel={onCancelRename} />
-              ) : (
-                <button
-                  type="button"
-                  role="tab"
-                  aria-selected={active}
-                  data-tip="Double-clic pour renommer, glisser pour déplacer"
-                  className="flex min-w-0 flex-1 cursor-pointer items-center gap-1.5 px-3 py-2 text-left text-xs"
-                  onClick={handleSelect}
-                  onDoubleClick={handleStartRename}
-                  onPointerDown={handlePointerDown}
-                >
-                  {agentSummary && <AgentStateIcon state={agentSummary.state} tip={agentSummary.tip} />}
-                  <span className="min-w-0 truncate">{tab.name}</span>
+          const handlePointerDown = (event: PointerEvent<HTMLElement>) => beginTabDrag(event, tab.id, onMove)
+          return (
+            <Fragment key={tab.id}>
+              <span aria-hidden="true" className={dropLine(targeted)} />
+              <div
+                data-drop-workspace={workspace.id}
+                data-drop-tab={tab.id}
+                className={`flex min-w-[100px] items-center rounded-t-md border border-b-0 ${active ? 'border-dock-line bg-dock-panel text-dock-green-deep' : 'border-transparent text-dock-muted hover:bg-dock-green-hover'} ${draggingTabId === tab.id ? 'opacity-50' : ''}`}
+                onAuxClick={handleAuxClick}
+              >
+                {tab.id === renamingTabId ? (
+                  <InlineNameEditor value={tab.name} label="Nom de l’onglet" className="mx-1 my-1 min-w-0 flex-1 text-xs" onCommit={onCommitRename} onCancel={onCancelRename} />
+                ) : (
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={active}
+                    data-tip="Double-clic pour renommer, glisser pour déplacer"
+                    className="flex min-w-0 flex-1 cursor-pointer items-center gap-1.5 px-3 py-2 text-left text-xs"
+                    onClick={handleSelect}
+                    onDoubleClick={handleStartRename}
+                    onPointerDown={handlePointerDown}
+                  >
+                    {agentSummary && <AgentStateIcon state={agentSummary.state} tip={agentSummary.tip} />}
+                    <span className="min-w-0 truncate">{tab.name}</span>
+                  </button>
+                )}
+                <button type="button" className="shrink-0 cursor-pointer px-2 text-xs hover:text-dock-error" data-tip="Fermer l’onglet" onClick={handleClose}>
+                  ×
                 </button>
-              )}
-              <button type="button" className="shrink-0 cursor-pointer px-2 text-xs hover:text-dock-error" data-tip="Fermer l’onglet" onClick={handleClose}>
-                ×
-              </button>
-            </div>
-          </Fragment>
-        )
-      })}
-      <span aria-hidden="true" className={dropLine(isDropTarget(tabDropTarget, workspace.id))} />
-      <div className="relative">
+              </div>
+            </Fragment>
+          )
+        })}
+        <span aria-hidden="true" className={dropLine(isDropTarget(tabDropTarget, workspace.id))} />
+      </div>
+      <div className="relative shrink-0">
         <button
           ref={addButtonRef}
           type="button"
