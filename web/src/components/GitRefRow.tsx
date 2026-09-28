@@ -1,6 +1,7 @@
 import type { KeyboardEvent, MouseEvent, PointerEvent, ReactNode } from 'react'
 import { refIndent } from '../git/gitBranchTree'
 import { beginRefDrag, sameRef } from '../git/gitDrag'
+import { selectModeOf, type GitSelectMode } from '../git/gitRows'
 import { useGitStore, type GitRefHandle } from '../store/gitStore'
 import { Icon } from './Icon'
 import { IconName } from './iconName'
@@ -16,22 +17,23 @@ interface GitRefRowProps {
   metaTip?: string
   tip?: string
   current?: boolean
+  selected: boolean
   depth?: number
   focusable: boolean
   handle?: GitRefHandle
   refName?: string
   onFocus: (key: string) => void
   onActivate: () => void
-  onSelect?: () => void
+  onSelect: (mode: GitSelectMode) => void
   onMenu: (x: number, y: number) => void
 }
 
-export function GitRefRow({ rowKey, icon, name, meta, metaTip, tip, current = false, depth = 0, focusable, handle, refName, onFocus, onActivate, onSelect, onMenu }: GitRefRowProps) {
+export function GitRefRow({ rowKey, icon, name, meta, metaTip, tip, current = false, selected, depth = 0, focusable, handle, refName, onFocus, onActivate, onSelect, onMenu }: GitRefRowProps) {
   const dropTarget = useGitStore((store) => handle !== undefined && sameRef(store.drag?.target, handle))
-  const pending = useGitStore((store) => refName !== undefined && store.busy !== null && store.busyRef === refName)
-  const handleClick = () => {
+  const pending = useGitStore((store) => refName !== undefined && store.busy !== null && store.busyRefs.includes(refName))
+  const handleClick = (event: MouseEvent) => {
     onFocus(rowKey)
-    onSelect?.()
+    onSelect(selectModeOf(event))
   }
   const handleContextMenu = (event: MouseEvent) => {
     event.preventDefault()
@@ -65,14 +67,14 @@ export function GitRefRow({ rowKey, icon, name, meta, metaTip, tip, current = fa
   return (
     <div
       role="option"
-      aria-selected={current}
+      aria-selected={selected}
       data-git-row={rowKey}
       data-git-drop-kind={handle?.kind}
       data-git-drop-name={handle?.name}
       tabIndex={focusable ? 0 : -1}
       data-tip={tip}
       style={{ paddingLeft: refIndent(depth) }}
-      className={`group flex h-[24px] cursor-pointer items-center gap-[6px] pr-[4px] text-[12px] select-none hover:bg-dock-green-hover ${current ? 'text-dock-green-deep' : 'text-dock-ink-soft hover:text-dock-ink'} ${dropTarget ? 'outline-2 -outline-offset-2 outline-dock-focus' : ''} ${pending ? 'opacity-60' : ''}`}
+      className={`group flex h-[24px] cursor-pointer items-center gap-[6px] pr-[4px] text-[12px] select-none ${selected ? 'bg-dock-green-soft' : 'hover:bg-dock-green-hover'} ${current || selected ? 'text-dock-green-deep' : 'text-dock-ink-soft hover:text-dock-ink'} ${dropTarget ? 'outline-2 -outline-offset-2 outline-dock-focus' : ''} ${pending ? 'opacity-60' : ''}`}
       onClick={handleClick}
       onDoubleClick={onActivate}
       onContextMenu={handleContextMenu}

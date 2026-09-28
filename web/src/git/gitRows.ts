@@ -39,7 +39,7 @@ export const rowPath = ({ change, conflict }: GitChangeRow): string => change?.p
 export const selectModeOf = ({ ctrlKey, metaKey, shiftKey }: { ctrlKey: boolean; metaKey: boolean; shiftKey: boolean }): GitSelectMode =>
   shiftKey ? GitSelectMode.Range : ctrlKey || metaKey ? GitSelectMode.Toggle : GitSelectMode.Replace
 
-export const nextSelection = (rows: GitChangeRow[], selection: ReadonlySet<string>, anchor: string | null, key: string, mode: GitSelectMode): Set<string> => {
+export const nextSelection = (order: string[], selection: ReadonlySet<string>, anchor: string | null, key: string, mode: GitSelectMode): Set<string> => {
   if (mode === GitSelectMode.Toggle) {
     const toggled = new Set(selection)
     if (!toggled.delete(key)) {
@@ -47,12 +47,12 @@ export const nextSelection = (rows: GitChangeRow[], selection: ReadonlySet<strin
     }
     return toggled
   }
-  const start = rows.findIndex((row) => row.key === anchor)
-  const end = rows.findIndex((row) => row.key === key)
+  const start = anchor === null ? -1 : order.indexOf(anchor)
+  const end = order.indexOf(key)
   if (mode === GitSelectMode.Replace || start < 0 || end < 0) {
     return new Set([key])
   }
-  return new Set(rows.slice(Math.min(start, end), Math.max(start, end) + 1).map((row) => row.key))
+  return new Set(order.slice(Math.min(start, end), Math.max(start, end) + 1))
 }
 
 export const changeRows = (conflicts: GitConflict[], staged: GitFileChange[], unstaged: GitFileChange[]): GitChangeRow[] => [

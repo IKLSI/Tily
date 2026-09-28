@@ -29,7 +29,7 @@ const applySelection = (rows: GitChangeRow[], row: GitChangeRow, mode: GitSelect
   const { changeSelection, setChangeSelection } = useGitStore.getState()
   const { keys, anchor } = changeSelection
   const keepAnchor = mode === GitSelectMode.Range && rows.some((candidate) => candidate.key === anchor)
-  setChangeSelection({ keys: nextSelection(rows, keys, anchor, row.key, mode), anchor: keepAnchor ? anchor : row.key })
+  setChangeSelection({ keys: nextSelection(rows.map((candidate) => candidate.key), keys, anchor, row.key, mode), anchor: keepAnchor ? anchor : row.key })
 }
 
 const actedRows = (rows: GitChangeRow[], row: GitChangeRow): GitChangeRow[] => {

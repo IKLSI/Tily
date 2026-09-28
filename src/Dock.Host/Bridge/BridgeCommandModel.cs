@@ -31,6 +31,10 @@ public sealed class BridgeCommandModel
     public string[]? Keep { get; init; }
     public string[]? Paths { get; init; }
     public string[]? Files { get; init; }
+    public string[]? Branches { get; init; }
+    public string[]? RemoteBranches { get; init; }
+    public string[]? Tags { get; init; }
+    public string[]? Stashes { get; init; }
     public int Cols { get; init; }
     public int Rows { get; init; }
     public int Chars { get; init; }
