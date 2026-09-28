@@ -1,10 +1,11 @@
 import { useMemo, useState, type KeyboardEvent } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { GitDiffSource, type GitState } from '../bridge/gitMessages'
-import { focusGitRow } from '../git/gitFocus'
+import { changeMenu, changeMenuLabel, discardSelection, toggleSelection } from '../git/gitChangeMenu'
+import { focusGitPanel, focusGitRow } from '../git/gitFocus'
 import { plural } from '../git/gitLabels'
-import { discardChanges, openInEditor, resolveConflict, stageChanges, unstageChanges } from '../git/gitRequests'
-import { changeRows, drawerShowsWorkingFile, GitRowGroup, openChangeRow, rowKey, type GitChangeRow, type GitRowHandlers } from '../git/gitRows'
+import { discardChanges, openGitMenu, openInEditor, resolveConflict, stageChanges, unstageChanges } from '../git/gitRequests'
+import { changeRows, drawerShowsWorkingFile, GitRowGroup, GitSelectMode, nextSelection, openChangeRow, rowKey, type GitChangeRow, type GitRowHandlers } from '../git/gitRows'
 import { useGitStore } from '../store/gitStore'
 import { GitCommitBox } from './GitCommitBox'
 import { GitFileRow } from './GitFileRow'
@@ -18,29 +19,48 @@ interface GitChangesViewProps {
   busy: string | null
 }
 
-const KEYBOARD_TIP = 'Entrée : diff · Espace : stage ou unstage · Suppr : abandonner'
+const KEYBOARD_TIP = 'Entrée : diff · Espace : stage ou unstage · Suppr : abandonner · Ctrl ou Maj + clic : sélection multiple · clic droit : actions'
+const MENU_OFFSET_PX = 16
 
 const hiddenNote = (shown: number, total: number) =>
   total > shown ? <p className="py-[2px] pl-[30px] text-[11px] text-dock-muted italic">{`… et ${plural(total - shown, 'autre fichier non affiché', 'autres fichiers non affichés')}`}</p> : null
 
-const toggleRow = (row: GitChangeRow): void => {
-  if (row.conflict) {
-    resolveConflict(row.conflict)
-  } else if (row.change) {
-    if (row.group === GitRowGroup.Staged) {
-      unstageChanges([row.change])
-    } else {
-      stageChanges([row.change])
+const applySelection = (rows: GitChangeRow[], row: GitChangeRow, mode: GitSelectMode): void => {
+  const { changeSelection, setChangeSelection } = useGitStore.getState()
+  const { keys, anchor } = changeSelection
+  const keepAnchor = mode === GitSelectMode.Range && rows.some((candidate) => candidate.key === anchor)
+  setChangeSelection({ keys: nextSelection(rows, keys, anchor, row.key, mode), anchor: keepAnchor ? anchor : row.key })
+}
+
+const actedRows = (rows: GitChangeRow[], row: GitChangeRow): GitChangeRow[] => {
+  const { keys } = useGitStore.getState().changeSelection
+  return keys.has(row.key) ? rows.filter((candidate) => keys.has(candidate.key)) : [row]
+}
+
+const openSelectionMenu = (rows: GitChangeRow[], row: GitChangeRow, x: number, y: number): void => {
+  const { state, changeSelection, setChangeSelection } = useGitStore.getState()
+  if (!state) {
+    return
+  }
+  if (!changeSelection.keys.has(row.key)) {
+    setChangeSelection({ keys: new Set([row.key]), anchor: row.key })
+  }
+  const selected = actedRows(rows, row)
+  const restoreFocus = () => {
+    if (!focusGitRow(row.key)) {
+      focusGitPanel()
     }
   }
+  openGitMenu({ x, y, label: changeMenuLabel(selected), items: changeMenu(selected, state), restoreFocus })
 }
 
 export function GitChangesView({ state, busy }: GitChangesViewProps) {
-  const { file, commit } = useGitStore(useShallow((store) => ({ file: store.file, commit: store.commit })))
+  const { file, commit, selection } = useGitStore(useShallow((store) => ({ file: store.file, commit: store.commit, selection: store.changeSelection.keys })))
   const [focusKey, setFocusKey] = useState<string | null>(null)
   const rows = useMemo(() => changeRows(state.conflicts, state.staged, state.unstaged), [state.conflicts, state.staged, state.unstaged])
   const selectedKey = file && !commit ? rowKey(file.source === GitDiffSource.Staged ? GitRowGroup.Staged : GitRowGroup.Unstaged, file.path) : null
   const focusableKey = rows.find((row) => row.key === focusKey)?.key ?? rows.find((row) => row.key === selectedKey)?.key ?? rows[0]?.key
+  const highlighted = useMemo(() => (rows.some((row) => selection.has(row.key)) ? selection : new Set(selectedKey ? [selectedKey] : [])), [rows, selection, selectedKey])
   const handlers: GitRowHandlers = useMemo(
     () => ({
       open: openChangeRow,
@@ -49,41 +69,59 @@ export function GitChangesView({ state, busy }: GitChangesViewProps) {
       discard: (change) => discardChanges([change], 1),
       edit: openInEditor,
       resolve: resolveConflict,
-      focus: setFocusKey,
+      select: (row, mode) => {
+        setFocusKey(row.key)
+        applySelection(rows, row, mode)
+        if (mode === GitSelectMode.Replace && !row.conflict) {
+          openChangeRow(row)
+        }
+      },
+      menu: (row, x, y) => {
+        setFocusKey(row.key)
+        openSelectionMenu(rows, row, x, y)
+      },
     }),
-    [],
+    [rows],
   )
   const empty = rows.length === 0
 
-  const moveTo = (row: GitChangeRow | undefined) => {
+  const moveTo = (row: GitChangeRow | undefined, extend: boolean) => {
     if (!row) {
       return
     }
     setFocusKey(row.key)
     focusGitRow(row.key)
-    if (drawerShowsWorkingFile() && !row.conflict) {
+    applySelection(rows, row, extend ? GitSelectMode.Range : GitSelectMode.Replace)
+    if (!extend && drawerShowsWorkingFile() && !row.conflict) {
       openChangeRow(row)
     }
   }
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    const index = rows.findIndex((row) => row.key === (event.target as HTMLElement).dataset.gitRow)
+    const target = event.target as HTMLElement
+    const index = rows.findIndex((row) => row.key === target.dataset.gitRow)
     const current = rows[index]
-    if (event.key === 'ArrowDown') {
-      moveTo(rows[index < 0 ? 0 : Math.min(index + 1, rows.length - 1)])
+    const extend = event.shiftKey
+    if (event.ctrlKey && event.key.toLowerCase() === 'a') {
+      useGitStore.getState().setChangeSelection({ keys: new Set(rows.map((row) => row.key)), anchor: current?.key ?? rows[0]?.key ?? null })
+    } else if (event.key === 'ArrowDown') {
+      moveTo(rows[index < 0 ? 0 : Math.min(index + 1, rows.length - 1)], extend)
     } else if (event.key === 'ArrowUp') {
-      moveTo(rows[Math.max(index - 1, 0)])
+      moveTo(rows[Math.max(index - 1, 0)], extend)
     } else if (event.key === 'Home') {
-      moveTo(rows[0])
+      moveTo(rows[0], extend)
     } else if (event.key === 'End') {
-      moveTo(rows.at(-1))
+      moveTo(rows.at(-1), extend)
     } else if (!current) {
       return
     } else if (event.key === 'Enter') {
       openChangeRow(current)
     } else if (event.key === ' ') {
-      toggleRow(current)
-    } else if (event.key === 'Delete' && current.group === GitRowGroup.Unstaged && current.change) {
-      discardChanges([current.change], 1)
+      toggleSelection(actedRows(rows, current))
+    } else if (event.key === 'Delete') {
+      discardSelection(actedRows(rows, current))
+    } else if (event.key === 'ContextMenu' || (extend && event.key === 'F10')) {
+      const { left, bottom } = target.getBoundingClientRect()
+      handlers.menu(current, left + MENU_OFFSET_PX, bottom)
     } else {
       return
     }
@@ -96,11 +134,11 @@ export function GitChangesView({ state, busy }: GitChangesViewProps) {
   const renderRows = (group: GitRowGroup) =>
     rows
       .filter((row) => row.group === group)
-      .map((row) => <GitFileRow key={row.key} row={row} selected={row.key === selectedKey} focusable={row.key === focusableKey} handlers={handlers} />)
+      .map((row) => <GitFileRow key={row.key} row={row} selected={highlighted.has(row.key)} focusable={row.key === focusableKey} handlers={handlers} />)
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div role="listbox" aria-label="Modifications du dépôt" className="min-h-0 flex-1 overflow-auto py-[4px]" onKeyDown={handleKeyDown}>
+      <div role="listbox" aria-label="Modifications du dépôt" aria-multiselectable="true" className="min-h-0 flex-1 overflow-auto py-[4px]" onKeyDown={handleKeyDown}>
         {empty && <p className="px-[12px] py-[6px] text-[12px] text-dock-muted italic">Aucune modification : l’arbre de travail est propre.</p>}
         {state.conflicts.length > 0 && (
           <>

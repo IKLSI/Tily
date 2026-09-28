@@ -51,7 +51,7 @@ export const GitGraphRow = memo(function GitGraphRow({ commit, index, selected, 
     >
       <GitRefLabels refs={commit.refs} color={commit.graph.color} width={layout.labelsWidth} remotes={remotes} handlers={handlers} />
       <GitGraphCell graph={commit.graph} width={layout.graphWidth} node={nodeKind(commit)} initials={initials(commit.author)} labelled={commit.refs.length > 0} />
-      <div className="flex min-w-0 flex-1 items-center gap-[8px] self-stretch pr-[8px]">
+      <div className="flex min-w-0 flex-1 items-center gap-[8px] self-stretch overflow-hidden pr-[8px]">
         <span className={`w-[3px] shrink-0 self-stretch opacity-60 ${laneBar(commit.graph.color)}`} />
         {commit.stash && <Icon name={IconName.Stash} className="shrink-0 text-dock-muted" />}
         <span className={`min-w-0 truncate ${subjectTone(commit, head)}`} data-tip={`${shortSha(commit.sha)} · ${commit.subject}`}>

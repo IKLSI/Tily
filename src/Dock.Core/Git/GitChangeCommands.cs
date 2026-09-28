@@ -120,6 +120,27 @@ public static class GitChangeCommands
         return new GitOutcomeModel(amend ? $"Amend terminé : {GitRepository.Short(after)} « {subject} »." : $"Commit {GitRepository.Short(after)} créé : « {subject} ».", Undo: record);
     }
 
+    public static GitOutcomeModel Ignore(GitRepository repository, IReadOnlyList<string> files)
+    {
+        if (files.Count == 0)
+        {
+            throw new GitCommandException("Aucun fichier à ignorer.", string.Empty);
+        }
+
+        var ignoreFile = repository.FullPath(".gitignore");
+        var content = File.Exists(ignoreFile) ? File.ReadAllText(ignoreFile) : string.Empty;
+        var newline = content.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
+        var existing = content.Split('\n').Select(line => line.TrimEnd('\r')).ToHashSet(StringComparer.Ordinal);
+        var patterns = files.Select(file => IgnorePattern(GitNames.RequireRelativePath(file))).Distinct().Where(pattern => !existing.Contains(pattern)).ToList();
+        if (patterns.Count > 0)
+        {
+            var separator = content.Length == 0 || content.EndsWith('\n') ? string.Empty : newline;
+            File.AppendAllText(ignoreFile, separator + string.Concat(patterns.Select(pattern => pattern + newline)));
+        }
+
+        return new GitOutcomeModel(files.Count == 1 ? $"« {files[0]} » ajouté au .gitignore." : $"{files.Count} fichiers ajoutés au .gitignore.");
+    }
+
     public static GitOutcomeModel Resolve(GitRepository repository, IReadOnlyList<string> files, bool confirmed)
     {
         if (files.Count == 0)
@@ -179,6 +200,9 @@ public static class GitChangeCommands
         GitRepository.Require(repository.Run(GitOperationNames.Command(operation), "--abort"), $"{GitOperationNames.Label(operation)} : impossible d’annuler.");
         return new GitOutcomeModel(GitOperationNames.Aborted(operation), ClearUndo: true);
     }
+
+    private static string IgnorePattern(string file) =>
+        "/" + string.Concat(file.Select(character => character is '*' or '?' or '[' or '\\' ? $"\\{character}" : character.ToString()));
 
     private static bool HasConflictMarkers(string path)
     {

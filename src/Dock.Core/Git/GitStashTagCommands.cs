@@ -23,7 +23,7 @@ public static class GitStashTagCommands
         return new GitOutcomeModel($"Tag « {tag} » supprimé.", Undo: new GitUndoRecordModel { Kind = GitUndoKind.TagDelete, Label = $"Suppression du tag « {tag} »", RefName = tag, RefTarget = target });
     }
 
-    public static GitOutcomeModel Stash(GitRepository repository, string? message)
+    public static GitOutcomeModel Stash(GitRepository repository, string? message, IReadOnlyList<string> files)
     {
         repository.RequireNoOperation();
         var status = repository.Status();
@@ -39,9 +39,18 @@ public static class GitStashTagCommands
             arguments.AddRange(["-m", text]);
         }
 
-        GitRepository.Require(repository.Run([.. arguments]), "Le stash a échoué.");
+        if (files.Count == 0)
+        {
+            GitRepository.Require(repository.Run([.. arguments]), "Le stash a échoué.");
+        }
+        else
+        {
+            StashFiles(repository, files, arguments);
+        }
+
         var sha = repository.RefValue("refs/stash");
-        var record = sha is null ? null : new GitUndoRecordModel { Kind = GitUndoKind.StashPush, Label = "Stash des modifications", Backup = sha };
+        var label = files.Count == 0 ? "Stash des modifications" : $"Stash de {files.Count} fichier{(files.Count > 1 ? "s" : string.Empty)}";
+        var record = sha is null ? null : new GitUndoRecordModel { Kind = GitUndoKind.StashPush, Label = label, Backup = sha };
         return new GitOutcomeModel(text.Length > 0 ? $"Stash créé : « {text} »." : "Stash créé.", Undo: record, ClearUndo: record is null);
     }
 
@@ -69,6 +78,32 @@ public static class GitStashTagCommands
         GitRepository.Require(repository.Run("stash", "drop", "-q", $"stash@{{{index}}}"), "La suppression du stash a échoué.");
         var record = new GitUndoRecordModel { Kind = GitUndoKind.StashDrop, Label = $"Suppression du stash « {stash.Message} »", Backup = stash.Sha, StashMessage = stash.Message };
         return new GitOutcomeModel($"Stash supprimé : « {stash.Message} ».", Undo: record);
+    }
+
+    private static void StashFiles(GitRepository repository, IReadOnlyList<string> files, List<string> arguments)
+    {
+        var selected = files.ToHashSet(StringComparer.Ordinal);
+        var others = repository.Status(int.MaxValue).Staged
+            .SelectMany(change => change.OldPath is null ? [change.Path] : new[] { change.Path, change.OldPath })
+            .Where(path => !selected.Contains(path))
+            .Distinct(StringComparer.Ordinal)
+            .ToList();
+        if (others.Count == 0)
+        {
+            GitPaths.Run(repository, "Le stash a échoué.", files, [.. arguments]);
+            return;
+        }
+
+        var index = repository.Read("write-tree").Trim();
+        GitPaths.Run(repository, "Le stash a échoué.", others, "restore", "--staged");
+        try
+        {
+            GitPaths.Run(repository, "Le stash a échoué.", files, [.. arguments]);
+        }
+        finally
+        {
+            GitPaths.Run(repository, "Le stash a été créé mais l’index des autres fichiers n’a pas pu être restauré.", others, "restore", "--staged", $"--source={index}");
+        }
     }
 
     private static GitStashModel RequireStash(GitRepository repository, int index, string? sha)

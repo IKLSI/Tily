@@ -242,7 +242,7 @@ export type GitWebMessage =
   | { type: 'git.history'; scope: GitHistoryScope; count: number }
   | { type: 'git.diff'; path: string; request: number; source: GitDiffSource; file: string; oldFile?: string; commit?: string; untracked: boolean }
   | { type: 'git.details'; path: string; request: number; commit: string }
-  | { type: 'git.stage' | 'git.unstage'; path: string; files: string[] }
+  | { type: 'git.stage' | 'git.unstage' | 'git.ignore'; path: string; files: string[] }
   | { type: 'git.discard'; path: string; files: string[]; confirmed: boolean }
   | { type: 'git.commit'; path: string; message: string; amend: boolean; push: boolean }
   | { type: 'git.push'; path: string; force: boolean; confirmed: boolean }
@@ -257,7 +257,7 @@ export type GitWebMessage =
   | { type: 'git.remoteBranchDelete'; path: string; reference: string; confirmed: boolean }
   | { type: 'git.tagCreate'; path: string; name: string; commit: string }
   | { type: 'git.tagDelete' | 'git.tagPush'; path: string; name: string }
-  | { type: 'git.stash'; path: string; message: string }
+  | { type: 'git.stash'; path: string; message: string; files: string[] }
   | { type: 'git.stashApply'; path: string; index: number; commit: string; pop: boolean }
   | { type: 'git.stashDrop'; path: string; index: number; commit: string; confirmed: boolean }
   | { type: 'git.resolve'; path: string; files: string[]; confirmed: boolean }

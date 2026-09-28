@@ -25,6 +25,7 @@ import { CommandPalette } from './CommandPalette'
 import { DeleteConfirmDialog } from './DeleteConfirmDialog'
 import { EmptyState } from './EmptyState'
 import { GitConfirmDialog } from './GitConfirmDialog'
+import { GitContextMenu } from './GitContextMenu'
 import { GitDiffDrawer } from './GitDiffDrawer'
 import { GitGraphView } from './GitGraphView'
 import { Header } from './Header'
@@ -300,6 +301,7 @@ export function AppShell({ session }: AppShellProps) {
           <SplitView key={currentTab.id} node={currentTab.tree} activePaneId={currentTab.active} onFocus={selectPane} onClose={closePaneKeepingText} onSplit={handleSplit} onResize={handleResize} shells={availableShells} onRestart={restartPane} onRestartIn={restartPaneIn} onChangeShell={changePaneShell} onDismissState={dismissPaneState} />
           {gitShown && gitGraphReady && <GitGraphView layout={session.gitGraph} />}
           {gitShown && <GitDiffDrawer />}
+          {gitShown && <GitContextMenu />}
         </div>
       </>
     )

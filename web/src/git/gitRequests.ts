@@ -149,7 +149,7 @@ export const showCommitFile = (commit: string, change: GitFileChange): void =>
 
 export const closeDrawer = (): void => useGitStore.getState().closeDrawer()
 
-const withOldPaths = (changes: GitFileChange[]): string[] => changes.flatMap((change) => (change.oldPath ? [change.path, change.oldPath] : [change.path]))
+export const withOldPaths = (changes: GitFileChange[]): string[] => changes.flatMap((change) => (change.oldPath ? [change.path, change.oldPath] : [change.path]))
 
 export const stageChanges = (changes: GitFileChange[]): void => withRoot((path) => ({ type: 'git.stage', path, files: changes.map((change) => change.path) }), false)
 
@@ -166,7 +166,7 @@ export const discardChanges = (changes: GitFileChange[], total: number): void =>
       : 'Les fichiers suivis reviennent à leur version staged, sinon à celle du dernier commit, et les fichiers non suivis sont supprimés.',
     detail: `${single ? `${single.path}\n` : ''}« Annuler » dans la vue Git peut encore les restaurer tant qu’aucune autre opération n’est faite.`,
     confirmLabel: 'Abandonner',
-    run: () => withRoot((path) => ({ type: 'git.discard', path, files: single ? [single.path] : [], confirmed: true }), false),
+    run: () => withRoot((path) => ({ type: 'git.discard', path, files: changes.map((change) => change.path), confirmed: true }), false),
   })
 }
 
@@ -203,18 +203,24 @@ export const openInEditor = (file: string): void => {
   }
 }
 
-export const resolveConflict = (conflict: GitConflict): void => {
+export const resolveConflicts = (conflicts: GitConflict[]): void => {
+  const files = conflicts.map((conflict) => conflict.path)
+  const single = files.length === 1 ? files[0] : null
   retryOnFailure('git.resolve', () =>
     askConfirmation({
-      title: `Marquer « ${fileName(conflict.path)} » résolu malgré les marqueurs ?`,
-      body: 'Le fichier contient encore des lignes de marqueurs de conflit (<<<<<<< ou >>>>>>>).',
-      detail: conflict.path,
+      title: single ? `Marquer « ${fileName(single)} » résolu malgré les marqueurs ?` : `Marquer ${plural(files.length, 'fichier', 'fichiers')} résolus malgré les marqueurs ?`,
+      body: single ? 'Le fichier contient encore des lignes de marqueurs de conflit (<<<<<<< ou >>>>>>>).' : 'Au moins un fichier contient encore des lignes de marqueurs de conflit (<<<<<<< ou >>>>>>>).',
+      detail: files.join('\n'),
       confirmLabel: 'Marquer résolu',
-      run: () => withRoot((path) => ({ type: 'git.resolve', path, files: [conflict.path], confirmed: true }), false),
+      run: () => withRoot((path) => ({ type: 'git.resolve', path, files, confirmed: true }), false),
     }),
   )
-  withRoot((path) => ({ type: 'git.resolve', path, files: [conflict.path], confirmed: false }), false)
+  withRoot((path) => ({ type: 'git.resolve', path, files, confirmed: false }), false)
 }
+
+export const resolveConflict = (conflict: GitConflict): void => resolveConflicts([conflict])
+
+export const ignoreFiles = (files: string[]): void => withRoot((path) => ({ type: 'git.ignore', path, files }), false)
 
 export const continueOperation = (): void => withRoot((path) => ({ type: 'git.continue', path }))
 

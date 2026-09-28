@@ -1,7 +1,7 @@
 import { memo, type MouseEvent } from 'react'
 import { GitChangeKind } from '../bridge/gitMessages'
 import { CHANGE_CLASSES, CHANGE_LABELS, CHANGE_LETTERS, CONFLICT_LABELS, fileFolder, fileName } from '../git/gitLabels'
-import { GitRowGroup, type GitChangeRow, type GitRowHandlers } from '../git/gitRows'
+import { GitRowGroup, selectModeOf, type GitChangeRow, type GitRowHandlers } from '../git/gitRows'
 import { Icon } from './Icon'
 import { IconName } from './iconName'
 import { ROW_ACTION } from './rightPanelStyles'
@@ -27,11 +27,10 @@ export const GitFileRow = memo(function GitFileRow({ row, selected, focusable, h
   const letterClass = conflict ? 'text-dock-error' : CHANGE_CLASSES[change?.kind ?? GitChangeKind.Modified]
   const canEdit = !change || change.kind !== GitChangeKind.Deleted
 
-  const handleClick = () => {
-    handlers.focus(row.key)
-    if (!conflict) {
-      handlers.open(row)
-    }
+  const handleClick = (event: MouseEvent) => handlers.select(row, selectModeOf(event))
+  const handleContextMenu = (event: MouseEvent) => {
+    event.preventDefault()
+    handlers.menu(row, event.clientX, event.clientY)
   }
   const handleDoubleClick = () => {
     if (conflict) {
@@ -57,6 +56,7 @@ export const GitFileRow = memo(function GitFileRow({ row, selected, focusable, h
       className={`group flex h-[24px] cursor-pointer items-center gap-[6px] pr-[4px] pl-[12px] text-[12px] select-none ${selected ? 'bg-dock-green-soft text-dock-green-deep' : 'text-dock-ink-soft hover:bg-dock-green-hover hover:text-dock-ink'}`}
       onClick={handleClick}
       onDoubleClick={handleDoubleClick}
+      onContextMenu={handleContextMenu}
     >
       <span className="flex min-w-0 flex-1 items-baseline gap-[6px]">
         <span className={`w-[12px] shrink-0 text-center font-mono text-[11px] font-semibold ${letterClass}`} data-tip={statusTip(row)}>

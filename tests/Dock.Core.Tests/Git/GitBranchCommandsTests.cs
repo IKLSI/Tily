@@ -82,7 +82,7 @@ public sealed class GitBranchCommandsTests : IDisposable
     {
         _sandbox.Write("a.txt", "modifié\n");
         _sandbox.Write("neuf.txt", "n\n");
-        var outcome = GitStashTagCommands.Stash(_sandbox.Repository, "Travail en cours");
+        var outcome = GitStashTagCommands.Stash(_sandbox.Repository, "Travail en cours", []);
         var stashed = GitRefsReader.ReadStashes(_sandbox.Repository);
 
         GitUndo.Apply(_sandbox.Repository, outcome.Undo);
@@ -97,7 +97,7 @@ public sealed class GitBranchCommandsTests : IDisposable
     public void UndoDropStash_WhenDropped_ThenStoresItAgain()
     {
         _sandbox.Write("a.txt", "modifié\n");
-        GitStashTagCommands.Stash(_sandbox.Repository, "À garder");
+        GitStashTagCommands.Stash(_sandbox.Repository, "À garder", []);
         var stash = Assert.Single(GitRefsReader.ReadStashes(_sandbox.Repository));
 
         var outcome = GitStashTagCommands.DropStash(_sandbox.Repository, 0, stash.Sha, true);
@@ -107,10 +107,28 @@ public sealed class GitBranchCommandsTests : IDisposable
     }
 
     [Fact]
+    public void Stash_WhenFilesGiven_ThenStashesOnlyThoseFiles()
+    {
+        _sandbox.Write("a.txt", "modifié\n");
+        _sandbox.Write("neuf [1].txt", "n\n");
+        _sandbox.Write("autre.txt", "garder\n");
+        _sandbox.Write("indexé.txt", "i\n");
+        _sandbox.Git("add", "indexé.txt");
+
+        var outcome = GitStashTagCommands.Stash(_sandbox.Repository, null, ["a.txt", "neuf [1].txt"]);
+        var stashed = _sandbox.Git("-c", "core.quotepath=false", "stash", "show", "--name-only", "--include-untracked", "stash@{0}");
+        var status = _sandbox.Repository.Status();
+
+        Assert.Equal("Stash de 2 fichiers", outcome.Undo?.Label);
+        Assert.Equal(["a.txt", "neuf [1].txt"], stashed.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Order(StringComparer.Ordinal));
+        Assert.Equal("indexé.txt | autre.txt", $"{string.Join(',', status.Staged.Select(change => change.Path))} | {string.Join(',', status.Unstaged.Select(change => change.Path))}");
+    }
+
+    [Fact]
     public void ApplyStash_WhenListChanged_ThenRefuses()
     {
         _sandbox.Write("a.txt", "modifié\n");
-        GitStashTagCommands.Stash(_sandbox.Repository, null);
+        GitStashTagCommands.Stash(_sandbox.Repository, null, []);
 
         var exception = Assert.Throws<GitCommandException>(() => GitStashTagCommands.ApplyStash(_sandbox.Repository, 0, "0000000000000000000000000000000000000000", false));
 

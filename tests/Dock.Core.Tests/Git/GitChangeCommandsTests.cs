@@ -143,5 +143,19 @@ public sealed class GitChangeCommandsTests : IDisposable
         Assert.Equal("c\n", _sandbox.Read("a.txt"));
     }
 
+    [Fact]
+    public void Ignore_WhenUntrackedFiles_ThenAppendsEscapedPatternsOnce()
+    {
+        _sandbox.Commit("Base", (".gitignore", "bin/"));
+        _sandbox.Write("logs/app[1].log", "l\n");
+        _sandbox.Write("garder.txt", "g\n");
+
+        GitChangeCommands.Ignore(_sandbox.Repository, ["logs/app[1].log"]);
+        GitChangeCommands.Ignore(_sandbox.Repository, ["logs/app[1].log"]);
+
+        Assert.Equal("bin/\n/logs/app\\[1].log\n", _sandbox.Read(".gitignore"));
+        Assert.Equal([".gitignore", "garder.txt"], _sandbox.Repository.Status().Unstaged.Select(change => change.Path));
+    }
+
     public void Dispose() => _sandbox.Dispose();
 }
