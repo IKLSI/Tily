@@ -250,7 +250,7 @@ export const runCommand = (command: Command): void => {
   }
 }
 
-export const isReservedShortcut = (event: KeyboardEvent): boolean =>
+const isReservedShortcut = (event: KeyboardEvent): boolean =>
   isLeaderChord(event) || isCloseWindow(event) || isCopy(event) || isPaste(event) || directCommand(event) !== undefined
 
 export interface ShortcutActions {

@@ -76,7 +76,7 @@ export const markTextSaveFailed = (): void => {
   resendClosedText = true
 }
 
-export const saveTextNow = (): void => {
+const saveTextNow = (): void => {
   terminalRegistry.dirtyPaneIds().forEach(collectSnapshot)
   sendTextSave()
 }

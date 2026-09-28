@@ -9,7 +9,7 @@ const byCount = (count: number, one: string, several: string): string => (count 
 
 const unique = (paths: string[]): string[] => [...new Set(paths)]
 
-export const selectedChanges = (rows: GitChangeRow[]) => ({
+const selectedChanges = (rows: GitChangeRow[]) => ({
   conflicts: rows.flatMap((row) => (row.conflict ? [row.conflict] : [])),
   staged: rows.flatMap((row) => (row.group === GitRowGroup.Staged && row.change ? [row.change] : [])),
   unstaged: rows.flatMap((row) => (row.group === GitRowGroup.Unstaged && row.change ? [row.change] : [])),

@@ -12,7 +12,7 @@ import { OpenTarget } from '../bridge/messages'
 import { copyPaneBranch, copyPanePath, openPaneFolder } from '../terminal/contextActions'
 import type { SearchItem } from './searchFilter'
 
-export enum PaletteKind {
+enum PaletteKind {
   Command = 'command',
   Attention = 'attention',
   Workspace = 'workspace',

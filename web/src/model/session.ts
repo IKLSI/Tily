@@ -13,7 +13,7 @@ export interface SplitLeaf {
   pane: Pane
 }
 
-export interface SplitBranch {
+interface SplitBranch {
   axis: SplitAxis
   ratio: number
   a: SplitNode
@@ -82,10 +82,8 @@ export interface Session {
   favorites: string[]
 }
 
-export const SESSION_VERSION = 2
 export const SIDEBAR_MIN = 220
 export const SIDEBAR_MAX = 450
-export const SIDEBAR_DEFAULT = 292
 export const EXPLORER_MIN = 200
 export const EXPLORER_MAX = 600
 export const EXPLORER_DEFAULT = 280
@@ -107,9 +105,9 @@ export const DEFAULT_SHELL = 'powershell'
 export const CLOSED_TABS_MAX = 5
 export const SPLIT_RATIO_MIN = 0.15
 export const SPLIT_RATIO_MAX = 0.85
-export const SPLIT_RATIO_DEFAULT = 0.5
+const SPLIT_RATIO_DEFAULT = 0.5
 
-export const clampRatio = (ratio: number): number => Math.min(SPLIT_RATIO_MAX, Math.max(SPLIT_RATIO_MIN, ratio))
+const clampRatio = (ratio: number): number => Math.min(SPLIT_RATIO_MAX, Math.max(SPLIT_RATIO_MIN, ratio))
 
 const clampWidth = (width: number, min: number, max: number): number => Math.min(max, Math.max(min, Math.round(width)))
 
@@ -124,7 +122,7 @@ export const clampGitGraph = (layout: GitGraphLayout): GitGraphLayout => ({
 
 export const isLeaf = (node: SplitNode): node is SplitLeaf => 'pane' in node
 
-export const newId = (): string => crypto.randomUUID().replace(/-/g, '')
+const newId = (): string => crypto.randomUUID().replace(/-/g, '')
 
 export const folderName = (path: string): string => {
   const trimmed = path.replace(/[\\/]+$/, '')
@@ -146,7 +144,7 @@ export const createWorkspace = (name: string, path: string, shell: string): Work
 
 export const panesOf = (node: SplitNode): Pane[] => (isLeaf(node) ? [node.pane] : [...panesOf(node.a), ...panesOf(node.b)])
 
-export const replaceNode = (node: SplitNode, paneId: string, replacement: (leaf: SplitLeaf) => SplitNode): SplitNode => {
+const replaceNode = (node: SplitNode, paneId: string, replacement: (leaf: SplitLeaf) => SplitNode): SplitNode => {
   if (isLeaf(node)) {
     return node.pane.id === paneId ? replacement(node) : node
   }

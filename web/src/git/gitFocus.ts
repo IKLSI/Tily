@@ -5,7 +5,7 @@ const BUTTON_SELECTOR = 'button:not([aria-disabled="true"])'
 
 let graphFocusPending = false
 
-export const gitPanel = (): HTMLElement | null => document.querySelector<HTMLElement>(PANEL_SELECTOR)
+const gitPanel = (): HTMLElement | null => document.querySelector<HTMLElement>(PANEL_SELECTOR)
 
 export const isInGitPanel = (element: Element | null): boolean => Boolean(element?.closest(PANEL_SELECTOR))
 

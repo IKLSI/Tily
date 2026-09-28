@@ -127,7 +127,7 @@ export interface GitStash {
   date: number
 }
 
-export interface GitUndoInfo {
+interface GitUndoInfo {
   label: string
   available: boolean
   reason?: string
@@ -212,7 +212,7 @@ export interface GitDiffLine {
   text: string
 }
 
-export interface GitDiffHunk {
+interface GitDiffHunk {
   header: string
   lines: GitDiffLine[]
 }

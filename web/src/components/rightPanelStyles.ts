@@ -6,7 +6,7 @@ export const ROW_ACTION =
 
 export const SECTION_TITLE = 'text-[11px] font-semibold tracking-[0.06em] text-dock-muted uppercase'
 
-export const GIT_BUTTON = 'cursor-pointer rounded border px-3 py-1 text-[12px] aria-disabled:cursor-default aria-disabled:opacity-50'
+const GIT_BUTTON = 'cursor-pointer rounded border px-3 py-1 text-[12px] aria-disabled:cursor-default aria-disabled:opacity-50'
 
 export const GIT_PRIMARY = `${GIT_BUTTON} border-dock-green text-dock-green-deep hover:bg-dock-green-soft aria-disabled:hover:bg-transparent`
 

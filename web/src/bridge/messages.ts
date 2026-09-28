@@ -72,7 +72,7 @@ export interface Settings {
   notifications: NotificationSettings
 }
 
-export interface ShellSetting {
+interface ShellSetting {
   id: string
   name: string
   defaultExecutable: string
@@ -85,14 +85,14 @@ export interface ImportedPreferences {
   path: string
 }
 
-export interface AgentHooksInfo {
+interface AgentHooksInfo {
   script: string
   stateDirectory: string
   settingsFile: string
   hooksInstalled: boolean
 }
 
-export interface NotificationAvailability {
+interface NotificationAvailability {
   toastAvailable: boolean
   toastError?: string
 }
