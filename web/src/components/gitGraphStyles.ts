@@ -23,6 +23,9 @@ const LANE_BARS = ['bg-dock-lane-0', 'bg-dock-lane-1', 'bg-dock-lane-2', 'bg-doc
 const LANE_TINTS = ['bg-dock-lane-0/25', 'bg-dock-lane-1/25', 'bg-dock-lane-2/25', 'bg-dock-lane-3/25', 'bg-dock-lane-4/25', 'bg-dock-lane-5/25', 'bg-dock-lane-6/25', 'bg-dock-lane-7/25']
 const LANE_STRONG_TINTS = ['bg-dock-lane-0/45', 'bg-dock-lane-1/45', 'bg-dock-lane-2/45', 'bg-dock-lane-3/45', 'bg-dock-lane-4/45', 'bg-dock-lane-5/45', 'bg-dock-lane-6/45', 'bg-dock-lane-7/45']
 
+const LANE_HOVER_TINTS = ['hover:bg-dock-lane-0/45', 'hover:bg-dock-lane-1/45', 'hover:bg-dock-lane-2/45', 'hover:bg-dock-lane-3/45', 'hover:bg-dock-lane-4/45', 'hover:bg-dock-lane-5/45', 'hover:bg-dock-lane-6/45', 'hover:bg-dock-lane-7/45']
+const LANE_STRONG_HOVER_TINTS = ['hover:bg-dock-lane-0/65', 'hover:bg-dock-lane-1/65', 'hover:bg-dock-lane-2/65', 'hover:bg-dock-lane-3/65', 'hover:bg-dock-lane-4/65', 'hover:bg-dock-lane-5/65', 'hover:bg-dock-lane-6/65', 'hover:bg-dock-lane-7/65']
+
 const pick = (classes: string[], color: number): string => classes[color % classes.length]
 
 export const laneStroke = (color: number): string => pick(LANE_STROKES, color)
@@ -32,6 +35,8 @@ export const laneFill = (color: number): string => pick(LANE_FILLS, color)
 export const laneBar = (color: number): string => pick(LANE_BARS, color)
 
 export const laneTint = (color: number, strong: boolean): string => pick(strong ? LANE_STRONG_TINTS : LANE_TINTS, color)
+
+export const laneHoverTint = (color: number, strong: boolean): string => pick(strong ? LANE_STRONG_HOVER_TINTS : LANE_HOVER_TINTS, color)
 
 export const graphRowId = (key: string): string => `git-graph-row-${key}`
 
