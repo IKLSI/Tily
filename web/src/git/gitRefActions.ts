@@ -1,6 +1,6 @@
 import { GitResetMode, GitSwitchTarget, type GitBranch, type GitCommit, type GitRemoteBranch, type GitStash, type GitTag } from '../bridge/gitMessages'
 import { GitPromptKind, useGitStore } from '../store/gitStore'
-import { currentName, shortSha } from './gitLabels'
+import { currentName, plural, shortSha } from './gitLabels'
 import { askConfirmation, retryOnFailure, withRoot } from './gitRequests'
 
 const currentBranchName = (): string => {
@@ -46,6 +46,9 @@ export const promptNewTag = (commit?: string, label?: string): void =>
 
 export const promptStash = (): void => useGitStore.getState().setPrompt({ kind: GitPromptKind.Stash, label: 'Message du stash (facultatif)', initial: '', checkout: false })
 
+export const promptStashFiles = (files: string[]): void =>
+  useGitStore.getState().setPrompt({ kind: GitPromptKind.Stash, label: `Message du stash de ${plural(files.length, 'fichier', 'fichiers')} (facultatif)`, initial: '', files, checkout: false })
+
 export const submitPrompt = (value: string, checkout: boolean): void => {
   const { prompt, setPrompt } = useGitStore.getState()
   const name = value.trim()
@@ -71,7 +74,7 @@ export const submitPrompt = (value: string, checkout: boolean): void => {
       }
       break
     case GitPromptKind.Stash:
-      withRoot((path) => ({ type: 'git.stash', path, message: name }))
+      withRoot((path) => ({ type: 'git.stash', path, message: name, files: prompt.files ?? [] }))
       break
   }
 }

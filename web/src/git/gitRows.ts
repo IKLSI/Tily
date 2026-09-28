@@ -8,6 +8,12 @@ export enum GitRowGroup {
   Unstaged = 'unstaged',
 }
 
+export enum GitSelectMode {
+  Replace = 'replace',
+  Toggle = 'toggle',
+  Range = 'range',
+}
+
 export interface GitChangeRow {
   key: string
   group: GitRowGroup
@@ -22,10 +28,32 @@ export interface GitRowHandlers {
   discard: (change: GitFileChange) => void
   edit: (path: string) => void
   resolve: (conflict: GitConflict) => void
-  focus: (key: string) => void
+  select: (row: GitChangeRow, mode: GitSelectMode) => void
+  menu: (row: GitChangeRow, x: number, y: number) => void
 }
 
 export const rowKey = (group: GitRowGroup, path: string): string => `${group}\n${path}`
+
+export const rowPath = ({ change, conflict }: GitChangeRow): string => change?.path ?? conflict?.path ?? ''
+
+export const selectModeOf = ({ ctrlKey, metaKey, shiftKey }: { ctrlKey: boolean; metaKey: boolean; shiftKey: boolean }): GitSelectMode =>
+  shiftKey ? GitSelectMode.Range : ctrlKey || metaKey ? GitSelectMode.Toggle : GitSelectMode.Replace
+
+export const nextSelection = (rows: GitChangeRow[], selection: ReadonlySet<string>, anchor: string | null, key: string, mode: GitSelectMode): Set<string> => {
+  if (mode === GitSelectMode.Toggle) {
+    const toggled = new Set(selection)
+    if (!toggled.delete(key)) {
+      toggled.add(key)
+    }
+    return toggled
+  }
+  const start = rows.findIndex((row) => row.key === anchor)
+  const end = rows.findIndex((row) => row.key === key)
+  if (mode === GitSelectMode.Replace || start < 0 || end < 0) {
+    return new Set([key])
+  }
+  return new Set(rows.slice(Math.min(start, end), Math.max(start, end) + 1).map((row) => row.key))
+}
 
 export const changeRows = (conflicts: GitConflict[], staged: GitFileChange[], unstaged: GitFileChange[]): GitChangeRow[] => [
   ...conflicts.map((conflict) => ({ key: rowKey(GitRowGroup.Conflict, conflict.path), group: GitRowGroup.Conflict, conflict })),

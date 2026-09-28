@@ -41,6 +41,7 @@ export interface GitPrompt {
   label: string
   initial: string
   target?: string
+  files?: string[]
   checkout: boolean
 }
 
@@ -62,6 +63,11 @@ export interface GitMenuRequest {
   label: string
   items: ActionMenuItem[]
   restoreFocus: () => void
+}
+
+export interface GitChangeSelection {
+  keys: ReadonlySet<string>
+  anchor: string | null
 }
 
 export const HISTORY_PAGE = 200
@@ -95,6 +101,7 @@ interface GitViewState {
   amend: boolean
   drag: GitDrag | null
   menu: GitMenuRequest | null
+  changeSelection: GitChangeSelection
   follow: (path: string) => void
   receiveState: (path: string, state: GitState | null, error: string | null) => void
   setGraphOpen: (graphOpen: boolean) => void
@@ -117,10 +124,12 @@ interface GitViewState {
   setAmend: (amend: boolean, message: string) => void
   setDrag: (drag: GitDrag | null) => void
   openMenu: (menu: GitMenuRequest | null) => void
+  setChangeSelection: (changeSelection: GitChangeSelection) => void
 }
 
 const closedDrawer = { file: null, diff: null, diffError: null }
 const noSelection = { ...closedDrawer, commit: null, details: null, detailsError: null }
+const noChangeSelection: GitChangeSelection = { keys: new Set(), anchor: null }
 
 export const useGitStore = create<GitViewState>()((set) => ({
   path: '',
@@ -145,6 +154,7 @@ export const useGitStore = create<GitViewState>()((set) => ({
   amend: false,
   drag: null,
   menu: null,
+  changeSelection: noChangeSelection,
   follow: (path) => set({ path }),
   receiveState: (path, state, error) =>
     set((current) => {
@@ -154,7 +164,7 @@ export const useGitStore = create<GitViewState>()((set) => ({
       const sameRepository = Boolean(state && current.state?.root === state.root)
       return sameRepository
         ? { state, error, resolved: path }
-        : { state, error, resolved: path, history: null, historyError: null, historyCount: HISTORY_PAGE, reveal: null, message: '', amend: false, prompt: null, rejection: null, failure: null, menu: null, drag: null, ...noSelection }
+        : { state, error, resolved: path, history: null, historyError: null, historyCount: HISTORY_PAGE, reveal: null, message: '', amend: false, prompt: null, rejection: null, failure: null, menu: null, drag: null, changeSelection: noChangeSelection, ...noSelection }
     }),
   setGraphOpen: (graphOpen) => set({ graphOpen }),
   receiveHistory: (history, historyError) => set((current) => (current.state?.root === history.root ? { history, historyError } : current)),
@@ -180,4 +190,5 @@ export const useGitStore = create<GitViewState>()((set) => ({
   setAmend: (amend, message) => set({ amend, message }),
   setDrag: (drag) => set({ drag }),
   openMenu: (menu) => set({ menu }),
+  setChangeSelection: (changeSelection) => set({ changeSelection }),
 }))
