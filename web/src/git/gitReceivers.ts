@@ -67,6 +67,10 @@ export const receiveGitDone = (operation: string, message: string, warning: bool
   if (operation === COMMIT_OPERATION || operation === 'git.push') {
     store.setRejection(null)
   }
+  const stashShown = store.state?.stashes.some((stash) => stash.sha === store.commit)
+  if (operation === 'git.stashApply' || (operation === 'git.stashDrop' && stashShown)) {
+    selectWorkingTree()
+  }
   useHostStore.getState().setStatus(message, warning ? StatusLevel.Warning : StatusLevel.Info)
 }
 
