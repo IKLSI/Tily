@@ -17,7 +17,7 @@ import { focusGitPanel, takeFocusFromCoveredTerminals } from '../git/gitFocus'
 import { toggleRightPanel } from '../panel/rightPanel'
 import { useGitStore } from '../store/gitStore'
 import { changePaneShell, dismissPaneState, restartPane, restartPaneIn } from '../terminal/paneLifecycle'
-import { closePaneKeepingText, closeTabKeepingText, closeWorkspaceKeepingText, restoreClosedTab } from '../terminal/tabLifecycle'
+import { closeOtherTabsKeepingText, closePaneKeepingText, closeTabKeepingText, closeWorkspaceKeepingText, restoreClosedTab } from '../terminal/tabLifecycle'
 import { joinPane } from '../terminal/terminalActions'
 import { terminalRegistry } from '../terminal/terminalRegistry'
 import { AttentionToasts } from './AttentionToasts'
@@ -186,7 +186,7 @@ const panelActions: WorkspacePanelActions = {
 }
 
 export function AppShell({ session }: AppShellProps) {
-  const { selectTab, selectPane, toggleSidebar, setSidebarWidth, setExplorerWidth, newWorkspace, newTab, moveTab, setSplitRatio, toggleFavorite } = useSessionStore.getState()
+  const { selectTab, selectPane, toggleSidebar, setSidebarWidth, setExplorerWidth, newWorkspace, newTab, moveTab, shiftTab, setSplitRatio, toggleFavorite } = useSessionStore.getState()
   const { leaderActive, shells, projects, projectsRoot, projectsError, settingsSnapshot, pickedPath, importedPreferences } = useHostStore(
     useShallow((state) => ({
       leaderActive: state.leaderActive,
@@ -311,6 +311,8 @@ export function AppShell({ session }: AppShellProps) {
           onCommitRename={handleCommitTabRename}
           onCancelRename={finishTabRename}
           onClose={closeTabKeepingText}
+          onCloseOthers={closeOtherTabsKeepingText}
+          onShift={shiftTab}
           onNew={newTab}
           onMove={moveTab}
         />

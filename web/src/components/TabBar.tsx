@@ -10,6 +10,7 @@ import { Icon } from './Icon'
 import { IconName } from './iconName'
 import { InlineNameEditor } from './InlineNameEditor'
 import { ShellMenu } from './ShellMenu'
+import { TabContextMenu, type TabMenuActions, type TabMenuRequest } from './TabContextMenu'
 import { beginTabDrag, isDropTarget, type MoveTabHandler } from './tabDrag'
 
 interface TabBarProps {
@@ -23,6 +24,8 @@ interface TabBarProps {
   onCommitRename: (name: string) => void
   onCancelRename: () => void
   onClose: (tabId: string) => void
+  onCloseOthers: (tabId: string) => void
+  onShift: (tabId: string, offset: number) => void
   onNew: (shellId: string) => void
   onMove: MoveTabHandler
 }
@@ -33,8 +36,9 @@ const tabSelector = (tabId: string): string => `[data-drop-tab="${tabId}"]`
 
 const isMenuKey = (event: KeyboardEvent): boolean => (event.shiftKey && event.key === 'F10') || event.key === 'ContextMenu'
 
-export function TabBar({ workspace, shells, renamingTabId, panelOpen, onTogglePanel, onSelect, onStartRename, onCommitRename, onCancelRename, onClose, onNew, onMove }: TabBarProps) {
+export function TabBar({ workspace, shells, renamingTabId, panelOpen, onTogglePanel, onSelect, onStartRename, onCommitRename, onCancelRename, onClose, onCloseOthers, onShift, onNew, onMove }: TabBarProps) {
   const [menuOpen, setMenuOpen] = useState(false)
+  const [tabMenu, setTabMenu] = useState<TabMenuRequest | null>(null)
   const addButtonRef = useRef<HTMLButtonElement>(null)
   const stripRef = useRef<HTMLDivElement>(null)
   const { draggingTabId, tabDropTarget } = useUiStore(useShallow((state) => ({ draggingTabId: state.draggingTabId, tabDropTarget: state.tabDropTarget })))
@@ -70,6 +74,16 @@ export function TabBar({ workspace, shells, renamingTabId, panelOpen, onTogglePa
     setMenuOpen(false)
     onNew(shellId)
   }
+  const tabMenuPosition = tabMenu ? workspace.tabs.findIndex((tab) => tab.id === tabMenu.tabId) : -1
+  const tabMenuActions: TabMenuActions = { rename: onStartRename, shift: onShift, close: onClose, closeOthers: onCloseOthers }
+  const handleRunTabMenu = () => setTabMenu(null)
+  const handleDismissTabMenu = () => {
+    const returnFocus = tabMenu?.returnFocus
+    setTabMenu(null)
+    if (returnFocus?.isConnected) {
+      returnFocus.focus()
+    }
+  }
   const handleWheel = (event: WheelEvent<HTMLDivElement>) => {
     if (stripRef.current && event.deltaY !== 0) {
       stripRef.current.scrollLeft += event.deltaY
@@ -94,6 +108,17 @@ export function TabBar({ workspace, shells, renamingTabId, panelOpen, onTogglePa
             }
           }
           const handlePointerDown = (event: PointerEvent<HTMLElement>) => beginTabDrag(event, tab.id, onMove)
+          const handleTabContextMenu = (event: MouseEvent) => {
+            event.preventDefault()
+            setTabMenu({ tabId: tab.id, x: event.clientX, y: event.clientY, returnFocus: null })
+          }
+          const handleTabKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
+            if (isMenuKey(event)) {
+              event.preventDefault()
+              const { left, bottom } = event.currentTarget.getBoundingClientRect()
+              setTabMenu({ tabId: tab.id, x: left, y: bottom, returnFocus: event.currentTarget })
+            }
+          }
           return (
             <Fragment key={tab.id}>
               <span aria-hidden="true" className={dropLine(targeted)} />
@@ -102,6 +127,7 @@ export function TabBar({ workspace, shells, renamingTabId, panelOpen, onTogglePa
                 data-drop-tab={tab.id}
                 className={`flex min-w-[100px] items-center rounded-t-md border border-b-0 ${active ? 'border-dock-line bg-dock-panel text-dock-green-deep' : 'border-transparent text-dock-muted hover:bg-dock-green-hover'} ${draggingTabId === tab.id ? 'opacity-50' : ''}`}
                 onAuxClick={handleAuxClick}
+                onContextMenu={handleTabContextMenu}
               >
                 {tab.id === renamingTabId ? (
                   <InlineNameEditor value={tab.name} label="Nom de l’onglet" className="mx-1 my-1 min-w-0 flex-1 text-xs" onCommit={onCommitRename} onCancel={onCancelRename} />
@@ -115,6 +141,7 @@ export function TabBar({ workspace, shells, renamingTabId, panelOpen, onTogglePa
                     onClick={handleSelect}
                     onDoubleClick={handleStartRename}
                     onPointerDown={handlePointerDown}
+                    onKeyDown={handleTabKeyDown}
                   >
                     {agentSummary && <AgentStateIcon state={agentSummary.state} tip={agentSummary.tip} />}
                     <span className="min-w-0 truncate">{tab.name}</span>
@@ -155,6 +182,16 @@ export function TabBar({ workspace, shells, renamingTabId, panelOpen, onTogglePa
       >
         <Icon name={IconName.Explorer} size={14} />
       </button>
+      {tabMenu && (
+        <TabContextMenu
+          request={tabMenu}
+          position={tabMenuPosition}
+          count={workspace.tabs.length}
+          actions={tabMenuActions}
+          onRun={handleRunTabMenu}
+          onDismiss={handleDismissTabMenu}
+        />
+      )}
     </div>
   )
 }

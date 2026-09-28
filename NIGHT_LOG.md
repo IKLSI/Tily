@@ -138,6 +138,12 @@ Travail autonome sur la branche `night-session`. Chaque itération apporte une a
 - **Pourquoi** : c'est la suite naturelle de l'itération 14. Jusqu'ici, on ne pouvait déplacer un onglet au clavier qu'avec Ctrl + Maj + PageUp / PageDown depuis un terminal, et seulement l'onglet actif.
 - **Vérifié** : Alt + ↑ sur « tests » le fait passer devant « web », dans le panneau comme dans la barre d'onglets, et le focus reste sur sa ligne. Maj + F10 sur le premier onglet ouvre son menu avec « Monter » désactivé, et Échap rend le focus à la ligne.
 
+### 22. Menu contextuel des onglets de la barre et « Fermer les autres onglets »
+
+- **Quoi** : un clic droit, Maj + F10 ou la touche Menu sur un onglet de la barre du haut ouvre son menu : Renommer, Déplacer à gauche / à droite (désactivés aux extrémités), Fermer l'onglet, Fermer les autres onglets. Ce dernier (`closeOtherTabsKeepingText` dans `tabLifecycle.ts`) passe par le garde-fou habituel : une seule confirmation si des programmes tournent, et le texte des onglets est conservé pour Ctrl + Maj + Z, dans la limite des cinq derniers onglets fermés.
+- **Pourquoi** : un clic droit sur un onglet de la barre ne faisait rien, alors que le panneau des workspaces a son menu. Et après avoir ouvert beaucoup d'onglets, il fallait les fermer un par un.
+- **Vérifié** : dans l'instance de test, le menu du dernier onglet a « Déplacer à droite » grisé. « Fermer les autres onglets » ne laisse que cet onglet (13 fermés, sans programme actif donc sans confirmation), et Ctrl + Maj + Z rouvre le dernier fermé, actif, avec un nouveau terminal.
+
 ## Reste à faire et idées
 
 - Taille de police et zoom du terminal : absents (police fixe à 14 px). La spécification les classe « À décider » (section 4), donc je n'y ai pas touché ; c'est à trancher.
