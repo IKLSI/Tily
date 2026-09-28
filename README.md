@@ -1,36 +1,68 @@
-# Dock Terminal
+<p align="center">
+  <img src="src/Dock.Host/Assets/Dock.png" alt="Logo de Dock" width="96">
+</p>
 
-Projet de terminal Windows organisé en **workspaces → onglets → panes**, avec une interface Dock verte et un panneau en arborescence.
+<h1 align="center">Dock Terminal</h1>
 
-## État du projet
+<p align="center">
+  Terminal Windows organisé en <strong>workspaces → onglets → panes</strong>, avec une interface compacte verte et un panneau en arborescence.
+</p>
 
-La pile technique a été validée par le spike T01 ([compte rendu](https://github.com/MaximeRazafinjato/dock-terminal/blob/b1c648454c311b51a731118aea84b98d10bea1ac/spike/README.md), conservé dans l’historique Git). Le socle de l’application est en place : hôte C# .NET 10 (WinUI 3 + WebView2 unique) dans `src/`, interface React + TypeScript dans `web/`, tests dans `tests/`. Il ouvre de vrais terminaux PowerShell 5.1 avec le profil, persiste la session et gère les splits ; les fonctionnalités du backlog restent à implémenter.
+<p align="center">
+  <a href="https://github.com/MaximeRazafinjato/dock-terminal/releases/latest"><img src="https://img.shields.io/github/v/release/MaximeRazafinjato/dock-terminal" alt="Dernière version"></a>
+  <img src="https://img.shields.io/badge/plateforme-Windows%2010%2B-0078d4" alt="Plateforme : Windows 10+">
+</p>
 
-```
-dotnet build Dock.slnx
-dotnet test Dock.slnx
-dotnet run --project src/Dock.Host
-scripts/build-installer.cmd          # installeur Windows (Inno Setup 6 requis) dans installer/output/
-node scripts/generate-icon.js        # régénère src/Dock.Host/Assets/Dock.ico et Dock.png
-```
+![Dock avec plusieurs workspaces et un onglet découpé en trois terminaux](docs/images/overview.png)
 
-## Documents
+## Fonctionnalités
 
-- [Spécifications complètes](specifications-terminal.md)
-- [Spécifications HTML imprimables](specifications-terminal.html)
-- [Inspection de l’environnement local](docs/inspection-environnement.md)
-- [Backlog fonctionnel](BACKLOG.md)
-- [Architecture backend](docs/BACKEND_ARCHITECTURE.md), [architecture frontend](docs/FRONTEND_ARCHITECTURE.md), [tests](docs/TESTING.md)
+- **Workspaces libres** : un panneau en arborescence, repliable et redimensionnable, regroupe les workspaces et leurs onglets. Tout se renomme directement sur place, les onglets se déplacent d’un workspace à l’autre et un onglet fermé par erreur se rouvre.
+- **Vrais terminaux** : Windows PowerShell par défaut avec votre profil habituel, ses alias et ses fonctions ; PowerShell 7, CMD et Git Bash au clic droit sur « + ».
+- **Splits** : plusieurs terminaux côte à côte ou l’un sous l’autre dans le même onglet, redimensionnables et navigables au clavier.
+- **Palette Ctrl + P** : retrouver une commande, un workspace, un onglet ou un terminal en quelques lettres.
+- **Touche Leader Ctrl + Espace** : toutes les actions au clavier, sans gêner la saisie dans le terminal.
+- **Sélecteur de projets** : ouvrir un nouveau workspace directement dans un dossier de projet.
+- **Explorateur de fichiers** : parcourir le dossier du terminal actif dans un panneau à droite.
+- **Vue Git** : graphe de l’historique, branches et tags, Stage et commit, Push et Pull, Merge, Rebase, Stash, résolution des conflits et bouton « Annuler », sans taper de commande.
+- **Suivi de Claude Code** : repérer d’un coup d’œil le workspace et l’onglet où Claude Code travaille, attend une réponse ou a terminé.
+- **Liens cliquables** : Ctrl + clic sur un lien affiché dans le terminal l’ouvre dans le navigateur.
+- **Session retrouvée** : workspaces, onglets, splits et texte des terminaux sont restaurés à la réouverture ; les préférences s’exportent et s’importent.
 
-## Direction retenue
+## Aperçu
 
-- Interface compacte, terminaux sombres, accents verts et sélections par le fond.
-- Workspaces libres, onglets déplaçables et splits redimensionnables.
-- Édition inline, peu de popups, palette navigable au clavier via Ctrl + P.
-- Clic gauche sur le « + » : PowerShell ; clic droit : choix du shell.
-- Panneau repliable avec onglets dépliables par workspace.
-- Restauration de la disposition et du texte, avec de nouveaux processus.
-- Agents suivis : Claude Code (`claude`) et Codex CLI (`codex`).
-- Sélecteur de projets basé sur `C:\Files\Projects` ; éditeur configuré : VS Code.
+### Palette Ctrl + P
 
-Les issues fonctionnelles décrivent l’application cible et leurs critères d’acceptation. Aucune priorité ni échéance n’est fixée pour l’instant.
+![Palette de commandes ouverte par-dessus les terminaux](docs/images/palette.png)
+
+### Vue Git
+
+![Vue Git avec les branches, le graphe de l’historique et les modifications en cours](docs/images/git.png)
+
+### Explorateur de fichiers
+
+![Explorateur de fichiers ouvert à droite du terminal](docs/images/files.png)
+
+## Installation
+
+1. Télécharger `Dock-x.y.z-setup.exe` depuis la [dernière version](https://github.com/MaximeRazafinjato/dock-terminal/releases/latest).
+2. Lancer l’installeur. Il n’est pas signé : si Windows SmartScreen s’affiche, cliquer « Informations complémentaires » puis « Exécuter quand même ».
+
+Aucun droit administrateur n’est nécessaire. Pour mettre à jour, fermer Dock puis lancer le nouvel installeur : workspaces et préférences sont conservés.
+
+## Raccourcis clavier
+
+| Leader (Ctrl + Espace, puis…) | Raccourci direct | Action |
+| --- | --- | --- |
+| P | Ctrl + P | Palette |
+| T | Ctrl + Maj + T | Nouvel onglet |
+| V | Ctrl + Maj + D | Split côte à côte |
+| H | Ctrl + Maj + H | Split haut/bas |
+| F | — | Sélecteur de projets |
+| W | Ctrl + Maj + W | Nouveau workspace |
+| X | Ctrl + Maj + X | Fermer le terminal actif |
+| E | Ctrl + Maj + E | Explorateur de fichiers |
+| G | Ctrl + Maj + G | Vue Git |
+| Flèche | Alt + flèche | Passer d’un terminal à l’autre |
+
+Ctrl + Maj + C et Ctrl + Maj + V copient et collent.
