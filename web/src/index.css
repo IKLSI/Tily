@@ -21,6 +21,8 @@
   --color-dock-focus: #8fb39f;
   --color-dock-terminal: #121416;
   --color-dock-terminal-ink: #cdd1cd;
+  --color-dock-scrollbar: #3d4346;
+  --color-dock-scrollbar-hover: #555e61;
   --color-dock-warning: #c9a65f;
   --color-dock-error: #c98078;
   --color-dock-status-working: #3fd37c;
@@ -62,6 +64,31 @@ body,
 
 .xterm {
   height: 100%;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+::-webkit-scrollbar-button {
+  display: none;
+}
+
+::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 5px;
+  background: var(--color-dock-scrollbar) padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover,
+::-webkit-scrollbar-thumb:active {
+  background-color: var(--color-dock-scrollbar-hover);
 }
 
 button:not([aria-disabled="true"]) {
