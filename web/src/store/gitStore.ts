@@ -65,7 +65,7 @@ export interface GitMenuRequest {
   restoreFocus: () => void
 }
 
-export interface GitChangeSelection {
+export interface GitSelection {
   keys: ReadonlySet<string>
   anchor: string | null
 }
@@ -93,7 +93,7 @@ interface GitViewState {
   details: GitCommitDetails | null
   detailsError: string | null
   busy: string | null
-  busyRef: string | null
+  busyRefs: string[]
   failure: GitFailure | null
   rejection: GitRejection | null
   confirmation: GitConfirmation | null
@@ -102,7 +102,8 @@ interface GitViewState {
   amend: boolean
   drag: GitDrag | null
   menu: GitMenuRequest | null
-  changeSelection: GitChangeSelection
+  changeSelection: GitSelection
+  refSelection: GitSelection
   follow: (path: string) => void
   receiveState: (path: string, state: GitState | null, error: string | null) => void
   setGraphOpen: (graphOpen: boolean) => void
@@ -116,7 +117,7 @@ interface GitViewState {
   closeDrawer: () => void
   receiveDiff: (request: number, diff: GitDiff | null, error: string | null) => void
   receiveDetails: (request: number, details: GitCommitDetails | null, error: string | null) => void
-  setBusy: (busy: string | null, busyRef?: string | null) => void
+  setBusy: (busy: string | null, busyRefs?: string[]) => void
   setFailure: (failure: GitFailure | null) => void
   setRejection: (rejection: GitRejection | null) => void
   confirm: (confirmation: GitConfirmation | null) => void
@@ -125,12 +126,13 @@ interface GitViewState {
   setAmend: (amend: boolean, message: string) => void
   setDrag: (drag: GitDrag | null) => void
   openMenu: (menu: GitMenuRequest | null) => void
-  setChangeSelection: (changeSelection: GitChangeSelection) => void
+  setChangeSelection: (changeSelection: GitSelection) => void
+  setRefSelection: (refSelection: GitSelection) => void
 }
 
 const closedDrawer = { file: null, diff: null, diffError: null }
 const noSelection = { ...closedDrawer, commit: null, details: null, detailsError: null }
-const noChangeSelection: GitChangeSelection = { keys: new Set(), anchor: null }
+const emptySelection: GitSelection = { keys: new Set(), anchor: null }
 
 export const useGitStore = create<GitViewState>()((set) => ({
   path: '',
@@ -147,7 +149,7 @@ export const useGitStore = create<GitViewState>()((set) => ({
   diffRequest: 0,
   detailsRequest: 0,
   busy: null,
-  busyRef: null,
+  busyRefs: [],
   failure: null,
   rejection: null,
   confirmation: null,
@@ -156,7 +158,8 @@ export const useGitStore = create<GitViewState>()((set) => ({
   amend: false,
   drag: null,
   menu: null,
-  changeSelection: noChangeSelection,
+  changeSelection: emptySelection,
+  refSelection: emptySelection,
   follow: (path) => set({ path }),
   receiveState: (path, state, error) =>
     set((current) => {
@@ -166,7 +169,7 @@ export const useGitStore = create<GitViewState>()((set) => ({
       const sameRepository = Boolean(state && current.state?.root === state.root)
       return sameRepository
         ? { state, error, resolved: path }
-        : { state, error, resolved: path, history: null, historyError: null, historyCount: HISTORY_PAGE, reveal: null, message: '', amend: false, prompt: null, rejection: null, failure: null, menu: null, drag: null, changeSelection: noChangeSelection, ...noSelection }
+        : { state, error, resolved: path, history: null, historyError: null, historyCount: HISTORY_PAGE, reveal: null, message: '', amend: false, prompt: null, rejection: null, failure: null, menu: null, drag: null, changeSelection: emptySelection, refSelection: emptySelection, ...noSelection }
     }),
   setGraphOpen: (graphOpen) => set({ graphOpen }),
   receiveHistory: (history, historyError) => set((current) => (current.state?.root === history.root ? { history, historyError } : current)),
@@ -183,7 +186,7 @@ export const useGitStore = create<GitViewState>()((set) => ({
   closeDrawer: () => set(closedDrawer),
   receiveDiff: (request, diff, diffError) => set((current) => (current.diffRequest === request ? { diff, diffError } : current)),
   receiveDetails: (request, details, detailsError) => set((current) => (current.detailsRequest === request ? { details, detailsError } : current)),
-  setBusy: (busy, busyRef = null) => set({ busy, busyRef }),
+  setBusy: (busy, busyRefs = []) => set({ busy, busyRefs }),
   setFailure: (failure) => set({ failure }),
   setRejection: (rejection) => set({ rejection }),
   confirm: (confirmation) => set({ confirmation }),
@@ -193,4 +196,5 @@ export const useGitStore = create<GitViewState>()((set) => ({
   setDrag: (drag) => set({ drag }),
   openMenu: (menu) => set({ menu }),
   setChangeSelection: (changeSelection) => set({ changeSelection }),
+  setRefSelection: (refSelection) => set({ refSelection }),
 }))

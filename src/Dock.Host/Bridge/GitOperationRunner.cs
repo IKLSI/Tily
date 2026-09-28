@@ -44,6 +44,7 @@ public sealed class GitOperationRunner
             "git.branchRename" => repository => GitBranchCommands.Rename(repository, command.Name, command.NewName),
             "git.branchDelete" => repository => GitBranchCommands.Delete(repository, command.Name, command.Force, command.Confirmed),
             "git.remoteBranchDelete" => repository => GitSyncCommands.DeleteRemoteBranch(repository, command.Reference, command.Confirmed),
+            "git.refsDelete" => repository => GitRefDeleteCommands.Delete(repository, new GitRefDeletionModel(command.Branches ?? [], command.RemoteBranches ?? [], command.Tags ?? [], command.Stashes ?? []), command.Confirmed),
             "git.tagCreate" => repository => GitStashTagCommands.CreateTag(repository, command.Name, command.Commit),
             "git.tagDelete" => repository => GitStashTagCommands.DeleteTag(repository, command.Name),
             "git.tagPush" => repository => GitSyncCommands.PushTag(repository, command.Name),

@@ -33,7 +33,7 @@ export function GitRefPill({ label, text, color, onMenu, onActivate }: GitRefPil
   const handle = useMemo(() => ({ kind: label.kind, name: label.name }), [label.kind, label.name])
   const dropTarget = useGitStore((store) => movable && sameRef(store.drag?.target, handle))
   const dragged = useGitStore((store) => sameRef(store.drag?.source, handle))
-  const pending = useGitStore((store) => store.busy !== null && store.busyRef !== null && (store.busyRef === label.name || label.remotes.includes(store.busyRef)))
+  const pending = useGitStore((store) => store.busy !== null && store.busyRefs.some((ref) => ref === label.name || label.remotes.includes(ref)))
   const icon = KIND_ICONS[label.kind]
   const interactive = label.kind !== GitRefKind.Head
   const hoverClass = interactive ? `cursor-pointer hover:text-dock-ink ${laneHoverTint(color, label.current)}` : ''

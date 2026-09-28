@@ -255,6 +255,7 @@ export type GitWebMessage =
   | { type: 'git.branchRename'; path: string; name: string; newName: string }
   | { type: 'git.branchDelete'; path: string; name: string; force: boolean; confirmed: boolean }
   | { type: 'git.remoteBranchDelete'; path: string; reference: string; confirmed: boolean }
+  | { type: 'git.refsDelete'; path: string; branches: string[]; remoteBranches: string[]; tags: string[]; stashes: string[]; confirmed: boolean }
   | { type: 'git.tagCreate'; path: string; name: string; commit: string }
   | { type: 'git.tagDelete' | 'git.tagPush'; path: string; name: string }
   | { type: 'git.stash'; path: string; message: string; files: string[] }

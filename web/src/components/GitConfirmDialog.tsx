@@ -40,7 +40,7 @@ export function GitConfirmDialog({ confirmation, onConfirm, onCancel }: GitConfi
         </div>
         <div className="flex flex-col gap-2 px-4 py-4">
           <p className="text-[12px] text-dock-ink">{confirmation.body}</p>
-          {confirmation.detail && <p className="text-[11px] whitespace-pre-line text-dock-muted">{confirmation.detail}</p>}
+          {confirmation.detail && <p className="max-h-[40vh] overflow-auto text-[11px] whitespace-pre-line text-dock-muted">{confirmation.detail}</p>}
         </div>
         <div className="flex items-center justify-end gap-2 border-t border-dock-line px-4 py-3">
           <button type="button" className={`${GIT_SECONDARY} py-1.5`} onClick={onCancel}>

@@ -34,7 +34,12 @@ public static class GitUndo
             throw new GitCommandException($"Annulation impossible : {reason}.", string.Empty);
         }
 
-        var failure = $"L’annulation de « {record.Label} » a échoué.";
+        Restore(repository, record, $"L’annulation de « {record.Label} » a échoué.");
+        return new GitOutcomeModel($"Annulé : {record.Label}.", ClearUndo: true);
+    }
+
+    private static void Restore(GitRepository repository, GitUndoRecordModel record, string failure)
+    {
         switch (record.Kind)
         {
             case GitUndoKind.Commit or GitUndoKind.Amend:
@@ -96,9 +101,14 @@ public static class GitUndo
             case GitUndoKind.Discard:
                 RestoreFiles(repository, record.Files);
                 break;
-        }
+            case GitUndoKind.RefsDelete:
+                foreach (var step in record.Steps.Reverse())
+                {
+                    Restore(repository, step, failure);
+                }
 
-        return new GitOutcomeModel($"Annulé : {record.Label}.", ClearUndo: true);
+                break;
+        }
     }
 
     private static string? Blocker(GitRepository repository, GitUndoRecordModel record, GitHeadModel head, GitOperationKind? operation)
@@ -139,6 +149,7 @@ public static class GitUndo
             GitUndoKind.TagCreate when repository.RefValue($"refs/tags/{record.RefName}") != record.RefTarget => "le tag a changé depuis",
             GitUndoKind.TagDelete when repository.RefValue($"refs/tags/{record.RefName}") is not null => "un tag du même nom existe de nouveau",
             GitUndoKind.StashPush when repository.RefValue("refs/stash") != record.Backup => "la liste des stashes a changé depuis",
+            GitUndoKind.RefsDelete => record.Steps.Select(step => Blocker(repository, step, head, operation)).FirstOrDefault(reason => reason is not null),
             _ => null
         };
     }

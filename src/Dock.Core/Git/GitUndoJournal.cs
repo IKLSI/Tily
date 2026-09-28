@@ -21,7 +21,8 @@ public enum GitUndoKind
     TagDelete,
     StashPush,
     StashDrop,
-    Discard
+    Discard,
+    RefsDelete
 }
 
 public sealed record GitDiscardedFileModel(string Path, string? Blob, string? After);
@@ -44,6 +45,7 @@ public sealed record GitUndoRecordModel
     public string? Upstream { get; init; }
     public string? StashMessage { get; init; }
     public IReadOnlyList<GitDiscardedFileModel> Files { get; init; } = [];
+    public IReadOnlyList<GitUndoRecordModel> Steps { get; init; } = [];
 }
 
 public sealed class GitUndoJournal

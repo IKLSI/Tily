@@ -2,6 +2,7 @@ import { GitDiffSource, type GitCommitDetails, type GitDiff, type GitFailureCode
 import { useGitStore, type GitFileTarget } from '../store/gitStore'
 import { StatusLevel, useHostStore } from '../store/hostStore'
 import { refocusGitIfLost } from './gitFocus'
+import { clearRefSelection } from './gitRefSelection'
 import { closeDrawer, loadUntilRevealed, reloadDiff, retryFailedDetails, selectWorkingTree, takeRetry } from './gitRequests'
 
 const COMMIT_OPERATION = 'git.commit'
@@ -70,6 +71,9 @@ export const receiveGitDone = (operation: string, message: string, warning: bool
   const stashShown = store.state?.stashes.some((stash) => stash.sha === store.commit)
   if (operation === 'git.stashApply' || (operation === 'git.stashDrop' && stashShown)) {
     selectWorkingTree()
+  }
+  if (operation === 'git.refsDelete') {
+    clearRefSelection()
   }
   useHostStore.getState().setStatus(message, warning ? StatusLevel.Warning : StatusLevel.Info)
 }
