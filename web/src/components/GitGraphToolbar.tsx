@@ -1,6 +1,5 @@
 import { useShallow } from 'zustand/react/shallow'
 import { GitHistoryScope, type GitState } from '../bridge/gitMessages'
-import { plural } from '../git/gitLabels'
 import { setHistoryScope } from '../git/gitRequests'
 import type { GitGraphLayout } from '../model/session'
 import { hideGitGraph } from '../panel/rightPanel'
@@ -22,8 +21,6 @@ const SCOPES: { scope: GitHistoryScope; label: string; tip: string }[] = [
 
 export function GitGraphToolbar({ state, layout }: GitGraphToolbarProps) {
   const { history, scope } = useGitStore(useShallow((store) => ({ history: store.history, scope: store.scope })))
-  const commitCount = history ? history.commits.filter((entry) => !entry.stash).length : 0
-  const countLabel = history ? `${plural(commitCount, 'commit', 'commits')}${history.hasMore ? ' chargés' : ''}` : 'Chargement de l’historique…'
   const handleToggleReferences = () => useSessionStore.getState().setGitGraphLayout({ referencesOpen: !layout.referencesOpen })
 
   const renderScope = (entry: (typeof SCOPES)[number]) => {
@@ -59,7 +56,7 @@ export function GitGraphToolbar({ state, layout }: GitGraphToolbarProps) {
       <span className="min-w-0 truncate text-[12px] font-semibold text-dock-ink" data-tip={state.root}>
         {state.name}
       </span>
-      <span className="shrink-0 text-[11px] text-dock-muted">{countLabel}</span>
+      {!history && <span className="shrink-0 text-[11px] text-dock-muted">Chargement de l’historique…</span>}
       <span className="flex-1" />
       <div role="radiogroup" aria-label="Branches affichées" className="flex shrink-0 rounded-md bg-dock-paper p-[2px]">
         {SCOPES.map(renderScope)}
