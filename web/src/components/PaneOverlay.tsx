@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type { ShellProfile } from '../bridge/messages'
 import { PaneStateKind, type PaneState } from '../store/paneStore'
 import { ShellMenu } from './ShellMenu'
@@ -19,6 +19,8 @@ const TITLES: Record<PaneStateKind, string> = {
   [PaneStateKind.PathMissing]: 'Le dossier de ce pane n’existe plus.',
 }
 
+const PANE_SELECTOR = '[data-pane-id]'
+
 const BUTTON = 'cursor-pointer rounded border px-3 py-1.5 text-[12px]'
 const PRIMARY = `${BUTTON} border-dock-green text-dock-green-deep hover:bg-dock-green-soft`
 const SECONDARY = `${BUTTON} border-dock-line text-dock-ink hover:bg-dock-green-hover`
@@ -26,6 +28,18 @@ const DANGER = `${BUTTON} border-dock-line text-dock-muted hover:text-dock-error
 
 export function PaneOverlay({ state, shells, onRestart, onRestartIn, onChangeShell, onDismiss, onClose }: PaneOverlayProps) {
   const [menuOpen, setMenuOpen] = useState(false)
+  const overlayRef = useRef<HTMLDivElement>(null)
+  const restartRef = useRef<HTMLButtonElement>(null)
+  const pathMissing = state.kind === PaneStateKind.PathMissing
+
+  useEffect(() => {
+    const focused = document.activeElement
+    const pane = overlayRef.current?.closest(PANE_SELECTOR)
+    if (!pathMissing && (focused === document.body || (focused && pane?.contains(focused)))) {
+      restartRef.current?.focus()
+    }
+  }, [pathMissing])
+
   const handleOpenMenu = () => setMenuOpen(true)
   const handleCloseMenu = useCallback(() => setMenuOpen(false), [])
   const handleSelectShell = (shellId: string) => {
@@ -37,10 +51,8 @@ export function PaneOverlay({ state, shells, onRestart, onRestartIn, onChangeShe
       onRestartIn(state.fallback)
     }
   }
-  const pathMissing = state.kind === PaneStateKind.PathMissing
-
   return (
-    <div role="alert" className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-dock-terminal/90 p-4 text-center">
+    <div ref={overlayRef} role="alert" className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-dock-terminal/90 p-4 text-center">
       <p className="text-[13px] font-semibold text-dock-ink">{TITLES[state.kind]}</p>
       <p className="max-w-full font-mono text-[11px] break-words text-dock-muted">{state.message}</p>
       <div className="flex flex-wrap items-center justify-center gap-2">
@@ -55,7 +67,7 @@ export function PaneOverlay({ state, shells, onRestart, onRestartIn, onChangeShe
           </>
         ) : (
           <>
-            <button type="button" className={PRIMARY} data-tip="Relancer le même shell dans ce pane" onClick={onRestart}>
+            <button ref={restartRef} type="button" className={PRIMARY} data-tip="Relancer le même shell dans ce pane (Entrée)" onClick={onRestart}>
               Relancer
             </button>
             <div className="relative">

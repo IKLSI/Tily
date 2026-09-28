@@ -96,6 +96,12 @@ Travail autonome sur la branche `night-session`. Chaque itération apporte une a
 - **Pourquoi** : l'ordre des workspaces était figé à celui de leur création, sans aucun moyen de le changer, alors qu'on peut déplacer les onglets.
 - **Vérifié** : dans l'instance de test, les entrées du menu sont justes ; « Monter » passe PlannerATM en tête, Alt + ↑ remonte LZGChallenge d'un rang et le focus reste sur sa ligne.
 
+### 15. Relancer un shell terminé au clavier
+
+- **Quoi** : quand le shell du pane s'arrête (`exit`) ou n'a pas pu démarrer, le bouton « Relancer » du message prend le focus, s'il était dans ce pane ou nulle part. Entrée relance donc le shell, comme dans Windows Terminal, et Tab parcourt « Choisir un shell » et « Fermer le pane ». Après une relance, un changement de shell ou « Ignorer », le focus revient au terminal. Un dossier disparu ne prend pas le focus, car le shell y est toujours vivant.
+- **Pourquoi** : le terminal mort gardait le focus et capturait même Tab. Les boutons du message étaient inaccessibles au clavier, et après un clic sur « Relancer » il fallait encore cliquer dans le terminal pour taper.
+- **Vérifié** : dans l'instance de test, `exit` affiche le message avec le focus sur « Relancer ». Entrée relance le shell, le message disparaît et `echo relance-ok` s'exécute sans clic.
+
 ## Reste à faire et idées
 
 - Taille de police et zoom du terminal : absents (police fixe à 14 px). La spécification les classe « À décider » (section 4), donc je n'y ai pas touché ; c'est à trancher.

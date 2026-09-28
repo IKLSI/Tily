@@ -16,6 +16,7 @@ const relaunch = (paneId: string): void => {
   }
   usePaneStore.getState().clear(paneId)
   terminalRegistry.restart(pane)
+  terminalRegistry.get(paneId)?.terminal.focus()
   useHostStore.getState().setStatus(`Nouveau shell « ${pane.shell} » lancé dans ${pane.path}.`)
 }
 
@@ -26,7 +27,10 @@ export const restartPaneIn = (paneId: string, path: string): void => {
   relaunch(paneId)
 }
 
-export const dismissPaneState = (paneId: string): void => usePaneStore.getState().dismiss(paneId)
+export const dismissPaneState = (paneId: string): void => {
+  usePaneStore.getState().dismiss(paneId)
+  terminalRegistry.get(paneId)?.terminal.focus()
+}
 
 export const changePaneShell = (paneId: string, shellId: string): void => {
   useSessionStore.getState().setPaneShell(paneId, shellId)
