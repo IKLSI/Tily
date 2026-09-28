@@ -12,7 +12,7 @@ const LEADER_TIMEOUT_MS = 5000
 const MODIFIER_KEYS = new Set(['Control', 'Shift', 'Alt', 'AltGraph', 'Meta'])
 const CANCEL_KEY = 'Escape'
 const TAB_KEY = 'Tab'
-const EDITABLE_SELECTOR = 'input, textarea, select, [contenteditable="true"]'
+const SHORTCUT_BLOCKERS = 'input, textarea, select, [contenteditable="true"], [role="menu"], [role="dialog"], [role="alertdialog"]'
 const LEADER_EXPIRED_STATUS = 'Leader expiré : la saisie revient au terminal.'
 
 export interface LeaderHint {
@@ -264,12 +264,15 @@ export const runCommand = (command: Command): void => {
   }
 }
 
-export const handleDocumentTabCycle = (event: KeyboardEvent): void => {
-  if (event.defaultPrevented || !isTabCycle(event) || (event.target instanceof Element && event.target.closest(EDITABLE_SELECTOR))) {
+export const handleDocumentShortcut = (event: KeyboardEvent): void => {
+  if (event.defaultPrevented || event.isComposing || (event.target instanceof Element && event.target.closest(SHORTCUT_BLOCKERS))) {
     return
   }
-  event.preventDefault()
-  runCommand(event.shiftKey ? Command.PreviousTab : Command.NextTab)
+  const command = directCommand(event)
+  if (command) {
+    event.preventDefault()
+    runCommand(command)
+  }
 }
 
 const isReservedShortcut = (event: KeyboardEvent): boolean =>

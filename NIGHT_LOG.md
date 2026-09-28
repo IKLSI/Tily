@@ -114,6 +114,12 @@ Travail autonome sur la branche `night-session`. Chaque itération apporte une a
 - **Pourquoi** : la spécification demande « un message accueillant et une action pour en créer un ». Surtout, sans terminal, aucun raccourci direct ne répondait et rien n'avait le focus : au clavier, on restait bloqué sur un écran vide.
 - **Vérifié** : instance de test partant d'une session sans workspace. Le focus est sur « Nouveau workspace » ; Entrée crée le workspace, son terminal et l'éditeur de nom (capture).
 
+### 18. Raccourcis directs actifs hors des terminaux
+
+- **Quoi** : Ctrl + Maj + T, W, D, H, X, Z, E, G, Ctrl + Maj + PageUp / PageDown, Alt + flèche et Ctrl + Tab fonctionnent maintenant aussi quand le focus est dans le panneau des workspaces, le graphe Git ou l'explorateur. `handleDocumentShortcut` (dans `shortcuts.ts`, écouté par `AppShell`) réutilise la même table de raccourcis que les terminaux. Il ne fait rien dans un champ de saisie, un menu, une boîte de dialogue ou sous une boîte modale, ni pour les touches qu'un panneau a déjà traitées. Il remplace le traitement de Ctrl + Tab ajouté à l'itération 1.
+- **Pourquoi** : ces raccourcis n'étaient interceptés que dans xterm.js. Après un clic dans le graphe ou le panneau, Ctrl + Maj + T ou Ctrl + Maj + D ne faisaient plus rien, et il fallait d'abord recliquer dans un terminal.
+- **Vérifié** : dans l'instance de test, Ctrl + Maj + T depuis le graphe Git crée un onglet (13 → 14) et Ctrl + Maj + D depuis une ligne du panneau découpe le pane actif (1 → 2). Dans le message de commit, Ctrl + Maj + T ne fait rien et le focus reste dans le champ.
+
 ## Reste à faire et idées
 
 - Taille de police et zoom du terminal : absents (police fixe à 14 px). La spécification les classe « À décider » (section 4), donc je n'y ai pas touché ; c'est à trancher.
