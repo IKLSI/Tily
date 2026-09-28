@@ -10,7 +10,7 @@ import { isDropTarget } from './tabDrag'
 import { TruncatedName } from './TruncatedName'
 import { WorkspaceStatus } from './WorkspaceStatus'
 import { WorkspaceTabRow } from './WorkspaceTabRow'
-import { isMenuKey, menuRequestFor, PANEL_CLOSE_BUTTON, PANEL_DROP_LINE, type PanelMenuRequest, type WorkspacePanelActions } from './workspacePanel'
+import { isMenuKey, menuRequestFor, MOVE_KEYS, PANEL_CLOSE_BUTTON, PANEL_DROP_LINE, type PanelMenuRequest, type WorkspacePanelActions } from './workspacePanel'
 
 interface WorkspaceItemProps {
   workspace: Workspace
@@ -25,8 +25,6 @@ interface WorkspaceItemProps {
   actions: WorkspacePanelActions
   onOpenMenu: (request: PanelMenuRequest) => void
 }
-
-const MOVE_KEYS: Record<string, number> = { ArrowUp: -1, ArrowDown: 1 }
 
 const toggleTip = (expanded: boolean, count: number): string => `${expanded ? 'Replier' : 'Afficher'} ${count === 1 ? 'l’onglet' : `les ${count} onglets`}`
 

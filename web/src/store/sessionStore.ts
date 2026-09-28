@@ -56,6 +56,7 @@ interface SessionState {
   renameTab: (tabId: string, name: string) => void
   moveTab: (tabId: string, targetWorkspaceId: string, beforeTabId?: string) => void
   moveActiveTab: (offset: number) => void
+  shiftTab: (tabId: string, offset: number) => void
   selectAdjacentTab: (offset: number) => void
   closeTab: (tabId: string) => void
   restoreTab: () => { tab: Tab; paneIds: Record<string, string> } | null
@@ -269,6 +270,20 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
         const index = workspace.tabs.findIndex((tab) => tab.id === workspace.active)
         const destination = index + offset
         if (destination < 0 || destination >= workspace.tabs.length) {
+          return
+        }
+        const [tab] = workspace.tabs.splice(index, 1)
+        workspace.tabs.splice(destination, 0, tab)
+      }),
+    })),
+
+  shiftTab: (tabId, offset) =>
+    set((state) => ({
+      session: mutateSession(state.session, (draft) => {
+        const workspace = draft.workspaces.find((candidate) => candidate.tabs.some((tab) => tab.id === tabId))
+        const index = workspace ? workspace.tabs.findIndex((tab) => tab.id === tabId) : -1
+        const destination = index + offset
+        if (!workspace || index < 0 || destination < 0 || destination >= workspace.tabs.length) {
           return
         }
         const [tab] = workspace.tabs.splice(index, 1)

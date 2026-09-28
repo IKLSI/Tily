@@ -1,4 +1,5 @@
 import type { KeyboardEvent } from 'react'
+import type { Session } from '../model/session'
 import type { MoveTabHandler } from './tabDrag'
 
 export interface WorkspacePanelActions {
@@ -11,6 +12,7 @@ export interface WorkspacePanelActions {
   newTabIn: (workspaceId: string) => void
   collapseOthers: (workspaceId: string) => void
   moveWorkspace: (workspaceId: string, offset: number) => void
+  shiftTab: (tabId: string, offset: number) => void
   selectTab: (workspaceId: string, tabId: string) => void
   startRenameTab: (tabId: string) => void
   commitRenameTab: (name: string) => void
@@ -35,6 +37,20 @@ export const PANEL_CLOSE_BUTTON =
 
 export const PANEL_DROP_LINE =
   'pointer-events-none absolute -top-px right-0 left-0 h-[2px] rounded-full bg-dock-focus before:absolute before:-top-[2px] before:-left-[3px] before:size-[6px] before:rounded-full before:bg-dock-focus'
+
+export interface MenuPlace {
+  position: number
+  count: number
+}
+
+export const MOVE_KEYS: Record<string, number> = { ArrowUp: -1, ArrowDown: 1 }
+
+export const menuPlaceOf = (session: Session, { workspaceId, tabId }: PanelMenuRequest): MenuPlace => {
+  const tabs = session.workspaces.find((workspace) => workspace.id === workspaceId)?.tabs ?? []
+  return tabId
+    ? { position: tabs.findIndex((tab) => tab.id === tabId), count: tabs.length }
+    : { position: session.workspaces.findIndex((workspace) => workspace.id === workspaceId), count: session.workspaces.length }
+}
 
 export const isMenuKey = (event: KeyboardEvent): boolean => (event.shiftKey && event.key === 'F10') || event.key === 'ContextMenu'
 

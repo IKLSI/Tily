@@ -132,6 +132,12 @@ Travail autonome sur la branche `night-session`. Chaque itération apporte une a
 - **Pourquoi** : les panes d'un même onglet avaient des libellés identiques (« Pane · Dock / dock-terminal / powershell » trois fois), et seul le chemin, en petit et tronqué, les distinguait. Le nom du dossier dans le libellé les rend reconnaissables et fait remonter la recherche par nom de dossier.
 - **Vérifié** : la recherche « src » donne directement le pane `src`, et « pane dock » liste les trois panes de l'onglet dock-terminal sous des noms différents (capture).
 
+### 21. Déplacer un onglet depuis le panneau
+
+- **Quoi** : dans le panneau des workspaces, Alt + ↑ / ↓ sur un onglet sélectionné au clavier le déplace d'un rang dans son workspace. Son menu contextuel propose aussi « Monter » et « Descendre », désactivés aux extrémités. `sessionStore.shiftTab` fait le déplacement. Le calcul de position est partagé avec le menu des workspaces (`menuPlaceOf`, `MOVE_KEYS` dans `workspacePanel.ts`), qui est ainsi simplifié.
+- **Pourquoi** : c'est la suite naturelle de l'itération 14. Jusqu'ici, on ne pouvait déplacer un onglet au clavier qu'avec Ctrl + Maj + PageUp / PageDown depuis un terminal, et seulement l'onglet actif.
+- **Vérifié** : Alt + ↑ sur « tests » le fait passer devant « web », dans le panneau comme dans la barre d'onglets, et le focus reste sur sa ligne. Maj + F10 sur le premier onglet ouvre son menu avec « Monter » désactivé, et Échap rend le focus à la ligne.
+
 ## Reste à faire et idées
 
 - Taille de police et zoom du terminal : absents (police fixe à 14 px). La spécification les classe « À décider » (section 4), donc je n'y ai pas touché ; c'est à trancher.

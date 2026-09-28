@@ -173,6 +173,7 @@ const panelActions: WorkspacePanelActions = {
   newTabIn: handleNewTabIn,
   collapseOthers: (workspaceId) => useSessionStore.getState().collapseOtherWorkspaces(workspaceId),
   moveWorkspace: (workspaceId, offset) => useSessionStore.getState().moveWorkspace(workspaceId, offset),
+  shiftTab: (tabId, offset) => useSessionStore.getState().shiftTab(tabId, offset),
   selectTab: handleSelectTab,
   startRenameTab: (tabId) => useUiStore.getState().startRenamingTab(tabId, RenameOrigin.Panel),
   commitRenameTab: handleCommitTabRename,
