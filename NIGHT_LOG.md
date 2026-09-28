@@ -7,7 +7,8 @@ Travail autonome sur la branche `night-session`. Chaque itération apporte une a
 - Les issues GitHub ouvertes (#48, #80, #82, #83) sont laissées de côté à ta demande.
 - Le SDK .NET 10 n'était pas installé sur la machine (seulement 8 et 9) : je l'ai installé pour mon usage dans `C:\Users\maxim\.dotnet10`, hors PATH et sans droits administrateur, afin de pouvoir compiler et lancer les tests. Tu peux supprimer ce dossier si tu n'en as pas besoin.
 - Les dépendances web (`web/node_modules`) ont été installées avec `pnpm install --frozen-lockfile`.
-- Ta session Dock (installée dans `C:\Program Files\Dock`) n'a pas été touchée : les essais tournent sur la version de développement avec un dossier de données séparé.
+- Les essais tournent sur la version de développement, avec un dossier de données séparé.
+- **Incident vers 00 h 40** : un test de glisser-déposer a cliqué par erreur dans ton Dock, celui où tourne cette session Claude Code. La fenêtre source du test ne s'était pas affichée, donc l'appui souris est tombé sur ta fenêtre. Effet : une sélection de texte et un défilement vers le haut dans le terminal de la session, rien d'autre. Aucune frappe n'est partie vers ta fenêtre, et aucun onglet n'a été fermé par mes tests. Le message « Onglet fermé » visible dans ta barre de statut était déjà là. Depuis, les scripts de test refusent toute frappe ou tout clic tant que la fenêtre de test n'est pas au premier plan et que le point visé n'est pas à l'intérieur, et refusent de cibler un autre processus que la version de développement.
 
 ## Itérations
 
@@ -76,6 +77,12 @@ Travail autonome sur la branche `night-session`. Chaque itération apporte une a
 - **Quoi** : `TerminalManagerTests` utilise `Assert.DoesNotContain(processIds, IsAlive)` au lieu de `Assert.Empty(processIds.Where(IsAlive))`.
 - **Pourquoi** : l'analyseur xUnit (xUnit2029) levait un avertissement à chaque compilation des tests ; l'assertion est la même, et en cas d'échec le message indique le processus encore vivant.
 - **Vérifié** : `dotnet build` affiche 0 avertissement et les 176 tests passent.
+
+### 12. Un fichier déposé sur Dock n'ouvre plus de fenêtre de navigateur
+
+- **Quoi** : côté web, `terminal/externalDrop.ts` refuse le dépôt de fichiers et de liens venus de l'extérieur (curseur « interdit »). Côté hôte, `MainWindow` annule toute navigation hors de l'origine de l'application et toute demande de nouvelle fenêtre, par défense en profondeur.
+- **Pourquoi** : glisser un fichier depuis l'Explorateur Windows sur Dock ouvrait une fenêtre WebView2 brute, hors de Dock, qui affichait le fichier ; un lien déposé pouvait aussi remplacer l'interface. Rien n'interceptait ces cas.
+- **Vérifié** : dépôt simulé par le protocole de débogage (`Input.dispatchDragEvent`, le même chemin qu'un vrai glisser-déposer dans Chromium). Avant, une nouvelle fenêtre « exemple fichier.txt » s'ouvrait (processus `msedgewebview2` séparé). Après, rien ne s'ouvre et la page reste en place. Côté hôte, `window.open` renvoie `null` et une navigation forcée vers `file:///` est annulée.
 
 ## Reste à faire et idées
 

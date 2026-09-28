@@ -10,6 +10,7 @@ import { useSessionStore } from './store/sessionStore'
 import { useUiStore } from './store/uiStore'
 import { receiveActivity, receiveApplicationClosing } from './terminal/closeGuard'
 import { receiveContext } from './terminal/contextActions'
+import { startExternalDropGuard } from './terminal/externalDrop'
 import { receiveCreated, receiveDeleted, receiveListing, receiveRenamed } from './explorer/fileExplorerActions'
 import { receiveGitChanged, receiveGitDetails, receiveGitDiff, receiveGitDone, receiveGitFailed, receiveGitHistory, receiveGitPushRejected, receiveGitState } from './git/gitReceivers'
 import { joinPane } from './terminal/terminalActions'
@@ -28,6 +29,7 @@ export default function App() {
     const { setHello, setStatus, setProjects, setUnsaved, applySettings, setPickedPath, setImportedPreferences } = useHostStore.getState()
     let stopAutosave: (() => void) | undefined
     const stopNotifier = startAttentionNotifier()
+    const stopDropGuard = startExternalDropGuard()
     const { markFailed, markExited, markPathMissing, clear } = usePaneStore.getState()
     const subscriptions = [
       bridge.on('app.hello', (message) => {
@@ -111,6 +113,7 @@ export default function App() {
     }
     return () => {
       stopNotifier()
+      stopDropGuard()
       stopAutosave?.()
       subscriptions.forEach((unsubscribe) => unsubscribe())
     }
