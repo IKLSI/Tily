@@ -26,6 +26,8 @@ interface WorkspaceItemProps {
   onOpenMenu: (request: PanelMenuRequest) => void
 }
 
+const MOVE_KEYS: Record<string, number> = { ArrowUp: -1, ArrowDown: 1 }
+
 const toggleTip = (expanded: boolean, count: number): string => `${expanded ? 'Replier' : 'Afficher'} ${count === 1 ? 'l’onglet' : `les ${count} onglets`}`
 
 const rowStateOf = (dropInto: boolean, here: boolean): string => {
@@ -74,6 +76,9 @@ export const WorkspaceItem = memo(function WorkspaceItem({ workspace, workspaceN
     } else if (isMenuKey(event)) {
       event.preventDefault()
       onOpenMenu(menuRequestFor(event, id))
+    } else if (event.altKey && event.key in MOVE_KEYS) {
+      event.preventDefault()
+      actions.moveWorkspace(id, MOVE_KEYS[event.key])
     }
   }
   const stopPropagation = (event: MouseEvent) => event.stopPropagation()

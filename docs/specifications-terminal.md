@@ -96,6 +96,8 @@ Le « + » du panneau crée directement un workspace et permet de modifier son n
 
 La commande « Renommer le workspace » dans la palette active le même éditeur inline. Le panneau reflète immédiatement le nouveau nom.
 
+**Convention proposée.** Les workspaces se réordonnent par « Monter » et « Descendre » dans leur menu contextuel ou dans la palette (workspace actif), et par Alt + ↑ / ↓ sur un workspace sélectionné au clavier dans le panneau. L’ordre est conservé dans la session.
+
 **Décision prise.** Un workspace créé depuis le sélecteur de projets porte automatiquement le nom du dossier choisi. Un workspace créé sans projet reçoit un nom automatique descriptif ; un nom saisi manuellement reste prioritaire et n’est jamais écrasé. Le premier onglet PowerShell reprend le dossier du pane actif ou, au premier lancement, le dossier utilisateur. Un clic sur un workspace rejoint son dernier onglet et son dernier pane actifs. Replier une branche ne change pas la sélection.
 
 **Décision prise.** Fermer le dernier onglet ou le dernier pane d’un workspace ferme ce workspace et arrête ses processus. S’il ne reste aucun workspace, afficher un état vide avec un message accueillant et une action pour en créer un. La suppression explicite d’un workspace demande une confirmation lorsqu’il contient des onglets ou des processus actifs ; la confirmation arrête alors tous ses processus et supprime le workspace.

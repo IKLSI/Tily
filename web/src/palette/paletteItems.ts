@@ -59,7 +59,11 @@ const commandItems = (session: Session, shells: ShellProfile[]): PaletteItem[] =
     command('toggle-sidebar', session.sidebarCollapsed ? 'Afficher les workspaces' : 'Masquer les workspaces', store.toggleSidebar),
   ]
   if (workspace) {
-    items.push(command('rename-workspace', 'Renommer le workspace', () => ui.startRenamingWorkspace(workspace.id, RenameOrigin.Header)))
+    items.push(
+      command('rename-workspace', 'Renommer le workspace', () => ui.startRenamingWorkspace(workspace.id, RenameOrigin.Header)),
+      command('move-workspace-up', 'Monter le workspace', () => store.moveWorkspace(workspace.id, -1)),
+      command('move-workspace-down', 'Descendre le workspace', () => store.moveWorkspace(workspace.id, 1)),
+    )
   }
   if (tab) {
     const paneId = tab.active

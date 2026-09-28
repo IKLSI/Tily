@@ -27,6 +27,7 @@ export function WorkspaceTree({ session, renamingWorkspaceId, renamingTabId, act
   const [menu, setMenu] = useState<PanelMenuRequest | null>(null)
   const namesKey = session.workspaces.map((workspace) => workspace.name).join(NAME_SEPARATOR)
   const workspaceNames = useMemo(() => namesKey.split(NAME_SEPARATOR), [namesKey])
+  const menuPosition = menu ? session.workspaces.findIndex((workspace) => workspace.id === menu.workspaceId) : -1
 
   const handleOpenMenu = useCallback((request: PanelMenuRequest) => setMenu(request), [])
   const handleRunMenu = useCallback(() => setMenu(null), [])
@@ -67,7 +68,7 @@ export function WorkspaceTree({ session, renamingWorkspaceId, renamingTabId, act
           />
         ))}
       </nav>
-      {menu && <WorkspaceContextMenu request={menu} actions={actions} onRun={handleRunMenu} onDismiss={handleDismissMenu} />}
+      {menu && <WorkspaceContextMenu request={menu} position={menuPosition} count={session.workspaces.length} actions={actions} onRun={handleRunMenu} onDismiss={handleDismissMenu} />}
     </aside>
   )
 }

@@ -90,6 +90,12 @@ Travail autonome sur la branche `night-session`. Chaque itération apporte une a
 - **Pourquoi** : c'est un geste courant dans les terminaux Windows, et pratique avec Claude Code pour lui passer un fichier ou une image. L'itération 12 bloquait déjà les dépôts ; ceux qui visent un terminal deviennent maintenant utiles.
 - **Vérifié** : dans l'instance de test, un fichier dont le chemin contient des espaces déposé après `echo ` donne `echo 'C:\...\exemple fichier.txt'`, que PowerShell affiche. Un dossier déposé sur un autre pane s'insère sans guillemets et rend ce pane actif. 184 tests passent.
 
+### 14. Réordonner les workspaces
+
+- **Quoi** : « Monter » et « Descendre » dans le menu contextuel d'un workspace (désactivés aux extrémités, avec leur raccourci affiché), Alt + ↑ / ↓ sur un workspace sélectionné au clavier dans le panneau, et « Monter / Descendre le workspace » dans la palette pour le workspace actif. `sessionStore.moveWorkspace` fait le déplacement ; l'ordre est enregistré avec la session, et le bandeau de l'en-tête (panneau replié) le suit. Spécification (« Convention proposée »), README et `docs/FRONTEND_ARCHITECTURE.md` sont à jour.
+- **Pourquoi** : l'ordre des workspaces était figé à celui de leur création, sans aucun moyen de le changer, alors qu'on peut déplacer les onglets.
+- **Vérifié** : dans l'instance de test, les entrées du menu sont justes ; « Monter » passe PlannerATM en tête, Alt + ↑ remonte LZGChallenge d'un rang et le focus reste sur sa ligne.
+
 ## Reste à faire et idées
 
 - Taille de police et zoom du terminal : absents (police fixe à 14 px). La spécification les classe « À décider » (section 4), donc je n'y ai pas touché ; c'est à trancher.

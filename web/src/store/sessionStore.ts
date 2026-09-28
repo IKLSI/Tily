@@ -50,6 +50,7 @@ interface SessionState {
   setGitGraphLayout: (change: Partial<GitGraphLayout>) => void
   newWorkspace: (name: string, path: string, shell: string) => string
   renameWorkspace: (workspaceId: string, name: string) => void
+  moveWorkspace: (workspaceId: string, offset: number) => void
   newTab: (shell: string) => void
   newTabAt: (path: string, shell: string) => void
   renameTab: (tabId: string, name: string) => void
@@ -195,6 +196,19 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
         if (workspace && trimmed.length > 0) {
           workspace.name = trimmed
         }
+      }),
+    })),
+
+  moveWorkspace: (workspaceId, offset) =>
+    set((state) => ({
+      session: mutateSession(state.session, (draft) => {
+        const index = draft.workspaces.findIndex((workspace) => workspace.id === workspaceId)
+        const destination = index + offset
+        if (index < 0 || destination < 0 || destination >= draft.workspaces.length) {
+          return
+        }
+        const [workspace] = draft.workspaces.splice(index, 1)
+        draft.workspaces.splice(destination, 0, workspace)
       }),
     })),
 

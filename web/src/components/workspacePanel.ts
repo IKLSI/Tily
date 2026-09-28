@@ -10,6 +10,7 @@ export interface WorkspacePanelActions {
   closeWorkspace: (workspaceId: string) => void
   newTabIn: (workspaceId: string) => void
   collapseOthers: (workspaceId: string) => void
+  moveWorkspace: (workspaceId: string, offset: number) => void
   selectTab: (workspaceId: string, tabId: string) => void
   startRenameTab: (tabId: string) => void
   commitRenameTab: (name: string) => void
