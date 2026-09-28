@@ -109,6 +109,7 @@ export function GitRefsSidebar({ state, width }: GitRefsSidebarProps) {
         current={branch.current}
         focusable={key === focusable}
         handle={{ kind: GitRefKind.Branch, name: branch.name }}
+        refName={branch.name}
         onFocus={setFocusKey}
         onSelect={handleShow}
         onActivate={handleActivate}
@@ -130,6 +131,7 @@ export function GitRefsSidebar({ state, width }: GitRefsSidebarProps) {
         depth={depth}
         focusable={key === focusable}
         handle={{ kind: GitRefKind.Remote, name: branch.name }}
+        refName={branch.name}
         onFocus={setFocusKey}
         onSelect={handleShow}
         onActivate={handleActivate}
@@ -159,6 +161,7 @@ export function GitRefsSidebar({ state, width }: GitRefsSidebarProps) {
         icon={IconName.Tag}
         name={tag.name}
         meta={shortSha(tag.sha)}
+        refName={tag.name}
         tip={`Tag ${tag.name} · clic : aller au commit`}
         focusable={key === focusable}
         onFocus={setFocusKey}

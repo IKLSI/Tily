@@ -2,6 +2,7 @@ import { bridge } from '../bridge/bridge'
 import { GitChangeKind, GitDiffSource, type GitConflict, type GitFileChange, type GitHistoryScope, type GitWebMessage } from '../bridge/gitMessages'
 import { HISTORY_MAX, HISTORY_PAGE, useGitStore, type GitConfirmation, type GitFileTarget, type GitMenuRequest } from '../store/gitStore'
 import { StatusLevel, useHostStore } from '../store/hostStore'
+import { busyRefOf } from './gitBusy'
 import { absolutePath, currentName, fileName, OPERATION_LABELS, plural } from './gitLabels'
 
 interface PendingRetry {
@@ -20,7 +21,7 @@ const currentRoot = (): string | null => useGitStore.getState().state?.root ?? n
 export const send = (message: GitWebMessage, busy: boolean): void => {
   const store = useGitStore.getState()
   if (busy) {
-    store.setBusy(message.type)
+    store.setBusy(message.type, busyRefOf(message))
   }
   store.setFailure(null)
   bridge.send(message)

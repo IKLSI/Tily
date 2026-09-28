@@ -93,6 +93,7 @@ interface GitViewState {
   details: GitCommitDetails | null
   detailsError: string | null
   busy: string | null
+  busyRef: string | null
   failure: GitFailure | null
   rejection: GitRejection | null
   confirmation: GitConfirmation | null
@@ -115,7 +116,7 @@ interface GitViewState {
   closeDrawer: () => void
   receiveDiff: (request: number, diff: GitDiff | null, error: string | null) => void
   receiveDetails: (request: number, details: GitCommitDetails | null, error: string | null) => void
-  setBusy: (busy: string | null) => void
+  setBusy: (busy: string | null, busyRef?: string | null) => void
   setFailure: (failure: GitFailure | null) => void
   setRejection: (rejection: GitRejection | null) => void
   confirm: (confirmation: GitConfirmation | null) => void
@@ -146,6 +147,7 @@ export const useGitStore = create<GitViewState>()((set) => ({
   diffRequest: 0,
   detailsRequest: 0,
   busy: null,
+  busyRef: null,
   failure: null,
   rejection: null,
   confirmation: null,
@@ -181,7 +183,7 @@ export const useGitStore = create<GitViewState>()((set) => ({
   closeDrawer: () => set(closedDrawer),
   receiveDiff: (request, diff, diffError) => set((current) => (current.diffRequest === request ? { diff, diffError } : current)),
   receiveDetails: (request, details, detailsError) => set((current) => (current.detailsRequest === request ? { details, detailsError } : current)),
-  setBusy: (busy) => set({ busy }),
+  setBusy: (busy, busyRef = null) => set({ busy, busyRef }),
   setFailure: (failure) => set({ failure }),
   setRejection: (rejection) => set({ rejection }),
   confirm: (confirmation) => set({ confirmation }),
