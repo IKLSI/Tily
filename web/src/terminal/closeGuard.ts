@@ -30,7 +30,7 @@ const describePane = (session: Session | null, paneId: string): string => {
 
 const toView = (activity: PaneActivity): PaneActivityView => ({ ...activity, label: describePane(useSessionStore.getState().session, activity.paneId) })
 
-export const showCloseConfirmation = (title: string, activity: PaneActivity[], proceed: () => void): void => {
+const showCloseConfirmation = (title: string, activity: PaneActivity[], proceed: () => void): void => {
   confirmed = proceed
   useUiStore.getState().showCloseConfirmation({ title, panes: activity.map(toView) })
 }

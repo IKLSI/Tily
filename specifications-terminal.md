@@ -2,18 +2,13 @@
 
 Version 2.0 · 18 septembre 2026 · Application Windows · Aucune priorité définie
 
-Document de référence pour l’implémentation. Cette version remplace les spécifications initiales et consolide les décisions prises après exploration des maquettes et utilisation du POC Dock vert.
-
-Référence visuelle : [POC Dock](poc/index.html). Les anciennes maquettes et variantes servent uniquement d’archives d’exploration.
+Document de référence pour l’implémentation. Cette version remplace les spécifications initiales et consolide les décisions prises pendant le cadrage et le développement de l’application.
 
 ## 1. Statut des exigences
 
 - **Retenu** : besoin explicitement demandé ou direction visuelle sélectionnée par l’utilisateur.
 - **Convention proposée** : détail nécessaire à l’implémentation, proposé ici lorsque la conversation ne le tranche pas. Il ne constitue pas une validation supplémentaire de l’utilisateur.
 - **À décider** : information manquante ou choix technique qui doit être établi avant l’implémentation concernée.
-- **Limite du POC** : comportement de démonstration qui ne doit pas être confondu avec la capacité attendue de l’application finale.
-
-L’approbation de la version visuelle actuelle valide la direction Dock vert et les interactions demandées. Elle ne transforme pas les valeurs fictives, les limites du navigateur ou les simulations en exigences du produit final.
 
 ## 2. Objectif et périmètre
 
@@ -50,7 +45,7 @@ Exemple : « Perso » peut contenir un terminal dans Documents, un autre dans un
 
 ## 4. Direction visuelle et disposition
 
-**Retenu.** Dock vert en thème sombre (décision du 21 septembre 2026, remplaçant l’interface claire du POC) : fonds gris anthracite, accent vert sauge désaturé, terminaux sombres, en-tête compact, panneau gauche en arborescence. Maximiser l’espace disponible pour les terminaux.
+**Retenu.** Dock vert en thème sombre (décision du 21 septembre 2026, remplaçant l’interface claire initiale) : fonds gris anthracite, accent vert sauge désaturé, terminaux sombres, en-tête compact, panneau gauche en arborescence. Maximiser l’espace disponible pour les terminaux.
 
 | Zone | Contenu attendu |
 | --- | --- |
@@ -68,11 +63,10 @@ Exemple : « Perso » peut contenir un terminal dans Documents, un autre dans un
 - Éviter titres de section redondants, slogan, texte d’aide permanent, chemin global répété, barre d’état sans utilité immédiate et gros blocs de présentation.
 - Préférer les infobulles et noms accessibles pour les boutons compacts.
 - Réserver les fenêtres modales aux interactions qui en bénéficient réellement, notamment la palette. Les actions courantes sont directes, inline ou contextuelles.
-- Les badges « Simulation » et messages de démonstration du POC n’appartiennent pas à l’application finale.
 
-### Repères visuels issus du POC
+### Repères visuels
 
-Ces valeurs sont des références de réalisation, pas des contraintes de taille absolues : en-tête d’environ 42 px, fond de l’application #17191b, panneaux #1e2123, fond de terminal #121416, accent #7a9f8b, fond de sélection à peine plus clair que le panneau, interface en Segoe UI et terminal en police monospace. Le POC clair (#14251e, #226b4b) reste la référence de disposition, pas de couleurs. Préserver la lisibilité avec la mise à l’échelle Windows.
+Ces valeurs sont des références de réalisation, pas des contraintes de taille absolues : en-tête d’environ 42 px, fond de l’application #17191b, panneaux #1e2123, fond de terminal #121416, accent #7a9f8b, fond de sélection à peine plus clair que le panneau, interface en Segoe UI et terminal en police monospace. Préserver la lisibilité avec la mise à l’échelle Windows.
 
 **À décider.** Personnalisation de la police terminal, taille du texte, zoom et comportement aux très petites dimensions. La cible principale reste une fenêtre d’application de bureau.
 
@@ -147,7 +141,7 @@ Le déplacement conserve le shell, le dossier, l’historique, les processus act
 | PANE-04 | Naviguer entre panes au clavier et activer un pane en cliquant dedans. |
 | PANE-05 | Conserver la disposition et ses proportions entre sessions. |
 
-Les splits imbriqués du POC servent de référence. L’action de fermeture d’un pane retire cette feuille de la disposition et agrandit la zone restante.
+Les splits peuvent être imbriqués. L’action de fermeture d’un pane retire cette feuille de la disposition et agrandit la zone restante.
 
 **Conventions proposées.** Le split hérite aussi du shell du pane actif, commence à parts égales et active le nouveau pane. La fermeture du dernier pane utilise les règles de fermeture d’un onglet. Préserver les saisies, processus et sélections lorsque le panneau latéral est masqué, lorsqu’un groupe est déplié ou lorsqu’une zone est redimensionnée.
 
@@ -185,7 +179,7 @@ Les splits imbriqués du POC servent de référence. L’action de fermeture d�
 - La sélection à la souris et au clavier conduit à la même action.
 - La palette rejoint les workspaces, onglets et panes ; elle déclenche les éditeurs inline plutôt que des formulaires modaux supplémentaires.
 
-**Convention proposée.** Conserver Ctrl + Maj + P comme alias du POC. Prévoir retour du focus à l’élément d’origine à la fermeture ; lorsqu’une commande ouvre un terminal ou un éditeur inline, son nouveau champ reçoit le focus.
+**Convention proposée.** Conserver Ctrl + Maj + P comme alias. Prévoir retour du focus à l’élément d’origine à la fermeture ; lorsqu’une commande ouvre un terminal ou un éditeur inline, son nouveau champ reçoit le focus.
 
 ### Touche Leader
 
@@ -212,7 +206,7 @@ Les séquences Leader sont consommées par l’application uniquement lorsqu’e
 
 **Retenu.** Chercher rapidement un dossier dans `C:\\Files\\Projects`, puis ouvrir un workspace avec un premier terminal dans ce dossier. Le raccourci WezTerm Leader + F existant sert de référence fonctionnelle.
 
-Ce sélecteur recherche des dossiers, pas du texte dans les fichiers. L’interface doit rester compacte et intégrée, comme l’exploration de projets du POC. La navigation clavier suit le principe ↑ / ↓ / Entrée / Échap.
+Ce sélecteur recherche des dossiers, pas du texte dans les fichiers. L’interface doit rester compacte et intégrée. La navigation clavier suit le principe ↑ / ↓ / Entrée / Échap.
 
 **Décision prise.** Le chemin est `C:\\Files\\Projects`. Reprendre la profondeur de premier niveau de WezTerm, exclure `worktrees` de la liste des projets puis l’exposer séparément si nécessaire. Le sélecteur ne recherche que des dossiers et ne détecte pas les workspaces déjà ouverts : chaque sélection peut créer un nouveau workspace. Le nom initial est celui du dossier sélectionné.
 
@@ -304,13 +298,11 @@ Le texte restauré est accompagné d’un séparateur explicite, par exemple « 
 
 L’export de préférences ne doit pas embarquer implicitement la sortie des terminaux. Un export volontaire de disposition peut être proposé séparément ; il contient alors des chemins locaux. L’import valide l’ensemble avant mutation et **remplace** la configuration courante ; il ne fusionne pas silencieusement les valeurs.
 
-**Limite du POC.** Son export JSON contient principalement la disposition et les chemins, sans texte terminal. Il ne constitue pas encore le format complet de préférences de l’application finale.
-
 **Convention de fichiers.** Les préférences exportables, l’état de session et l’historique restent séparés, chacun avec une version de schéma. L’emplacement exact peut être choisi par l’implémentation dans les répertoires de données Windows appropriés ; il doit être documenté et stable. Une confirmation est requise avant un import qui remplace une configuration existante.
 
 ## 15. Architecture fonctionnelle et choix techniques
 
-Cette section décrit une séparation des responsabilités puis fixe une recommandation technique à valider par un spike.
+Cette section décrit une séparation des responsabilités puis la pile technique retenue.
 
 - **Interface** : navigation, édition inline, palette, arborescence et affichage des états.
 - **Modèle de session** : identifiants stables, ownership des onglets/panes, arbre de splits et sélection.
@@ -326,13 +318,13 @@ Les déplacements et changements de présentation agissent sur le modèle et la 
 ### Pile technique retenue (validée par le spike T01)
 
 - **Hôte Windows :** application C# sur .NET 10 LTS avec une seule fenêtre WinUI 3 (Windows App SDK). L’hôte ne porte aucune interface métier : il gère la fenêtre, le gestionnaire de processus, les services locaux, les adaptateurs d’agents et la persistance. WinUI 3 non empaqueté est confirmé par le spike T01 (Windows App SDK 2.5.1, publication autonome depuis la ligne de commande) ; le repli WPF n’est plus nécessaire.
-- **Interface :** une WebView2 unique héberge toute l’interface (arborescence, onglets, splits, palette, Leader) et un terminal xterm.js par pane, avec le renderer WebGL et un repli canvas. Le modèle de session du POC est repris côté web. Les raccourcis sont interceptés dans xterm.js, jamais par des accélérateurs XAML, afin qu’un seul moteur traite le clavier et le focus.
-- **Pseudo-terminal :** ConPTY, isolé derrière le gestionnaire de processus en C# avec P/Invoke. Chaque pane est rattaché à un Job Object Windows pour garantir l’arrêt de l’arbre de processus. Le spike compare la ConPTY intégrée à Windows et une `conpty.dll` embarquée issue d’OpenConsole.
+- **Interface :** une WebView2 unique héberge toute l’interface (arborescence, onglets, splits, palette, Leader) et un terminal xterm.js par pane, avec le renderer WebGL et un repli canvas. Les raccourcis sont interceptés dans xterm.js, jamais par des accélérateurs XAML, afin qu’un seul moteur traite le clavier et le focus.
+- **Pseudo-terminal :** ConPTY, isolé derrière le gestionnaire de processus en C# avec P/Invoke. Chaque pane est rattaché à un Job Object Windows pour garantir l’arrêt de l’arbre de processus. Le spike T01 a comparé la ConPTY intégrée à Windows et une `conpty.dll` embarquée issue d’OpenConsole.
 - **Dossier courant :** ConPTY ne le fournit pas. Dock l’obtient par intégration shell propre (variable d’environnement dédiée et wrapper de prompt non intrusif émettant une séquence OSC), compatible avec Windows PowerShell 5.1 et oh-my-posh, sans imiter WezTerm.
 - **Pont hôte / interface :** messages JSON pour les commandes et un canal dédié pour les octets PTY. Mesurer d’abord `PostWebMessage` ; basculer sur un WebSocket local ou un flux binaire si le débit soutenu décroche.
 - **Distribution :** build Windows autonome distribuée manuellement dans une release GitHub. Recommandation initiale : installeur Inno Setup pour l’application dépaquetée, sans mise à jour automatique ; l’installeur remplace la version précédente, détecte ou installe le runtime WebView2 Evergreen et embarque le runtime Windows App SDK (build autonome). Une distribution MSIX signée pourra être ajoutée si les contraintes de signature et de sideloading deviennent acceptables.
 
-**Retenu.** Cette pile a été validée le 21 septembre 2026 par le spike T01 (`spike/`) : PowerShell 5.1 réel avec le profil et oh-my-posh, ConPTY Windows et OpenConsole comparées, redimensionnement et applications plein écran, Unicode, IME, sélection et clavier français, dossier courant par `DOCK_PANE_ID` et séquence OSC 7, Job Object sans processus survivant, pont hôte / interface mesuré et installeur autonome testé. Les résultats détaillés sont dans `spike/README.md`. Les alternatives écartées sont l’interface hybride XAML + WebView2 par pane (clavier et focus partagés entre deux moteurs), le contrôle de Windows Terminal (aucun paquet officiel WinUI 3), Electron (empreinte) et Tauri 2 (introduit Rust dans une équipe .NET).
+**Retenu.** Cette pile a été validée le 21 septembre 2026 par le spike T01 : PowerShell 5.1 réel avec le profil et oh-my-posh, ConPTY Windows et OpenConsole comparées, redimensionnement et applications plein écran, Unicode, IME, sélection et clavier français, dossier courant par `DOCK_PANE_ID` et séquence OSC 7, Job Object sans processus survivant, pont hôte / interface mesuré et installeur autonome testé. Les résultats détaillés restent consultables dans l’historique Git : [compte rendu du spike T01](https://github.com/MaximeRazafinjato/dock-terminal/blob/b1c648454c311b51a731118aea84b98d10bea1ac/spike/README.md). Les alternatives écartées sont l’interface hybride XAML + WebView2 par pane (clavier et focus partagés entre deux moteurs), le contrôle de Windows Terminal (aucun paquet officiel WinUI 3), Electron (empreinte) et Tauri 2 (introduit Rust dans une équipe .NET).
 
 ### Structure conceptuelle des données
 
@@ -363,7 +355,7 @@ Ces exigences sont des recommandations d’implémentation pour préserver les i
 
 ## 17. Matrice de recette
 
-Ces scénarios définissent les vérifications à effectuer sur l’application finale. Ils ne déclarent pas que le POC les satisfait tous.
+Ces scénarios définissent les vérifications à effectuer sur l’application finale.
 
 | ID | Scénario | Résultat attendu |
 | --- | --- | --- |
@@ -393,33 +385,16 @@ Ces scénarios définissent les vérifications à effectuer sur l’application 
 | R24 | Export/import et import invalide. | Préférences récupérables ; aucune mutation si validation échoue. |
 | R25 | Tester noms longs, espaces, accents, IME, mise à l’échelle Windows. | Interface lisible, saisie fiable, chemins correctement traités. |
 | R26 | Inspecter onglets, workspaces et palette. | Pas de bordures de sélection colorées ; fond et focus restent lisibles. |
-| R27 | Exécuter le spike T01 : deux panes xterm.js dans une WebView2 unique, PowerShell 5.1 réel, raccourcis, dossier courant, Job Object, flux soutenu, installeur sur machine vierge. | Aucune perte ni doublon de frappe, dossier courant exact, aucun processus survivant, débit mesuré, installation fonctionnelle ; sinon la pile est rejetée. |
+| R27 | Ouvrir deux panes PowerShell 5.1 réels, utiliser les raccourcis, changer de dossier, produire un flux soutenu, fermer un pane, puis installer Dock sur une machine vierge. | Aucune perte ni doublon de frappe, dossier courant exact, aucun processus survivant, débit au moins égal à celui de ConPTY, installation fonctionnelle. |
 | R28 | Dans un terminal, Ctrl + clic sur une URL puis sur un hyperlien OSC 8, clic simple sur un lien, puis Ctrl + clic sur un lien `file:` ou d’un autre schéma. | Les liens `http` et `https` s’ouvrent dans le navigateur par défaut avec Ctrl + clic uniquement ; le clic simple sélectionne sans rien ouvrir ; un autre schéma n’est jamais ouvert et un message l’explique. |
 | R29 | Ouvrir l’explorateur par son bouton dans un onglet, changer d’onglet puis revenir, faire `cd` dans le shell, changer de pane, double-cliquer un fichier, créer, renommer puis supprimer un fichier. | Fermé par défaut, l’état est propre à chaque onglet ; l’explorateur suit le dossier du pane actif ; le fichier s’ouvre dans l’éditeur ; les opérations sur les fichiers sont visibles immédiatement et la suppression passe par une confirmation. |
 | R30 | Dans un dépôt de test, ouvrir la vue Git puis enchaîner : stage d’un fichier et lecture de son diff, commit, création et merge d’une branche, conflit provoqué, annulation de la dernière opération, stash, tag et cherry-pick, push vers un dépôt distant, réécriture de l’historique et nouveau push. | Branches et graphe reflètent chaque opération, y compris celles faites au terminal ; le conflit liste ses fichiers et se termine ou s’annule ; « Annuler » restaure l’état précédent ; le push refusé ne propose le forçage qu’avec `--force-with-lease` et confirmation. |
 
-## 18. État du POC et écarts à combler
-
-| Domaine | POC actuel | Application cible |
-| --- | --- | --- |
-| UI | Dock vert compact, arborescence, édition inline, menus et palette. | Reprendre la direction et fiabiliser l’ensemble des interactions. |
-| Terminal | Commandes simulées dans des champs HTML. | Vrai shell et vrai terminal interactif. |
-| Profil / worktrees | Aucun profil réel exécuté. | Charger le profil et vérifier wtr/rmwt. |
-| Projets | Liste fictive. | Lecture du dossier configuré. |
-| Agents | Attente et fin simulées. | Adaptateurs fiables, état inconnu sinon. |
-| Actions locales | Certaines actions affichent un message explicatif. | Intégration éditeur/explorateur/Git réelle. |
-| Sauvegarde | Stockage navigateur, 500 lignes par pane. | Persistance robuste avec limites configurables et sauvegarde périodique. |
-| Onglets fermés | Historique limité à la session du navigateur. | Cinq onglets fermés restaurables, avec historique conservé après redémarrage. |
-| Navigation palette | Commandes, workspaces et onglets. | Ajouter les panes comme destinations explicites. |
-| Variantes du panneau | Styles exploratoires encore accessibles. | Arborescence par défaut ; sélecteur exploratoire non requis. |
-
-Le POC est une référence de conception, pas une implémentation technique prête à servir de terminal réel.
-
-## 19. Décisions restantes avant développement
+## 18. Décisions restantes avant développement
 
 1. Inspecter le profil PowerShell, wtr/rmwt et la configuration WezTerm Leader + F. **Fait :** voir `docs/inspection-environnement.md`.
 2. Identifier les shells installés, l’éditeur, le dossier Projets et les agents utilisés. **Fait :** Windows PowerShell 5.1 par défaut, PowerShell 7/CMD/Git Bash disponibles, VS Code, `C:\\Files\\Projects`, Claude Code et Codex CLI.
-3. **Fait :** pile hôte C# + WebView2 unique (xterm.js) + ConPTY validée par le spike T01 avec l’installeur manuel ; voir `spike/README.md`. **Décidé :** l’interface entière est web dans une seule WebView2 ; l’hôte natif ne porte pas d’interface métier.
+3. **Fait :** pile hôte C# + WebView2 unique (xterm.js) + ConPTY validée par le spike T01 avec l’installeur manuel ; voir le [compte rendu du spike T01](https://github.com/MaximeRazafinjato/dock-terminal/blob/b1c648454c311b51a731118aea84b98d10bea1ac/spike/README.md). **Décidé :** l’interface entière est web dans une seule WebView2 ; l’hôte natif ne porte pas d’interface métier.
 4. **Fait :** fermer le dernier onglet/pane supprime le workspace ; confirmer avant suppression d’un workspace actif ; état vide si nécessaire.
 5. **Fait :** arrêt forcé avec confirmation si serveur, agent ou programme actif ; limites 10 000 lignes/256 Mio, sauvegarde texte toutes les 30 s, cinq onglets fermés.
 6. **Fait :** Leader Ctrl + Espace, délai de 5 s, mapping personnalisable ; navigation spatiale.
@@ -428,4 +403,4 @@ Le POC est une référence de conception, pas une implémentation technique prê
 9. **Reporté :** implémenter les adaptateurs Claude Code/Codex CLI et définir leurs événements fiables dans une évolution dédiée.
 10. **Fait :** critères mesurables de performance et versions minimales de Windows consignés en section 15 à l’issue du spike.
 
-Ces décisions ne bloquent pas la compréhension du produit ; elles évitent de traiter un comportement accidentel du prototype comme une exigence validée.
+Ces décisions ne bloquent pas la compréhension du produit ; elles évitent de traiter un comportement accidentel comme une exigence validée.

@@ -19,15 +19,6 @@ Thumbs.db
 dock-configuration.json
 session*.json
 
-# Spike T01 (artefacts de build et binaires tiers)
-spike/**/bin/
-spike/**/obj/
-spike/publish/
-spike/installer/output/
-spike/installer/MicrosoftEdgeWebview2Setup.exe
-spike/vendor/conpty/*.dll
-spike/vendor/conpty/*.exe
-
 # Application Dock (socle)
 src/**/bin/
 src/**/obj/

@@ -17,12 +17,12 @@ export interface GitFileTarget {
   commit?: string
 }
 
-export interface GitFailure {
+interface GitFailure {
   message: string
   output?: string
 }
 
-export interface GitRejection {
+interface GitRejection {
   branch: string
   message: string
   output: string
@@ -50,7 +50,7 @@ export interface GitRefHandle {
   name: string
 }
 
-export interface GitDrag {
+interface GitDrag {
   source: GitRefHandle
   x: number
   y: number
@@ -65,7 +65,7 @@ export interface GitMenuRequest {
   restoreFocus: () => void
 }
 
-export interface GitSelection {
+interface GitSelection {
   keys: ReadonlySet<string>
   anchor: string | null
 }

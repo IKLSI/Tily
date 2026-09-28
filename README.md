@@ -4,7 +4,7 @@ Projet de terminal Windows organisé en **workspaces → onglets → panes**, av
 
 ## État du projet
 
-Les spécifications et le prototype HTML sont disponibles. **Le POC simule les terminaux.** La pile technique a été validée par le spike T01 (`spike/`). Le socle de l’application est en place : hôte C# .NET 10 (WinUI 3 + WebView2 unique) dans `src/`, interface React + TypeScript dans `web/`, tests dans `tests/`. Il ouvre de vrais terminaux PowerShell 5.1 avec le profil, persiste la session et gère les splits ; les fonctionnalités du backlog restent à implémenter.
+La pile technique a été validée par le spike T01 ([compte rendu](https://github.com/MaximeRazafinjato/dock-terminal/blob/b1c648454c311b51a731118aea84b98d10bea1ac/spike/README.md), conservé dans l’historique Git). Le socle de l’application est en place : hôte C# .NET 10 (WinUI 3 + WebView2 unique) dans `src/`, interface React + TypeScript dans `web/`, tests dans `tests/`. Il ouvre de vrais terminaux PowerShell 5.1 avec le profil, persiste la session et gère les splits ; les fonctionnalités du backlog restent à implémenter.
 
 ```
 dotnet build Dock.slnx
@@ -19,11 +19,7 @@ node scripts/generate-icon.js        # régénère src/Dock.Host/Assets/Dock.ico
 - [Spécifications complètes](specifications-terminal.md)
 - [Spécifications HTML imprimables](specifications-terminal.html)
 - [Inspection de l’environnement local](docs/inspection-environnement.md)
-- [POC retenu](poc/index.html) : télécharger/cloner le dépôt puis ouvrir ce fichier dans un navigateur.
-- [Guide du POC](poc/README.md)
-- [Maquettes exploratoires](maquettes/index.html)
 - [Backlog fonctionnel](BACKLOG.md)
-- [Spike T01 : pile Windows et pipeline de terminal](spike/README.md)
 - [Architecture backend](docs/BACKEND_ARCHITECTURE.md), [architecture frontend](docs/FRONTEND_ARCHITECTURE.md), [tests](docs/TESTING.md)
 
 ## Direction retenue
@@ -37,4 +33,4 @@ node scripts/generate-icon.js        # régénère src/Dock.Host/Assets/Dock.ico
 - Agents suivis : Claude Code (`claude`) et Codex CLI (`codex`).
 - Sélecteur de projets basé sur `C:\Files\Projects` ; éditeur configuré : VS Code.
 
-Les issues fonctionnelles décrivent l’application cible et leurs critères d’acceptation. La présence d’une simulation dans le POC ne signifie pas que la fonctionnalité native est terminée. Aucune priorité ni échéance n’est fixée pour l’instant.
+Les issues fonctionnelles décrivent l’application cible et leurs critères d’acceptation. Aucune priorité ni échéance n’est fixée pour l’instant.

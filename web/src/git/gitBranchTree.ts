@@ -1,4 +1,4 @@
-export interface GitBranchLeaf<T> {
+interface GitBranchLeaf<T> {
   item: T
   label: string
 }

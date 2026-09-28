@@ -6,7 +6,7 @@ import { useSessionStore } from '../store/sessionStore'
 
 const pendingBranchCopies = new Set<string>()
 
-export const paneById = (paneId: string): Pane | undefined => {
+const paneById = (paneId: string): Pane | undefined => {
   const { session } = useSessionStore.getState()
   return session ? allPanes(session).find((pane) => pane.id === paneId) : undefined
 }

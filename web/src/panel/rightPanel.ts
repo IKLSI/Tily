@@ -41,7 +41,7 @@ export const showPanelView = (view: RightPanelView): void => {
   requestAnimationFrame(() => focusView(view))
 }
 
-export const showGitGraph = (): void => {
+const showGitGraph = (): void => {
   useGitStore.getState().setGraphOpen(true)
   requestAnimationFrame(requestGraphFocus)
 }

@@ -1,6 +1,6 @@
 namespace Dock.Core.Shell;
 
-public sealed record ShellProfileModel(string Id, string Name, string Executable, string Arguments, bool Available, bool ReportsCurrentDirectory);
+public sealed record ShellProfileModel(string Id, string Name, string Executable, string Arguments, bool Available);
 
 public static class ShellCatalog
 {
@@ -19,10 +19,10 @@ public static class ShellCatalog
         var gitBash = overrides.ExecutableFor("gitbash") ?? Path.Combine(ProgramFiles, "Git", "bin", "bash.exe");
         return new[]
         {
-            new ShellProfileModel(DefaultShellId, "Windows PowerShell 5.1", powershell, $"-NoLogo -NoExit -EncodedCommand {wrapper}", File.Exists(powershell), true),
-            new ShellProfileModel("pwsh", "PowerShell 7", pwsh, $"-NoLogo -NoExit -EncodedCommand {wrapper}", File.Exists(pwsh), true),
-            new ShellProfileModel("cmd", "Invite de commandes", cmd, string.Empty, File.Exists(cmd), false),
-            new ShellProfileModel("gitbash", "Git Bash", gitBash, "--login -i", File.Exists(gitBash), false)
+            new ShellProfileModel(DefaultShellId, "Windows PowerShell 5.1", powershell, $"-NoLogo -NoExit -EncodedCommand {wrapper}", File.Exists(powershell)),
+            new ShellProfileModel("pwsh", "PowerShell 7", pwsh, $"-NoLogo -NoExit -EncodedCommand {wrapper}", File.Exists(pwsh)),
+            new ShellProfileModel("cmd", "Invite de commandes", cmd, string.Empty, File.Exists(cmd)),
+            new ShellProfileModel("gitbash", "Git Bash", gitBash, "--login -i", File.Exists(gitBash))
         };
     }
 

@@ -2,7 +2,7 @@ const fs = require('fs');
 
 const markdown = fs.readFileSync('specifications-terminal.md', 'utf8').replace(/\r/g, '');
 const oldHtml = fs.readFileSync('specifications-terminal.html', 'utf8');
-let head = oldHtml.slice(0, oldHtml.indexOf('</head>'));
+let head = oldHtml.slice(0, oldHtml.indexOf('</style>') + '</style>'.length);
 head = head.replace('Terminal & workspaces — Spécifications fonctionnelles', 'Dock — Spécifications complètes');
 head += '<style>nav ol{columns:2;padding-left:22px;font-size:14px}nav li{break-inside:avoid}td:first-child{min-width:85px}.table-wrap{margin:18px 0}header a{color:#c5dfce}section h2{scroll-margin-top:20px}@media(max-width:700px){nav ol{columns:1}}</style></head>';
 
@@ -73,10 +73,10 @@ for (let i = 0; i < lines.length; i += 1) {
 }
 closeSection();
 
-const header = `<body><header><div class="eyebrow">Référence pour l’implémentation · Version 2.0</div><h1>Dock — Spécifications complètes</h1><p>Terminal Windows, workspaces libres, interface compacte verte et navigation en arborescence.</p><div class="meta"><span class="pill">24 septembre 2026</span><span class="pill">19 sections</span><span class="pill">30 scénarios de recette</span></div><p><a href="poc/index.html">Ouvrir le POC retenu ↗</a> &nbsp; · &nbsp; <a href="specifications-terminal.md">Source Markdown versionnable</a> &nbsp; · &nbsp; <a href="docs/inspection-environnement.md">Inspection de l’environnement</a></p><button type="button" onclick="window.print()">Imprimer / Enregistrer en PDF</button></header>`;
+const header = `<body><header><div class="eyebrow">Référence pour l’implémentation · Version 2.0</div><h1>Dock — Spécifications complètes</h1><p>Terminal Windows, workspaces libres, interface compacte verte et navigation en arborescence.</p><div class="meta"><span class="pill">24 septembre 2026</span><span class="pill">18 sections</span><span class="pill">30 scénarios de recette</span></div><p><a href="specifications-terminal.md">Source Markdown versionnable</a> &nbsp; · &nbsp; <a href="docs/inspection-environnement.md">Inspection de l’environnement</a></p><button type="button" onclick="window.print()">Imprimer / Enregistrer en PDF</button></header>`;
 const toc = `<nav aria-label="Sommaire"><h2>Sommaire</h2><ol>${sections.map(section => `<li><a href="#${section.id}">${inline(section.title.replace(/^\d+\. /, ''))}</a></li>`).join('')}</ol></nav>`;
 const footer = '<footer>Document autonome, sans dépendance externe. Version Markdown et version HTML issues du même contenu.</footer>';
 
-if (sections.length !== 19) throw new Error(`Nombre de sections inattendu : ${sections.length}`);
+if (sections.length !== 18) throw new Error(`Nombre de sections inattendu : ${sections.length}`);
 fs.writeFileSync('specifications-terminal.html', `${head}${header}<main>${toc}${content}${footer}</main></body></html>`);
 console.log(`Rendered ${sections.length} sections from specifications-terminal.md.`);

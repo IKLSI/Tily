@@ -28,7 +28,7 @@ const RESTORE_SEPARATORS: Record<RestoreKind, string> = {
 }
 const FONT_FAMILY = '"CaskaydiaCove Nerd Font Mono", "Cascadia Mono", "Cascadia Code", Consolas, "Symbols Nerd Font Mono", monospace'
 
-export enum Renderer {
+enum Renderer {
   WebGl = 'webgl',
   Canvas = 'canvas',
   Dom = 'dom',

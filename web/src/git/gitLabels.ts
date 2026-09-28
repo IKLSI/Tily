@@ -102,7 +102,7 @@ export const initials = (author: string): string => {
   return letters.toUpperCase()
 }
 
-export const remoteBranchName = (name: string, remotes: string[]): string => {
+const remoteBranchName = (name: string, remotes: string[]): string => {
   const remote = remotes.filter((candidate) => name.startsWith(`${candidate}/`)).sort((left, right) => right.length - left.length)[0]
   return remote ? name.slice(remote.length + 1) : name
 }

@@ -18,7 +18,7 @@ const nextRequest = (): number => ++lastRequest
 
 const currentRoot = (): string | null => useGitStore.getState().state?.root ?? null
 
-export const send = (message: GitWebMessage, busy: boolean): void => {
+const send = (message: GitWebMessage, busy: boolean): void => {
   const store = useGitStore.getState()
   if (busy) {
     store.setBusy(message.type, busyRefsOf(message))

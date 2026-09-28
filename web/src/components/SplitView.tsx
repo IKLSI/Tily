@@ -4,7 +4,7 @@ import { isLeaf, SplitAxis, SplitSide, type SplitNode, type SplitPath } from '..
 import { PaneView } from './PaneView'
 import { SplitResizer } from './SplitResizer'
 
-export type SplitResizeHandler = (path: SplitPath, ratio: number) => void
+type SplitResizeHandler = (path: SplitPath, ratio: number) => void
 
 interface SplitViewProps {
   node: SplitNode

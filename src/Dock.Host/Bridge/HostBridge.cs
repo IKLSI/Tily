@@ -381,8 +381,7 @@ public sealed class HostBridge : IDisposable
         CloseTerminal(paneId);
         _buffers[paneId] = new PaneOutputBuffer(paneId);
         var cwd = command.Cwd ?? string.Empty;
-        var session = _terminals.Start(paneId, command.Shell ?? ShellCatalog.DefaultShellId, cwd, command.Cols, command.Rows);
-        Post(new { type = "terminal.created", pane = paneId, pid = session.ProcessId });
+        _terminals.Start(paneId, command.Shell ?? ShellCatalog.DefaultShellId, cwd, command.Cols, command.Rows);
         if (cwd.Length > 0 && !Directory.Exists(cwd))
         {
             Post(new { type = "terminal.pathMissing", pane = paneId, path = cwd, fallback = PathFallback.NearestExisting(cwd) });
