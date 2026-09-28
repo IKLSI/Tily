@@ -7,7 +7,7 @@ import { useAgentStore } from '../store/agentStore'
 import { useSessionStore } from '../store/sessionStore'
 import { RenameOrigin, useUiStore } from '../store/uiStore'
 import { restoreClosedTab } from '../terminal/tabLifecycle'
-import { terminalRegistry } from '../terminal/terminalRegistry'
+import { joinPane } from '../terminal/terminalActions'
 import { OpenTarget } from '../bridge/messages'
 import { copyPaneBranch, copyPanePath, openPaneFolder } from '../terminal/contextActions'
 import type { SearchItem } from './searchFilter'
@@ -77,20 +77,15 @@ const commandItems = (session: Session, shells: ShellProfile[]): PaletteItem[] =
   return items
 }
 
-const attentionItems = (session: Session): PaletteItem[] => {
-  const { selectPane } = useSessionStore.getState()
-  return waitingPanes(session, useAgentStore.getState().agents).map((pane) => ({
+const attentionItems = (session: Session): PaletteItem[] =>
+  waitingPanes(session, useAgentStore.getState().agents).map((pane) => ({
     id: `attention-${pane.paneId}`,
     kind: PaletteKind.Attention,
     label: `Rejoindre${SEPARATOR}${pane.label}`,
     hint: pane.detail,
     favorite: false,
-    run: () => {
-      selectPane(pane.paneId)
-      terminalRegistry.get(pane.paneId)?.terminal.focus()
-    },
+    run: () => joinPane(pane.paneId),
   }))
-}
 
 const navigationItems = (session: Session): PaletteItem[] => {
   const { selectWorkspace, selectTab, selectPane } = useSessionStore.getState()

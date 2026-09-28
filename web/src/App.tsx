@@ -12,6 +12,7 @@ import { receiveActivity, receiveApplicationClosing } from './terminal/closeGuar
 import { receiveContext } from './terminal/contextActions'
 import { receiveCreated, receiveDeleted, receiveListing, receiveRenamed } from './explorer/fileExplorerActions'
 import { receiveGitChanged, receiveGitDetails, receiveGitDiff, receiveGitDone, receiveGitFailed, receiveGitHistory, receiveGitPushRejected, receiveGitState } from './git/gitReceivers'
+import { joinPane } from './terminal/terminalActions'
 import { terminalRegistry } from './terminal/terminalRegistry'
 import { forgetRemovedText, markTextSaveFailed, primeSessionText, startTextAutosave } from './terminal/textPersistence'
 
@@ -65,11 +66,7 @@ export default function App() {
       bridge.on('app.closing', (message) => receiveApplicationClosing(message.activity)),
       bridge.on('terminal.activityResult', (message) => receiveActivity(message.panes)),
       bridge.on('agent.states', (message) => useAgentStore.getState().setAgents(message.panes)),
-      bridge.on('agent.join', (message) => {
-        useAgentStore.getState().acknowledge(message.pane)
-        useSessionStore.getState().selectPane(message.pane)
-        terminalRegistry.get(message.pane)?.terminal.focus()
-      }),
+      bridge.on('agent.join', (message) => joinPane(message.pane)),
       bridge.on('session.saved', () => setUnsaved(false)),
       bridge.on('session.saveFailed', (message) => {
         setUnsaved(true)

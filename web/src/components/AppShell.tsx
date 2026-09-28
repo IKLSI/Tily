@@ -18,6 +18,7 @@ import { toggleRightPanel } from '../panel/rightPanel'
 import { useGitStore } from '../store/gitStore'
 import { changePaneShell, dismissPaneState, restartPane, restartPaneIn } from '../terminal/paneLifecycle'
 import { closePaneKeepingText, closeTabKeepingText, closeWorkspaceKeepingText, restoreClosedTab } from '../terminal/tabLifecycle'
+import { joinPane } from '../terminal/terminalActions'
 import { terminalRegistry } from '../terminal/terminalRegistry'
 import { AttentionToasts } from './AttentionToasts'
 import { CloseConfirmDialog } from './CloseConfirmDialog'
@@ -105,11 +106,7 @@ const handleSplit = (paneId: string, axis: SplitAxis): void => {
   splitPane(axis)
 }
 
-const handleJoinPane = (paneId: string): void => {
-  useAgentStore.getState().acknowledge(paneId)
-  useSessionStore.getState().selectPane(paneId)
-  focusPane(paneId)
-}
+const handleJoinPane = (paneId: string): void => joinPane(paneId)
 
 const handleSelectWorkspace = (workspaceId: string): void => {
   useSessionStore.getState().selectWorkspace(workspaceId)

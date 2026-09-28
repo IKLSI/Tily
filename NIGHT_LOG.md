@@ -53,6 +53,12 @@ Travail autonome sur la branche `night-session`. Chaque itération apporte une a
 - **Pourquoi** : les flèches et la frappe partaient dans un shell invisible au lieu de parcourir les commits affichés.
 - **Vérifié** : l'instance de test tourne désormais avec le débogage distant de la WebView2 (`WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS=--remote-debugging-port=9223`), ce qui permet de lire `document.activeElement` après de vraies frappes. Avant la correction, le focus était sur le `textarea` de xterm. Après, il est sur la liste du graphe au démarrage comme après Ctrl + Tab, ↓ ↓ passe bien au deuxième commit et Échap ferme le graphe en rendant le focus au terminal.
 
+### 8. « Rejoindre » révèle le terminal même sous le graphe Git
+
+- **Quoi** : toutes les façons de rejoindre un agent (carte d'attention, pastille d'état du panneau ou de l'en-tête, entrée « Rejoindre » de la palette, clic sur une notification Windows) passent par une seule fonction, `joinPane`. Elle acquitte l'attente, sélectionne le pane, masque le graphe Git s'il recouvre les terminaux de l'onglet et donne le focus au terminal. L'entrée de la palette acquitte désormais l'attente comme les autres, ce qu'elle ne faisait pas.
+- **Pourquoi** : la logique était recopiée à trois endroits. Surtout, depuis l'itération 7, rejoindre un pane dont l'onglet affiche le graphe aurait donné le focus au graphe au lieu du terminal de l'agent.
+- **Vérifié** : Claude Code simulé en attente (un `ping -t` dans le pane et un fichier `agents\<pane>.json` écrit dans le dossier de données de test), onglet sous le graphe Git, clic sur « Rejoindre le terminal » depuis un autre onglet. Le graphe se ferme, le focus arrive dans le bon pane et la carte disparaît.
+
 ## Reste à faire et idées
 
 - Taille de police et zoom du terminal : absents (police fixe à 14 px). La spécification les classe « À décider » (section 4), donc je n'y ai pas touché ; c'est à trancher.
