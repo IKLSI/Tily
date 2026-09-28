@@ -1,9 +1,0 @@
-<Solution>
-  <Folder Name="/src/">
-    <Project Path="src/DockTerminal.Spike.Core/DockTerminal.Spike.Core.csproj" />
-    <Project Path="src/DockTerminal.Spike.Host/DockTerminal.Spike.Host.csproj" />
-  </Folder>
-  <Folder Name="/tests/">
-    <Project Path="tests/DockTerminal.Spike.Harness/DockTerminal.Spike.Harness.csproj" />
-  </Folder>
-</Solution>
