@@ -5,6 +5,7 @@ import { Direction, paneInDirection } from '../components/paneNavigation'
 import { useSessionStore } from '../store/sessionStore'
 import { requestApplicationClose } from '../terminal/closeGuard'
 import { closePaneKeepingText, restoreClosedTab } from '../terminal/tabLifecycle'
+import { terminalRegistry } from '../terminal/terminalRegistry'
 import { togglePanelView } from '../panel/rightPanel'
 import { RenameOrigin, useUiStore } from '../store/uiStore'
 
@@ -28,6 +29,7 @@ export const LEADER_HINTS: LeaderHint[] = [
   { keys: 'F', label: 'projet' },
   { keys: 'E', label: 'fichiers' },
   { keys: 'G', label: 'git' },
+  { keys: 'B', label: 'workspaces' },
   { keys: 'X', label: 'fermer le pane' },
   { keys: 'Z', label: 'rouvrir' },
   { keys: 'P', label: 'palette' },
@@ -58,6 +60,7 @@ export enum Command {
   RestoreTab = 'restoreTab',
   ToggleExplorer = 'toggleExplorer',
   ToggleGit = 'toggleGit',
+  ToggleSidebar = 'toggleSidebar',
 }
 
 const LEADER_KEYS: Record<string, Command> = {
@@ -69,6 +72,7 @@ const LEADER_KEYS: Record<string, Command> = {
   f: Command.Projects,
   e: Command.ToggleExplorer,
   g: Command.ToggleGit,
+  b: Command.ToggleSidebar,
   ',': Command.Settings,
   x: Command.ClosePane,
   z: Command.RestoreTab,
@@ -95,6 +99,7 @@ const DIRECT_LETTER_KEYS: Record<string, Command> = {
   z: Command.RestoreTab,
   e: Command.ToggleExplorer,
   g: Command.ToggleGit,
+  b: Command.ToggleSidebar,
 }
 
 const DIRECT_ARROW_KEYS: Record<string, Command> = {
@@ -191,6 +196,16 @@ const currentPaneId = (): string => {
   return workspace ? activeTab(workspace).active : ''
 }
 
+const SIDEBAR_SELECTOR = 'aside'
+
+const toggleSidebar = (): void => {
+  const { session, toggleSidebar: toggle } = useSessionStore.getState()
+  if (session && !session.sidebarCollapsed && document.activeElement?.closest(SIDEBAR_SELECTOR)) {
+    terminalRegistry.get(currentPaneId())?.terminal.focus()
+  }
+  toggle()
+}
+
 const focusPaneToward = (direction: Direction): void => {
   const target = paneInDirection(currentPaneId(), direction)
   if (target) {
@@ -260,6 +275,9 @@ export const runCommand = (command: Command): void => {
       break
     case Command.ToggleGit:
       togglePanelView(RightPanelView.Git, true)
+      break
+    case Command.ToggleSidebar:
+      toggleSidebar()
       break
   }
 }

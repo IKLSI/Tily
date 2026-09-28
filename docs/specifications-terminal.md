@@ -216,6 +216,8 @@ Les séquences Leader sont consommées par l’application uniquement lorsqu’e
 
 **Convention proposée.** Ctrl + Tab et Ctrl + Maj + Tab passent à l’onglet suivant ou précédent du workspace actif, en boucle, comme dans Windows Terminal. Ces combinaisons n’envoient au shell que Tab ou Maj + Tab, qui restent disponibles sans Ctrl.
 
+**Convention proposée.** Leader puis B, ou Ctrl + Maj + B, masque ou affiche le panneau des workspaces (WS-08), en rendant le focus au terminal s’il était dans le panneau.
+
 **Convention proposée.** Les raccourcis directs fonctionnent aussi quand le focus est hors d’un terminal (panneau des workspaces, graphe Git, explorateur), sauf dans un champ de saisie, un menu ou une boîte de dialogue ; le Leader reste propre aux terminaux.
 
 ## 10. Sélecteur de projets

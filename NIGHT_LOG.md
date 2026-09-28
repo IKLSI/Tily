@@ -162,6 +162,12 @@ Travail autonome sur la branche `night-session`. Chaque itération apporte une a
 - **Pourquoi** : recréer à la main un onglet à plusieurs panes (par exemple serveur, tests et agent dans le même projet) demandait autant de splits et de `cd` que de panes.
 - **Vérifié** : dans l'instance de test, un onglet à deux panes dupliqué depuis la palette donne un nouvel onglet actif avec le même split et deux shells neufs dans le même dossier (capture). Depuis le menu de la barre, le message « Onglet « web » dupliqué… » s'affiche.
 
+### 26. Raccourci pour masquer ou afficher le panneau des workspaces
+
+- **Quoi** : Leader puis B, ou Ctrl + Maj + B (B comme la barre latérale de VS Code), masque ou affiche le panneau des workspaces. Si le focus était dans le panneau au moment de le masquer, il revient au terminal actif. Le rappel des séquences Leader, la palette, l'infobulle du bouton de l'en-tête et le tableau des raccourcis du README mentionnent le raccourci.
+- **Pourquoi** : c'est le geste le plus direct pour gagner de la largeur, et il fallait passer par le bouton ou par la palette. La lettre B était libre dans les deux tables de raccourcis.
+- **Vérifié** : dans l'instance de test, Ctrl + Maj + B puis Leader puis B basculent le panneau. Depuis une ligne du panneau, Ctrl + Maj + B le masque et le focus arrive dans le terminal.
+
 ## Reste à faire et idées
 
 - Taille de police et zoom du terminal : absents (police fixe à 14 px). La spécification les classe « À décider » (section 4), donc je n'y ai pas touché ; c'est à trancher.

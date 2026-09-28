@@ -56,7 +56,7 @@ const commandItems = (session: Session, shells: ShellProfile[]): PaletteItem[] =
       bridge.send({ type: 'settings.import' })
     }),
     command('restore-tab', 'Rouvrir le dernier onglet fermé', restoreClosedTab, 'Ctrl + Maj + Z'),
-    command('toggle-sidebar', session.sidebarCollapsed ? 'Afficher les workspaces' : 'Masquer les workspaces', store.toggleSidebar),
+    command('toggle-sidebar', session.sidebarCollapsed ? 'Afficher les workspaces' : 'Masquer les workspaces', () => runCommand(Command.ToggleSidebar), 'Ctrl + Maj + B'),
   ]
   if (workspace) {
     items.push(
