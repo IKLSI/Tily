@@ -168,11 +168,16 @@ Travail autonome sur la branche `night-session`. Chaque itération apporte une a
 - **Pourquoi** : c'est le geste le plus direct pour gagner de la largeur, et il fallait passer par le bouton ou par la palette. La lettre B était libre dans les deux tables de raccourcis.
 - **Vérifié** : dans l'instance de test, Ctrl + Maj + B puis Leader puis B basculent le panneau. Depuis une ligne du panneau, Ctrl + Maj + B le masque et le focus arrive dans le terminal.
 
+### 27. Fondu sur les bords de la barre d'onglets
+
+- **Quoi** : quand des onglets sont masqués à gauche ou à droite de la bande qui défile, son bord s'estompe sur 24 px (`mask-image`), d'un côté ou des deux. L'état est recalculé au défilement et au redimensionnement, avec une tolérance de 8 px pour ignorer le repère de dépôt invisible des extrémités.
+- **Pourquoi** : depuis l'itération 10, la bande défile, mais rien n'indiquait qu'il restait des onglets hors de vue.
+- **Vérifié** : avec 14 onglets, le masque vaut « fondu à droite » au début, « des deux côtés » au milieu et « à gauche » à la fin. Un premier essai sans tolérance affichait un fondu à droite alors que le dernier onglet était visible ; c'est corrigé.
+
 ## Reste à faire et idées
 
 - **Taille de police et zoom du terminal** : police fixe à 14 px. La spécification classe ce point « À décider » (section 4), je n'y ai donc pas touché ; c'est à trancher.
 - **Glisser-déposer des workspaces à la souris** : ils se réordonnent désormais par menu, palette et Alt + ↑ / ↓, mais pas encore à la souris comme les onglets.
-- **Onglets hors de vue dans la barre** : la bande défile, mais rien n'indique qu'il reste des onglets à gauche ou à droite. Un léger dégradé sur les bords aiderait.
 - **Leader hors des terminaux** : les raccourcis directs marchent maintenant partout, mais le Leader (Ctrl + Espace) reste propre aux terminaux, comme avant.
 - **Colonne des branches du graphe Git** : Auteur et Date s'effacent quand la place manque, mais la colonne des branches (200 px) ne se replie pas d'elle-même dans une fenêtre très étroite.
 - **Dossier disparu** : le message garde ses boutons hors d'atteinte du clavier. C'est voulu, car le shell est toujours vivant et garde le focus ; un raccourci dédié serait à étudier.

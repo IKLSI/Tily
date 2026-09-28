@@ -34,23 +34,54 @@ interface TabBarProps {
 const MIDDLE_BUTTON = 1
 
 const tabSelector = (tabId: string): string => `[data-drop-tab="${tabId}"]`
+const FADE_WIDTH = '24px'
+const FADE_TOLERANCE_PX = 8
+const NO_FADE = { start: false, end: false }
+
+interface StripFade {
+  start: boolean
+  end: boolean
+}
+
+const fadeOf = (strip: HTMLElement): StripFade => ({
+  start: strip.scrollLeft > FADE_TOLERANCE_PX,
+  end: strip.scrollWidth - strip.scrollLeft - strip.clientWidth > FADE_TOLERANCE_PX,
+})
+
+const maskOf = ({ start, end }: StripFade): string | undefined => {
+  if (!start && !end) {
+    return undefined
+  }
+  const head = start ? `transparent, black ${FADE_WIDTH}` : 'black'
+  const tail = end ? `black calc(100% - ${FADE_WIDTH}), transparent` : 'black'
+  return `linear-gradient(to right, ${head}, ${tail})`
+}
 
 const isMenuKey = (event: KeyboardEvent): boolean => (event.shiftKey && event.key === 'F10') || event.key === 'ContextMenu'
 
 export function TabBar({ workspace, shells, renamingTabId, panelOpen, onTogglePanel, onSelect, onStartRename, onCommitRename, onCancelRename, onClose, onCloseOthers, onShift, onDuplicate, onNew, onMove }: TabBarProps) {
   const [menuOpen, setMenuOpen] = useState(false)
   const [tabMenu, setTabMenu] = useState<TabMenuRequest | null>(null)
+  const [fade, setFade] = useState<StripFade>(NO_FADE)
   const addButtonRef = useRef<HTMLButtonElement>(null)
   const stripRef = useRef<HTMLDivElement>(null)
   const { draggingTabId, tabDropTarget } = useUiStore(useShallow((state) => ({ draggingTabId: state.draggingTabId, tabDropTarget: state.tabDropTarget })))
   const agents = useAgentStore((state) => state.agents)
+
+  const updateFade = (strip: HTMLElement) => {
+    const next = fadeOf(strip)
+    setFade((current) => (current.start === next.start && current.end === next.end ? current : next))
+  }
 
   useEffect(() => {
     const strip = stripRef.current
     if (!strip) {
       return
     }
-    const revealActiveTab = () => strip.querySelector(tabSelector(workspace.active))?.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+    const revealActiveTab = () => {
+      strip.querySelector(tabSelector(workspace.active))?.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+      updateFade(strip)
+    }
     const observer = new ResizeObserver(revealActiveTab)
     observer.observe(strip)
     return () => observer.disconnect()
@@ -85,6 +116,11 @@ export function TabBar({ workspace, shells, renamingTabId, panelOpen, onTogglePa
       returnFocus.focus()
     }
   }
+  const handleStripScroll = () => {
+    if (stripRef.current) {
+      updateFade(stripRef.current)
+    }
+  }
   const handleWheel = (event: WheelEvent<HTMLDivElement>) => {
     if (stripRef.current && event.deltaY !== 0) {
       stripRef.current.scrollLeft += event.deltaY
@@ -94,7 +130,7 @@ export function TabBar({ workspace, shells, renamingTabId, panelOpen, onTogglePa
 
   return (
     <div data-drop-workspace={workspace.id} className="flex shrink-0 items-center gap-0.5 px-2 pt-1 select-none">
-      <div ref={stripRef} role="tablist" className="flex min-w-0 items-center gap-0.5 overflow-x-auto [scrollbar-width:none]" onWheel={handleWheel}>
+      <div ref={stripRef} role="tablist" className="flex min-w-0 items-center gap-0.5 overflow-x-auto [scrollbar-width:none]" style={{ maskImage: maskOf(fade) }} onWheel={handleWheel} onScroll={handleStripScroll}>
         {workspace.tabs.map((tab) => {
           const active = tab.id === workspace.active
           const targeted = isDropTarget(tabDropTarget, workspace.id, tab.id)
