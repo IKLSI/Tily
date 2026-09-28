@@ -10,12 +10,40 @@ interface IconProps {
 const DEFAULT_SIZE = 12
 
 const SHAPES: Record<IconName, ReactNode> = {
+  [IconName.Branch]: (
+    <>
+      <circle cx="3" cy="2.5" r="1.2" />
+      <circle cx="3" cy="9.5" r="1.2" />
+      <circle cx="9" cy="4" r="1.2" />
+      <path d="M3 3.7v4.6M9 5.2c0 2-6 1.5-6 3.5" />
+    </>
+  ),
+  [IconName.Check]: <path d="M2.5 6.3 5 8.8l4.5-5.3" />,
   [IconName.Chevron]: <path d="M4.5 2.5 8 6l-3.5 3.5" />,
   [IconName.Close]: <path d="M3 3l6 6M9 3 3 9" />,
+  [IconName.Columns]: (
+    <>
+      <rect x="1.5" y="2" width="9" height="8" rx="1" />
+      <path d="M4.5 2v8M7.5 2v8" />
+    </>
+  ),
+  [IconName.Discard]: (
+    <>
+      <path d="M2.3 2.8v2.6h2.6" />
+      <path d="M2.6 5.2a3.6 3.6 0 1 1 .7 3.4" />
+    </>
+  ),
+  [IconName.Editor]: <path d="M4 3 1.5 6 4 9M8 3l2.5 3L8 9" />,
   [IconName.Explorer]: (
     <>
       <rect x="1.5" y="2" width="9" height="8" rx="1" />
       <path d="M7.3 2v8" />
+    </>
+  ),
+  [IconName.Fetch]: (
+    <>
+      <path d="M3.2 8.6H3a2.1 2.1 0 0 1-.3-4.2 3.2 3.2 0 0 1 6.1-.9 2.3 2.3 0 0 1 .6 4.5" />
+      <path d="M6 5.4v5.1M4.4 9 6 10.6 7.6 9" />
     </>
   ),
   [IconName.File]: (
@@ -25,6 +53,28 @@ const SHAPES: Record<IconName, ReactNode> = {
     </>
   ),
   [IconName.Folder]: <path d="M1.5 9.2V2.8a.8.8 0 0 1 .8-.8h2.5l1 1.1h3.9a.8.8 0 0 1 .8.8v5.3a.8.8 0 0 1-.8.8H2.3a.8.8 0 0 1-.8-.8Z" />,
+  [IconName.Graph]: (
+    <>
+      <circle cx="3" cy="2.5" r="1.1" />
+      <circle cx="3" cy="9.5" r="1.1" />
+      <circle cx="9" cy="6" r="1.1" />
+      <path d="M3 3.6v4.8M3 4.2c0 1.5 4.9.3 4.9 1.8M3 7.8c0-1.5 4.9-.3 4.9-1.8" />
+    </>
+  ),
+  [IconName.Local]: (
+    <>
+      <rect x="2.3" y="2.5" width="7.4" height="5" rx=".7" />
+      <path d="M1 9.5h10" />
+    </>
+  ),
+  [IconName.Minus]: <path d="M2.2 6h7.6" />,
+  [IconName.More]: (
+    <>
+      <circle cx="2.6" cy="6" r=".9" fill="currentColor" stroke="none" />
+      <circle cx="6" cy="6" r=".9" fill="currentColor" stroke="none" />
+      <circle cx="9.4" cy="6" r=".9" fill="currentColor" stroke="none" />
+    </>
+  ),
   [IconName.NewFile]: (
     <>
       <path d="M6 10.5H3a.5.5 0 0 1-.5-.5V2a.5.5 0 0 1 .5-.5h3.3L9 4.2V6" />
@@ -46,12 +96,35 @@ const SHAPES: Record<IconName, ReactNode> = {
       <path d="m9.2 9.2 1.3 1.3" />
     </>
   ),
+  [IconName.Pull]: <path d="M6 1.5v7M3.2 5.7 6 8.5l2.8-2.8M2.5 10.5h7" />,
+  [IconName.Push]: <path d="M6 8.5v-7M3.2 4.3 6 1.5l2.8 2.8M2.5 10.5h7" />,
   [IconName.Refresh]: (
     <>
       <path d="M10 6a4 4 0 1 1-1.2-2.85" />
       <path d="M9.3 1.6v2H7.3" />
     </>
   ),
+  [IconName.Remote]: <path d="M3.3 9.5H3a2.2 2.2 0 0 1-.3-4.4 3.3 3.3 0 0 1 6.3-.9 2.4 2.4 0 0 1 .2 4.8Z" />,
+  [IconName.Sidebar]: (
+    <>
+      <rect x="1.5" y="2" width="9" height="8" rx="1" />
+      <path d="M4.7 2v8" />
+    </>
+  ),
+  [IconName.Stash]: (
+    <>
+      <path d="M1.5 4.5h9v5.2a.8.8 0 0 1-.8.8H2.3a.8.8 0 0 1-.8-.8Z" />
+      <path d="M1 2h10v2.5H1ZM4.6 6.8h2.8" />
+    </>
+  ),
+  [IconName.Switch]: <path d="M2 4h7.5M7.6 2.1 9.5 4 7.6 5.9M10 8H2.5M4.4 6.1 2.5 8l1.9 1.9" />,
+  [IconName.Tag]: (
+    <>
+      <path d="M1.5 2.3v3.2l5 5a.8.8 0 0 0 1.1 0l2.9-2.9a.8.8 0 0 0 0-1.1l-5-5H2.3a.8.8 0 0 0-.8.8Z" />
+      <circle cx="4" cy="4" r=".8" fill="currentColor" stroke="none" />
+    </>
+  ),
+  [IconName.Undo]: <path d="M4 2.4 1.8 4.6 4 6.8M2 4.6h5.2a2.8 2.8 0 0 1 0 5.6H4.6" />,
 }
 
 export function Icon({ name, size = DEFAULT_SIZE, className }: IconProps) {

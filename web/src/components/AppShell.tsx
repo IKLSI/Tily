@@ -2,7 +2,7 @@ import { useEffect, useMemo } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { bridge } from '../bridge/bridge'
 import { PickTarget, type NotificationSettings, type Project, type Settings } from '../bridge/messages'
-import { activePane, activeTab, activeWorkspace, DEFAULT_SHELL, EXPLORER_MAX, EXPLORER_MIN, findWorkspace, SIDEBAR_MAX, SIDEBAR_MIN, type Session, type SplitAxis, type SplitPath, type Workspace } from '../model/session'
+import { activePane, activeTab, activeWorkspace, DEFAULT_SHELL, EXPLORER_MAX, EXPLORER_MIN, findWorkspace, RightPanelView, SIDEBAR_MAX, SIDEBAR_MIN, type Session, type SplitAxis, type SplitPath, type Workspace } from '../model/session'
 import type { PaletteItem } from '../palette/paletteItems'
 import { waitingPanes } from '../agents/agentSummary'
 import { Command, runCommand } from '../keyboard/shortcuts'
@@ -11,8 +11,11 @@ import { useHostStore } from '../store/hostStore'
 import { useSessionStore } from '../store/sessionStore'
 import { RenameOrigin, useUiStore } from '../store/uiStore'
 import { cancelClose, confirmClose } from '../terminal/closeGuard'
-import { confirmDelete, focusFileTree, toggleExplorer } from '../explorer/fileExplorerActions'
+import { confirmDelete, focusFileTree } from '../explorer/fileExplorerActions'
 import { useExplorerStore } from '../store/explorerStore'
+import { focusGitPanel } from '../git/gitFocus'
+import { toggleRightPanel } from '../panel/rightPanel'
+import { useGitStore } from '../store/gitStore'
 import { changePaneShell, dismissPaneState, restartPane, restartPaneIn } from '../terminal/paneLifecycle'
 import { closePaneKeepingText, closeTabKeepingText, closeWorkspaceKeepingText, restoreClosedTab } from '../terminal/tabLifecycle'
 import { terminalRegistry } from '../terminal/terminalRegistry'
@@ -21,10 +24,13 @@ import { CloseConfirmDialog } from './CloseConfirmDialog'
 import { CommandPalette } from './CommandPalette'
 import { DeleteConfirmDialog } from './DeleteConfirmDialog'
 import { EmptyState } from './EmptyState'
-import { FileExplorer } from './FileExplorer'
+import { GitConfirmDialog } from './GitConfirmDialog'
+import { GitDiffDrawer } from './GitDiffDrawer'
+import { GitGraphView } from './GitGraphView'
 import { Header } from './Header'
 import { HeaderWorkspaces } from './HeaderWorkspaces'
 import { ProjectPicker } from './ProjectPicker'
+import { RightPanel } from './RightPanel'
 import { SettingsDialog } from './SettingsDialog'
 import { SidebarResizer } from './SidebarResizer'
 import { SplitView } from './SplitView'
@@ -129,8 +135,6 @@ const handleNewTabIn = (workspaceId: string): void => {
   newTab(DEFAULT_SHELL)
 }
 
-const handleToggleExplorer = (): void => toggleExplorer(false)
-
 const handleOpenTerminalAt = (path: string): void => {
   const { session, newTabAt } = useSessionStore.getState()
   const workspace = session ? activeWorkspace(session) : undefined
@@ -140,6 +144,18 @@ const handleOpenTerminalAt = (path: string): void => {
 const handleCancelDelete = (): void => {
   useExplorerStore.getState().cancelDelete()
   focusFileTree()
+}
+
+const handleConfirmGit = (): void => {
+  const { confirmation, confirm } = useGitStore.getState()
+  confirm(null)
+  confirmation?.run()
+  requestAnimationFrame(focusGitPanel)
+}
+
+const handleCancelGit = (): void => {
+  useGitStore.getState().confirm(null)
+  focusGitPanel()
 }
 
 const panelActions: WorkspacePanelActions = {
@@ -190,11 +206,15 @@ export function AppShell({ session }: AppShellProps) {
   )
   const { startRenamingWorkspace, startRenamingTab, openPalette, closePalette, closeProjectPicker, openSettings, closeSettings } = useUiStore.getState()
   const deleteRequest = useExplorerStore((state) => state.deleteRequest)
+  const gitConfirmation = useGitStore((state) => state.confirmation)
+  const gitGraphReady = useGitStore((state) => state.graphOpen && state.state !== null)
   const agents = useAgentStore((state) => state.agents)
   const acknowledged = useAgentStore((state) => state.acknowledged)
   const waiting = waitingPanes(session, agents).filter((pane) => acknowledged[pane.paneId] !== agentKey(agents[pane.paneId]))
   const workspace = activeWorkspace(session)
   const tab = workspace ? activeTab(workspace) : undefined
+  const panelView = tab?.panel ?? RightPanelView.Files
+  const gitShown = Boolean(tab?.explorer) && panelView === RightPanelView.Git
   const availableShells = useMemo(() => shells.filter((shell) => shell.available), [shells])
 
   useEffect(() => {
@@ -266,8 +286,8 @@ export function AppShell({ session }: AppShellProps) {
           workspace={current}
           shells={availableShells}
           renamingTabId={tabRenameOrigin === RenameOrigin.TabBar ? renamingTabId : null}
-          explorerOpen={Boolean(currentTab.explorer)}
-          onToggleExplorer={handleToggleExplorer}
+          panelOpen={Boolean(currentTab.explorer)}
+          onTogglePanel={toggleRightPanel}
           onSelect={selectTab}
           onStartRename={startRenamingTab}
           onCommitRename={handleCommitTabRename}
@@ -276,8 +296,10 @@ export function AppShell({ session }: AppShellProps) {
           onNew={newTab}
           onMove={moveTab}
         />
-        <div className="min-h-0 flex-1 border-t border-dock-line bg-dock-panel p-1">
+        <div className="relative min-h-0 flex-1 border-t border-dock-line bg-dock-panel p-1">
           <SplitView key={currentTab.id} node={currentTab.tree} activePaneId={currentTab.active} onFocus={selectPane} onClose={closePaneKeepingText} onSplit={handleSplit} onResize={handleResize} shells={availableShells} onRestart={restartPane} onRestartIn={restartPaneIn} onChangeShell={changePaneShell} onDismissState={dismissPaneState} />
+          {gitShown && gitGraphReady && <GitGraphView layout={session.gitGraph} />}
+          {gitShown && <GitDiffDrawer />}
         </div>
       </>
     )
@@ -313,13 +335,13 @@ export function AppShell({ session }: AppShellProps) {
             <SidebarResizer width={session.sidebar} min={SIDEBAR_MIN} max={SIDEBAR_MAX} label="Largeur du panneau des workspaces" onResize={setSidebarWidth} />
           </>
         )}
-        <main className="flex min-h-0 min-w-0 flex-1 flex-col">
+        <main className="relative flex min-h-0 min-w-0 flex-1 flex-col">
           {workspace ? renderMain(workspace) : <EmptyState canRestore={session.closed.length > 0} onNewWorkspace={handleNewWorkspace} onRestoreTab={restoreClosedTab} />}
         </main>
         {tab?.explorer && (
           <>
-            <SidebarResizer width={session.explorerWidth} min={EXPLORER_MIN} max={EXPLORER_MAX} label="Largeur de l’explorateur de fichiers" reversed onResize={setExplorerWidth} />
-            <FileExplorer root={activePane(tab).path} width={session.explorerWidth} onClose={handleToggleExplorer} onOpenTerminal={handleOpenTerminalAt} />
+            <SidebarResizer width={session.explorerWidth} min={EXPLORER_MIN} max={EXPLORER_MAX} label="Largeur du panneau de droite" reversed onResize={setExplorerWidth} />
+            <RightPanel view={panelView} root={activePane(tab).path} width={session.explorerWidth} onClose={toggleRightPanel} onOpenTerminal={handleOpenTerminalAt} />
           </>
         )}
       </div>
@@ -328,6 +350,7 @@ export function AppShell({ session }: AppShellProps) {
       {settingsOpen && <SettingsDialog snapshot={settingsSnapshot} pickedPath={pickedPath} imported={importedPreferences} onClose={handleCloseSettings} onSave={handleSaveSettings} onPick={handlePickPath} onExport={handleExportPreferences} onImport={handleImportPreferences} onInstallHooks={handleInstallHooks} onRemoveHooks={handleRemoveHooks} onTestNotification={handleTestNotification} />}
       {paletteOpen && <CommandPalette session={session} shells={availableShells} onClose={handleClosePalette} onRun={handleRunPaletteItem} onToggleFavorite={toggleFavorite} />}
       {deleteRequest && <DeleteConfirmDialog request={deleteRequest} onConfirm={confirmDelete} onCancel={handleCancelDelete} />}
+      {gitConfirmation && <GitConfirmDialog confirmation={gitConfirmation} onConfirm={handleConfirmGit} onCancel={handleCancelGit} />}
       {closeConfirmation && <CloseConfirmDialog confirmation={closeConfirmation} onConfirm={confirmClose} onCancel={handleCancelClose} />}
       <Tooltip />
       <StatusBar />

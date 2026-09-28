@@ -1,11 +1,11 @@
 import { bridge } from '../bridge/bridge'
 import { useHostStore } from '../store/hostStore'
-import { activePane, activeTab, activeWorkspace, DEFAULT_SHELL, SplitAxis, type Workspace } from '../model/session'
+import { activePane, activeTab, activeWorkspace, DEFAULT_SHELL, RightPanelView, SplitAxis, type Workspace } from '../model/session'
 import { Direction, paneInDirection } from '../components/paneNavigation'
 import { useSessionStore } from '../store/sessionStore'
 import { requestApplicationClose } from '../terminal/closeGuard'
 import { closePaneKeepingText, restoreClosedTab } from '../terminal/tabLifecycle'
-import { toggleExplorer } from '../explorer/fileExplorerActions'
+import { togglePanelView } from '../panel/rightPanel'
 import { RenameOrigin, useUiStore } from '../store/uiStore'
 
 const LEADER_TIMEOUT_MS = 5000
@@ -25,6 +25,7 @@ export const LEADER_HINTS: LeaderHint[] = [
   { keys: 'W', label: 'workspace' },
   { keys: 'F', label: 'projet' },
   { keys: 'E', label: 'fichiers' },
+  { keys: 'G', label: 'git' },
   { keys: 'X', label: 'fermer le pane' },
   { keys: 'Z', label: 'rouvrir' },
   { keys: 'P', label: 'palette' },
@@ -52,6 +53,7 @@ export enum Command {
   MoveTabRight = 'moveTabRight',
   RestoreTab = 'restoreTab',
   ToggleExplorer = 'toggleExplorer',
+  ToggleGit = 'toggleGit',
 }
 
 const LEADER_KEYS: Record<string, Command> = {
@@ -62,6 +64,7 @@ const LEADER_KEYS: Record<string, Command> = {
   w: Command.NewWorkspace,
   f: Command.Projects,
   e: Command.ToggleExplorer,
+  g: Command.ToggleGit,
   ',': Command.Settings,
   x: Command.ClosePane,
   z: Command.RestoreTab,
@@ -87,6 +90,7 @@ const DIRECT_LETTER_KEYS: Record<string, Command> = {
   x: Command.ClosePane,
   z: Command.RestoreTab,
   e: Command.ToggleExplorer,
+  g: Command.ToggleGit,
 }
 
 const DIRECT_ARROW_KEYS: Record<string, Command> = {
@@ -238,7 +242,10 @@ export const runCommand = (command: Command): void => {
       restoreClosedTab()
       break
     case Command.ToggleExplorer:
-      toggleExplorer(true)
+      togglePanelView(RightPanelView.Files, true)
+      break
+    case Command.ToggleGit:
+      togglePanelView(RightPanelView.Git, true)
       break
   }
 }

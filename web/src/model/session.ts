@@ -29,6 +29,11 @@ export enum SplitSide {
 
 export type SplitPath = SplitSide[]
 
+export enum RightPanelView {
+  Files = 'files',
+  Git = 'git',
+}
+
 export interface Tab {
   id: string
   name: string
@@ -36,6 +41,7 @@ export interface Tab {
   active: string
   tree: SplitNode
   explorer?: boolean
+  panel?: RightPanelView
 }
 
 export interface Workspace {
@@ -53,6 +59,17 @@ export interface ClosedTab {
   tab: Tab
 }
 
+export interface GitGraphLayout {
+  referencesWidth: number
+  referencesOpen: boolean
+  labelsWidth: number
+  graphWidth: number
+  authorWidth: number
+  dateWidth: number
+  authorShown: boolean
+  dateShown: boolean
+}
+
 export interface Session {
   version: number
   workspaces: Workspace[]
@@ -60,6 +77,7 @@ export interface Session {
   sidebar: number
   sidebarCollapsed: boolean
   explorerWidth: number
+  gitGraph: GitGraphLayout
   closed: ClosedTab[]
   favorites: string[]
 }
@@ -71,6 +89,20 @@ export const SIDEBAR_DEFAULT = 292
 export const EXPLORER_MIN = 200
 export const EXPLORER_MAX = 600
 export const EXPLORER_DEFAULT = 280
+export const GIT_REFERENCES_MIN = 160
+export const GIT_REFERENCES_MAX = 420
+export const GIT_COLUMN_MIN = 48
+export const GIT_COLUMN_MAX = 480
+export const DEFAULT_GIT_GRAPH: GitGraphLayout = {
+  referencesWidth: 200,
+  referencesOpen: true,
+  labelsWidth: 140,
+  graphWidth: 100,
+  authorWidth: 130,
+  dateWidth: 120,
+  authorShown: true,
+  dateShown: true,
+}
 export const DEFAULT_SHELL = 'powershell'
 export const CLOSED_TABS_MAX = 5
 export const SPLIT_RATIO_MIN = 0.15
@@ -78,6 +110,17 @@ export const SPLIT_RATIO_MAX = 0.85
 export const SPLIT_RATIO_DEFAULT = 0.5
 
 export const clampRatio = (ratio: number): number => Math.min(SPLIT_RATIO_MAX, Math.max(SPLIT_RATIO_MIN, ratio))
+
+const clampWidth = (width: number, min: number, max: number): number => Math.min(max, Math.max(min, Math.round(width)))
+
+export const clampGitGraph = (layout: GitGraphLayout): GitGraphLayout => ({
+  ...layout,
+  referencesWidth: clampWidth(layout.referencesWidth, GIT_REFERENCES_MIN, GIT_REFERENCES_MAX),
+  labelsWidth: clampWidth(layout.labelsWidth, GIT_COLUMN_MIN, GIT_COLUMN_MAX),
+  graphWidth: clampWidth(layout.graphWidth, GIT_COLUMN_MIN, GIT_COLUMN_MAX),
+  authorWidth: clampWidth(layout.authorWidth, GIT_COLUMN_MIN, GIT_COLUMN_MAX),
+  dateWidth: clampWidth(layout.dateWidth, GIT_COLUMN_MIN, GIT_COLUMN_MAX),
+})
 
 export const isLeaf = (node: SplitNode): node is SplitLeaf => 'pane' in node
 

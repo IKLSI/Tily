@@ -11,6 +11,7 @@ import { useUiStore } from './store/uiStore'
 import { receiveActivity, receiveApplicationClosing } from './terminal/closeGuard'
 import { receiveContext } from './terminal/contextActions'
 import { receiveCreated, receiveDeleted, receiveListing, receiveRenamed } from './explorer/fileExplorerActions'
+import { receiveGitChanged, receiveGitDetails, receiveGitDiff, receiveGitDone, receiveGitFailed, receiveGitHistory, receiveGitPushRejected, receiveGitState } from './git/gitReceivers'
 import { terminalRegistry } from './terminal/terminalRegistry'
 import { forgetRemovedText, markTextSaveFailed, primeSessionText, startTextAutosave } from './terminal/textPersistence'
 
@@ -87,6 +88,14 @@ export default function App() {
       bridge.on('files.created', (message) => receiveCreated(message.path)),
       bridge.on('files.renamed', (message) => receiveRenamed(message.path, message.target)),
       bridge.on('files.deleted', (message) => receiveDeleted(message.path)),
+      bridge.on('git.state', (message) => receiveGitState(message.path, message.state, message.error)),
+      bridge.on('git.changed', (message) => receiveGitChanged(message.path)),
+      bridge.on('git.history', (message) => receiveGitHistory(message.history, message.error)),
+      bridge.on('git.diff', (message) => receiveGitDiff(message.request, message.result, message.error)),
+      bridge.on('git.details', (message) => receiveGitDetails(message.request, message.result, message.error)),
+      bridge.on('git.done', (message) => receiveGitDone(message.operation, message.message, message.warning)),
+      bridge.on('git.failed', (message) => receiveGitFailed(message.operation, message.message, message.output, message.code)),
+      bridge.on('git.pushRejected', (message) => receiveGitPushRejected(message.operation, message.branch, message.message, message.output)),
       bridge.on('terminal.exit', (message) => {
         terminalRegistry.markExited(message.pane, message.code)
         markExited(message.pane, message.code)

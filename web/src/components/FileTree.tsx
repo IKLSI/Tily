@@ -10,8 +10,9 @@ import {
   refocusFileTreeIfLost,
   refreshFolders,
   renameEntry,
-  toggleExplorer,
 } from '../explorer/fileExplorerActions'
+import { RightPanelView } from '../model/session'
+import { togglePanelView } from '../panel/rightPanel'
 import { useExplorerStore, type EntryDraft } from '../store/explorerStore'
 import { FileContextMenu, type FileMenuActions } from './FileContextMenu'
 import { FileTreeRow } from './FileTreeRow'
@@ -123,7 +124,9 @@ export function FileTree({ root, rows, expanded, selectedPath, renamingPath, dra
     const current = entries[selectedIndex]
     const entry = current?.entry
     if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'e') {
-      toggleExplorer(true)
+      togglePanelView(RightPanelView.Files, true)
+    } else if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'g') {
+      togglePanelView(RightPanelView.Git, true)
     } else if (event.key === 'ArrowDown') {
       selectAndFocus(entries[selectedIndex < 0 ? 0 : Math.min(selectedIndex + 1, entries.length - 1)])
     } else if (event.key === 'ArrowUp') {

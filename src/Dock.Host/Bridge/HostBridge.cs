@@ -30,6 +30,7 @@ public sealed class HostBridge : IDisposable
     private readonly AgentStateFeed _agents;
     private readonly AttentionNotifier _notifier;
     private readonly FileExplorerFeed _files;
+    private readonly GitFeed _git;
     private SettingsModel _settings;
     private ShellPathsModel _shellPaths = ShellPathsModel.Empty;
     private PersistenceSettingsModel _persistence = PersistenceSettingsModel.Default;
@@ -59,6 +60,7 @@ public sealed class HostBridge : IDisposable
         _notifier = new AttentionNotifier(dispatcher, windowHandle, paneId => PostNow(new { type = "agent.join", pane = paneId }));
         _notifier.Register();
         _files = new FileExplorerFeed(windowHandle, () => _settings.Editor, Post, PostBackgroundError);
+        _git = new GitFeed(Post, PostBackgroundError);
         ApplySettings(_settings);
         _terminals.OutputReceived += HandleOutput;
         _terminals.CurrentDirectoryChanged += HandleCurrentDirectoryChanged;
@@ -219,6 +221,9 @@ public sealed class HostBridge : IDisposable
                 break;
             case var type when type.StartsWith("files.", StringComparison.Ordinal):
                 _files.Handle(command);
+                break;
+            case var type when type.StartsWith("git.", StringComparison.Ordinal):
+                _git.Handle(command);
                 break;
             case "link.open":
                 LocalActions.OpenLink(command.Url ?? throw new InvalidOperationException("Lien manquant."));
@@ -528,6 +533,7 @@ public sealed class HostBridge : IDisposable
         _agents.Dispose();
         _notifier.Dispose();
         _files.Dispose();
+        _git.Dispose();
         foreach (var buffer in _buffers.Values)
         {
             buffer.Release();

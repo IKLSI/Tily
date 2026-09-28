@@ -10,8 +10,21 @@ public sealed class SessionModel
     public int Sidebar { get; set; } = SessionLimits.DefaultSidebarWidth;
     public bool SidebarCollapsed { get; set; }
     public int ExplorerWidth { get; set; } = SessionLimits.DefaultExplorerWidth;
+    public GitGraphLayoutModel? GitGraph { get; set; }
     public List<ClosedTabModel> Closed { get; set; } = new();
     public List<string> Favorites { get; set; } = new();
+}
+
+public sealed class GitGraphLayoutModel
+{
+    public int ReferencesWidth { get; set; } = SessionLimits.DefaultGitReferencesWidth;
+    public bool ReferencesOpen { get; set; } = true;
+    public int LabelsWidth { get; set; } = SessionLimits.DefaultGitLabelsWidth;
+    public int GraphWidth { get; set; } = SessionLimits.DefaultGitGraphWidth;
+    public int AuthorWidth { get; set; } = SessionLimits.DefaultGitAuthorWidth;
+    public int DateWidth { get; set; } = SessionLimits.DefaultGitDateWidth;
+    public bool AuthorShown { get; set; } = true;
+    public bool DateShown { get; set; } = true;
 }
 
 public sealed class ClosedTabModel
@@ -39,6 +52,7 @@ public sealed class TabModel
     public bool Manual { get; set; }
     public string Active { get; set; } = string.Empty;
     public bool Explorer { get; set; }
+    public string? Panel { get; set; }
     public SplitNodeModel Tree { get; set; } = new();
 }
 
@@ -74,8 +88,18 @@ public static class SessionLimits
     public const int MinExplorerWidth = 200;
     public const int MaxExplorerWidth = 600;
     public const int DefaultExplorerWidth = 280;
+    public const int MinGitReferencesWidth = 160;
+    public const int MaxGitReferencesWidth = 420;
+    public const int DefaultGitReferencesWidth = 200;
+    public const int MinGitColumnWidth = 48;
+    public const int MaxGitColumnWidth = 480;
+    public const int DefaultGitLabelsWidth = 140;
+    public const int DefaultGitGraphWidth = 100;
+    public const int DefaultGitAuthorWidth = 130;
+    public const int DefaultGitDateWidth = 120;
     public const int MaxClosedTabs = 5;
     public const int MaxClosedTextChars = 2_000_000;
     public const int MaxFavorites = 50;
     public const int MaxFavoriteLength = 100;
+    public static readonly string[] Panels = ["files", "git"];
 }

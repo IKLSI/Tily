@@ -28,6 +28,18 @@
   --color-dock-status-done: #7ee2b8;
   --color-dock-status-error: #f07a70;
   --color-dock-status-unknown: #9aa3a0;
+  --color-dock-diff-added: #1d3025;
+  --color-dock-diff-added-ink: #a8d8b3;
+  --color-dock-diff-removed: #3a2427;
+  --color-dock-diff-removed-ink: #e8aaa3;
+  --color-dock-lane-0: #7a9f8b;
+  --color-dock-lane-1: #7f9fc9;
+  --color-dock-lane-2: #c9a65f;
+  --color-dock-lane-3: #a98fc9;
+  --color-dock-lane-4: #6fb3b0;
+  --color-dock-lane-5: #c98fa5;
+  --color-dock-lane-6: #9fbf6f;
+  --color-dock-lane-7: #c9906a;
   --font-sans: 'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif;
   --font-mono: 'CaskaydiaCove Nerd Font Mono', 'Cascadia Mono', 'Cascadia Code', Consolas, 'Symbols Nerd Font Mono', monospace;
 }
@@ -54,6 +66,11 @@ body,
 
 button:not([aria-disabled="true"]) {
   cursor: pointer;
+}
+
+html[data-git-dragging],
+html[data-git-dragging] * {
+  cursor: grabbing !important;
 }
 
 :focus-visible {

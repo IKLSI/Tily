@@ -45,7 +45,20 @@ public static class SessionValidator
         session.Favorites = session.Favorites.Distinct().ToList();
         session.Sidebar = Math.Clamp(session.Sidebar, SessionLimits.MinSidebarWidth, SessionLimits.MaxSidebarWidth);
         session.ExplorerWidth = Math.Clamp(session.ExplorerWidth, SessionLimits.MinExplorerWidth, SessionLimits.MaxExplorerWidth);
+        session.GitGraph = ClampGitGraph(session.GitGraph ?? new GitGraphLayoutModel());
         return ValidationResultModel.Ok();
+    }
+
+    private static GitGraphLayoutModel ClampGitGraph(GitGraphLayoutModel layout)
+    {
+        static int Column(int width) => Math.Clamp(width, SessionLimits.MinGitColumnWidth, SessionLimits.MaxGitColumnWidth);
+
+        layout.ReferencesWidth = Math.Clamp(layout.ReferencesWidth, SessionLimits.MinGitReferencesWidth, SessionLimits.MaxGitReferencesWidth);
+        layout.LabelsWidth = Column(layout.LabelsWidth);
+        layout.GraphWidth = Column(layout.GraphWidth);
+        layout.AuthorWidth = Column(layout.AuthorWidth);
+        layout.DateWidth = Column(layout.DateWidth);
+        return layout;
     }
 
     private static ValidationResultModel ValidateClosed(SessionModel session, ref int nodeCount)
@@ -98,6 +111,11 @@ public static class SessionValidator
         if (string.IsNullOrEmpty(tab.Id) || tab.Name is null)
         {
             return ValidationResultModel.Fail("Onglet invalide.");
+        }
+
+        if (tab.Panel is not null && !SessionLimits.Panels.Contains(tab.Panel))
+        {
+            tab.Panel = null;
         }
 
         var treeResult = ValidateTree(tab.Tree, 0, ref nodeCount);

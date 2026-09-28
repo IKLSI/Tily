@@ -5,10 +5,12 @@ import {
   activeTab,
   activeWorkspace,
   CLOSED_TABS_MAX,
+  clampGitGraph,
   cloneTabWithNewIds,
   createPane,
   createTab,
   createWorkspace,
+  DEFAULT_GIT_GRAPH,
   EXPLORER_DEFAULT,
   EXPLORER_MAX,
   EXPLORER_MIN,
@@ -19,10 +21,12 @@ import {
   setRatioAt,
   splitLeaf,
   updatePane,
+  RightPanelView,
   SIDEBAR_MAX,
   SIDEBAR_MIN,
   SplitAxis,
   type ClosedTab,
+  type GitGraphLayout,
   type Session,
   type SplitPath,
   type Tab,
@@ -40,7 +44,10 @@ interface SessionState {
   toggleSidebar: () => void
   setSidebarWidth: (width: number) => void
   toggleExplorer: () => boolean
+  togglePanelView: (view: RightPanelView) => boolean
+  setPanelView: (view: RightPanelView) => void
   setExplorerWidth: (width: number) => void
+  setGitGraphLayout: (change: Partial<GitGraphLayout>) => void
   newWorkspace: (name: string, path: string, shell: string) => string
   renameWorkspace: (workspaceId: string, name: string) => void
   newTab: (shell: string) => void
@@ -73,6 +80,11 @@ const mutateTab = (session: Session | null, mutate: (tab: Tab, workspace: Worksp
 
 const tabNameFor = (tab: Tab, paneId: string, path: string): string => (!tab.manual && tab.active === paneId ? folderName(path) || tab.name : tab.name)
 
+const rightPanelOpen = (session: Session | null): boolean => {
+  const workspace = session ? activeWorkspace(session) : undefined
+  return Boolean(workspace && activeTab(workspace).explorer)
+}
+
 const pathChanges = (session: Session | null, paneId: string, path: string): boolean =>
   (session?.workspaces ?? []).some((workspace) =>
     workspace.tabs.some((tab) => panesOf(tab.tree).some((pane) => pane.id === paneId && (pane.path !== path || tabNameFor(tab, paneId, path) !== tab.name))),
@@ -81,7 +93,8 @@ const pathChanges = (session: Session | null, paneId: string, path: string): boo
 export const useSessionStore = create<SessionState>()((set, get) => ({
   session: null,
 
-  load: (session) => set({ session: { ...session, closed: session.closed ?? [], favorites: session.favorites ?? [], explorerWidth: session.explorerWidth ?? EXPLORER_DEFAULT } }),
+  load: (session) =>
+    set({ session: { ...session, closed: session.closed ?? [], favorites: session.favorites ?? [], explorerWidth: session.explorerWidth ?? EXPLORER_DEFAULT, gitGraph: clampGitGraph({ ...DEFAULT_GIT_GRAPH, ...session.gitGraph }) } }),
 
   selectWorkspace: (workspaceId) =>
     set((state) => ({ session: mutateSession(state.session, (draft) => { draft.active = workspaceId }) })),
@@ -135,14 +148,31 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
 
   toggleExplorer: () => {
     set((state) => ({ session: mutateTab(state.session, (tab) => { tab.explorer = !tab.explorer }) }))
-    const { session } = get()
-    const workspace = session ? activeWorkspace(session) : undefined
-    return Boolean(workspace && activeTab(workspace).explorer)
+    return rightPanelOpen(get().session)
   },
+
+  togglePanelView: (view) => {
+    set((state) => ({
+      session: mutateTab(state.session, (tab) => {
+        const shown = tab.explorer && (tab.panel ?? RightPanelView.Files) === view
+        tab.explorer = !shown
+        tab.panel = view
+      }),
+    }))
+    return rightPanelOpen(get().session)
+  },
+
+  setPanelView: (view) =>
+    set((state) => ({ session: mutateTab(state.session, (tab) => { tab.panel = view }) })),
 
   setExplorerWidth: (width) =>
     set((state) => ({
       session: mutateSession(state.session, (draft) => { draft.explorerWidth = Math.min(EXPLORER_MAX, Math.max(EXPLORER_MIN, Math.round(width))) }),
+    })),
+
+  setGitGraphLayout: (change) =>
+    set((state) => ({
+      session: mutateSession(state.session, (draft) => { Object.assign(draft.gitGraph, clampGitGraph({ ...draft.gitGraph, ...change })) }),
     })),
 
   newWorkspace: (name, path, shell) => {

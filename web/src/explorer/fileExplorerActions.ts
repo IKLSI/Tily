@@ -62,16 +62,6 @@ const focusRowIfIdle = (path: string): void => {
   })
 }
 
-export const toggleExplorer = (focusTree: boolean): void => {
-  const leavingExplorer = Boolean(document.activeElement?.closest(TREE_SELECTOR))
-  const opened = useSessionStore.getState().toggleExplorer()
-  if (opened && focusTree) {
-    requestAnimationFrame(focusFileTree)
-  } else if (!opened && (leavingExplorer || focusTree)) {
-    focusActivePane()
-  }
-}
-
 export const openFile = (entry: FileEntry): void => {
   bridge.send({ type: 'files.open', path: entry.path })
   useHostStore.getState().setStatus(`Ouverture dans l’éditeur : ${entry.name}`)

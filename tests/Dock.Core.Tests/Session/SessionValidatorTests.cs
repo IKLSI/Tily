@@ -162,6 +162,29 @@ public sealed class SessionValidatorTests
     }
 
     [Fact]
+    public void Validate_WhenPanelUnknown_ThenFallsBackToFiles()
+    {
+        var session = SessionFactory.Initial();
+        session.Workspaces[0].Tabs[0].Panel = "inconnu";
+
+        var result = SessionValidator.Validate(session);
+
+        Assert.True(result.IsValid);
+        Assert.Null(session.Workspaces[0].Tabs[0].Panel);
+    }
+
+    [Fact]
+    public void Validate_WhenPanelGit_ThenKeepsIt()
+    {
+        var session = SessionFactory.Initial();
+        session.Workspaces[0].Tabs[0].Panel = "git";
+
+        SessionValidator.Validate(session);
+
+        Assert.Equal("git", session.Workspaces[0].Tabs[0].Panel);
+    }
+
+    [Fact]
     public void Validate_WhenExplorerWidthOutOfRange_ThenClampsIt()
     {
         var session = SessionFactory.Initial();
@@ -170,5 +193,29 @@ public sealed class SessionValidatorTests
         SessionValidator.Validate(session);
 
         Assert.Equal(SessionLimits.MaxExplorerWidth, session.ExplorerWidth);
+    }
+
+    [Fact]
+    public void Validate_WhenGitGraphMissing_ThenUsesDefaultLayout()
+    {
+        var session = SessionFactory.Initial();
+        session.GitGraph = null;
+
+        SessionValidator.Validate(session);
+
+        Assert.Equal((SessionLimits.DefaultGitLabelsWidth, true, true), (session.GitGraph?.LabelsWidth, session.GitGraph?.AuthorShown, session.GitGraph?.ReferencesOpen));
+    }
+
+    [Fact]
+    public void Validate_WhenGitGraphWidthsOutOfRange_ThenClampsThem()
+    {
+        var session = SessionFactory.Initial();
+        session.GitGraph = new GitGraphLayoutModel { ReferencesWidth = 10, LabelsWidth = 5000, GraphWidth = -3, AuthorShown = false };
+
+        SessionValidator.Validate(session);
+
+        Assert.Equal(
+            (SessionLimits.MinGitReferencesWidth, SessionLimits.MaxGitColumnWidth, SessionLimits.MinGitColumnWidth, false),
+            (session.GitGraph?.ReferencesWidth, session.GitGraph?.LabelsWidth, session.GitGraph?.GraphWidth, session.GitGraph?.AuthorShown));
     }
 }

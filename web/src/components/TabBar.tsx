@@ -16,8 +16,8 @@ interface TabBarProps {
   workspace: Workspace
   shells: ShellProfile[]
   renamingTabId: string | null
-  explorerOpen: boolean
-  onToggleExplorer: () => void
+  panelOpen: boolean
+  onTogglePanel: () => void
   onSelect: (tabId: string) => void
   onStartRename: (tabId: string) => void
   onCommitRename: (name: string) => void
@@ -31,7 +31,7 @@ const MIDDLE_BUTTON = 1
 
 const isMenuKey = (event: KeyboardEvent): boolean => (event.shiftKey && event.key === 'F10') || event.key === 'ContextMenu'
 
-export function TabBar({ workspace, shells, renamingTabId, explorerOpen, onToggleExplorer, onSelect, onStartRename, onCommitRename, onCancelRename, onClose, onNew, onMove }: TabBarProps) {
+export function TabBar({ workspace, shells, renamingTabId, panelOpen, onTogglePanel, onSelect, onStartRename, onCommitRename, onCancelRename, onClose, onNew, onMove }: TabBarProps) {
   const [menuOpen, setMenuOpen] = useState(false)
   const addButtonRef = useRef<HTMLButtonElement>(null)
   const { draggingTabId, tabDropTarget } = useUiStore(useShallow((state) => ({ draggingTabId: state.draggingTabId, tabDropTarget: state.tabDropTarget })))
@@ -130,11 +130,11 @@ export function TabBar({ workspace, shells, renamingTabId, explorerOpen, onToggl
       </div>
       <button
         type="button"
-        aria-pressed={explorerOpen}
-        aria-label={explorerOpen ? 'Masquer les fichiers' : 'Afficher les fichiers'}
-        className={`ml-auto flex size-[26px] shrink-0 cursor-pointer items-center justify-center rounded-md hover:bg-dock-green-hover hover:text-dock-ink ${explorerOpen ? 'text-dock-green-deep' : 'text-dock-muted'}`}
-        data-tip={`${explorerOpen ? 'Masquer' : 'Afficher'} les fichiers du dossier courant (Ctrl + Maj + E)`}
-        onClick={onToggleExplorer}
+        aria-pressed={panelOpen}
+        aria-label={panelOpen ? 'Masquer le panneau de droite' : 'Afficher le panneau de droite'}
+        className={`ml-auto flex size-[26px] shrink-0 cursor-pointer items-center justify-center rounded-md hover:bg-dock-green-hover hover:text-dock-ink ${panelOpen ? 'text-dock-green-deep' : 'text-dock-muted'}`}
+        data-tip={`${panelOpen ? 'Masquer' : 'Afficher'} le panneau Fichiers / Git (Ctrl + Maj + E ou G)`}
+        onClick={onTogglePanel}
       >
         <Icon name={IconName.Explorer} size={14} />
       </button>

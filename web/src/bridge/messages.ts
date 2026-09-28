@@ -1,4 +1,5 @@
 import type { Session } from '../model/session'
+import type { GitHostMessage, GitWebMessage } from './gitMessages'
 
 export interface ShellProfile {
   id: string
@@ -154,6 +155,7 @@ export type HostToWebMessage =
   | { type: 'files.renamed'; path: string; target: string }
   | { type: 'files.deleted'; path: string }
   | { type: 'error'; pane?: string; message: string }
+  | GitHostMessage
 
 export type WebToHostMessage =
   | { type: 'app.ready' }
@@ -186,6 +188,7 @@ export type WebToHostMessage =
   | { type: 'files.delete'; path: string; parent: string }
   | { type: 'window.close' }
   | { type: 'window.closeCancel' }
+  | GitWebMessage
 
 export type HostMessageType = HostToWebMessage['type']
 export type HostMessageOf<T extends HostMessageType> = Extract<HostToWebMessage, { type: T }>

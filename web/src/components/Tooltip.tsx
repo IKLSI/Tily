@@ -53,7 +53,7 @@ export function Tooltip() {
       timer = setTimeout(() => setState(placeFor(element, text)), SHOW_DELAY_MS)
     }
     const handlePointerOver = (event: PointerEvent) => {
-      const element = tipTargetOf(event.target)
+      const element = event.buttons === 0 ? tipTargetOf(event.target) : null
       if (element) {
         show(element)
       } else {

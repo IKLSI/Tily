@@ -1,0 +1,69 @@
+import { useShallow } from 'zustand/react/shallow'
+import { GitHistoryScope, type GitState } from '../bridge/gitMessages'
+import { setHistoryScope } from '../git/gitRequests'
+import type { GitGraphLayout } from '../model/session'
+import { hideGitGraph } from '../panel/rightPanel'
+import { useGitStore } from '../store/gitStore'
+import { useSessionStore } from '../store/sessionStore'
+import { Icon } from './Icon'
+import { IconName } from './iconName'
+import { PANEL_HEADER_BUTTON, SECTION_TITLE } from './rightPanelStyles'
+
+interface GitGraphToolbarProps {
+  state: GitState
+  layout: GitGraphLayout
+}
+
+const SCOPES: { scope: GitHistoryScope; label: string; tip: string }[] = [
+  { scope: GitHistoryScope.All, label: 'Toutes', tip: 'Branches locales, branches distantes et tags' },
+  { scope: GitHistoryScope.Current, label: 'Courante', tip: 'Branche courante et sa branche distante suivie' },
+]
+
+export function GitGraphToolbar({ state, layout }: GitGraphToolbarProps) {
+  const { history, scope } = useGitStore(useShallow((store) => ({ history: store.history, scope: store.scope })))
+  const handleToggleReferences = () => useSessionStore.getState().setGitGraphLayout({ referencesOpen: !layout.referencesOpen })
+
+  const renderScope = (entry: (typeof SCOPES)[number]) => {
+    const handleScope = () => setHistoryScope(entry.scope)
+    return (
+      <button
+        key={entry.scope}
+        type="button"
+        role="radio"
+        aria-checked={entry.scope === scope}
+        data-tip={entry.tip}
+        className={`rounded px-[7px] py-[1px] text-[11px] ${entry.scope === scope ? 'bg-dock-green-soft text-dock-green-deep' : 'text-dock-muted hover:text-dock-ink'}`}
+        onClick={handleScope}
+      >
+        {entry.label}
+      </button>
+    )
+  }
+
+  return (
+    <div className="flex h-[36px] shrink-0 items-center gap-[8px] border-b border-dock-line pr-[6px] pl-[6px]">
+      <button
+        type="button"
+        className={`${PANEL_HEADER_BUTTON} aria-pressed:text-dock-green-deep`}
+        aria-pressed={layout.referencesOpen}
+        aria-label="Branches, tags et stash"
+        data-tip={layout.referencesOpen ? 'Masquer les branches, tags et stash' : 'Afficher les branches, tags et stash'}
+        onClick={handleToggleReferences}
+      >
+        <Icon name={IconName.Sidebar} />
+      </button>
+      <span className={SECTION_TITLE}>Graphe</span>
+      <span className="min-w-0 truncate text-[12px] font-semibold text-dock-ink" data-tip={state.root}>
+        {state.name}
+      </span>
+      {!history && <span className="shrink-0 text-[11px] text-dock-muted">Chargement de l’historique…</span>}
+      <span className="flex-1" />
+      <div role="radiogroup" aria-label="Branches affichées" className="flex shrink-0 rounded-md bg-dock-paper p-[2px]">
+        {SCOPES.map(renderScope)}
+      </div>
+      <button type="button" className={PANEL_HEADER_BUTTON} aria-label="Fermer le graphe" data-tip="Fermer le graphe et revenir aux terminaux (Échap)" onClick={hideGitGraph}>
+        <Icon name={IconName.Close} />
+      </button>
+    </div>
+  )
+}
