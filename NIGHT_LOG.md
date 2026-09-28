@@ -59,6 +59,12 @@ Travail autonome sur la branche `night-session`. Chaque itération apporte une a
 - **Pourquoi** : la logique était recopiée à trois endroits. Surtout, depuis l'itération 7, rejoindre un pane dont l'onglet affiche le graphe aurait donné le focus au graphe au lieu du terminal de l'agent.
 - **Vérifié** : Claude Code simulé en attente (un `ping -t` dans le pane et un fichier `agents\<pane>.json` écrit dans le dossier de données de test), onglet sous le graphe Git, clic sur « Rejoindre le terminal » depuis un autre onglet. Le graphe se ferme, le focus arrive dans le bon pane et la carte disparaît.
 
+### 9. Les boutons des panes étroits restent accessibles
+
+- **Quoi** : l'en-tête d'un pane étroit tronque son chemin au lieu de faire sortir ses boutons du pane. La grille du pane a désormais une seule colonne bornée (`grid-cols-1`, soit `minmax(0, 1fr)`).
+- **Pourquoi** : la colonne implicite de la grille prenait la largeur du chemin complet. Dès qu'un pane était un peu étroit (splits, fenêtre non maximisée, panneau de droite ouvert), les boutons Split et Fermer disparaissaient hors du pane, sans aucun moyen de les atteindre.
+- **Vérifié** : fenêtre de 1300 px avec trois panes. Avant, des en-têtes de 479 et 505 px pour des panes de 366 et 300 px, et une croix à 107 px hors du pane. Après, des en-têtes de 364 et 298 px, tous les boutons visibles et le chemin terminé par des points de suspension (capture).
+
 ## Reste à faire et idées
 
 - Taille de police et zoom du terminal : absents (police fixe à 14 px). La spécification les classe « À décider » (section 4), donc je n'y ai pas touché ; c'est à trancher.

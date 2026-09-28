@@ -112,7 +112,7 @@ export const PaneView = memo(function PaneView({ pane, active, onFocus, onClose,
   return (
     <section
       data-pane-id={pane.id}
-      className={`grid h-full min-h-0 grid-rows-[24px_1fr] overflow-hidden rounded-md border bg-dock-terminal ${active ? 'border-dock-green' : 'border-dock-line'}`}
+      className={`grid h-full min-h-0 grid-cols-1 grid-rows-[24px_1fr] overflow-hidden rounded-md border bg-dock-terminal ${active ? 'border-dock-green' : 'border-dock-line'}`}
     >
       <header
         className="flex items-center gap-1 bg-dock-panel px-2 text-[11px] text-dock-muted select-none"
