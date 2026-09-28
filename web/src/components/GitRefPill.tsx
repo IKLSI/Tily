@@ -7,6 +7,7 @@ import { useGitStore } from '../store/gitStore'
 import { laneHoverTint, laneTint } from './gitGraphStyles'
 import { Icon } from './Icon'
 import { IconName } from './iconName'
+import { Spinner } from './Spinner'
 
 interface GitRefPillProps {
   label: GitRefLabel
@@ -32,6 +33,7 @@ export function GitRefPill({ label, text, color, onMenu, onActivate }: GitRefPil
   const handle = useMemo(() => ({ kind: label.kind, name: label.name }), [label.kind, label.name])
   const dropTarget = useGitStore((store) => movable && sameRef(store.drag?.target, handle))
   const dragged = useGitStore((store) => sameRef(store.drag?.source, handle))
+  const pending = useGitStore((store) => store.busy !== null && store.busyRef !== null && (store.busyRef === label.name || label.remotes.includes(store.busyRef)))
   const icon = KIND_ICONS[label.kind]
   const interactive = label.kind !== GitRefKind.Head
   const hoverClass = interactive ? `cursor-pointer hover:text-dock-ink ${laneHoverTint(color, label.current)}` : ''
@@ -58,11 +60,12 @@ export function GitRefPill({ label, text, color, onMenu, onActivate }: GitRefPil
       data-git-drop-kind={movable ? label.kind : undefined}
       data-git-drop-name={movable ? label.name : undefined}
       data-tip={refLabelTip(label)}
-      className={`flex h-[20px] min-w-0 shrink items-center gap-[4px] rounded px-[5px] text-[11px] ${laneTint(color, label.current)} ${label.current ? 'font-semibold text-dock-ink' : 'text-dock-ink-soft'} ${dropTarget ? 'outline-2 outline-dock-focus' : ''} ${dragged ? 'opacity-50' : ''} ${hoverClass}`}
+      className={`flex h-[20px] min-w-0 shrink items-center gap-[4px] rounded px-[5px] text-[11px] ${laneTint(color, label.current)} ${label.current ? 'font-semibold text-dock-ink' : 'text-dock-ink-soft'} ${dropTarget ? 'outline-2 outline-dock-focus' : ''} ${dragged || pending ? 'opacity-50' : ''} ${hoverClass}`}
       onPointerDown={handlePointerDown}
       onContextMenu={handleContextMenu}
       onDoubleClick={handleDoubleClick}
     >
+      {pending && <Spinner size={10} />}
       {label.current && <Icon name={IconName.Check} size={11} className="shrink-0" />}
       <span className="min-w-0 truncate">{text}</span>
       {icon && <Icon name={icon} size={11} className="shrink-0 opacity-80" />}

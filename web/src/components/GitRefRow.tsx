@@ -5,6 +5,7 @@ import { useGitStore, type GitRefHandle } from '../store/gitStore'
 import { Icon } from './Icon'
 import { IconName } from './iconName'
 import { ROW_ACTION } from './rightPanelStyles'
+import { Spinner } from './Spinner'
 import { isMenuKey } from './workspacePanel'
 
 interface GitRefRowProps {
@@ -18,14 +19,16 @@ interface GitRefRowProps {
   depth?: number
   focusable: boolean
   handle?: GitRefHandle
+  refName?: string
   onFocus: (key: string) => void
   onActivate: () => void
   onSelect?: () => void
   onMenu: (x: number, y: number) => void
 }
 
-export function GitRefRow({ rowKey, icon, name, meta, metaTip, tip, current = false, depth = 0, focusable, handle, onFocus, onActivate, onSelect, onMenu }: GitRefRowProps) {
+export function GitRefRow({ rowKey, icon, name, meta, metaTip, tip, current = false, depth = 0, focusable, handle, refName, onFocus, onActivate, onSelect, onMenu }: GitRefRowProps) {
   const dropTarget = useGitStore((store) => handle !== undefined && sameRef(store.drag?.target, handle))
+  const pending = useGitStore((store) => refName !== undefined && store.busy !== null && store.busyRef === refName)
   const handleClick = () => {
     onFocus(rowKey)
     onSelect?.()
@@ -69,14 +72,14 @@ export function GitRefRow({ rowKey, icon, name, meta, metaTip, tip, current = fa
       tabIndex={focusable ? 0 : -1}
       data-tip={tip}
       style={{ paddingLeft: refIndent(depth) }}
-      className={`group flex h-[24px] cursor-pointer items-center gap-[6px] pr-[4px] text-[12px] select-none hover:bg-dock-green-hover ${current ? 'text-dock-green-deep' : 'text-dock-ink-soft hover:text-dock-ink'} ${dropTarget ? 'outline-2 -outline-offset-2 outline-dock-focus' : ''}`}
+      className={`group flex h-[24px] cursor-pointer items-center gap-[6px] pr-[4px] text-[12px] select-none hover:bg-dock-green-hover ${current ? 'text-dock-green-deep' : 'text-dock-ink-soft hover:text-dock-ink'} ${dropTarget ? 'outline-2 -outline-offset-2 outline-dock-focus' : ''} ${pending ? 'opacity-60' : ''}`}
       onClick={handleClick}
       onDoubleClick={onActivate}
       onContextMenu={handleContextMenu}
       onPointerDown={handlePointerDown}
       onKeyDown={handleKeyDown}
     >
-      <Icon name={icon} className="shrink-0 text-dock-muted" />
+      {pending ? <Spinner className="text-dock-green" /> : <Icon name={icon} className="shrink-0 text-dock-muted" />}
       <span className={`min-w-0 flex-1 truncate ${current ? 'font-semibold' : ''}`}>{name}</span>
       {meta && (
         <span className="shrink-0 font-mono text-[11px] text-dock-muted" data-tip={metaTip}>

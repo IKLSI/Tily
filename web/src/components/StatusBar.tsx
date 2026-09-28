@@ -1,4 +1,8 @@
+import { useShallow } from 'zustand/react/shallow'
+import { busyLabel } from '../git/gitBusy'
+import { useGitStore } from '../store/gitStore'
 import { StatusLevel, useHostStore } from '../store/hostStore'
+import { Spinner } from './Spinner'
 
 const STATUS_CLASSES: Record<StatusLevel, string> = {
   [StatusLevel.Info]: 'text-dock-muted',
@@ -9,10 +13,18 @@ const STATUS_CLASSES: Record<StatusLevel, string> = {
 export function StatusBar() {
   const status = useHostStore((state) => state.status)
   const unsaved = useHostStore((state) => state.unsaved)
+  const { busy, busyRef } = useGitStore(useShallow((state) => ({ busy: state.busy, busyRef: state.busyRef })))
 
   return (
-    <footer className={`flex h-[24px] shrink-0 items-center border-t border-dock-line bg-dock-paper px-3 font-mono text-[11px] ${STATUS_CLASSES[status.level]}`}>
-      <span className="truncate">{status.text}</span>
+    <footer className={`flex h-[24px] shrink-0 items-center border-t border-dock-line bg-dock-paper px-3 font-mono text-[11px] ${busy ? 'text-dock-ink-soft' : STATUS_CLASSES[status.level]}`}>
+      {busy ? (
+        <span className="flex min-w-0 items-center gap-[6px]">
+          <Spinner size={10} className="text-dock-green" />
+          <span className="truncate">{busyLabel(busy, busyRef)}</span>
+        </span>
+      ) : (
+        <span className="truncate">{status.text}</span>
+      )}
       {unsaved && (
         <span className="ml-auto shrink-0 pl-3 text-dock-error" data-tip="La dernière sauvegarde a échoué : la session restera en l’état d’avant tant qu’une écriture ne réussit pas.">
           Non enregistré
