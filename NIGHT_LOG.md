@@ -170,4 +170,13 @@ Travail autonome sur la branche `night-session`. Chaque itération apporte une a
 
 ## Reste à faire et idées
 
-- Taille de police et zoom du terminal : absents (police fixe à 14 px). La spécification les classe « À décider » (section 4), donc je n'y ai pas touché ; c'est à trancher.
+- **Taille de police et zoom du terminal** : police fixe à 14 px. La spécification classe ce point « À décider » (section 4), je n'y ai donc pas touché ; c'est à trancher.
+- **Glisser-déposer des workspaces à la souris** : ils se réordonnent désormais par menu, palette et Alt + ↑ / ↓, mais pas encore à la souris comme les onglets.
+- **Onglets hors de vue dans la barre** : la bande défile, mais rien n'indique qu'il reste des onglets à gauche ou à droite. Un léger dégradé sur les bords aiderait.
+- **Leader hors des terminaux** : les raccourcis directs marchent maintenant partout, mais le Leader (Ctrl + Espace) reste propre aux terminaux, comme avant.
+- **Colonne des branches du graphe Git** : Auteur et Date s'effacent quand la place manque, mais la colonne des branches (200 px) ne se replie pas d'elle-même dans une fenêtre très étroite.
+- **Dossier disparu** : le message garde ses boutons hors d'atteinte du clavier. C'est voulu, car le shell est toujours vivant et garde le focus ; un raccourci dédié serait à étudier.
+- **Glisser-déposer réel depuis l'Explorateur** : le dépôt de fichiers a été vérifié par le protocole de débogage (le même chemin que Chromium), pas avec une vraie souris depuis l'Explorateur ; à confirmer à la main.
+- **Tests web** : il n'y en a toujours aucun (décision du 21 septembre). Les fonctions pures ajoutées cette nuit (`fitGraphColumns`, `menuPlaceOf`, `selectAdjacentTab`…) s'y prêteraient bien si tu changes d'avis.
+- **Effacer un terminal** : non ajouté au menu contextuel. Sous Windows 10, ConPTY ne permet pas de vider son propre tampon, et un effacement côté xterm.js pourrait réapparaître au premier redimensionnement.
+
