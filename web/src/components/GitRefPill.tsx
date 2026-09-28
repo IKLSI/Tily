@@ -34,7 +34,7 @@ export function GitRefPill({ label, text, color, onMenu, onActivate }: GitRefPil
   const dragged = useGitStore((store) => sameRef(store.drag?.source, handle))
   const icon = KIND_ICONS[label.kind]
   const interactive = label.kind !== GitRefKind.Head
-  const hoverClass = interactive ? `${dragged ? 'cursor-grabbing' : 'cursor-pointer'} hover:text-dock-ink ${laneHoverTint(color, label.current)}` : ''
+  const hoverClass = interactive ? `cursor-pointer hover:text-dock-ink ${laneHoverTint(color, label.current)}` : ''
 
   const handlePointerDown = (event: PointerEvent<HTMLSpanElement>) => {
     if (movable) {

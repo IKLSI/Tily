@@ -38,7 +38,7 @@ export const beginRefDrag = (event: ReactPointerEvent<HTMLElement>, source: GitR
       }
       dragging = true
       element.setPointerCapture(pointerId)
-      document.body.style.cursor = 'grabbing'
+      document.documentElement.dataset.gitDragging = 'true'
     }
     const state = useGitStore.getState().state
     const candidate = refAt(move.clientX, move.clientY)
@@ -52,7 +52,7 @@ export const beginRefDrag = (event: ReactPointerEvent<HTMLElement>, source: GitR
     if (!dragging) {
       return
     }
-    document.body.style.cursor = ''
+    delete document.documentElement.dataset.gitDragging
     const target = useGitStore.getState().drag?.target
     useGitStore.getState().setDrag(null)
     if (target && end.type === 'pointerup') {
