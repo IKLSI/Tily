@@ -2,7 +2,7 @@ const fs = require('fs');
 
 const markdown = fs.readFileSync('specifications-terminal.md', 'utf8').replace(/\r/g, '');
 const oldHtml = fs.readFileSync('specifications-terminal.html', 'utf8');
-let head = oldHtml.slice(0, oldHtml.indexOf('</head>'));
+let head = oldHtml.slice(0, oldHtml.indexOf('</style>') + '</style>'.length);
 head = head.replace('Terminal & workspaces — Spécifications fonctionnelles', 'Dock — Spécifications complètes');
 head += '<style>nav ol{columns:2;padding-left:22px;font-size:14px}nav li{break-inside:avoid}td:first-child{min-width:85px}.table-wrap{margin:18px 0}header a{color:#c5dfce}section h2{scroll-margin-top:20px}@media(max-width:700px){nav ol{columns:1}}</style></head>';
 
