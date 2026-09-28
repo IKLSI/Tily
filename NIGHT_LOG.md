@@ -150,6 +150,12 @@ Travail autonome sur la branche `night-session`. Chaque itération apporte une a
 - **Pourquoi** : on pouvait ouvrir un fichier dans l'éditeur ou copier son chemin, mais pas le retrouver dans l'Explorateur Windows (pour le glisser dans un mail, voir ses propriétés, etc.). Le bouton de l'en-tête du pane n'ouvre que le dossier courant.
 - **Vérifié** : pour respecter la règle `ArgumentList`, j'ai d'abord essayé `"/select,C:\…\exemple fichier.txt"`, que .NET met entièrement entre guillemets : l'Explorateur ne sait pas le lire et ouvre « Documents ». La bonne forme passe `/select,` et le chemin en deux arguments : fichier avec ou sans espaces bien sélectionné. De bout en bout dans l'instance de test, `package.json` apparaît sélectionné dans `web`. Les fenêtres de l'Explorateur ouvertes par ces essais ont été refermées. 186 tests passent.
 
+### 24. Fermer l'onglet ou les autres onglets depuis la palette
+
+- **Quoi** : la palette propose « Fermer l'onglet » et, s'il y en a plusieurs, « Fermer les autres onglets », pour l'onglet actif. Ces commandes passent par le même garde-fou que la croix et le menu contextuel.
+- **Pourquoi** : la palette ne proposait que « Fermer le pane actif ». Fermer un onglet de plusieurs panes au clavier demandait de fermer ses panes un par un.
+- **Vérifié** : dans l'instance de test, taper « fermer les autres » puis Entrée ne laisse que l'onglet actif.
+
 ## Reste à faire et idées
 
 - Taille de police et zoom du terminal : absents (police fixe à 14 px). La spécification les classe « À décider » (section 4), donc je n'y ai pas touché ; c'est à trancher.
