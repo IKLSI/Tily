@@ -286,6 +286,18 @@ export const handleDocumentShortcut = (event: KeyboardEvent): void => {
   if (event.defaultPrevented || event.isComposing || (event.target instanceof Element && event.target.closest(SHORTCUT_BLOCKERS))) {
     return
   }
+  if (useHostStore.getState().leaderActive) {
+    if (!MODIFIER_KEYS.has(event.key)) {
+      event.preventDefault()
+      decideInLeader(event)
+    }
+    return
+  }
+  if (isLeaderChord(event)) {
+    event.preventDefault()
+    enterLeader()
+    return
+  }
   const command = directCommand(event)
   if (command) {
     event.preventDefault()
