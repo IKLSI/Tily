@@ -101,8 +101,8 @@ export function SearchDialog<T extends SearchItem>({ label, placeholder, emptyMe
                 onPointerMove={handleHover}
               >
                 <button type="button" tabIndex={-1} className="flex min-w-0 flex-1 cursor-pointer items-baseline gap-3 py-2 text-left focus:outline-none" onPointerDown={handleResultPointerDown} onClick={handleClick}>
-                  <span className="min-w-0 flex-1 truncate">{item.label}</span>
-                  {item.hint && <span className="shrink-0 truncate font-mono text-[11px] text-dock-muted">{item.hint}</span>}
+                  <span className="min-w-0 truncate">{item.label}</span>
+                  {item.hint && <span className="min-w-0 flex-1 truncate text-right font-mono text-[11px] text-dock-muted">{item.hint}</span>}
                 </button>
                 {item.favorite !== undefined && (
                   <button
