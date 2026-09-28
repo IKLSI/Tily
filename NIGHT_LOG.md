@@ -47,6 +47,12 @@ Travail autonome sur la branche `night-session`. Chaque itération apporte une a
 - **Pourquoi** : ton sélecteur WezTerm listait déjà ces worktrees avec un préfixe `[wt]`, et la spécification prévoyait de « l'exposer séparément si nécessaire ». Pour revenir sur un worktree créé par `wtr`, il fallait jusqu'ici passer par un terminal.
 - **Vérifié** : sur une racine de démonstration avec deux projets et deux worktrees, la liste est triée puis filtrée par « wor » ; 176 tests passent.
 
+### 7. Le graphe Git garde le focus quand on revient sur son onglet
+
+- **Quoi** : quand l'onglet actif affiche le graphe Git (retour sur l'onglet, démarrage, graphe réaffiché après la lecture du dépôt), le focus va au graphe. Avant, il restait au terminal que le graphe recouvre. `AppShell` appelle `takeFocusFromCoveredTerminals` (dans `gitFocus.ts`), qui n'agit que si le focus était sur la page ou sur un terminal : un champ du panneau Git garde son focus.
+- **Pourquoi** : les flèches et la frappe partaient dans un shell invisible au lieu de parcourir les commits affichés.
+- **Vérifié** : l'instance de test tourne désormais avec le débogage distant de la WebView2 (`WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS=--remote-debugging-port=9223`), ce qui permet de lire `document.activeElement` après de vraies frappes. Avant la correction, le focus était sur le `textarea` de xterm. Après, il est sur la liste du graphe au démarrage comme après Ctrl + Tab, ↓ ↓ passe bien au deuxième commit et Échap ferme le graphe en rendant le focus au terminal.
+
 ## Reste à faire et idées
 
 - Taille de police et zoom du terminal : absents (police fixe à 14 px). La spécification les classe « À décider » (section 4), donc je n'y ai pas touché ; c'est à trancher.

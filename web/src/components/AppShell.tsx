@@ -13,7 +13,7 @@ import { RenameOrigin, useUiStore } from '../store/uiStore'
 import { cancelClose, confirmClose } from '../terminal/closeGuard'
 import { confirmDelete, focusFileTree } from '../explorer/fileExplorerActions'
 import { useExplorerStore } from '../store/explorerStore'
-import { focusGitPanel } from '../git/gitFocus'
+import { focusGitPanel, takeFocusFromCoveredTerminals } from '../git/gitFocus'
 import { toggleRightPanel } from '../panel/rightPanel'
 import { useGitStore } from '../store/gitStore'
 import { changePaneShell, dismissPaneState, restartPane, restartPaneIn } from '../terminal/paneLifecycle'
@@ -221,6 +221,8 @@ export function AppShell({ session }: AppShellProps) {
   const tab = workspace ? activeTab(workspace) : undefined
   const panelView = tab?.panel ?? RightPanelView.Files
   const gitShown = Boolean(tab?.explorer) && panelView === RightPanelView.Git
+  const graphShown = gitShown && gitGraphReady
+  const tabId = tab?.id
   const availableShells = useMemo(() => shells.filter((shell) => shell.available), [shells])
 
   useEffect(() => {
@@ -237,6 +239,12 @@ export function AppShell({ session }: AppShellProps) {
     document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [openPalette])
+
+  useEffect(() => {
+    if (graphShown) {
+      takeFocusFromCoveredTerminals()
+    }
+  }, [graphShown, tabId])
 
   const handleClosePalette = () => {
     closePalette()
@@ -307,7 +315,7 @@ export function AppShell({ session }: AppShellProps) {
         />
         <div className="relative min-h-0 flex-1 border-t border-dock-line bg-dock-panel p-1">
           <SplitView key={currentTab.id} node={currentTab.tree} activePaneId={currentTab.active} onFocus={selectPane} onClose={closePaneKeepingText} onSplit={handleSplit} onResize={handleResize} shells={availableShells} onRestart={restartPane} onRestartIn={restartPaneIn} onChangeShell={changePaneShell} onDismissState={dismissPaneState} />
-          {gitShown && gitGraphReady && <GitGraphView layout={session.gitGraph} />}
+          {graphShown && <GitGraphView layout={session.gitGraph} />}
           {gitShown && <GitDiffDrawer />}
           {gitShown && <GitContextMenu />}
         </div>

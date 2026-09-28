@@ -2,6 +2,7 @@ const PANEL_SELECTOR = '[data-git-panel]'
 const GRAPH_LIST_SELECTOR = '[data-git-graph-list]'
 const ROW_SELECTOR = '[data-git-row]'
 const BUTTON_SELECTOR = 'button:not([aria-disabled="true"])'
+const PANE_SELECTOR = '[data-pane-id]'
 
 let graphFocusPending = false
 
@@ -19,6 +20,13 @@ export const focusGitGraph = (): boolean => {
   const list = document.querySelector<HTMLElement>(GRAPH_LIST_SELECTOR)
   list?.focus()
   return Boolean(list)
+}
+
+export const takeFocusFromCoveredTerminals = (): void => {
+  const active = document.activeElement
+  if (active === document.body || active?.closest(PANE_SELECTOR)) {
+    focusGitGraph()
+  }
 }
 
 export const requestGraphFocus = (): void => {
