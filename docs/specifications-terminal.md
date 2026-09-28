@@ -135,7 +135,7 @@ Le déplacement conserve le shell, le dossier, l’historique, les processus act
 
 **Décision prise.** Rouvrir restaure noms, shells, chemins, splits et texte avec de nouveaux processus et un séparateur de restauration. Ne pas réexécuter les anciennes commandes. Conserver les cinq derniers onglets fermés, y compris après redémarrage.
 
-**Convention proposée.** Un clic droit sur un onglet de la barre ouvre son menu : Renommer, Déplacer à gauche ou à droite, Fermer l’onglet et Fermer les autres onglets. Ce dernier ne demande qu’une seule confirmation si des programmes tournent ; les cinq derniers onglets fermés restent restaurables.
+**Convention proposée.** Un clic droit sur un onglet de la barre ouvre son menu : Renommer, Dupliquer l’onglet (même disposition, mêmes dossiers et shells, terminaux neufs, aucune commande rejouée), Déplacer à gauche ou à droite, Fermer l’onglet et Fermer les autres onglets. Ce dernier ne demande qu’une seule confirmation si des programmes tournent ; les cinq derniers onglets fermés restent restaurables.
 
 ## 7. Panes et splits
 

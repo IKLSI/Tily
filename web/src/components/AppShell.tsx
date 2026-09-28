@@ -17,7 +17,7 @@ import { focusGitPanel, takeFocusFromCoveredTerminals } from '../git/gitFocus'
 import { toggleRightPanel } from '../panel/rightPanel'
 import { useGitStore } from '../store/gitStore'
 import { changePaneShell, dismissPaneState, restartPane, restartPaneIn } from '../terminal/paneLifecycle'
-import { closeOtherTabsKeepingText, closePaneKeepingText, closeTabKeepingText, closeWorkspaceKeepingText, restoreClosedTab } from '../terminal/tabLifecycle'
+import { closeOtherTabsKeepingText, closePaneKeepingText, closeTabKeepingText, closeWorkspaceKeepingText, duplicateTabKeepingLayout, restoreClosedTab } from '../terminal/tabLifecycle'
 import { joinPane } from '../terminal/terminalActions'
 import { terminalRegistry } from '../terminal/terminalRegistry'
 import { AttentionToasts } from './AttentionToasts'
@@ -174,6 +174,7 @@ const panelActions: WorkspacePanelActions = {
   collapseOthers: (workspaceId) => useSessionStore.getState().collapseOtherWorkspaces(workspaceId),
   moveWorkspace: (workspaceId, offset) => useSessionStore.getState().moveWorkspace(workspaceId, offset),
   shiftTab: (tabId, offset) => useSessionStore.getState().shiftTab(tabId, offset),
+  duplicateTab: duplicateTabKeepingLayout,
   selectTab: handleSelectTab,
   startRenameTab: (tabId) => useUiStore.getState().startRenamingTab(tabId, RenameOrigin.Panel),
   commitRenameTab: handleCommitTabRename,
@@ -313,6 +314,7 @@ export function AppShell({ session }: AppShellProps) {
           onClose={closeTabKeepingText}
           onCloseOthers={closeOtherTabsKeepingText}
           onShift={shiftTab}
+          onDuplicate={duplicateTabKeepingLayout}
           onNew={newTab}
           onMove={moveTab}
         />

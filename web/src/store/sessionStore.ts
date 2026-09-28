@@ -1,4 +1,4 @@
-import { produce } from 'immer'
+import { current, produce } from 'immer'
 import { create } from 'zustand'
 import {
   activePane,
@@ -57,6 +57,7 @@ interface SessionState {
   moveTab: (tabId: string, targetWorkspaceId: string, beforeTabId?: string) => void
   moveActiveTab: (offset: number) => void
   shiftTab: (tabId: string, offset: number) => void
+  duplicateTab: (tabId: string) => void
   selectAdjacentTab: (offset: number) => void
   closeTab: (tabId: string) => void
   restoreTab: () => { tab: Tab; paneIds: Record<string, string> } | null
@@ -288,6 +289,21 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
         }
         const [tab] = workspace.tabs.splice(index, 1)
         workspace.tabs.splice(destination, 0, tab)
+      }),
+    })),
+
+  duplicateTab: (tabId) =>
+    set((state) => ({
+      session: mutateSession(state.session, (draft) => {
+        const workspace = draft.workspaces.find((candidate) => candidate.tabs.some((tab) => tab.id === tabId))
+        const index = workspace ? workspace.tabs.findIndex((tab) => tab.id === tabId) : -1
+        if (!workspace || index < 0) {
+          return
+        }
+        const { tab } = cloneTabWithNewIds(current(workspace.tabs[index]))
+        workspace.tabs.splice(index + 1, 0, tab)
+        workspace.active = tab.id
+        draft.active = workspace.id
       }),
     })),
 

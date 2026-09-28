@@ -86,6 +86,14 @@ export const closePaneKeepingText = (paneId: string): void => {
   }
 }
 
+export const duplicateTabKeepingLayout = (tabId: string): void => {
+  const tab = tabOf(tabId)
+  if (tab) {
+    useSessionStore.getState().duplicateTab(tabId)
+    useHostStore.getState().setStatus(`Onglet « ${tab.name} » dupliqué : nouveaux terminaux dans les mêmes dossiers.`)
+  }
+}
+
 export const restoreClosedTab = (): void => {
   const restored = useSessionStore.getState().restoreTab()
   if (!restored) {

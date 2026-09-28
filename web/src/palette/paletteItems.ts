@@ -6,7 +6,7 @@ import { activeTab, activeWorkspace, folderName, panesOf, type Session } from '.
 import { useAgentStore } from '../store/agentStore'
 import { useSessionStore } from '../store/sessionStore'
 import { RenameOrigin, useUiStore } from '../store/uiStore'
-import { closeOtherTabsKeepingText, closeTabKeepingText, restoreClosedTab } from '../terminal/tabLifecycle'
+import { closeOtherTabsKeepingText, closeTabKeepingText, duplicateTabKeepingLayout, restoreClosedTab } from '../terminal/tabLifecycle'
 import { joinPane } from '../terminal/terminalActions'
 import { OpenTarget } from '../bridge/messages'
 import { copyPaneBranch, copyPanePath, openPaneFolder } from '../terminal/contextActions'
@@ -75,6 +75,7 @@ const commandItems = (session: Session, shells: ShellProfile[]): PaletteItem[] =
     )
     items.push(
       command('rename-tab', 'Renommer l’onglet', () => ui.startRenamingTab(tab.id)),
+      command('duplicate-tab', 'Dupliquer l’onglet', () => duplicateTabKeepingLayout(tab.id)),
       command('close-tab', 'Fermer l’onglet', () => closeTabKeepingText(tab.id)),
     )
     if (workspace && workspace.tabs.length > 1) {

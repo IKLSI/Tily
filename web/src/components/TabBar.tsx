@@ -26,6 +26,7 @@ interface TabBarProps {
   onClose: (tabId: string) => void
   onCloseOthers: (tabId: string) => void
   onShift: (tabId: string, offset: number) => void
+  onDuplicate: (tabId: string) => void
   onNew: (shellId: string) => void
   onMove: MoveTabHandler
 }
@@ -36,7 +37,7 @@ const tabSelector = (tabId: string): string => `[data-drop-tab="${tabId}"]`
 
 const isMenuKey = (event: KeyboardEvent): boolean => (event.shiftKey && event.key === 'F10') || event.key === 'ContextMenu'
 
-export function TabBar({ workspace, shells, renamingTabId, panelOpen, onTogglePanel, onSelect, onStartRename, onCommitRename, onCancelRename, onClose, onCloseOthers, onShift, onNew, onMove }: TabBarProps) {
+export function TabBar({ workspace, shells, renamingTabId, panelOpen, onTogglePanel, onSelect, onStartRename, onCommitRename, onCancelRename, onClose, onCloseOthers, onShift, onDuplicate, onNew, onMove }: TabBarProps) {
   const [menuOpen, setMenuOpen] = useState(false)
   const [tabMenu, setTabMenu] = useState<TabMenuRequest | null>(null)
   const addButtonRef = useRef<HTMLButtonElement>(null)
@@ -75,7 +76,7 @@ export function TabBar({ workspace, shells, renamingTabId, panelOpen, onTogglePa
     onNew(shellId)
   }
   const tabMenuPosition = tabMenu ? workspace.tabs.findIndex((tab) => tab.id === tabMenu.tabId) : -1
-  const tabMenuActions: TabMenuActions = { rename: onStartRename, shift: onShift, close: onClose, closeOthers: onCloseOthers }
+  const tabMenuActions: TabMenuActions = { rename: onStartRename, shift: onShift, duplicate: onDuplicate, close: onClose, closeOthers: onCloseOthers }
   const handleRunTabMenu = () => setTabMenu(null)
   const handleDismissTabMenu = () => {
     const returnFocus = tabMenu?.returnFocus

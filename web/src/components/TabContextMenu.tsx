@@ -12,6 +12,7 @@ export interface TabMenuRequest {
 export interface TabMenuActions {
   rename: (tabId: string) => void
   shift: (tabId: string, offset: number) => void
+  duplicate: (tabId: string) => void
   close: (tabId: string) => void
   closeOthers: (tabId: string) => void
 }
@@ -27,6 +28,7 @@ interface TabContextMenuProps {
 
 const itemsFor = ({ tabId }: TabMenuRequest, position: number, count: number, actions: TabMenuActions): ActionMenuItem[] => [
   { id: 'rename', label: 'Renommer', detail: <MenuShortcut keys="Double-clic" />, run: () => actions.rename(tabId) },
+  { id: 'duplicate', label: 'Dupliquer l’onglet', run: () => actions.duplicate(tabId) },
   { id: 'move-left', label: 'Déplacer à gauche', disabled: position <= 0, run: () => actions.shift(tabId, -1) },
   { id: 'move-right', label: 'Déplacer à droite', disabled: position < 0 || position >= count - 1, run: () => actions.shift(tabId, 1) },
   { id: 'close', label: 'Fermer l’onglet', detail: <MenuShortcut keys="Clic milieu" />, run: () => actions.close(tabId) },

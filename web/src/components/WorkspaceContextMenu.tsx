@@ -20,6 +20,7 @@ const itemsFor = ({ workspaceId, tabId }: PanelMenuRequest, place: MenuPlace, ac
   tabId
     ? [
         { id: 'rename-tab', label: 'Renommer', run: () => actions.startRenameTab(tabId) },
+        { id: 'duplicate-tab', label: 'Dupliquer l’onglet', run: () => actions.duplicateTab(tabId) },
         ...moveItems(place, (offset) => actions.shiftTab(tabId, offset)),
         { id: 'close-tab', label: 'Fermer l’onglet', run: () => actions.closeTab(tabId) },
       ]

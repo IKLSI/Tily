@@ -156,6 +156,12 @@ Travail autonome sur la branche `night-session`. Chaque itération apporte une a
 - **Pourquoi** : la palette ne proposait que « Fermer le pane actif ». Fermer un onglet de plusieurs panes au clavier demandait de fermer ses panes un par un.
 - **Vérifié** : dans l'instance de test, taper « fermer les autres » puis Entrée ne laisse que l'onglet actif.
 
+### 25. Dupliquer un onglet
+
+- **Quoi** : « Dupliquer l'onglet », dans le menu d'un onglet (barre ou panneau) comme dans la palette, insère juste après lui une copie avec la même disposition de splits, les mêmes dossiers et les mêmes shells. Les terminaux sont neufs et aucune commande n'est rejouée. La copie devient active et la barre de statut confirme. `sessionStore.duplicateTab` réutilise `cloneTabWithNewIds`, déjà utilisé pour rouvrir un onglet fermé.
+- **Pourquoi** : recréer à la main un onglet à plusieurs panes (par exemple serveur, tests et agent dans le même projet) demandait autant de splits et de `cd` que de panes.
+- **Vérifié** : dans l'instance de test, un onglet à deux panes dupliqué depuis la palette donne un nouvel onglet actif avec le même split et deux shells neufs dans le même dossier (capture). Depuis le menu de la barre, le message « Onglet « web » dupliqué… » s'affiche.
+
 ## Reste à faire et idées
 
 - Taille de police et zoom du terminal : absents (police fixe à 14 px). La spécification les classe « À décider » (section 4), donc je n'y ai pas touché ; c'est à trancher.
