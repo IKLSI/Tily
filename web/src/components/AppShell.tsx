@@ -127,6 +127,8 @@ const handleNewWorkspace = (): void => {
   useUiStore.getState().startRenamingWorkspace(workspaceId, RenameOrigin.Panel)
 }
 
+const handleOpenProjects = (): void => runCommand(Command.Projects)
+
 const handleNewTabIn = (workspaceId: string): void => {
   const { selectWorkspace, newTab } = useSessionStore.getState()
   selectWorkspace(workspaceId)
@@ -179,7 +181,7 @@ const panelActions: WorkspacePanelActions = {
   moveTab: (tabId, workspaceId, beforeTabId) => useSessionStore.getState().moveTab(tabId, workspaceId, beforeTabId),
   joinPane: handleJoinPane,
   newWorkspace: handleNewWorkspace,
-  openProjects: () => runCommand(Command.Projects),
+  openProjects: handleOpenProjects,
 }
 
 export function AppShell({ session }: AppShellProps) {
@@ -352,7 +354,7 @@ export function AppShell({ session }: AppShellProps) {
           </>
         )}
         <main className="relative flex min-h-0 min-w-0 flex-1 flex-col">
-          {workspace ? renderMain(workspace) : <EmptyState canRestore={session.closed.length > 0} onNewWorkspace={handleNewWorkspace} onRestoreTab={restoreClosedTab} />}
+          {workspace ? renderMain(workspace) : <EmptyState canRestore={session.closed.length > 0} onNewWorkspace={handleNewWorkspace} onOpenProject={handleOpenProjects} onRestoreTab={restoreClosedTab} />}
         </main>
         {tab?.explorer && (
           <>
