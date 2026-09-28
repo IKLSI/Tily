@@ -84,6 +84,12 @@ Travail autonome sur la branche `night-session`. Chaque itération apporte une a
 - **Pourquoi** : glisser un fichier depuis l'Explorateur Windows sur Dock ouvrait une fenêtre WebView2 brute, hors de Dock, qui affichait le fichier ; un lien déposé pouvait aussi remplacer l'interface. Rien n'interceptait ces cas.
 - **Vérifié** : dépôt simulé par le protocole de débogage (`Input.dispatchDragEvent`, le même chemin qu'un vrai glisser-déposer dans Chromium). Avant, une nouvelle fenêtre « exemple fichier.txt » s'ouvrait (processus `msedgewebview2` séparé). Après, rien ne s'ouvre et la page reste en place. Côté hôte, `window.open` renvoie `null` et une navigation forcée vers `file:///` est annulée.
 
+### 13. Déposer un fichier sur un terminal insère son chemin
+
+- **Quoi** : glisser un ou plusieurs fichiers ou dossiers depuis l'Explorateur Windows sur un terminal y colle leurs chemins, comme dans Windows Terminal, et le pane devient actif. Le web joint les fichiers au message `terminal.drop` (`postMessageWithAdditionalObjects`, seul moyen d'obtenir leur vrai chemin dans une WebView2). L'hôte les met en forme selon le shell avec `DroppedPaths` dans `Dock.Core` : guillemets simples pour PowerShell (apostrophe doublée), doubles pour CMD, simples pour Git Bash, rien si ce n'est pas nécessaire, une espace après chaque chemin. Il renvoie `terminal.dropped`, et le texte est collé par xterm.js, donc entre crochets si le programme le demande, comme Claude Code. Huit tests xUnit ont été ajoutés. Spécification (« Convention proposée »), README et documents d'architecture sont à jour.
+- **Pourquoi** : c'est un geste courant dans les terminaux Windows, et pratique avec Claude Code pour lui passer un fichier ou une image. L'itération 12 bloquait déjà les dépôts ; ceux qui visent un terminal deviennent maintenant utiles.
+- **Vérifié** : dans l'instance de test, un fichier dont le chemin contient des espaces déposé après `echo ` donne `echo 'C:\...\exemple fichier.txt'`, que PowerShell affiche. Un dossier déposé sur un autre pane s'insère sans guillemets et rend ce pane actif. 184 tests passent.
+
 ## Reste à faire et idées
 
 - Taille de police et zoom du terminal : absents (police fixe à 14 px). La spécification les classe « À décider » (section 4), donc je n'y ai pas touché ; c'est à trancher.

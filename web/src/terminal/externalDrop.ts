@@ -1,23 +1,52 @@
-const REFUSED_TYPES = ['Files', 'text/uri-list']
+import { bridge } from '../bridge/bridge'
+import { allPanes, DEFAULT_SHELL } from '../model/session'
+import { useSessionStore } from '../store/sessionStore'
+
+const FILES_TYPE = 'Files'
+const EXTERNAL_TYPES = [FILES_TYPE, 'text/uri-list']
 const NO_DROP = 'none'
+const COPY_DROP = 'copy'
+const PANE_SELECTOR = '[data-pane-id]'
 
-const carriesRefusedData = (event: DragEvent): boolean => REFUSED_TYPES.some((type) => event.dataTransfer?.types.includes(type))
+const carries = (event: DragEvent, type: string): boolean => Boolean(event.dataTransfer?.types.includes(type))
 
-const refuseDrop = (event: DragEvent): void => {
-  if (!carriesRefusedData(event)) {
+const carriesExternalData = (event: DragEvent): boolean => EXTERNAL_TYPES.some((type) => carries(event, type))
+
+const paneIdUnder = (event: DragEvent): string | undefined =>
+  event.target instanceof Element ? event.target.closest<HTMLElement>(PANE_SELECTOR)?.dataset.paneId : undefined
+
+const shellOf = (paneId: string): string => {
+  const { session } = useSessionStore.getState()
+  return (session ? allPanes(session).find((pane) => pane.id === paneId)?.shell : undefined) ?? DEFAULT_SHELL
+}
+
+const handleDragOver = (event: DragEvent): void => {
+  if (!carriesExternalData(event)) {
     return
   }
   event.preventDefault()
   if (event.dataTransfer) {
-    event.dataTransfer.dropEffect = NO_DROP
+    event.dataTransfer.dropEffect = carries(event, FILES_TYPE) && paneIdUnder(event) ? COPY_DROP : NO_DROP
   }
 }
 
-export const startExternalDropGuard = (): (() => void) => {
-  window.addEventListener('dragover', refuseDrop)
-  window.addEventListener('drop', refuseDrop)
+const handleDrop = (event: DragEvent): void => {
+  if (!carriesExternalData(event)) {
+    return
+  }
+  event.preventDefault()
+  const paneId = paneIdUnder(event)
+  const files = event.dataTransfer?.files
+  if (paneId && files && files.length > 0) {
+    bridge.sendWithFiles({ type: 'terminal.drop', pane: paneId, shell: shellOf(paneId) }, files)
+  }
+}
+
+export const startExternalDrops = (): (() => void) => {
+  window.addEventListener('dragover', handleDragOver)
+  window.addEventListener('drop', handleDrop)
   return () => {
-    window.removeEventListener('dragover', refuseDrop)
-    window.removeEventListener('drop', refuseDrop)
+    window.removeEventListener('dragover', handleDragOver)
+    window.removeEventListener('drop', handleDrop)
   }
 }

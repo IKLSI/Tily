@@ -37,6 +37,15 @@ export const isMouseTrackedByProgram = (paneId: string): boolean => (terminalReg
 
 export const focusPaneTerminal = (paneId: string): void => terminalRegistry.get(paneId)?.terminal.focus()
 
+export const insertIntoPane = (paneId: string, text: string): void => {
+  const terminal = terminalRegistry.get(paneId)?.terminal
+  if (terminal && text.length > 0) {
+    useSessionStore.getState().selectPane(paneId)
+    terminal.paste(text)
+    terminal.focus()
+  }
+}
+
 const activeTabShowsGit = (): boolean => {
   const { session } = useSessionStore.getState()
   const workspace = session ? activeWorkspace(session) : undefined

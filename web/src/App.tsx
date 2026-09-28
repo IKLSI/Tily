@@ -10,10 +10,10 @@ import { useSessionStore } from './store/sessionStore'
 import { useUiStore } from './store/uiStore'
 import { receiveActivity, receiveApplicationClosing } from './terminal/closeGuard'
 import { receiveContext } from './terminal/contextActions'
-import { startExternalDropGuard } from './terminal/externalDrop'
+import { startExternalDrops } from './terminal/externalDrop'
 import { receiveCreated, receiveDeleted, receiveListing, receiveRenamed } from './explorer/fileExplorerActions'
 import { receiveGitChanged, receiveGitDetails, receiveGitDiff, receiveGitDone, receiveGitFailed, receiveGitHistory, receiveGitPushRejected, receiveGitState } from './git/gitReceivers'
-import { joinPane } from './terminal/terminalActions'
+import { insertIntoPane, joinPane } from './terminal/terminalActions'
 import { terminalRegistry } from './terminal/terminalRegistry'
 import { forgetRemovedText, markTextSaveFailed, primeSessionText, startTextAutosave } from './terminal/textPersistence'
 
@@ -29,7 +29,7 @@ export default function App() {
     const { setHello, setStatus, setProjects, setUnsaved, applySettings, setPickedPath, setImportedPreferences } = useHostStore.getState()
     let stopAutosave: (() => void) | undefined
     const stopNotifier = startAttentionNotifier()
-    const stopDropGuard = startExternalDropGuard()
+    const stopExternalDrops = startExternalDrops()
     const { markFailed, markExited, markPathMissing, clear } = usePaneStore.getState()
     const subscriptions = [
       bridge.on('app.hello', (message) => {
@@ -76,6 +76,7 @@ export default function App() {
         setStatus(`${message.message} Les changements ne sont pas enregistrés.`, StatusLevel.Error)
       }),
       bridge.on('terminal.output', (message) => terminalRegistry.write(message.pane, message.data)),
+      bridge.on('terminal.dropped', (message) => insertIntoPane(message.pane, message.text)),
       bridge.on('terminal.cwd', (message) => {
         setPanePath(message.pane, message.path)
         clear(message.pane)
@@ -113,7 +114,7 @@ export default function App() {
     }
     return () => {
       stopNotifier()
-      stopDropGuard()
+      stopExternalDrops()
       stopAutosave?.()
       subscriptions.forEach((unsubscribe) => unsubscribe())
     }

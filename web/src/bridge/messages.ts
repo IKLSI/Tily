@@ -143,6 +143,7 @@ export type HostToWebMessage =
   | { type: 'terminal.output'; pane: string; data: string }
   | { type: 'terminal.cwd'; pane: string; path: string }
   | { type: 'terminal.exit'; pane: string; code: number }
+  | { type: 'terminal.dropped'; pane: string; text: string }
   | { type: 'terminal.pathMissing'; pane: string; path: string; fallback: string }
   | { type: 'terminal.activityResult'; panes: PaneActivity[] }
   | { type: 'agent.states'; panes: PaneAgent[] }
@@ -175,6 +176,7 @@ export type WebToHostMessage =
   | { type: 'terminal.ack'; pane: string; chars: number }
   | { type: 'terminal.close'; pane: string }
   | { type: 'terminal.activity'; panes: string[] }
+  | { type: 'terminal.drop'; pane: string; shell: string }
   | { type: 'projects.list' }
   | { type: 'context.query'; pane: string; path: string }
   | { type: 'context.open'; pane: string; path: string; target: OpenTarget }

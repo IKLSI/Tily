@@ -17,6 +17,7 @@ public sealed class HostBridge : IDisposable
 {
     private const int MaxCharsPerMessage = 512 * 1024;
     private const string TextSavePrefix = """{"type":"text.save",""";
+    private const string DropPrefix = """{"type":"terminal.drop",""";
     private static readonly TimeSpan WriteDrainTimeout = TimeSpan.FromSeconds(10);
     private static readonly JsonSerializerOptions JsonOptions = SessionRepository.JsonOptions;
 
@@ -70,8 +71,34 @@ public sealed class HostBridge : IDisposable
     public void Attach(CoreWebView2 core)
     {
         _core = core;
-        core.WebMessageReceived += (_, args) => Receive(args.WebMessageAsJson);
+        core.WebMessageReceived += HandleWebMessage;
         _agents.Start();
+    }
+
+    private void HandleWebMessage(CoreWebView2 sender, CoreWebView2WebMessageReceivedEventArgs args)
+    {
+        var json = args.WebMessageAsJson;
+        if (json.StartsWith(DropPrefix, StringComparison.Ordinal))
+        {
+            ReceiveDrop(json, args.AdditionalObjects?.OfType<CoreWebView2File>().Select(file => file.Path).ToList() ?? []);
+        }
+        else
+        {
+            Receive(json);
+        }
+    }
+
+    private void ReceiveDrop(string json, IReadOnlyList<string> paths)
+    {
+        try
+        {
+            var command = JsonSerializer.Deserialize<BridgeCommandModel>(json, JsonOptions) ?? throw new InvalidOperationException("Dépôt de fichiers illisible.");
+            Post(new { type = "terminal.dropped", pane = RequirePane(command), text = DroppedPaths.Format(paths, command.Shell ?? ShellCatalog.DefaultShellId) });
+        }
+        catch (Exception exception) when (exception is JsonException or InvalidOperationException)
+        {
+            Post(new { type = "error", message = exception.Message });
+        }
     }
 
     private void Receive(string json)
