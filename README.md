@@ -16,10 +16,9 @@ node scripts/generate-icon.js        # régénère src/Dock.Host/Assets/Dock.ico
 
 ## Documents
 
-- [Spécifications complètes](specifications-terminal.md)
-- [Spécifications HTML imprimables](specifications-terminal.html)
+- [Spécifications complètes](docs/specifications-terminal.md)
 - [Inspection de l’environnement local](docs/inspection-environnement.md)
-- [Backlog fonctionnel](BACKLOG.md)
+- [Backlog fonctionnel](https://github.com/MaximeRazafinjato/dock-terminal/issues)
 - [Architecture backend](docs/BACKEND_ARCHITECTURE.md), [architecture frontend](docs/FRONTEND_ARCHITECTURE.md), [tests](docs/TESTING.md)
 
 ## Direction retenue
