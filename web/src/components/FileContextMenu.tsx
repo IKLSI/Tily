@@ -1,6 +1,7 @@
 import { EntryKind, type FileEntry } from '../bridge/messages'
 import type { ActionMenuItem } from './ActionMenu'
 import { FloatingMenu } from './FloatingMenu'
+import { MenuShortcut } from './MenuShortcut'
 import type { FileMenuRequest } from './fileTreeHandlers'
 
 export interface FileMenuActions {
@@ -19,8 +20,6 @@ interface FileContextMenuProps {
   onDismiss: () => void
 }
 
-const shortcut = (keys: string) => <span className="text-[11px] text-dock-muted">{keys}</span>
-
 const itemsFor = ({ entry, parent }: FileMenuRequest, actions: FileMenuActions): ActionMenuItem[] => {
   if (!entry) {
     return [
@@ -35,11 +34,11 @@ const itemsFor = ({ entry, parent }: FileMenuRequest, actions: FileMenuActions):
   return [
     entry.isDirectory
       ? { id: 'terminal', label: 'Ouvrir un terminal ici', run: () => actions.openTerminal(entry.path) }
-      : { id: 'open', label: 'Ouvrir dans l’éditeur', detail: shortcut('Entrée'), run: () => actions.open(entry) },
+      : { id: 'open', label: 'Ouvrir dans l’éditeur', detail: <MenuShortcut keys="Entrée" />, run: () => actions.open(entry) },
     { id: 'new-file', label: 'Nouveau fichier', run: () => actions.newEntry(folder, EntryKind.File) },
     { id: 'new-folder', label: 'Nouveau dossier', run: () => actions.newEntry(folder, EntryKind.Folder) },
-    { id: 'rename', label: 'Renommer', detail: shortcut('F2'), run: () => actions.rename(entry.path) },
-    { id: 'delete', label: 'Supprimer', detail: shortcut('Suppr'), run: () => actions.remove(entry, parent) },
+    { id: 'rename', label: 'Renommer', detail: <MenuShortcut keys="F2" />, run: () => actions.rename(entry.path) },
+    { id: 'delete', label: 'Supprimer', detail: <MenuShortcut keys="Suppr" />, run: () => actions.remove(entry, parent) },
     { id: 'copy-path', label: 'Copier le chemin', run: () => actions.copyPath(entry.path) },
   ]
 }

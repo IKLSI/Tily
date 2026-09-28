@@ -29,6 +29,12 @@ Travail autonome sur la branche `night-session`. Chaque itération apporte une a
 - **Pourquoi** : c'étaient les barres natives de Chromium, larges, à flèches et au curseur gris clair, qui tranchaient avec le thème sombre compact et prenaient de la largeur aux terminaux.
 - **Vérifié** : captures d'un terminal avec 300 lignes d'historique, du graphe Git et de la liste des fichiers d'un commit.
 
+### 4. Menu contextuel dans les terminaux
+
+- **Quoi** : un clic droit dans un terminal ouvre un menu avec Copier (grisé sans sélection), Coller, Tout sélectionner, Split côte à côte, Split haut / bas et Fermer le pane, chacun avec son raccourci. La touche Menu du clavier l'ouvre à la position du curseur. Quand un programme suit la souris (vim, htop…), le clic droit lui revient et Maj + clic droit ouvre le menu. Copier et coller passent désormais par `terminal/terminalActions.ts`, partagé par le clavier et le menu ; un échec du presse-papiers s'affiche dans la barre de statut au lieu d'être silencieux. Le petit rendu de raccourci des menus est devenu un composant `MenuShortcut`, repris dans le menu des fichiers.
+- **Pourquoi** : les menus natifs de la WebView2 sont désactivés, donc un clic droit dans un terminal ne faisait rien, alors que le reste de l'interface (panneau, fichiers, Git) a ses menus contextuels.
+- **Vérifié** : clic droit sans sélection (Copier grisé), double-clic sur un mot puis clic droit (Copier actif, la sélection reste visible), Copier puis Coller dans l'invite, touche Menu (menu au curseur), Échap (le focus revient au terminal).
+
 ## Reste à faire et idées
 
 - Taille de police et zoom du terminal : absents (police fixe à 14 px). La spécification les classe « À décider » (section 4), donc je n'y ai pas touché ; c'est à trancher.

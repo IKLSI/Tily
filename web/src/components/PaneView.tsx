@@ -1,13 +1,15 @@
-import { memo, useEffect } from 'react'
+import { memo, useEffect, useState } from 'react'
 import { OpenTarget, type ShellProfile } from '../bridge/messages'
 import { SplitAxis, type Pane } from '../model/session'
 import { useAgentStore } from '../store/agentStore'
 import { useHostStore } from '../store/hostStore'
 import { usePaneStore } from '../store/paneStore'
 import { copyPaneBranch, copyPanePath, gitSummary, openPaneFolder, queryContext } from '../terminal/contextActions'
+import { copyPaneSelection, focusPaneTerminal, hasPaneSelection, pasteIntoPane, selectAllInPane } from '../terminal/terminalActions'
 import { TerminalPane } from '../terminal/TerminalPane'
 import { AgentBadge } from './AgentBadge'
 import { PaneOverlay } from './PaneOverlay'
+import { TerminalContextMenu, type TerminalMenuActions, type TerminalMenuRequest } from './TerminalContextMenu'
 
 interface PaneViewProps {
   pane: Pane
@@ -74,6 +76,7 @@ export const PaneView = memo(function PaneView({ pane, active, onFocus, onClose,
   const paneState = usePaneStore((state) => state.states[pane.id])
   const context = useHostStore((state) => state.contexts[pane.id])
   const agent = useAgentStore((state) => state.agents[pane.id])
+  const [menu, setMenu] = useState<TerminalMenuRequest | null>(null)
 
   useEffect(() => {
     queryContext(pane.id)
@@ -91,6 +94,19 @@ export const PaneView = memo(function PaneView({ pane, active, onFocus, onClose,
   const handleSplitSideBySide = () => onSplit(pane.id, SplitAxis.Horizontal)
   const handleSplitTopBottom = () => onSplit(pane.id, SplitAxis.Vertical)
   const handleClose = () => onClose(pane.id)
+  const handleContextMenu = (x: number, y: number) => setMenu({ x, y })
+  const handleDismissMenu = () => {
+    setMenu(null)
+    focusPaneTerminal(pane.id)
+  }
+  const menuActions: TerminalMenuActions = {
+    copy: () => copyPaneSelection(pane.id),
+    paste: () => pasteIntoPane(pane.id),
+    selectAll: () => selectAllInPane(pane.id),
+    splitSideBySide: handleSplitSideBySide,
+    splitTopBottom: handleSplitTopBottom,
+    close: handleClose,
+  }
   const branchTitle = context?.branch ? `Copier la branche « ${context.branch} »` : gitSummary(context)
 
   return (
@@ -131,9 +147,10 @@ export const PaneView = memo(function PaneView({ pane, active, onFocus, onClose,
         </button>
       </header>
       <div className="relative min-h-0">
-        <TerminalPane pane={pane} active={active} onFocus={onFocus} />
+        <TerminalPane pane={pane} active={active} onFocus={onFocus} onContextMenu={handleContextMenu} />
         {paneState && <PaneOverlay state={paneState} shells={shells} onRestart={handleRestart} onRestartIn={handleRestartIn} onChangeShell={handleChangeShell} onDismiss={handleDismissState} onClose={handleClose} />}
       </div>
+      {menu && <TerminalContextMenu request={menu} canCopy={hasPaneSelection(pane.id)} actions={menuActions} onDismiss={handleDismissMenu} />}
     </section>
   )
 })
