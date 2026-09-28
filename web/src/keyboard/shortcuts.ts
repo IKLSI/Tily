@@ -11,6 +11,8 @@ import { RenameOrigin, useUiStore } from '../store/uiStore'
 const LEADER_TIMEOUT_MS = 5000
 const MODIFIER_KEYS = new Set(['Control', 'Shift', 'Alt', 'AltGraph', 'Meta'])
 const CANCEL_KEY = 'Escape'
+const TAB_KEY = 'Tab'
+const EDITABLE_SELECTOR = 'input, textarea, select, [contenteditable="true"]'
 const LEADER_EXPIRED_STATUS = 'Leader expiré : la saisie revient au terminal.'
 
 export interface LeaderHint {
@@ -51,6 +53,8 @@ export enum Command {
   FocusPaneDown = 'focusPaneDown',
   MoveTabLeft = 'moveTabLeft',
   MoveTabRight = 'moveTabRight',
+  NextTab = 'nextTab',
+  PreviousTab = 'previousTab',
   RestoreTab = 'restoreTab',
   ToggleExplorer = 'toggleExplorer',
   ToggleGit = 'toggleGit',
@@ -117,10 +121,14 @@ const isCloseWindow = (event: KeyboardEvent): boolean => event.altKey && event.k
 const isCopy = (event: KeyboardEvent): boolean => event.ctrlKey && event.shiftKey && !event.altKey && letterOf(event) === 'c'
 const isPlainCtrlC = (event: KeyboardEvent): boolean => event.ctrlKey && !event.shiftKey && !event.altKey && letterOf(event) === 'c'
 const isPaste = (event: KeyboardEvent): boolean => event.ctrlKey && !event.altKey && letterOf(event) === 'v'
+const isTabCycle = (event: KeyboardEvent): boolean => event.ctrlKey && !event.altKey && event.key === TAB_KEY
 
 const directCommand = (event: KeyboardEvent): Command | undefined => {
   if (event.ctrlKey && !event.altKey && letterOf(event) === 'p') {
     return Command.Palette
+  }
+  if (isTabCycle(event)) {
+    return event.shiftKey ? Command.PreviousTab : Command.NextTab
   }
   if (event.ctrlKey && event.shiftKey && !event.altKey) {
     return DIRECT_PAGE_KEYS[event.key] ?? DIRECT_LETTER_KEYS[letterOf(event)]
@@ -238,6 +246,12 @@ export const runCommand = (command: Command): void => {
     case Command.MoveTabRight:
       sessionStore.moveActiveTab(1)
       break
+    case Command.NextTab:
+      sessionStore.selectAdjacentTab(1)
+      break
+    case Command.PreviousTab:
+      sessionStore.selectAdjacentTab(-1)
+      break
     case Command.RestoreTab:
       restoreClosedTab()
       break
@@ -248,6 +262,14 @@ export const runCommand = (command: Command): void => {
       togglePanelView(RightPanelView.Git, true)
       break
   }
+}
+
+export const handleDocumentTabCycle = (event: KeyboardEvent): void => {
+  if (event.defaultPrevented || !isTabCycle(event) || (event.target instanceof Element && event.target.closest(EDITABLE_SELECTOR))) {
+    return
+  }
+  event.preventDefault()
+  runCommand(event.shiftKey ? Command.PreviousTab : Command.NextTab)
 }
 
 const isReservedShortcut = (event: KeyboardEvent): boolean =>

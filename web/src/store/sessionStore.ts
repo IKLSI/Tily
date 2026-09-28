@@ -55,6 +55,7 @@ interface SessionState {
   renameTab: (tabId: string, name: string) => void
   moveTab: (tabId: string, targetWorkspaceId: string, beforeTabId?: string) => void
   moveActiveTab: (offset: number) => void
+  selectAdjacentTab: (offset: number) => void
   closeTab: (tabId: string) => void
   restoreTab: () => { tab: Tab; paneIds: Record<string, string> } | null
   splitPane: (axis: SplitAxis) => void
@@ -258,6 +259,15 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
         }
         const [tab] = workspace.tabs.splice(index, 1)
         workspace.tabs.splice(destination, 0, tab)
+      }),
+    })),
+
+  selectAdjacentTab: (offset) =>
+    set((state) => ({
+      session: mutateWorkspace(state.session, (workspace) => {
+        const count = workspace.tabs.length
+        const index = Math.max(0, workspace.tabs.findIndex((tab) => tab.id === workspace.active))
+        workspace.active = workspace.tabs[(((index + offset) % count) + count) % count].id
       }),
     })),
 

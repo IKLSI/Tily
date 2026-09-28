@@ -202,6 +202,8 @@ Le principe d’une touche Leader est retenu. Le raccourci par défaut est **Ctr
 
 Les séquences Leader sont consommées par l’application uniquement lorsqu’elles correspondent à une commande active. Une commande non reconnue ou expirée rend la saisie au pane actif ; les raccourcis personnalisés peuvent désactiver ou remplacer les valeurs par défaut.
 
+**Convention proposée.** Ctrl + Tab et Ctrl + Maj + Tab passent à l’onglet suivant ou précédent du workspace actif, en boucle, comme dans Windows Terminal. Ces combinaisons n’envoient au shell que Tab ou Maj + Tab, qui restent disponibles sans Ctrl.
+
 ## 10. Sélecteur de projets
 
 **Retenu.** Chercher rapidement un dossier dans `C:\\Files\\Projects`, puis ouvrir un workspace avec un premier terminal dans ce dossier. Le raccourci WezTerm Leader + F existant sert de référence fonctionnelle.

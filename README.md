@@ -64,5 +64,6 @@ Aucun droit administrateur n’est nécessaire. Pour mettre à jour, fermer Dock
 | E | Ctrl + Maj + E | Explorateur de fichiers |
 | G | Ctrl + Maj + G | Vue Git |
 | Flèche | Alt + flèche | Passer d’un terminal à l’autre |
+| — | Ctrl + Tab / Ctrl + Maj + Tab | Onglet suivant / précédent |
 
 Ctrl + Maj + C et Ctrl + Maj + V copient et collent.

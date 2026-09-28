@@ -5,7 +5,7 @@ import { PickTarget, type NotificationSettings, type Project, type Settings } fr
 import { activePane, activeTab, activeWorkspace, DEFAULT_SHELL, EXPLORER_MAX, EXPLORER_MIN, findWorkspace, RightPanelView, SIDEBAR_MAX, SIDEBAR_MIN, type Session, type SplitAxis, type SplitPath, type Workspace } from '../model/session'
 import type { PaletteItem } from '../palette/paletteItems'
 import { waitingPanes } from '../agents/agentSummary'
-import { Command, runCommand } from '../keyboard/shortcuts'
+import { Command, handleDocumentTabCycle, runCommand } from '../keyboard/shortcuts'
 import { agentKey, useAgentStore } from '../store/agentStore'
 import { useHostStore } from '../store/hostStore'
 import { useSessionStore } from '../store/sessionStore'
@@ -159,6 +159,11 @@ const handleCancelGit = (): void => {
   focusGitPanel()
 }
 
+const modalOpen = (): boolean => {
+  const { settingsOpen, closeConfirmation, paletteOpen, projectPickerOpen } = useUiStore.getState()
+  return settingsOpen || paletteOpen || projectPickerOpen || closeConfirmation !== null || useExplorerStore.getState().deleteRequest !== null || useGitStore.getState().confirmation !== null
+}
+
 const panelActions: WorkspacePanelActions = {
   selectWorkspace: (workspaceId) => useSessionStore.getState().selectWorkspace(workspaceId),
   toggleWorkspace: (workspaceId) => useSessionStore.getState().toggleWorkspace(workspaceId),
@@ -224,6 +229,9 @@ export function AppShell({ session }: AppShellProps) {
       if (!event.defaultPrevented && event.ctrlKey && !event.altKey && event.key.toLowerCase() === 'p' && !settingsShown && !confirmationShown) {
         event.preventDefault()
         openPalette()
+      }
+      if (!modalOpen()) {
+        handleDocumentTabCycle(event)
       }
     }
     document.addEventListener('keydown', handleKeyDown)
