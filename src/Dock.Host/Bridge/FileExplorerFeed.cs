@@ -38,6 +38,9 @@ public sealed class FileExplorerFeed : IDisposable
             case "files.open":
                 LocalActions.OpenFileInEditor(RequirePath(command), _editorCommand());
                 break;
+            case "files.reveal":
+                LocalActions.RevealInExplorer(RequirePath(command));
+                break;
             case "files.create":
                 Create(RequirePath(command), command.Name, command.Kind);
                 break;

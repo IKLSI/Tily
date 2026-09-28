@@ -67,6 +67,8 @@ export const openFile = (entry: FileEntry): void => {
   useHostStore.getState().setStatus(`Ouverture dans l’éditeur : ${entry.name}`)
 }
 
+export const revealInExplorer = (path: string): void => bridge.send({ type: 'files.reveal', path })
+
 export const createEntry = (parent: string, name: string, kind: EntryKind): void => {
   const trimmed = name.trim()
   if (trimmed.length > 0) {

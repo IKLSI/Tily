@@ -11,6 +11,7 @@ export interface FileMenuActions {
   rename: (path: string) => void
   remove: (entry: FileEntry, parent: string) => void
   copyPath: (path: string) => void
+  reveal: (path: string) => void
   refresh: () => void
 }
 
@@ -40,6 +41,7 @@ const itemsFor = ({ entry, parent }: FileMenuRequest, actions: FileMenuActions):
     { id: 'rename', label: 'Renommer', detail: <MenuShortcut keys="F2" />, run: () => actions.rename(entry.path) },
     { id: 'delete', label: 'Supprimer', detail: <MenuShortcut keys="Suppr" />, run: () => actions.remove(entry, parent) },
     { id: 'copy-path', label: 'Copier le chemin', run: () => actions.copyPath(entry.path) },
+    { id: 'reveal', label: 'Afficher dans l’Explorateur Windows', run: () => actions.reveal(entry.path) },
   ]
 }
 

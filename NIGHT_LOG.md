@@ -144,6 +144,12 @@ Travail autonome sur la branche `night-session`. Chaque itération apporte une a
 - **Pourquoi** : un clic droit sur un onglet de la barre ne faisait rien, alors que le panneau des workspaces a son menu. Et après avoir ouvert beaucoup d'onglets, il fallait les fermer un par un.
 - **Vérifié** : dans l'instance de test, le menu du dernier onglet a « Déplacer à droite » grisé. « Fermer les autres onglets » ne laisse que cet onglet (13 fermés, sans programme actif donc sans confirmation), et Ctrl + Maj + Z rouvre le dernier fermé, actif, avec un nouveau terminal.
 
+### 23. « Afficher dans l'Explorateur Windows » depuis l'arbre des fichiers
+
+- **Quoi** : le menu contextuel d'un fichier ou d'un dossier de l'explorateur propose « Afficher dans l'Explorateur Windows ». L'Explorateur s'ouvre sur le dossier parent avec l'élément sélectionné, comme « Reveal in File Explorer » dans VS Code. La chaîne complète est en place : message `files.reveal`, traité par `FileExplorerFeed`, puis `LocalActions.RevealInExplorer` dans `Dock.Core` (élément absent : erreur en français). Deux tests xUnit ont été ajoutés.
+- **Pourquoi** : on pouvait ouvrir un fichier dans l'éditeur ou copier son chemin, mais pas le retrouver dans l'Explorateur Windows (pour le glisser dans un mail, voir ses propriétés, etc.). Le bouton de l'en-tête du pane n'ouvre que le dossier courant.
+- **Vérifié** : pour respecter la règle `ArgumentList`, j'ai d'abord essayé `"/select,C:\…\exemple fichier.txt"`, que .NET met entièrement entre guillemets : l'Explorateur ne sait pas le lire et ouvre « Documents ». La bonne forme passe `/select,` et le chemin en deux arguments : fichier avec ou sans espaces bien sélectionné. De bout en bout dans l'instance de test, `package.json` apparaît sélectionné dans `web`. Les fenêtres de l'Explorateur ouvertes par ces essais ont été refermées. 186 tests passent.
+
 ## Reste à faire et idées
 
 - Taille de police et zoom du terminal : absents (police fixe à 14 px). La spécification les classe « À décider » (section 4), donc je n'y ai pas touché ; c'est à trancher.

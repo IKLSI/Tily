@@ -5,12 +5,31 @@ namespace Dock.Core.Context;
 public static class LocalActions
 {
     public const string ExplorerExecutable = "explorer.exe";
+    public const string SelectSwitch = "/select,";
 
     public static void OpenInExplorer(string path)
     {
         RequireDirectory(path);
         Process.Start(new ProcessStartInfo(ExplorerExecutable) { ArgumentList = { path }, UseShellExecute = false });
     }
+
+    public static void RevealInExplorer(string path)
+    {
+        if (!File.Exists(path) && !Directory.Exists(path))
+        {
+            throw new InvalidOperationException($"L’élément n’existe plus : {path}");
+        }
+
+        var startInfo = new ProcessStartInfo(ExplorerExecutable) { UseShellExecute = false };
+        foreach (var argument in RevealArguments(path))
+        {
+            startInfo.ArgumentList.Add(argument);
+        }
+
+        Process.Start(startInfo);
+    }
+
+    public static IReadOnlyList<string> RevealArguments(string path) => [SelectSwitch, Path.GetFullPath(path)];
 
     public static void OpenInEditor(string path, string editorCommand)
     {

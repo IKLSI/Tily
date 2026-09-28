@@ -184,6 +184,7 @@ export type WebToHostMessage =
   | { type: 'files.watch'; paths: string[] }
   | { type: 'files.refresh' }
   | { type: 'files.open'; path: string }
+  | { type: 'files.reveal'; path: string }
   | { type: 'files.create'; path: string; name: string; kind: EntryKind }
   | { type: 'files.rename'; path: string; parent: string; name: string }
   | { type: 'files.delete'; path: string; parent: string }
