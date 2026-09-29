@@ -56,7 +56,7 @@ export function WorkspaceTree({ session, renamingWorkspaceId, renamingTabId, act
           <Icon name={IconName.Plus} />
         </button>
       </div>
-      <nav className="min-h-0 flex-1 overflow-auto px-[8px] pb-[8px]" data-workspace-slot="">
+      <nav className="min-h-0 flex-1 overflow-auto px-[8px] pb-[8px]" data-workspace-list="">
         {session.workspaces.map((workspace) => (
           <WorkspaceItem
             key={workspace.id}

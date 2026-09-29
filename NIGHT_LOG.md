@@ -329,6 +329,19 @@ Un sous-agent a relu les itérations 30 à 42 (`86c8152..HEAD`) sans rien modifi
 
 Les constats restants (glisser des workspaces, piège de Tab et zones défilantes, infobulle des onglets, redimensionnement des colonnes du graphe, chaîne magique) font l'objet des itérations suivantes.
 
+### 45. Deuxième relecture, deuxième lot : glisser des workspaces et des onglets
+
+- **Geste commun** : un utilitaire `pointerDrag.ts` (`trackPointerDrag`) porte désormais le geste des deux glisser. Ses écouteurs sont posés sur `window` et retirés d'un coup par un `AbortController`, et le geste s'arrête sans dépôt si le bouton n'est plus enfoncé. Avant, ils étaient posés sur la ligne : si le premier mouvement sortait de la ligne, ils restaient orphelins, et un simple survol plus tard lançait un glisser fantôme (curseur « grabbing », ligne estompée). Le défaut existait aussi pour les onglets.
+- **Dépôt dans un interstice** : lâcher un workspace dans l'espace de 4 px entre deux lignes l'envoyait en fin de liste, car cet espace appartenait à la liste. La cible dépend maintenant de la hauteur du pointeur : devant le premier workspace dont le milieu est plus bas, sinon en fin de liste.
+- **Clic après le glisser** : glisser un workspace vers le haut le rendait courant, vers le bas non. Le clic qui suit un glisser de workspace est désormais ignoré. Les onglets gardent leur comportement : l'onglet glissé devient actif.
+- **Sélection dans le champ de renommage** : sélectionner le nom à la souris lançait un glisser du workspace. Le geste ne démarre plus depuis un champ de saisie.
+- **Vérifié** : dans l'instance de test, avec de vrais gestes de souris :
+  - « GameSolver » lâché dans l'interstice entre « PlannerATM » et « Dock » arrive devant « Dock », et le workspace actif reste « LZGChallenge » ;
+  - une sélection à la souris dans le champ de renommage ne déplace rien ;
+  - un appui au bord d'une ligne, une sortie brusque, un relâchement ailleurs puis un survol ne laissent ni glisser fantôme ni curseur « grabbing » ;
+  - le glisser d'un onglet dans la barre fonctionne toujours.
+- **Test instable** : une exécution de `dotnet test` a échoué une fois sur 190 tests, sans que je sache lequel, puis quatre exécutions ont passé. Ce lot ne touche que le web ; le script de vérification garde désormais le journal complet pour identifier ce test s'il échoue de nouveau.
+
 ## Reste à faire et idées
 
 - **Taille de police et zoom du terminal** : police fixe à 14 px. La spécification classe ce point « À décider » (section 4), je n'y ai donc pas touché ; c'est à trancher.
