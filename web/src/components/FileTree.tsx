@@ -185,6 +185,8 @@ export function FileTree({ root, rows, expanded, selectedPath, renamingPath, dra
       } else {
         selectAndFocus(entries.find((row) => row.entry?.path === current.parent))
       }
+    } else if (event.ctrlKey && !event.altKey && event.key.toLowerCase() === 'c') {
+      copyEntryPath(event.shiftKey ? relativeEntryPath(root, entry.path) : entry.path)
     } else if (event.key === 'Enter') {
       activateEntry(entry)
     } else if (event.key === 'F2') {

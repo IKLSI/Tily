@@ -278,6 +278,14 @@ Idée laissée en suspens à l'itération 8 : ramener un terminal dans un autre 
 - Vérifié dans l'instance de dev : le pane seul d'un onglet de « Workspace 2 » rejoint « Général / repo » (5 panes), « Workspace 2 » garde son autre onglet ; le dernier pane de « Workspace 2 » est ensuite refusé avec le message.
 - Convention de la section 7 complétée.
 
+### 27. Copier un chemin au clavier dans l'arbre des fichiers
+
+Suite de l'itération 16 : les deux copies de chemin n'étaient accessibles qu'au menu contextuel.
+
+- Sur la ligne sélectionnée de l'arbre, Ctrl + C copie le chemin complet et Ctrl + Maj + C le chemin relatif. Le menu contextuel affiche ces raccourcis.
+- Vérifié dans l'instance de dev (presse-papiers intercepté dans la page) sur `README.md` : chemin complet, puis `README.md` avec « Chemin copié : README.md ».
+- Convention de la section 4 complétée.
+
 ## Reste à faire et idées
 
 ### À décider par toi
