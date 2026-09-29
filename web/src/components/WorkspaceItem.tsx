@@ -1,4 +1,4 @@
-import { memo, type KeyboardEvent, type MouseEvent } from 'react'
+import { memo, type KeyboardEvent, type MouseEvent, type PointerEvent } from 'react'
 import type { AgentState } from '../bridge/messages'
 import { nextPaneInState, workspaceStateCounts, type AgentMap } from '../agents/agentSummary'
 import { activeTab, type Workspace } from '../model/session'
@@ -7,6 +7,7 @@ import { Icon } from './Icon'
 import { IconName } from './iconName'
 import { InlineNameEditor } from './InlineNameEditor'
 import { isDropTarget } from './tabDrag'
+import { beginWorkspaceDrag } from './workspaceDrag'
 import { TruncatedName } from './TruncatedName'
 import { WorkspaceStatus } from './WorkspaceStatus'
 import { WorkspaceTabRow } from './WorkspaceTabRow'
@@ -22,6 +23,8 @@ interface WorkspaceItemProps {
   agents: AgentMap
   draggingTabId: string | null
   dropTarget: TabDropTarget | null
+  draggingSelf: boolean
+  dropBefore: boolean
   actions: WorkspacePanelActions
   onOpenMenu: (request: PanelMenuRequest) => void
 }
@@ -35,7 +38,7 @@ const rowStateOf = (dropInto: boolean, here: boolean): string => {
   return here ? 'bg-dock-green-soft' : 'hover:bg-dock-panel'
 }
 
-export const WorkspaceItem = memo(function WorkspaceItem({ workspace, workspaceNames, selected, renaming, renamingTabId, springOpen, agents, draggingTabId, dropTarget, actions, onOpenMenu }: WorkspaceItemProps) {
+export const WorkspaceItem = memo(function WorkspaceItem({ workspace, workspaceNames, selected, renaming, renamingTabId, springOpen, agents, draggingTabId, dropTarget, draggingSelf, dropBefore, actions, onOpenMenu }: WorkspaceItemProps) {
   const { id, name, tabs } = workspace
   const expanded = springOpen || (workspace.expanded ?? selected)
   const here = selected && !expanded
@@ -80,15 +83,18 @@ export const WorkspaceItem = memo(function WorkspaceItem({ workspace, workspaceN
     }
   }
   const stopPropagation = (event: MouseEvent) => event.stopPropagation()
+  const handleHeaderPointerDown = (event: PointerEvent<HTMLDivElement>) => beginWorkspaceDrag(event, id, actions.moveWorkspaceBefore)
 
   return (
-    <div className="mb-[4px]">
+    <div className={`relative mb-[4px] ${draggingSelf ? 'opacity-50' : ''}`} data-workspace-slot={id}>
+      {dropBefore && <span aria-hidden="true" className={PANEL_DROP_LINE} />}
       <div
         className={`group flex h-[30px] cursor-pointer items-center gap-[4px] rounded-md px-[2px] select-none ${rowStateOf(!expanded && isDropTarget(dropTarget, id), here)}`}
         data-drop-workspace={id}
         data-spring-workspace={expanded ? undefined : id}
         onClick={handleSelect}
         onContextMenu={handleContextMenu}
+        onPointerDown={handleHeaderPointerDown}
       >
         <button
           type="button"

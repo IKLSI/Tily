@@ -190,10 +190,15 @@ Un sous-agent a relu tout le diff de la nuit (`main..night-session`) sans rien m
 - **Onglet actif après un déplacement** : Ctrl + Maj + PageDown ou « Déplacer à droite » pouvaient le pousser hors de la bande visible. Il est maintenant ramené en vue.
 - **Explorateur et virgules** : `explorer /select,` ouvrait « Ce PC » pour un chemin contenant une virgule sans espace (`a,b\f.txt`, confirmé). `RevealInExplorer` utilise désormais l'API `SHOpenFolderAndSelectItems`, sans ligne de commande. Vérifié : `f.txt` est bien sélectionné dans `a,b`, et le fichier avec espaces fonctionne toujours.
 
+### 30. Glisser-déposer des workspaces
+
+- **Quoi** : dans le panneau, la ligne d'un workspace se glisse à la souris. On la dépose devant un autre workspace, ou dans l'espace libre sous le dernier pour l'envoyer en fin de liste. Pendant le glisser, le workspace est estompé et un repère vert montre l'emplacement. `workspaceDrag.ts` reprend le mécanisme des onglets (événements pointeur, seuil de 4 px, `elementFromPoint`), puis `sessionStore.moveWorkspaceBefore` fait le déplacement. Le glisser part de la ligne du workspace seulement : celui des onglets n'est pas touché.
+- **Pourquoi** : c'est la suite de l'itération 14. Les onglets se glissaient déjà, les workspaces non.
+- **Vérifié** : glisser réel à la souris dans l'instance de test. LZGChallenge déposé sur PlannerATM passe en tête, puis déposé sous le dernier workspace passe en fin de liste ; une capture pendant le glisser montre le repère. Au passage, mon script de test ne produisait aucun `pointermove` : `SetCursorPos` suivi d'un mouvement relatif nul n'en génère pas. Il utilise maintenant des mouvements absolus, comme une vraie souris.
+
 ## Reste à faire et idées
 
 - **Taille de police et zoom du terminal** : police fixe à 14 px. La spécification classe ce point « À décider » (section 4), je n'y ai donc pas touché ; c'est à trancher.
-- **Glisser-déposer des workspaces à la souris** : ils se réordonnent désormais par menu, palette et Alt + ↑ / ↓, mais pas encore à la souris comme les onglets.
 - **Colonne des branches du graphe Git** : Auteur et Date s'effacent quand la place manque, mais la colonne des branches (200 px) ne se replie pas d'elle-même dans une fenêtre très étroite.
 - **Dossier disparu** : le message garde ses boutons hors d'atteinte du clavier. C'est voulu, car le shell est toujours vivant et garde le focus ; un raccourci dédié serait à étudier.
 - **Glisser-déposer réel depuis l'Explorateur** : le dépôt de fichiers a été vérifié par le protocole de débogage (le même chemin que Chromium), pas avec une vraie souris depuis l'Explorateur ; à confirmer à la main.

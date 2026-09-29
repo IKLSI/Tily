@@ -51,6 +51,7 @@ interface SessionState {
   newWorkspace: (name: string, path: string, shell: string) => string
   renameWorkspace: (workspaceId: string, name: string) => void
   moveWorkspace: (workspaceId: string, offset: number) => void
+  moveWorkspaceBefore: (workspaceId: string, beforeWorkspaceId?: string) => void
   newTab: (shell: string) => void
   newTabAt: (path: string, shell: string) => void
   renameTab: (tabId: string, name: string) => void
@@ -211,6 +212,19 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
         }
         const [workspace] = draft.workspaces.splice(index, 1)
         draft.workspaces.splice(destination, 0, workspace)
+      }),
+    })),
+
+  moveWorkspaceBefore: (workspaceId, beforeWorkspaceId) =>
+    set((state) => ({
+      session: mutateSession(state.session, (draft) => {
+        const index = draft.workspaces.findIndex((workspace) => workspace.id === workspaceId)
+        const before = beforeWorkspaceId ? draft.workspaces.findIndex((workspace) => workspace.id === beforeWorkspaceId) : draft.workspaces.length
+        if (index < 0 || before < 0 || before === index || before === index + 1) {
+          return
+        }
+        const [workspace] = draft.workspaces.splice(index, 1)
+        draft.workspaces.splice(before > index ? before - 1 : before, 0, workspace)
       }),
     })),
 

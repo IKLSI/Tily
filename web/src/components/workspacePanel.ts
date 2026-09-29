@@ -12,6 +12,7 @@ export interface WorkspacePanelActions {
   newTabIn: (workspaceId: string) => void
   collapseOthers: (workspaceId: string) => void
   moveWorkspace: (workspaceId: string, offset: number) => void
+  moveWorkspaceBefore: (workspaceId: string, beforeWorkspaceId?: string) => void
   shiftTab: (tabId: string, offset: number) => void
   duplicateTab: (tabId: string) => void
   selectTab: (workspaceId: string, tabId: string) => void

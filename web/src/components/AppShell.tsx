@@ -173,6 +173,7 @@ const panelActions: WorkspacePanelActions = {
   newTabIn: handleNewTabIn,
   collapseOthers: (workspaceId) => useSessionStore.getState().collapseOtherWorkspaces(workspaceId),
   moveWorkspace: (workspaceId, offset) => useSessionStore.getState().moveWorkspace(workspaceId, offset),
+  moveWorkspaceBefore: (workspaceId, beforeWorkspaceId) => useSessionStore.getState().moveWorkspaceBefore(workspaceId, beforeWorkspaceId),
   shiftTab: (tabId, offset) => useSessionStore.getState().shiftTab(tabId, offset),
   duplicateTab: duplicateTabKeepingLayout,
   selectTab: handleSelectTab,
