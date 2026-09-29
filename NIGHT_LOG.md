@@ -478,6 +478,20 @@ Dans le panneau des workspaces, un onglet qui a le focus se renomme avec F2 et s
   - F2 ouvre l'éditeur avec tout le nom sélectionné, puis Échap l'annule et rend le focus au terminal, comme après un double-clic.
 - Documenté comme **convention proposée** en section 6 de la spec, et dans le README.
 
+### 59. Les menus contextuels suivent les ajouts de la nuit
+
+Le zoom d'un pane (itération 49) et le clavier des onglets (itérations 47 et 58) ne figuraient dans aucun menu contextuel. Ils restaient donc à découvrir par hasard ou dans le README.
+
+- Le menu d'un terminal propose « Agrandir le pane », qui devient « Réduire le pane » quand le pane est agrandi, avec Ctrl + Maj + M en rappel. Comme dans la palette, l'entrée reste active avec un seul pane : la barre de statut explique alors qu'il n'y a rien à agrandir.
+- Le menu d'un onglet de la barre rappelle Alt + ← et Alt + → sur « Déplacer à gauche / à droite ».
+- Le menu du panneau rappelle F2 sur « Renommer », pour un onglet comme pour un workspace.
+- Vérifié dans l'instance de dev :
+  - onglet partagé en deux, clic droit dans le pane de gauche : « Agrandir le pane » l'agrandit, il devient actif et la barre de statut l'annonce ;
+  - un nouveau clic droit propose « Réduire le pane », qui réaffiche les deux panes ;
+  - les trois autres menus ouverts au clavier (Maj + F10) affichent les nouveaux rappels ;
+  - le pane de test a ensuite été fermé.
+- Spec (conventions du menu du terminal et du zoom) et architecture front mises à jour.
+
 ## Reste à faire et idées
 
 - **Taille de police et zoom du terminal** : police fixe à 14 px. La spécification classe ce point « À décider » (section 4), je n'y ai donc pas touché ; c'est à trancher.

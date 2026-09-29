@@ -136,6 +136,7 @@ export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZ
     selectAll: () => selectAllInPane(pane.id),
     splitSideBySide: handleSplitSideBySide,
     splitTopBottom: handleSplitTopBottom,
+    toggleZoom: handleToggleZoom,
     close: handleClose,
   }
   const branchTitle = context?.branch ? `Copier la branche « ${context.branch} »` : gitSummary(context)
@@ -188,7 +189,7 @@ export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZ
         <TerminalPane pane={pane} active={active} onFocus={onFocus} onContextMenu={handleContextMenu} />
         {paneState && <PaneOverlay state={paneState} active={active} shells={shells} onRestart={handleRestart} onRestartIn={handleRestartIn} onChangeShell={handleChangeShell} onDismiss={handleDismissState} onClose={handleClose} />}
       </div>
-      {menu && <TerminalContextMenu request={menu} canCopy={hasPaneSelection(pane.id)} actions={menuActions} onDismiss={handleDismissMenu} />}
+      {menu && <TerminalContextMenu request={menu} canCopy={hasPaneSelection(pane.id)} zoomed={zoomed} actions={menuActions} onDismiss={handleDismissMenu} />}
     </section>
   )
 })

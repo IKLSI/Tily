@@ -19,13 +19,13 @@ const moveItems = ({ position, count }: MenuPlace, move: (offset: number) => voi
 const itemsFor = ({ workspaceId, tabId }: PanelMenuRequest, place: MenuPlace, actions: WorkspacePanelActions): ActionMenuItem[] =>
   tabId
     ? [
-        { id: 'rename-tab', label: 'Renommer', run: () => actions.startRenameTab(tabId) },
+        { id: 'rename-tab', label: 'Renommer', detail: <MenuShortcut keys="F2" />, run: () => actions.startRenameTab(tabId) },
         { id: 'duplicate-tab', label: 'Dupliquer l’onglet', run: () => actions.duplicateTab(tabId) },
         ...moveItems(place, (offset) => actions.shiftTab(tabId, offset)),
         { id: 'close-tab', label: 'Fermer l’onglet', run: () => actions.closeTab(tabId) },
       ]
     : [
-        { id: 'rename-workspace', label: 'Renommer', run: () => actions.startRenameWorkspace(workspaceId) },
+        { id: 'rename-workspace', label: 'Renommer', detail: <MenuShortcut keys="F2" />, run: () => actions.startRenameWorkspace(workspaceId) },
         { id: 'new-tab', label: 'Nouvel onglet PowerShell', run: () => actions.newTabIn(workspaceId) },
         ...moveItems(place, (offset) => actions.moveWorkspace(workspaceId, offset)),
         { id: 'collapse-others', label: 'Replier les autres', run: () => actions.collapseOthers(workspaceId) },

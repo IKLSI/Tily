@@ -159,7 +159,7 @@ Le déplacement conserve le shell, le dossier, l’historique, les processus act
 
 Les splits peuvent être imbriqués. L’action de fermeture d’un pane retire cette feuille de la disposition et agrandit la zone restante.
 
-**Convention proposée.** Leader puis M, Ctrl + Maj + M, la palette ou un double-clic sur l’en-tête d’un pane l’agrandit temporairement à toute la zone de l’onglet, sans modifier la disposition enregistrée ; les autres terminaux continuent de tourner. Le même geste, le bouton « Réduire » de son en-tête, un split, le passage à un autre pane (Alt + flèche compris, qui réduit puis passe au pane voisin) ou à un autre onglet le réduisent. Un onglet d’un seul pane n’a rien à agrandir.
+**Convention proposée.** Leader puis M, Ctrl + Maj + M, la palette, le menu contextuel du terminal ou un double-clic sur l’en-tête d’un pane l’agrandit temporairement à toute la zone de l’onglet, sans modifier la disposition enregistrée ; les autres terminaux continuent de tourner. Le même geste, le bouton « Réduire » de son en-tête, un split, le passage à un autre pane (Alt + flèche compris, qui réduit puis passe au pane voisin) ou à un autre onglet le réduisent. Un onglet d’un seul pane n’a rien à agrandir.
 
 **Convention proposée.** Un double-clic sur un séparateur rétablit sa taille par défaut : parts égales pour un split, largeur initiale pour le panneau des workspaces, le panneau de droite et les colonnes du graphe Git.
 
@@ -178,7 +178,7 @@ Les splits peuvent être imbriqués. L’action de fermeture d’un pane retire 
 - Suivre le dossier courant réel après les commandes de navigation, y compris après une fonction du profil qui change le dossier.
 - Ne pas remplacer le shell par un interpréteur limité à quelques commandes reconnues par l’interface.
 
-**Convention proposée.** Un clic droit dans un terminal, ou la touche Menu, ouvre un menu contextuel : Copier (si du texte est sélectionné), Coller, Tout sélectionner, Split côte à côte, Split haut / bas et Fermer le pane. Quand le programme du terminal suit la souris, le clic droit lui revient ; Maj + clic droit ouvre alors le menu.
+**Convention proposée.** Un clic droit dans un terminal, ou la touche Menu, ouvre un menu contextuel : Copier (si du texte est sélectionné), Coller, Tout sélectionner, Split côte à côte, Split haut / bas, Agrandir le pane (ou Réduire le pane s’il est agrandi) et Fermer le pane. Quand le programme du terminal suit la souris, le clic droit lui revient ; Maj + clic droit ouvre alors le menu.
 
 **Convention proposée.** Déposer des fichiers ou des dossiers depuis l’Explorateur Windows sur un terminal y colle leurs chemins, comme dans Windows Terminal, protégés selon le shell (guillemets simples pour PowerShell et Git Bash, doubles pour CMD) et suivis d’une espace ; le pane devient actif. Ailleurs dans Dock, le dépôt de fichiers ou de liens est refusé et n’ouvre jamais de fenêtre.
 
