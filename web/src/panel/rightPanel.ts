@@ -1,14 +1,25 @@
 import { focusActivePane, focusFileTree } from '../explorer/fileExplorerActions'
 import { focusGitPanel, requestGraphFocus } from '../git/gitFocus'
-import { RightPanelView } from '../model/session'
+import { activeTab, activeWorkspace, RightPanelView } from '../model/session'
 import { useGitStore } from '../store/gitStore'
 import { useSessionStore } from '../store/sessionStore'
 
 const PANEL_SELECTOR = '[data-right-panel], [data-git-graph]'
+const NOTE_SELECTOR = '[data-workspace-note]'
 
 const focusGit = (): void => (useGitStore.getState().graphOpen ? requestGraphFocus() : focusGitPanel())
 
-const focusView = (view: RightPanelView): void => (view === RightPanelView.Git ? focusGit() : focusFileTree())
+const focusNotes = (): void => document.querySelector<HTMLTextAreaElement>(NOTE_SELECTOR)?.focus()
+
+const focusView = (view: RightPanelView): void => {
+  if (view === RightPanelView.Git) {
+    focusGit()
+  } else if (view === RightPanelView.Notes) {
+    focusNotes()
+  } else {
+    focusFileTree()
+  }
+}
 
 const focusIsInPanel = (): boolean => Boolean(document.activeElement?.closest(PANEL_SELECTOR))
 
@@ -39,6 +50,17 @@ export const showPanelView = (view: RightPanelView): void => {
   }
   useSessionStore.getState().setPanelView(view)
   requestAnimationFrame(() => focusView(view))
+}
+
+export const openWorkspaceNotes = (workspaceId: string): void => {
+  const store = useSessionStore.getState()
+  store.selectWorkspace(workspaceId)
+  const session = useSessionStore.getState().session
+  const workspace = session ? activeWorkspace(session) : undefined
+  if (workspace && !activeTab(workspace).explorer) {
+    store.toggleExplorer()
+  }
+  showPanelView(RightPanelView.Notes)
 }
 
 const showGitGraph = (): void => {

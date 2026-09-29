@@ -5,6 +5,7 @@ import { GitPanel } from './GitPanel'
 import { Icon } from './Icon'
 import { IconName } from './iconName'
 import { PANEL_HEADER_BUTTON } from './rightPanelStyles'
+import { WorkspaceNotes } from './WorkspaceNotes'
 
 interface RightPanelProps {
   view: RightPanelView
@@ -17,7 +18,18 @@ interface RightPanelProps {
 const VIEWS: { view: RightPanelView; label: string; shortcut: string }[] = [
   { view: RightPanelView.Files, label: 'Fichiers', shortcut: 'Ctrl + Maj + E' },
   { view: RightPanelView.Git, label: 'Git', shortcut: 'Ctrl + Maj + G' },
+  { view: RightPanelView.Notes, label: 'Notes', shortcut: 'Ctrl + Maj + O' },
 ]
+
+const viewContent = (view: RightPanelView, root: string, onOpenTerminal: (path: string) => void) => {
+  if (view === RightPanelView.Git) {
+    return <GitPanel folder={root} />
+  }
+  if (view === RightPanelView.Notes) {
+    return <WorkspaceNotes />
+  }
+  return <FileExplorer root={root} onOpenTerminal={onOpenTerminal} />
+}
 
 export function RightPanel({ view, root, width, onClose, onOpenTerminal }: RightPanelProps) {
   return (
@@ -45,7 +57,7 @@ export function RightPanel({ view, root, width, onClose, onOpenTerminal }: Right
           <Icon name={IconName.Close} />
         </button>
       </div>
-      {view === RightPanelView.Git ? <GitPanel folder={root} /> : <FileExplorer root={root} onOpenTerminal={onOpenTerminal} />}
+      {viewContent(view, root, onOpenTerminal)}
     </aside>
   )
 }

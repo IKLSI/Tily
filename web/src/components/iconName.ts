@@ -16,6 +16,7 @@ export enum IconName {
   More = 'more',
   NewFile = 'newFile',
   NewFolder = 'newFolder',
+  Note = 'note',
   Plus = 'plus',
   Project = 'project',
   Pull = 'pull',

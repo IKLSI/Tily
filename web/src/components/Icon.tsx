@@ -87,6 +87,12 @@ const SHAPES: Record<IconName, ReactNode> = {
       <path d="M9 7v3.2M7.4 8.6h3.2" />
     </>
   ),
+  [IconName.Note]: (
+    <>
+      <path d="M3 1.5h6a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-.5.5H3a.5.5 0 0 1-.5-.5V2a.5.5 0 0 1 .5-.5Z" />
+      <path d="M4.3 4h3.4M4.3 6h3.4M4.3 8h2" />
+    </>
+  ),
   [IconName.Plus]: <path d="M6 2.2v7.6M2.2 6h7.6" />,
   [IconName.Project]: (
     <>

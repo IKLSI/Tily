@@ -232,11 +232,11 @@ export function TabBar({ workspace, shells, renamingTabId, panelOpen, onTogglePa
         aria-pressed={panelOpen}
         aria-label={panelOpen ? 'Masquer le panneau de droite' : 'Afficher le panneau de droite'}
         className={`mb-1 ml-auto flex h-[26px] shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-md px-2 text-xs hover:bg-dock-green-hover hover:text-dock-ink ${panelOpen ? 'text-dock-green-deep' : 'text-dock-muted'}`}
-        data-tip={`${panelOpen ? 'Masquer' : 'Afficher'} le panneau Fichiers / Git (Ctrl + Maj + E ou G)`}
+        data-tip={`${panelOpen ? 'Masquer' : 'Afficher'} le panneau Fichiers / Git / Notes (Ctrl + Maj + E, G ou O)`}
         onClick={onTogglePanel}
       >
         <Icon name={IconName.Explorer} size={14} />
-        <span>Fichiers / Git</span>
+        <span>Fichiers / Git / Notes</span>
       </button>
       {tabMenu && (
         <TabContextMenu

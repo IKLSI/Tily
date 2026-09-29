@@ -14,6 +14,7 @@ const TABBABLE = 0
 const UNTABBABLE = -1
 const VIEWPORT_SELECTOR = '.xterm-viewport'
 const TAB_INDEX_ATTRIBUTE = 'tabindex'
+const AGENT_LINE_BREAK = '\x1b\r'
 
 const reportFailure = (message: string) => (): void => useHostStore.getState().setStatus(message, StatusLevel.Error)
 
@@ -36,6 +37,10 @@ export const pasteIntoPane = (paneId: string): void => {
       .catch(reportFailure(PASTE_FAILED))
   }
 }
+
+export const hasPaneAgent = (paneId: string): boolean => paneId in useAgentStore.getState().agents
+
+export const insertAgentLineBreak = (paneId: string): void => terminalRegistry.get(paneId)?.terminal.input(AGENT_LINE_BREAK)
 
 export const selectAllInPane = (paneId: string): void => terminalRegistry.get(paneId)?.terminal.selectAll()
 
