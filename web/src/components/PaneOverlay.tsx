@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState, type FocusEvent } from 'react'
 import type { ShellProfile } from '../bridge/messages'
 import { PaneStateKind, type PaneState } from '../store/paneStore'
 import { ShellMenu } from './ShellMenu'
@@ -30,6 +30,7 @@ export function PaneOverlay({ state, shells, onRestart, onRestartIn, onChangeShe
   const [menuOpen, setMenuOpen] = useState(false)
   const overlayRef = useRef<HTMLDivElement>(null)
   const defaultRef = useRef<HTMLButtonElement>(null)
+  const shellButtonRef = useRef<HTMLButtonElement>(null)
   const pathMissing = state.kind === PaneStateKind.PathMissing
 
   useEffect(() => {
@@ -41,7 +42,10 @@ export function PaneOverlay({ state, shells, onRestart, onRestartIn, onChangeShe
   }, [pathMissing])
 
   const handleOpenMenu = () => setMenuOpen(true)
-  const handleCloseMenu = useCallback(() => setMenuOpen(false), [])
+  const handleCloseMenu = useCallback(() => {
+    setMenuOpen(false)
+    shellButtonRef.current?.focus()
+  }, [])
   const handleSelectShell = (shellId: string) => {
     setMenuOpen(false)
     onChangeShell(shellId)
@@ -51,8 +55,13 @@ export function PaneOverlay({ state, shells, onRestart, onRestartIn, onChangeShe
       onRestartIn(state.fallback)
     }
   }
+  const handleOverlayFocus = (event: FocusEvent<HTMLDivElement>) => {
+    if (event.target === event.currentTarget && !menuOpen) {
+      defaultRef.current?.focus()
+    }
+  }
   return (
-    <div ref={overlayRef} role="alert" className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-dock-terminal/90 p-4 text-center">
+    <div ref={overlayRef} role="alert" tabIndex={-1} className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-dock-terminal/90 p-4 text-center" onFocus={handleOverlayFocus}>
       <p className="text-[13px] font-semibold text-dock-ink">{TITLES[state.kind]}</p>
       <p className="max-w-full font-mono text-[11px] break-words text-dock-muted">{state.message}</p>
       {pathMissing && state.fallback && <p className="max-w-full font-mono text-[11px] break-words text-dock-green">{`Repli : ${state.fallback}`}</p>}
@@ -72,7 +81,7 @@ export function PaneOverlay({ state, shells, onRestart, onRestartIn, onChangeShe
               Relancer
             </button>
             <div className="relative">
-              <button type="button" className={SECONDARY} aria-haspopup="menu" aria-expanded={menuOpen} data-tip="Relancer ce pane avec un autre shell" onClick={handleOpenMenu}>
+              <button ref={shellButtonRef} type="button" className={SECONDARY} aria-haspopup="menu" aria-expanded={menuOpen} data-tip="Relancer ce pane avec un autre shell" onClick={handleOpenMenu}>
                 Choisir un shell
               </button>
               {menuOpen && <ShellMenu shells={shells} onSelect={handleSelectShell} onClose={handleCloseMenu} />}

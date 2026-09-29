@@ -228,6 +228,18 @@ Un sous-agent a relu tout le diff de la nuit (`main..night-session`) sans rien m
   - « Ouvrir dans l'explorateur » sur un dossier disparu : l'erreur s'affiche dans la barre de statut seulement ;
   - palette puis Échap : le focus revient au terminal.
 
+### 34. Le pane qui a le focus est toujours le pane actif
+
+- **Quoi** :
+  - le focus qui entre dans un pane inactif, que ce soit son terminal, un bouton de son en-tête ou de son message, rend ce pane actif (`PaneView`) ;
+  - un clic sur le fond d'un message de pane, hors boutons, donne le focus à son bouton par défaut et active donc le pane. Avant, ce clic envoyait le focus nulle part ;
+  - fermer le menu « Choisir un shell » du message (Échap, Tab) rend le focus à son bouton, comme le menu « + » de la barre d'onglets. Avant, il tombait sur la page.
+- **Pourquoi** : un clic sur « Relancer » dans le message d'un pane inactif relançait son shell et y envoyait la saisie, mais l'autre pane restait actif (bordure verte, cible des commandes). Leader puis X aurait fermé le pane voisin, pas celui où l'on tapait. Le même décalage apparaissait avec « Ignorer », « Relancer dans le dossier de repli » ou Tab vers les boutons d'un autre pane. La spécification demande d'activer un pane en cliquant dedans (PANE-04).
+- **Vérifié** : dans l'instance de test, avec le pane de gauche actif et le shell du pane de droite terminé :
+  - un vrai clic sur « Relancer » à droite rend ce pane actif et y met le focus ;
+  - un clic sur le fond du message à droite rend ce pane actif, focus sur « Relancer » ;
+  - Tab, Entrée sur « Choisir un shell », puis Échap : le menu se ferme et le focus revient sur son bouton.
+
 ## Reste à faire et idées
 
 - **Taille de police et zoom du terminal** : police fixe à 14 px. La spécification classe ce point « À décider » (section 4), je n'y ai donc pas touché ; c'est à trancher.
