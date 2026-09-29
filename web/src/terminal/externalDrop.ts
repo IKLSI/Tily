@@ -18,14 +18,24 @@ const carriesDroppableData = (event: DragEvent): boolean => carriesExternalData(
 
 const carriesPaths = (event: DragEvent): boolean => carries(event, FILES_TYPE) || carries(event, TREE_PATH_TYPE)
 
+const acceptsInput = (paneId: string): boolean => !usePaneStore.getState().states[paneId]
+
 const openPaneIdUnder = (event: DragEvent): string | undefined => {
   const paneId = event.target instanceof Element ? event.target.closest<HTMLElement>(PANE_SELECTOR)?.dataset.paneId : undefined
-  return paneId && !usePaneStore.getState().states[paneId] ? paneId : undefined
+  return paneId && acceptsInput(paneId) ? paneId : undefined
 }
 
 const shellOf = (paneId: string): string => {
   const { session } = useSessionStore.getState()
   return (session ? allPanes(session).find((pane) => pane.id === paneId)?.shell : undefined) ?? DEFAULT_SHELL
+}
+
+export const insertPathIntoPane = (paneId: string, path: string): boolean => {
+  if (!acceptsInput(paneId)) {
+    return false
+  }
+  bridge.send({ type: 'terminal.dropPath', pane: paneId, shell: shellOf(paneId), path })
+  return true
 }
 
 const handleDragOver = (event: DragEvent): void => {
@@ -47,7 +57,7 @@ const handleDrop = (event: DragEvent): void => {
   const treePath = event.dataTransfer?.getData(TREE_PATH_TYPE)
   const files = event.dataTransfer?.files
   if (paneId && treePath) {
-    bridge.send({ type: 'terminal.dropPath', pane: paneId, shell: shellOf(paneId), path: treePath })
+    insertPathIntoPane(paneId, treePath)
   } else if (paneId && files && files.length > 0) {
     bridge.sendWithFiles({ type: 'terminal.drop', pane: paneId, shell: shellOf(paneId) }, files)
   }

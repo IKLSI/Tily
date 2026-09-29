@@ -4,10 +4,12 @@ import { activeTab, activeWorkspace, folderName } from '../model/session'
 import { useExplorerStore, type DeleteRequest } from '../store/explorerStore'
 import { StatusLevel, useHostStore } from '../store/hostStore'
 import { useSessionStore } from '../store/sessionStore'
+import { insertPathIntoPane } from '../terminal/externalDrop'
 import { focusPane } from '../terminal/terminalActions'
 
 const TREE_SELECTOR = '[data-file-tree]'
 const ROW_SELECTOR = '[data-file-row]'
+const PANE_BUSY_STATUS = 'Le terminal actif affiche un message : le chemin n’y a pas été inséré.'
 const WATCH_SEPARATOR = '\n'
 
 let watchedKey = ''
@@ -100,6 +102,14 @@ export const copyEntryPath = (path: string): void => {
     .writeText(path)
     .then(() => useHostStore.getState().setStatus(`Chemin copié : ${path}`))
     .catch(() => useHostStore.getState().setStatus('Copie dans le presse-papiers impossible.', StatusLevel.Error))
+}
+
+export const insertPathInActivePane = (path: string): void => {
+  const { session } = useSessionStore.getState()
+  const workspace = session ? activeWorkspace(session) : undefined
+  if (workspace && !insertPathIntoPane(activeTab(workspace).active, path)) {
+    useHostStore.getState().setStatus(PANE_BUSY_STATUS)
+  }
 }
 
 export const receiveListing = (path: string, entries: FileEntry[], total: number, error: string | undefined): void =>

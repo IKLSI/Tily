@@ -506,6 +506,18 @@ Depuis l'itération 13, un fichier déposé depuis l'Explorateur Windows sur un 
   - un clic sur une ligne la sélectionne toujours.
 - Documenté comme **convention proposée** en section 8 de la spec, avec le dépôt depuis l'Explorateur ; contrat du pont, architectures et README mis à jour.
 
+### 61. « Insérer le chemin dans le terminal » depuis le menu de l'arbre
+
+Le glisser de l'itération 60 ne sert qu'à la souris. Au clavier, il fallait toujours « Copier le chemin », revenir au terminal et coller.
+
+- Le menu d'un fichier ou d'un dossier de l'arbre (clic droit, Maj + F10 ou touche Menu) propose « Insérer le chemin dans le terminal », juste après « Copier le chemin ». Le chemin complet est collé dans le terminal actif, protégé par l'hôte selon le shell comme pour un glisser, et le focus passe au terminal.
+- Le glisser et le menu passent par la même fonction, `insertPathIntoPane`. Si un message recouvre le terminal actif (shell terminé, dossier disparu), rien n'est tapé dans ce terminal masqué : la barre de statut indique « Le terminal actif affiche un message : le chemin n'y a pas été inséré. » et le focus reste dans l'arbre.
+- Vérifié dans l'instance de dev, tout au clavier :
+  - focus sur `index.html`, Maj + F10 puis l'entrée : `'D:\Projects\Perso\Projet T\dock-terminal\web\index.html'` est inséré et le focus passe au terminal ;
+  - après `exit` dans ce terminal, la même entrée affiche le message de statut sans rien insérer ;
+  - le shell a ensuite été relancé par « Relancer ».
+- Convention proposée ajoutée en section 4 de la spec, à côté des autres entrées du menu de l'arbre.
+
 ## Reste à faire et idées
 
 - **Taille de police et zoom du terminal** : police fixe à 14 px. La spécification classe ce point « À décider » (section 4), je n'y ai donc pas touché ; c'est à trancher.
