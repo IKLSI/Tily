@@ -10,6 +10,9 @@ import { isDropTarget } from './tabDrag'
 import { beginWorkspaceDrag } from './workspaceDrag'
 import { TruncatedName } from './TruncatedName'
 import { WorkspaceStatus } from './WorkspaceStatus'
+import { CommandNoticeIcon } from './CommandNoticeIcon'
+import { useCommandStore } from '../store/commandStore'
+import { workspaceCommandNotice } from '../terminal/commandNotices'
 import { WorkspaceTabRow } from './WorkspaceTabRow'
 import { COLLAPSE_KEY, EXPAND_KEY, isMenuKey, menuRequestFor, MOVE_KEYS, PANEL_CLOSE_BUTTON, PANEL_DROP_LINE, PANEL_NOTE_BUTTON, type PanelMenuRequest, type WorkspacePanelActions } from './workspacePanel'
 
@@ -41,6 +44,7 @@ const rowStateOf = (dropInto: boolean, here: boolean): string => {
 export const WorkspaceItem = memo(function WorkspaceItem({ workspace, workspaceNames, selected, renaming, renamingTabId, springOpen, agents, draggingTabId, dropTarget, draggingSelf, dropBefore, actions, onOpenMenu }: WorkspaceItemProps) {
   const { id, name, tabs } = workspace
   const expanded = springOpen || (workspace.expanded ?? selected)
+  const commandNotice = useCommandStore((state) => workspaceCommandNotice(workspace, state.notices))
   const here = selected && !expanded
   const tabsId = `workspace-tabs-${id}`
   const currentPaneId = selected ? activeTab(workspace).active : undefined
@@ -139,6 +143,7 @@ export const WorkspaceItem = memo(function WorkspaceItem({ workspace, workspaceN
             <Icon name={IconName.Note} size={11} />
           </button>
         )}
+        {!expanded && commandNotice && <CommandNoticeIcon notice={commandNotice} />}
         <WorkspaceStatus counts={workspaceStateCounts(workspace, agents)} onJoin={handleJoin} />
         <button type="button" className={PANEL_CLOSE_BUTTON} data-tip="Fermer le workspace" aria-label={`Fermer le workspace ${name}`} onClick={handleClose}>
           <Icon name={IconName.Close} size={10} />

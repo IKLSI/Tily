@@ -1,4 +1,4 @@
-import { activeTab, activeWorkspace, allPanes, panesOf, type Tab } from '../model/session'
+import { activeTab, activeWorkspace, allPanes, panesOf, type Tab, type Workspace } from '../model/session'
 import { useCommandStore, type CommandNotice } from '../store/commandStore'
 import { StatusLevel, useHostStore } from '../store/hostStore'
 import { useSessionStore } from '../store/sessionStore'
@@ -46,6 +46,11 @@ const tabOfPane = (paneId: string): Tab | undefined =>
 
 export const tabCommandNotice = (tab: Tab, notices: Record<string, CommandNotice>): CommandNotice | undefined => {
   const tabNotices = panesOf(tab.tree).flatMap((pane) => notices[pane.id] ?? [])
+  return tabNotices.find((notice) => !notice.success) ?? tabNotices[0]
+}
+
+export const workspaceCommandNotice = (workspace: Workspace, notices: Record<string, CommandNotice>): CommandNotice | undefined => {
+  const tabNotices = workspace.tabs.flatMap((tab) => tabCommandNotice(tab, notices) ?? [])
   return tabNotices.find((notice) => !notice.success) ?? tabNotices[0]
 }
 

@@ -113,6 +113,14 @@ Un sous-agent a relu le diff de la nuit sans rien modifier, en reproduisant ses 
   - marques Git de l'explorateur toujours affichées ;
   - 406 tests au vert.
 
+### 11. Fin de commande visible au niveau du workspace
+
+L'indication de l'itération 5 n'apparaissait que sur les lignes d'onglets : invisible pour un workspace replié dans le panneau, ou quand le panneau est masqué (les workspaces sont alors listés dans l'en-tête).
+
+- Un workspace replié porte la coche ou la croix de ses onglets (échec d'abord), à côté de son résumé d'agents ; dans l'en-tête, chaque workspace la porte aussi.
+- Vérifié dans l'instance de dev : `Start-Sleep 11` dans « Général », passage à « Workspace 2 » ; la coche apparaît sur l'onglet « repo », puis sur la ligne de « Général » une fois replié, puis dans l'en-tête après Ctrl + Maj + B.
+- Spec (convention de la section 12) et architecture front mises à jour.
+
 ## Reste à faire et idées
 
 - Déplacer un pane vers un onglet d'un autre workspace (l'itération 8 se limite au workspace du pane).
