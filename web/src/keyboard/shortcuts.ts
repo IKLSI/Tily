@@ -302,15 +302,17 @@ export const runCommand = (command: Command): void => {
   }
 }
 
-export const handleDocumentShortcut = (event: KeyboardEvent): void => {
-  if (event.defaultPrevented || event.isComposing || (event.target instanceof Element && event.target.closest(SHORTCUT_BLOCKERS))) {
+export const handleLeaderKeyCapture = (event: KeyboardEvent): void => {
+  if (!useHostStore.getState().leaderActive || event.isComposing || MODIFIER_KEYS.has(event.key) || (event.target instanceof Element && event.target.closest(SHORTCUT_BLOCKERS))) {
     return
   }
-  if (useHostStore.getState().leaderActive) {
-    if (!MODIFIER_KEYS.has(event.key)) {
-      event.preventDefault()
-      decideInLeader(event)
-    }
+  event.preventDefault()
+  event.stopPropagation()
+  decideInLeader(event)
+}
+
+export const handleDocumentShortcut = (event: KeyboardEvent): void => {
+  if (event.defaultPrevented || event.isComposing || useHostStore.getState().leaderActive || (event.target instanceof Element && event.target.closest(SHORTCUT_BLOCKERS))) {
     return
   }
   if (isLeaderChord(event)) {

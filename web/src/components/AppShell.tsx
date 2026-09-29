@@ -5,7 +5,7 @@ import { PickTarget, type NotificationSettings, type Project, type Settings } fr
 import { activePane, activeTab, activeWorkspace, DEFAULT_SHELL, EXPLORER_DEFAULT, EXPLORER_MAX, EXPLORER_MIN, findWorkspace, RightPanelView, SIDEBAR_DEFAULT, SIDEBAR_MAX, SIDEBAR_MIN, type Session, type SplitAxis, type SplitPath, type Workspace } from '../model/session'
 import { toggleFavoriteCommand, type PaletteItem } from '../palette/paletteItems'
 import { waitingPanes } from '../agents/agentSummary'
-import { Command, handleDocumentShortcut, runCommand } from '../keyboard/shortcuts'
+import { Command, handleDocumentShortcut, handleLeaderKeyCapture, runCommand } from '../keyboard/shortcuts'
 import { agentKey, useAgentStore } from '../store/agentStore'
 import { useHostStore } from '../store/hostStore'
 import { useSessionStore } from '../store/sessionStore'
@@ -243,8 +243,12 @@ export function AppShell({ session }: AppShellProps) {
         handleDocumentShortcut(event)
       }
     }
+    document.addEventListener('keydown', handleLeaderKeyCapture, true)
     document.addEventListener('keydown', handleKeyDown)
-    return () => document.removeEventListener('keydown', handleKeyDown)
+    return () => {
+      document.removeEventListener('keydown', handleLeaderKeyCapture, true)
+      document.removeEventListener('keydown', handleKeyDown)
+    }
   }, [openPalette])
 
   useEffect(() => {

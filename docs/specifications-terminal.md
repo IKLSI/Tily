@@ -147,7 +147,7 @@ Le déplacement conserve le shell, le dossier, l’historique, les processus act
 
 **Convention proposée.** Au clavier, dans la barre d’onglets, ← / → passent le focus à l’onglet voisin sans l’afficher, Entrée l’affiche, F2 le renomme et Alt + ← / → le déplacent d’un rang, comme ↑ / ↓, F2 et Alt + ↑ / ↓ dans le panneau des workspaces.
 
-**Convention proposée.** La palette propose une entrée « Rouvrir l’onglet fermé · nom » par onglet encore restaurable, de la plus récente à la plus ancienne, avec le workspace d’origine en indice : on peut rouvrir n’importe lequel des cinq, pas seulement le dernier. L’onglet reprend sa place dans son workspace, recréé s’il n’existe plus ; Ctrl + Maj + Z et l’état vide rouvrent toujours le dernier fermé.
+**Convention proposée.** La palette propose une entrée « Rouvrir l’onglet fermé · nom » par onglet encore restaurable, de la plus récente à la plus ancienne, avec le workspace d’origine en indice : on peut rouvrir n’importe lequel des cinq, pas seulement le dernier. L’onglet reprend sa position d’origine dans son workspace, recréé s’il n’existe plus (position exacte quand on rouvre dans l’ordre inverse des fermetures, la plus proche sinon) ; Ctrl + Maj + Z et l’état vide rouvrent toujours le dernier fermé.
 
 ## 7. Panes et splits
 
@@ -209,7 +209,7 @@ Les splits peuvent être imbriqués. L’action de fermeture d’un pane retire 
 
 **Convention proposée.** Tant qu’une fenêtre est ouverte (palette, sélecteur de projets, paramètres, confirmation), Tab et Maj + Tab parcourent ses seuls éléments, en boucle : le focus ne rejoint jamais un terminal masqué derrière elle.
 
-**Convention proposée.** L’étoile d’une commande (clic ou Ctrl + Entrée) la marque comme favorite et la place en tête de la palette. Seules les commandes en portent une : ni les entrées de navigation, ni « Rejoindre », ni « Rouvrir l’onglet fermé ». Au plus 50 favoris ; au-delà, la barre de statut demande d’en retirer un.
+**Convention proposée.** L’étoile d’une commande (clic ou Ctrl + Entrée) la marque comme favorite et la place en tête de la palette. Seules les commandes en portent une : ni les entrées de navigation, ni « Rejoindre », ni « Rouvrir l’onglet fermé ». Au plus 50 favoris ; au-delà, la palette demande d’en retirer un.
 
 ### Touche Leader
 
@@ -236,7 +236,7 @@ Les séquences Leader sont consommées par l’application uniquement lorsqu’e
 
 **Convention proposée.** Leader puis B, ou Ctrl + Maj + B, masque ou affiche le panneau des workspaces (WS-08), en rendant le focus au terminal s’il était dans le panneau.
 
-**Convention proposée.** Les raccourcis directs fonctionnent aussi quand le focus est hors d’un terminal (panneau des workspaces, graphe Git, explorateur), sauf dans un champ de saisie, un menu ou une boîte de dialogue ; il en va de même pour le Leader.
+**Convention proposée.** Les raccourcis directs fonctionnent aussi quand le focus est hors d’un terminal (panneau des workspaces, graphe Git, explorateur), sauf dans un champ de saisie, un menu ou une boîte de dialogue ; il en va de même pour le Leader, dont la touche suivante n’est jamais interceptée par l’élément qui a le focus. Exception à confirmer : sur un onglet de la barre ou une ligne du panneau des workspaces qui a le focus, Alt + flèche déplace cet élément au lieu de changer de pane.
 
 ## 10. Sélecteur de projets
 

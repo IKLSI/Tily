@@ -10,12 +10,13 @@ interface SearchDialogProps<T extends SearchItem> {
   onClose: () => void
   onRun: (item: T) => void
   onToggleFavorite?: (item: T) => void
+  notice?: string | null
 }
 
 const RESULT_ID_PREFIX = 'search-result-'
 const LISTBOX_ID = 'search-results'
 
-export function SearchDialog<T extends SearchItem>({ label, placeholder, emptyMessage, items, onClose, onRun, onToggleFavorite }: SearchDialogProps<T>) {
+export function SearchDialog<T extends SearchItem>({ label, placeholder, emptyMessage, items, onClose, onRun, onToggleFavorite, notice }: SearchDialogProps<T>) {
   const [query, setQuery] = useState('')
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const listRef = useRef<HTMLDivElement>(null)
@@ -123,6 +124,11 @@ export function SearchDialog<T extends SearchItem>({ label, placeholder, emptyMe
             )
           })}
         </div>
+        {notice && (
+          <p role="status" className="mt-2 border-t border-dock-line px-3 pt-2 text-xs text-dock-warning">
+            {notice}
+          </p>
+        )}
       </div>
     </div>
   )

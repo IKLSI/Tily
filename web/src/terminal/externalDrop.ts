@@ -10,6 +10,10 @@ const NO_DROP = 'none'
 const COPY_DROP = 'copy'
 const PANE_SELECTOR = '[data-pane-id]'
 
+const TREE_DRAG_PREFIX = `${Array.from(crypto.getRandomValues(new Uint32Array(4)), (part) => part.toString(16)).join('')}|`
+
+export const treeDragValue = (path: string): string => `${TREE_DRAG_PREFIX}${path}`
+
 const carries = (event: DragEvent, type: string): boolean => Boolean(event.dataTransfer?.types.includes(type))
 
 const carriesExternalData = (event: DragEvent): boolean => EXTERNAL_TYPES.some((type) => carries(event, type))
@@ -17,6 +21,11 @@ const carriesExternalData = (event: DragEvent): boolean => EXTERNAL_TYPES.some((
 const carriesDroppableData = (event: DragEvent): boolean => carriesExternalData(event) || carries(event, TREE_PATH_TYPE)
 
 const carriesPaths = (event: DragEvent): boolean => carries(event, FILES_TYPE) || carries(event, TREE_PATH_TYPE)
+
+const treePathOf = (event: DragEvent): string | null => {
+  const value = event.dataTransfer?.getData(TREE_PATH_TYPE) ?? ''
+  return value.startsWith(TREE_DRAG_PREFIX) ? value.slice(TREE_DRAG_PREFIX.length) : null
+}
 
 const acceptsInput = (paneId: string): boolean => !usePaneStore.getState().states[paneId]
 
@@ -54,7 +63,7 @@ const handleDrop = (event: DragEvent): void => {
   }
   event.preventDefault()
   const paneId = openPaneIdUnder(event)
-  const treePath = event.dataTransfer?.getData(TREE_PATH_TYPE)
+  const treePath = treePathOf(event)
   const files = event.dataTransfer?.files
   if (paneId && treePath) {
     insertPathIntoPane(paneId, treePath)

@@ -68,6 +68,7 @@ interface SessionState {
   setPanePath: (paneId: string, path: string) => void
   setPaneShell: (paneId: string, shell: string) => void
   toggleFavorite: (commandId: string) => void
+  setFavorites: (commandIds: string[]) => void
 }
 
 const mutateSession = (session: Session | null, mutate: (draft: Session) => void): Session | null => (session ? produce(session, mutate) : session)
@@ -428,6 +429,13 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
     set((state) => ({
       session: mutateSession(state.session, (draft) => {
         draft.favorites = draft.favorites.includes(commandId) ? draft.favorites.filter((candidate) => candidate !== commandId) : [...draft.favorites, commandId]
+      }),
+    })),
+
+  setFavorites: (commandIds) =>
+    set((state) => ({
+      session: mutateSession(state.session, (draft) => {
+        draft.favorites = commandIds
       }),
     })),
 

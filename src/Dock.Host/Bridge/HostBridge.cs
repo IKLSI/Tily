@@ -106,7 +106,7 @@ public sealed class HostBridge : IDisposable
 
     private void PostDroppedPath(BridgeCommandModel command)
     {
-        if (command.Path is not { } path || !Path.IsPathFullyQualified(path))
+        if (command.Path is not { } path || path.Any(char.IsControl) || !Path.IsPathFullyQualified(path) || !(File.Exists(path) || Directory.Exists(path)))
         {
             Post(new { type = "error", message = "Chemin déposé invalide." });
             return;

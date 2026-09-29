@@ -451,7 +451,7 @@ Dock garde les cinq derniers onglets fermés, mais seul le dernier pouvait être
 
 ### 57. Plus d'étoile sur « Rejoindre », et pas plus de 50 favoris
 
-En relisant la palette pour l'itération 56, j'ai remarqué que les entrées « Rejoindre · … » (panes en attente d'un agent) affichaient une étoile de favori. Un clic ou Ctrl + Entrée ajoutait `attention-<pane>` aux favoris, mais l'étoile ne se remplissait jamais : seules les commandes sont relues comme favorites. Chaque essai laissait donc un identifiant invisible dans la session. Or l'hôte refuse d'enregistrer une session qui compte plus de 50 favoris : passé ce cap, chaque sauvegarde échouait avec « Favoris invalides. Les changements ne sont pas enregistrés. », sans moyen de comprendre pourquoi.
+En relisant la palette pour l'itération 56, j'ai remarqué que les entrées « Rejoindre · … » (panes en attente d'un agent) affichaient une étoile de favori. Un clic ou Ctrl + Entrée ajoutait `attention-<pane>` aux favoris, mais l'étoile ne se remplissait jamais : seules les commandes sont relues comme favorites. Chaque essai laissait donc un identifiant invisible dans la session. Or l'hôte refuse d'enregistrer une session qui compte plus de 50 favoris : passé ce cap, chaque sauvegarde échouait avec « Session refusée : Favoris invalides. Les changements ne sont pas enregistrés. », sans moyen de comprendre pourquoi.
 
 - Les entrées « Rejoindre » n'ont plus d'étoile, comme celles des onglets fermés.
 - `toggleFavoriteCommand` refuse un 51ᵉ favori avec « Pas plus de 50 favoris : retirez une étoile avant d'en ajouter une. » dans la barre de statut. Le message s'efface à la bascule suivante.
@@ -554,8 +554,34 @@ La palette sait fermer l'onglet actif ou les autres onglets, mais pas le workspa
   - son onglet figure dans les onglets fermés de la palette, avec « Workspace 5 » en indice.
 - **Convention proposée** ajoutée en section 5 de la spec ; architecture front mise à jour.
 
+### 65. Quatrième relecture indépendante : corrections des itérations 56 à 61
+
+Un sous-agent a relu les itérations 56 à 61 (`ace5e77..bc8a377`) sans rien modifier. Il n'a trouvé aucun défaut important, mais 6 constats mineurs ; je les ai tous traités.
+
+- **Glisser venu d'une autre application** : Chromium transporte les types personnalisés d'une application à l'autre. Une page ouverte dans Edge pouvait donc produire un glisser au type de l'arbre de Dock, avec un « chemin » contenant des retours à la ligne (exécutés dans un pane CMD).
+  - **Côté web** : le chemin porte désormais un jeton aléatoire tiré au chargement, vérifié au dépôt.
+  - **Côté hôte** : `terminal.dropPath` refuse un chemin avec un caractère de contrôle ou qui n'existe pas.
+  - Une première version s'appuyait sur `dragend`. Elle ne marchait pas : dans WebView2, `dragend` arrive dès le début du glisser, alors que celui-ci continue au niveau du système.
+  - Vérifié : un vrai glisser insère toujours le chemin. Deux dépôts simulés, l'un avec un faux jeton et l'autre sans jeton, n'envoient rien. L'hôte répond « Chemin déposé invalide. » à un chemin avec `\r` et à un chemin inexistant, sans marquer le pane en échec.
+- **Leader intercepté** : avec le focus sur un onglet de la barre ou une ligne du panneau, la touche qui suit Ctrl + Espace était prise par l'élément. Par exemple, → passait à l'onglet voisin au lieu du pane de droite. `handleLeaderKeyCapture` traite maintenant cette touche en phase de capture, sur le document, avant tout composant. Cela vaut aussi pour l'arbre, le graphe et les séparateurs.
+  - Vérifié : Leader puis → depuis un onglet de la barre passe au pane de droite ; Leader puis ← depuis le panneau passe au pane de gauche ; Leader puis F2 n'ouvre pas de renommage, alors que F2 seul renomme toujours.
+- **Favoris** :
+  - les favoris orphelins, jamais affichés, sont retirés à chaque bascule d'étoile : les anciens `attention-…`, et les `move-tab-…` d'un workspace qui n'est ni ouvert ni restaurable ;
+  - le refus d'un 51ᵉ favori s'affiche dans la palette, sous la liste. Avant, il passait par la barre de statut, voilée par la palette.
+  - Vérifié : avec 49 orphelins et un vrai favori, l'étoile s'ajoute et la session ne garde que `new-tab` et `split-x`. Avec 50 favoris valides, le message apparaît dans la palette.
+- **Spec** :
+  - la convention des raccourcis hors terminal dit maintenant que la touche du Leader n'est jamais interceptée. Elle signale aussi, comme exception à confirmer, qu'Alt + flèche déplace un onglet ou une ligne du panneau qui a le focus (ajouté au « Reste à faire ») ;
+  - un onglet rouvert reprend sa position exacte seulement si l'on rouvre dans l'ordre inverse des fermetures ; sinon, la position la plus proche.
+- **Détails** :
+  - « Renommer » rappelle F2 dans le menu d'un onglet de la barre ;
+  - le README précise que ← / → déplacent le focus sans afficher l'onglet ;
+  - le message cité à l'entrée 57 est corrigé (« Session refusée : … ») ;
+  - la doc hôte mentionne que « Insérer le chemin dans le terminal » passe aussi par `terminal.dropPath`.
+- **À savoir sur les essais** : Ctrl + C n'interrompait pas un `ping` dans l'instance de dev. Elle héritait de ma chaîne de lancement (Bash puis PowerShell) l'état « Ctrl + C ignoré » de Windows. Relancée par l'Explorateur, elle affiche bien « Control-C ». Ton Dock, lancé depuis le menu Démarrer, n'est pas concerné. L'instance de dev est désormais lancée ainsi.
+
 ## Reste à faire et idées
 
+- **Alt + flèche sur un onglet ou une ligne du panneau** : quand un onglet de la barre ou une ligne du panneau des workspaces a le focus, Alt + flèche déplace cet élément (itérations 14, 47 et 58) au lieu de changer de pane, comme le prévoit le tableau retenu de la section 9. C'est une dérogation à confirmer ou à retirer ; la spec la signale comme « exception à confirmer ».
 - **Taille de police et zoom du terminal** : police fixe à 14 px. La spécification classe ce point « À décider » (section 4), je n'y ai donc pas touché ; c'est à trancher.
 - **Graphe Git dans une fenêtre très étroite** : depuis l'itération 39, Auteur et Date s'effacent, puis la colonne des branches rétrécit jusqu'à 88 px et celle du graphe jusqu'à la largeur de ses voies. En dessous d'environ 400 px pour la table (fenêtre de 900 px avec les trois panneaux ouverts), le message reste coupé : replier le panneau des références ou celui des workspaces reste nécessaire.
 - **Glisser-déposer depuis l'Explorateur** : depuis l'itération 32, il est vérifié avec un vrai glisser OLE de fichier, le même mécanisme que l'Explorateur. Un essai à la main depuis l'Explorateur, avec une image dans Claude Code par exemple, reste conseillé.

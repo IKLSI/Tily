@@ -1,7 +1,7 @@
 import { memo, type DragEvent, type MouseEvent } from 'react'
 import type { FileEntry } from '../bridge/messages'
 import { renameSelectionEnd } from '../explorer/fileTree'
-import { TREE_PATH_TYPE } from '../terminal/externalDrop'
+import { TREE_PATH_TYPE, treeDragValue } from '../terminal/externalDrop'
 import { Icon } from './Icon'
 import { IconName } from './iconName'
 import { InlineNameEditor } from './InlineNameEditor'
@@ -38,7 +38,7 @@ export const FileTreeRow = memo(function FileTreeRow({ entry, parent, depth, sel
   }
   const handleCommitRename = (name: string) => handlers.commitRename(entry, parent, name)
   const handleDragStart = (event: DragEvent) => {
-    event.dataTransfer.setData(TREE_PATH_TYPE, entry.path)
+    event.dataTransfer.setData(TREE_PATH_TYPE, treeDragValue(entry.path))
     event.dataTransfer.setData('text/plain', entry.path)
     event.dataTransfer.effectAllowed = 'copy'
   }

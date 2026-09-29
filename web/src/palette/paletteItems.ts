@@ -4,7 +4,6 @@ import type { ShellProfile } from '../bridge/messages'
 import { Command, runCommand } from '../keyboard/shortcuts'
 import { activeTab, activeWorkspace, FAVORITES_MAX, folderName, panesOf, type Session } from '../model/session'
 import { useAgentStore } from '../store/agentStore'
-import { useHostStore } from '../store/hostStore'
 import { useSessionStore } from '../store/sessionStore'
 import { RenameOrigin, useUiStore } from '../store/uiStore'
 import { closeOtherTabsKeepingText, closeTabKeepingText, closeWorkspaceKeepingText, duplicateTabKeepingLayout, restoreClosedTab, restoreClosedTabAt } from '../terminal/tabLifecycle'
@@ -27,8 +26,9 @@ export interface PaletteItem extends SearchItem {
 }
 
 const SEPARATOR = ' · '
-const NO_STATUS = ''
-const FAVORITES_FULL_STATUS = `Pas plus de ${FAVORITES_MAX} favoris : retirez une étoile avant d’en ajouter une.`
+const FAVORITES_FULL_NOTICE = `Pas plus de ${FAVORITES_MAX} favoris : retirez une étoile avant d’en ajouter une.`
+const ATTENTION_PREFIX = 'attention-'
+const MOVE_TAB_PREFIX = 'move-tab-'
 
 const command = (id: string, label: string, run: () => void, hint?: string): PaletteItem => ({ id, kind: PaletteKind.Command, label, hint, favorite: false, run })
 
@@ -88,7 +88,7 @@ const commandItems = (session: Session, shells: ShellProfile[]): PaletteItem[] =
       items.push(command('close-other-tabs', 'Fermer les autres onglets', () => closeOtherTabsKeepingText(tab.id)))
     }
     for (const target of session.workspaces.filter((candidate) => candidate.id !== workspace?.id)) {
-      items.push(command(`move-tab-${target.id}`, `Déplacer l’onglet vers${SEPARATOR}${target.name}`, () => store.moveTab(tab.id, target.id)))
+      items.push(command(`${MOVE_TAB_PREFIX}${target.id}`, `Déplacer l’onglet vers${SEPARATOR}${target.name}`, () => store.moveTab(tab.id, target.id)))
     }
   }
   return items
@@ -96,7 +96,7 @@ const commandItems = (session: Session, shells: ShellProfile[]): PaletteItem[] =
 
 const attentionItems = (session: Session): PaletteItem[] =>
   waitingPanes(session, useAgentStore.getState().agents).map((pane) => ({
-    id: `attention-${pane.paneId}`,
+    id: `${ATTENTION_PREFIX}${pane.paneId}`,
     kind: PaletteKind.Attention,
     label: `Rejoindre${SEPARATOR}${pane.label}`,
     hint: pane.detail,
@@ -139,18 +139,28 @@ const navigationItems = (session: Session): PaletteItem[] => {
   ])
 }
 
-export const toggleFavoriteCommand = (commandId: string): void => {
-  const { session, toggleFavorite } = useSessionStore.getState()
-  const { status, setStatus } = useHostStore.getState()
-  const favorites = session?.favorites ?? []
-  if (!favorites.includes(commandId) && favorites.length >= FAVORITES_MAX) {
-    setStatus(FAVORITES_FULL_STATUS)
-    return
+const isOrphanFavorite = (session: Session, commandId: string): boolean => {
+  if (commandId.startsWith(ATTENTION_PREFIX)) {
+    return true
+  }
+  const workspaceId = commandId.startsWith(MOVE_TAB_PREFIX) ? commandId.slice(MOVE_TAB_PREFIX.length) : null
+  return workspaceId !== null && !session.workspaces.some((workspace) => workspace.id === workspaceId) && !session.closed.some((entry) => entry.workspaceId === workspaceId)
+}
+
+export const toggleFavoriteCommand = (commandId: string): string | null => {
+  const { session, toggleFavorite, setFavorites } = useSessionStore.getState()
+  if (!session) {
+    return null
+  }
+  const kept = session.favorites.filter((candidate) => !isOrphanFavorite(session, candidate))
+  if (!kept.includes(commandId) && kept.length >= FAVORITES_MAX) {
+    return FAVORITES_FULL_NOTICE
+  }
+  if (kept.length !== session.favorites.length) {
+    setFavorites(kept)
   }
   toggleFavorite(commandId)
-  if (status.text === FAVORITES_FULL_STATUS) {
-    setStatus(NO_STATUS)
-  }
+  return null
 }
 
 export const buildPaletteItems = (session: Session, shells: ShellProfile[]): PaletteItem[] => {
