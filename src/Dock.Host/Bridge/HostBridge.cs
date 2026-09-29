@@ -20,6 +20,7 @@ public sealed class HostBridge : IDisposable
     private const string DropPrefix = """{"type":"terminal.drop",""";
     private const string TerminalCommandPrefix = "terminal.";
     private const string InvalidDroppedPath = "Chemin déposé invalide.";
+    private const string AttentionDone = "done";
     private static readonly string ApplicationVersion = typeof(HostBridge).Assembly.GetName().Version?.ToString(3) ?? string.Empty;
     private static readonly TimeSpan WriteDrainTimeout = TimeSpan.FromSeconds(10);
     private static readonly JsonSerializerOptions JsonOptions = SessionRepository.JsonOptions;
@@ -220,11 +221,10 @@ public sealed class HostBridge : IDisposable
                 SaveSettings(command);
                 break;
             case "attention.raise":
-                Notify(RequirePane(command), [command.Title ?? "Dock", command.Body, command.Location], _settings.Notifications, false);
+                RaiseAttention(RequirePane(command), command);
                 break;
             case "attention.test":
-                var notifications = command.Notifications?.Deserialize<NotificationSettingsModel>(JsonOptions) ?? _settings.Notifications;
-                Notify(RequirePane(command), ["Dock : test de notification", "Voici l’apparence d’une demande d’attention.", command.Location], notifications.Normalized(), true);
+                TestAttention(RequirePane(command), command);
                 break;
             case "agents.installHooks":
                 _agents.Hooks.Install();
@@ -301,11 +301,32 @@ public sealed class HostBridge : IDisposable
         }
     }
 
-    private void Notify(string paneId, IEnumerable<string?> lines, NotificationSettingsModel settings, bool force)
+    private void RaiseAttention(string paneId, BridgeCommandModel command)
+    {
+        var settings = _settings.Notifications;
+        var done = command.Kind == AttentionDone;
+        if (done && !settings.NotifyDone)
+        {
+            return;
+        }
+
+        Notify(paneId, [command.Title ?? "Dock", command.Body, command.Location], done ? settings.DoneSound : settings.Sound, settings, done);
+    }
+
+    private void TestAttention(string paneId, BridgeCommandModel command)
+    {
+        var settings = (command.Notifications?.Deserialize<NotificationSettingsModel>(JsonOptions) ?? _settings.Notifications).Normalized();
+        string?[] lines = command.Kind == AttentionDone
+            ? ["Dock : test de fin", "Voici l’apparence d’un agent qui a terminé.", command.Location]
+            : ["Dock : test de notification", "Voici l’apparence d’une demande d’attention.", command.Location];
+        Notify(paneId, lines, command.Kind == AttentionDone ? settings.DoneSound : settings.Sound, settings, true);
+    }
+
+    private void Notify(string paneId, IEnumerable<string?> lines, string sound, NotificationSettingsModel settings, bool force)
     {
         try
         {
-            _notifier.Notify(paneId, lines, settings, force);
+            _notifier.Notify(paneId, lines, sound, settings, force);
         }
         catch (Exception exception)
         {

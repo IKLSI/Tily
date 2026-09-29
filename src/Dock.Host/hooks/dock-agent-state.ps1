@@ -24,6 +24,20 @@ function Get-ToolDetail($toolInput) {
     return $toolInput | ConvertTo-Json -Compress -Depth 4
 }
 
+function Get-LastAssistantText($hook) {
+    if (-not [string]::IsNullOrWhiteSpace([string]$hook.last_assistant_message)) { return [string]$hook.last_assistant_message }
+    $transcript = [string]$hook.transcript_path
+    if ([string]::IsNullOrWhiteSpace($transcript) -or -not (Test-Path -LiteralPath $transcript)) { return $null }
+    $lines = @(Get-Content -LiteralPath $transcript -Tail 200 -Encoding UTF8 | Where-Object { $_ -like '*"type":"assistant"*' })
+    for ($index = $lines.Count - 1; $index -ge 0; $index--) {
+        try { $entry = $lines[$index] | ConvertFrom-Json } catch { continue }
+        if ($entry.type -ne 'assistant' -or $entry.isSidechain) { continue }
+        $texts = @($entry.message.content | Where-Object { $_.type -eq 'text' -and $_.text } | ForEach-Object { $_.text })
+        if ($texts.Count -gt 0) { return $texts -join ' ' }
+    }
+    return $null
+}
+
 $waitingNotifications = @('permission_prompt', 'elicitation_dialog', 'agent_needs_input')
 $state = $null
 $message = $null
@@ -33,7 +47,7 @@ switch ($eventName) {
     'UserPromptSubmit' { $state = 'working' }
     'PreToolUse' { if ($hook.tool_name -eq 'AskUserQuestion') { $state = 'waiting'; $message = 'Question posée.'; $detail = Get-ToolDetail $hook.tool_input } }
     'PostToolUse' { $state = 'working' }
-    'Stop' { $state = 'done' }
+    'Stop' { $state = 'done'; $detail = Get-LastAssistantText $hook }
     'StopFailure' { $state = 'error'; $message = 'Erreur signalée par Claude Code.' }
     'PermissionRequest' { $state = 'waiting'; $message = "Autorisation demandée : $($hook.tool_name)"; $detail = Get-ToolDetail $hook.tool_input }
     'Notification' {

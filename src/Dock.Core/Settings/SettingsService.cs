@@ -149,6 +149,11 @@ public sealed class SettingsService
             warnings.Add($"Le fichier son est introuvable : {settings.Notifications.Sound}");
         }
 
+        if (NotificationSettingsModel.IsWavPath(settings.Notifications.DoneSound) && !File.Exists(settings.Notifications.DoneSound))
+        {
+            warnings.Add($"Le fichier son de fin est introuvable : {settings.Notifications.DoneSound}");
+        }
+
         if (!Directory.Exists(settings.ProjectsRoot))
         {
             warnings.Add($"Le dossier des projets est introuvable : {settings.ProjectsRoot}");

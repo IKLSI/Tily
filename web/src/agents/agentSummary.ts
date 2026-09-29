@@ -39,11 +39,9 @@ export const describeAgent = (agent: PaneAgent): string => {
 
 export const attentionNotice = (pane: WaitingPane, agent: PaneAgent, branch: string | null | undefined): AttentionNotice => ({
   title: agent.message ?? `${agentLabel(agent)} : ${STATE_LABELS[agent.state]}`,
-  body: agent.detail ?? agentLabel(agent),
+  body: agent.detail ?? '',
   location: [`${pane.workspaceName} › ${pane.tabName}`, pane.folder, branch].filter(Boolean).join(' · '),
 })
-
-const isWaiting = (agent: PaneAgent | undefined): boolean => agent?.state === AgentState.Waiting
 
 const STATE_PRIORITY: AgentState[] = [AgentState.Waiting, AgentState.Error, AgentState.Working, AgentState.Unknown, AgentState.Done]
 
@@ -140,11 +138,11 @@ export const waitedFor = (elapsedMs: number): string => {
 export const longestWaitingFirst = (panes: WaitingPane[], since: Record<string, number>, now: number): WaitingPane[] =>
   panes.toSorted((first, second) => (since[first.paneId] ?? now) - (since[second.paneId] ?? now))
 
-export const waitingPanes = (session: Session, agents: AgentMap): WaitingPane[] =>
+export const panesInState = (session: Session, agents: AgentMap, state: AgentState): WaitingPane[] =>
   session.workspaces.flatMap((workspace) =>
     workspace.tabs.flatMap((tab) =>
       panesOf(tab.tree)
-        .filter((pane) => isWaiting(agents[pane.id]))
+        .filter((pane) => agents[pane.id]?.state === state)
         .map((pane) => ({
           paneId: pane.id,
           workspaceId: workspace.id,
@@ -157,3 +155,5 @@ export const waitingPanes = (session: Session, agents: AgentMap): WaitingPane[] 
         })),
     ),
   )
+
+export const waitingPanes = (session: Session, agents: AgentMap): WaitingPane[] => panesInState(session, agents, AgentState.Waiting)
