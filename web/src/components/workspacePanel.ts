@@ -1,4 +1,5 @@
 import type { KeyboardEvent } from 'react'
+import { focusActivePane } from '../explorer/fileExplorerActions'
 import { NO_TYPED_TEXT, typeAheadIndex, typeAheadText } from '../keyboard/typeAhead'
 import type { Session } from '../model/session'
 import type { MoveTabHandler } from './tabDrag'
@@ -51,6 +52,8 @@ export const EXPAND_KEY = 'ArrowRight'
 export const COLLAPSE_KEY = 'ArrowLeft'
 
 const PANEL_ROW_SELECTOR = '[data-panel-row]'
+const ACTIVE_ROW_SELECTOR = `${PANEL_ROW_SELECTOR}[aria-current="true"]`
+const WORKSPACE_LIST_SELECTOR = '[data-workspace-list]'
 const WORKSPACE_SLOT_SELECTOR = '[data-workspace-slot]'
 let panelTyped = NO_TYPED_TEXT
 
@@ -66,11 +69,21 @@ export const handlePanelRowKeys = (event: KeyboardEvent<HTMLElement>): void => {
   if (!event.shiftKey && event.key in destinations) {
     event.preventDefault()
     rows[destinations[event.key]]?.focus()
+  } else if (!event.shiftKey && event.key === 'Escape') {
+    event.preventDefault()
+    focusActivePane()
   } else if (typed) {
     event.preventDefault()
     panelTyped = typed
     rows[typeAheadIndex(rows.map((row) => row.dataset.rowName ?? ''), index, typed.text)]?.focus()
   }
+}
+
+export const focusWorkspacePanel = (activeWorkspaceId: string | undefined): void => {
+  const list = document.querySelector<HTMLElement>(WORKSPACE_LIST_SELECTOR)
+  const activeSlot = activeWorkspaceId ? list?.querySelector<HTMLElement>(`${WORKSPACE_SLOT_SELECTOR}[data-workspace-slot="${activeWorkspaceId}"]`) : null
+  const row = list?.querySelector<HTMLElement>(ACTIVE_ROW_SELECTOR) ?? activeSlot?.querySelector<HTMLElement>(PANEL_ROW_SELECTOR) ?? list?.querySelector<HTMLElement>(PANEL_ROW_SELECTOR)
+  row?.focus()
 }
 
 export const focusOwnWorkspaceRow = (element: HTMLElement): void => element.closest(WORKSPACE_SLOT_SELECTOR)?.querySelector<HTMLElement>(PANEL_ROW_SELECTOR)?.focus()

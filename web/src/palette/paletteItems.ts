@@ -1,7 +1,7 @@
 import { longestWaitingFirst, waitedFor, waitingPanes } from '../agents/agentSummary'
 import { bridge } from '../bridge/bridge'
 import type { ShellProfile } from '../bridge/messages'
-import { Command, runCommand } from '../keyboard/shortcuts'
+import { Command, revealWorkspacePanel, runCommand } from '../keyboard/shortcuts'
 import { activeTab, activeWorkspace, FAVORITES_MAX, folderName, panesOf, type Session } from '../model/session'
 import { useAgentStore } from '../store/agentStore'
 import { useSessionStore } from '../store/sessionStore'
@@ -62,6 +62,7 @@ const commandItems = (session: Session, shells: ShellProfile[]): PaletteItem[] =
     }),
     command('restore-tab', 'Rouvrir le dernier onglet fermé', restoreClosedTab, 'Ctrl + Maj + Z'),
     command('toggle-sidebar', session.sidebarCollapsed ? 'Afficher les workspaces' : 'Masquer les workspaces', () => runCommand(Command.ToggleSidebar), 'Ctrl + Maj + B'),
+    command('focus-sidebar', 'Aller au panneau des workspaces', revealWorkspacePanel),
   ]
   if (workspace) {
     items.push(

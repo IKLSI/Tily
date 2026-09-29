@@ -2,6 +2,7 @@ import { bridge } from '../bridge/bridge'
 import { useHostStore } from '../store/hostStore'
 import { activePane, activeTab, activeWorkspace, DEFAULT_SHELL, RightPanelView, SplitAxis, type Workspace } from '../model/session'
 import { Direction, paneInDirection } from '../components/paneNavigation'
+import { focusWorkspacePanel } from '../components/workspacePanel'
 import { useSessionStore } from '../store/sessionStore'
 import { requestApplicationClose } from '../terminal/closeGuard'
 import { closePaneKeepingText, restoreClosedTab } from '../terminal/tabLifecycle'
@@ -207,9 +208,21 @@ const currentPaneId = (): string => {
 
 const SIDEBAR_SELECTOR = 'aside'
 
+export const revealWorkspacePanel = (): void => {
+  const { session, toggleSidebar: toggle } = useSessionStore.getState()
+  if (session?.sidebarCollapsed) {
+    toggle()
+  }
+  requestAnimationFrame(() => focusWorkspacePanel(currentWorkspace()?.id))
+}
+
 const toggleSidebar = (): void => {
   const { session, toggleSidebar: toggle } = useSessionStore.getState()
-  if (session && !session.sidebarCollapsed && document.activeElement?.closest(SIDEBAR_SELECTOR)) {
+  if (session?.sidebarCollapsed) {
+    revealWorkspacePanel()
+    return
+  }
+  if (document.activeElement?.closest(SIDEBAR_SELECTOR)) {
     focusPane(currentPaneId())
   }
   toggle()

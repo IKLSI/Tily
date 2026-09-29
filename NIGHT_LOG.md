@@ -689,6 +689,22 @@ En relisant la vue Git, j'ai vu le graphe entouré de plusieurs cadres verts dè
   - Le trait vert restant au début de la colonne Message est voulu : c'est la barre de couleur de la voie du commit.
 - **Au passage** : une boîte d'erreur Windows (« Windows cannot find … ») était restée ouverte depuis mon premier lanceur défectueux de l'itération 64, dont le chemin avait été mal échappé. Je l'ai fermée en la ciblant par son titre exact.
 
+### 75. Le panneau des workspaces devient joignable au clavier
+
+Les flèches (itération 47) et les premières lettres (itération 69) permettent de parcourir le panneau des workspaces. Encore fallait-il y entrer : depuis un terminal, Tab reste dans le shell, et Ctrl + Maj + B ne faisait que masquer ou afficher le panneau. Sans souris, le panneau était donc hors d'atteinte. L'arbre des fichiers et le graphe Git, eux, ont leur raccourci qui y place le focus.
+
+- Quand Ctrl + Maj + B (ou Leader puis B) affiche le panneau, le focus va à la ligne de l'onglet actif, comme Ctrl + Maj + E pour l'arbre. Masquer le panneau fonctionne comme avant.
+- Nouvelle entrée de palette, « Aller au panneau des workspaces », pour y entrer sans le masquer quand il est déjà affiché.
+- Échap sur une ligne du panneau rend le focus au terminal actif, comme dans l'arbre des fichiers.
+- Le focus va à la ligne de l'onglet actif, sinon au workspace actif s'il est replié, sinon à la première ligne.
+- Au passage, une recherche des éléments `group` imbriqués (l'origine du défaut de l'itération 74) n'en trouve plus aucun, dans la vue principale, la vue Git ou l'explorateur.
+- Vérifié dans l'instance de dev, en partant du terminal :
+  - l'entrée de palette place le focus sur la ligne de l'onglet actif, et Échap le rend au terminal ;
+  - Ctrl + Maj + B masque le panneau, le focus reste au terminal ;
+  - Ctrl + Maj + B affiche le panneau avec le focus sur l'onglet actif ;
+  - Ctrl + Maj + B depuis le panneau le masque et rend le focus au terminal.
+- **Conventions proposées** complétées (sections 5 et 9 de la spec), architecture front et README mis à jour.
+
 ## Reste à faire et idées
 
 - **Alt + flèche sur un onglet ou une ligne du panneau** : quand un onglet de la barre ou une ligne du panneau des workspaces a le focus, Alt + flèche déplace cet élément (itérations 14, 47 et 58) au lieu de changer de pane, comme le prévoit le tableau retenu de la section 9. C'est une dérogation à confirmer ou à retirer ; la spec la signale comme « exception à confirmer ».
