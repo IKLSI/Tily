@@ -83,12 +83,14 @@ Travail autonome sur la branche `night-session`. Chaque itération apporte une a
 - **Quoi** : côté web, `terminal/externalDrop.ts` refuse le dépôt de fichiers et de liens venus de l'extérieur (curseur « interdit »). Côté hôte, `MainWindow` annule toute navigation hors de l'origine de l'application et toute demande de nouvelle fenêtre, par défense en profondeur.
 - **Pourquoi** : glisser un fichier depuis l'Explorateur Windows sur Dock ouvrait une fenêtre WebView2 brute, hors de Dock, qui affichait le fichier ; un lien déposé pouvait aussi remplacer l'interface. Rien n'interceptait ces cas.
 - **Vérifié** : dépôt simulé par le protocole de débogage (`Input.dispatchDragEvent`, le même chemin qu'un vrai glisser-déposer dans Chromium). Avant, une nouvelle fenêtre « exemple fichier.txt » s'ouvrait (processus `msedgewebview2` séparé). Après, rien ne s'ouvre et la page reste en place. Côté hôte, `window.open` renvoie `null` et une navigation forcée vers `file:///` est annulée.
+- **Correction apportée par l'itération 32** : un vrai glisser depuis une autre application n'atteignait pas du tout la page tant que `AllowDrop` n'était pas activé sur la WebView2. En usage réel, le défaut décrit ci-dessus ne se produisait donc pas avant cette nuit, ma simulation court-circuitant cette couche. Depuis l'itération 32, les vrais dépôts arrivent jusqu'à la page, et ces protections deviennent réellement nécessaires. Vérifié avec un vrai glisser : un fichier lâché hors d'un terminal n'ouvre rien.
 
 ### 13. Déposer un fichier sur un terminal insère son chemin
 
 - **Quoi** : glisser un ou plusieurs fichiers ou dossiers depuis l'Explorateur Windows sur un terminal y colle leurs chemins, comme dans Windows Terminal, et le pane devient actif. Le web joint les fichiers au message `terminal.drop` (`postMessageWithAdditionalObjects`, seul moyen d'obtenir leur vrai chemin dans une WebView2). L'hôte les met en forme selon le shell avec `DroppedPaths` dans `Dock.Core` : guillemets simples pour PowerShell (apostrophe doublée), doubles pour CMD, simples pour Git Bash, rien si ce n'est pas nécessaire, une espace après chaque chemin. Il renvoie `terminal.dropped`, et le texte est collé par xterm.js, donc entre crochets si le programme le demande, comme Claude Code. Huit tests xUnit ont été ajoutés. Spécification (« Convention proposée »), README et documents d'architecture sont à jour.
 - **Pourquoi** : c'est un geste courant dans les terminaux Windows, et pratique avec Claude Code pour lui passer un fichier ou une image. L'itération 12 bloquait déjà les dépôts ; ceux qui visent un terminal deviennent maintenant utiles.
 - **Vérifié** : dans l'instance de test, un fichier dont le chemin contient des espaces déposé après `echo ` donne `echo 'C:\...\exemple fichier.txt'`, que PowerShell affiche. Un dossier déposé sur un autre pane s'insère sans guillemets et rend ce pane actif. 184 tests passent.
+- **Correction apportée par l'itération 32** : ces essais passaient par le protocole de débogage. Avec un vrai glisser depuis l'Explorateur, rien n'arrivait à la page, faute d'`AllowDrop` sur la WebView2 : la fonction ne marchait donc pas en usage réel avant l'itération 32, qui l'a vérifiée avec un vrai glisser OLE.
 
 ### 14. Réordonner les workspaces
 
@@ -201,6 +203,16 @@ Un sous-agent a relu tout le diff de la nuit (`main..night-session`) sans rien m
 - **Quoi** : le menu contextuel d'un dossier de l'explorateur propose « Ouvrir dans l'éditeur », juste après « Ouvrir un terminal ici ». Le dossier s'ouvre avec la commande d'éditeur configurée, VS Code par défaut, par la commande `context.open` déjà utilisée par l'en-tête des panes.
 - **Pourquoi** : seuls les fichiers pouvaient s'ouvrir dans l'éditeur depuis l'arbre. Pour ouvrir un sous-dossier, dans un monorepo par exemple, il fallait passer par un terminal.
 - **Vérifié** : pour ne pas ouvrir VS Code sur ton bureau en pleine nuit, l'instance de test utilisait un faux éditeur (un `.cmd` qui écrit son argument). Il a reçu `D:\Projects\Perso\LZGChallenge\bin` et la barre de statut l'annonce. La configuration d'éditeur de l'instance de test a ensuite été remise.
+
+### 32. Le dépôt de fichiers fonctionne avec un vrai glisser depuis l'Explorateur
+
+- **Quoi** : l'hôte active `AllowDrop` sur la WebView2 (`MainWindow`). C'est la seule modification de code : le traitement dans la page (itération 13) et les protections (itération 12) étaient déjà en place.
+- **Pourquoi** : en voulant confirmer l'itération 13 avec un vrai glisser OLE, plutôt qu'avec le protocole de débogage, j'ai constaté que rien n'arrivait à la page. Le contrôle WebView2 de WinUI ne transmet les glisser venus d'autres applications que si `AllowDrop` est activé, et il ne l'est pas par défaut. Déposer un fichier de l'Explorateur sur un terminal ne faisait donc rien en usage réel. J'ai d'abord essayé de gérer le dépôt en XAML (`DragOver` / `Drop` sur l'élément), mais le contrôle consomme ces événements ; j'ai abandonné cette voie au profit du simple réglage.
+- **Vérifié** : banc de test sûr. Une petite fenêtre WinForms sert de source et démarre un vrai `DoDragDrop` de fichier. Avant d'agir, le script vérifie que le point de départ appartient à cette source et le point d'arrivée à l'instance de test. Une cible OLE témoin a d'abord confirmé que la simulation fonctionne. Résultats :
+  - lâché sur un terminal après `echo `, le fichier arrive dans la page (`drop`, 1 fichier) et l'hôte renvoie le chemin mis entre guillemets ; le terminal affiche `echo 'C:\…\exemple fichier.txt'` (capture) ;
+  - lâché sur le panneau des workspaces, il est refusé : aucun message, aucune navigation, aucune nouvelle fenêtre.
+
+  Les entrées 12 et 13 ont été complétées en conséquence.
 
 ## Reste à faire et idées
 

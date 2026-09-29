@@ -31,6 +31,7 @@ public sealed partial class MainWindow : Window
         AppWindow.SetIcon(Path.Combine(AppContext.BaseDirectory, "Assets", "Dock.ico"));
         ApplyDarkTitleBar();
         _bridge = new HostBridge(DispatcherQueue, App.DataDirectory, WinRT.Interop.WindowNative.GetWindowHandle(this), ForceClose);
+        View.AllowDrop = true;
         Closed += HandleClosed;
         Activated += HandleActivated;
         _ = InitializeWebViewAsync();
