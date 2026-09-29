@@ -242,7 +242,23 @@ Avec Alt + PgUp / PgDn, `shortcuts.ts` était repassé à 427 lignes, au-dessus 
 
 ## Reste à faire et idées
 
+### À décider par toi
+
+- **Raccourcis** (point 15 de la section 18 de la spec) : Alt + PgUp / PgDn sort de la règle « Ctrl + Maj + lettre ou Alt + flèche ». Leader puis `=`, `!` et Maj + flèche n'ont pas de raccourci direct.
+- **`CLAUDE.md`** dit que deux tests lancent un vrai PowerShell 5.1 : ils sont maintenant 14 (`PowerShellIntegrationTests` en plus). Je n'ai pas touché ton `CLAUDE.md`.
+- **Le wrapper de prompt en fait plus** : il enveloppe `PSConsoleHostReadLine` de PSReadLine (comme VS Code) et annonce durée, succès et texte de chaque commande. PSReadLine est resté intact dans mes essais (coloration, continuation, historique). Si un module de ton profil redéfinit aussi `PSConsoleHostReadLine`, à surveiller.
+
+### Limites connues
+
+- **ConPTY sous Windows 10** :
+  - une ligne longue repliée est copiée en plusieurs lignes, faute d'indicateur de repli ;
+  - un chemin de fichier replié sur deux lignes n'est pas cliquable ;
+  - après un redimensionnement, l'invite repliée peut se redessiner de travers jusqu'à la commande suivante.
+- **Copie de sortie et navigation entre commandes** : Windows PowerShell et PowerShell 7 seulement, pas CMD ni Git Bash. Une invite qui s'écrit elle-même par `Write-Host` au lieu de renvoyer son texte fausserait la hauteur annoncée.
+- **Liens de fichiers** : un chemin qui contient des espaces n'est pas lié.
+
+### Idées
+
 - Déplacer un pane vers un onglet d'un autre workspace (l'itération 8 se limite au workspace du pane).
-- Après un redimensionnement (sortie d'un pane, panneau masqué…), la ligne d'invite PowerShell repliée par ConPTY peut se redessiner de travers jusqu'à la commande suivante. C'est un comportement de ConPTY au redimensionnement, pas propre à ces actions.
-- Fins de commandes longues : CMD et Git Bash n'ont pas de wrapper de prompt, donc pas d'indication ; on pourrait aussi faire clignoter la barre des tâches quand la fenêtre de Dock n'a pas le focus, comme pour les agents.
-- Sortie de la dernière commande : sous Windows 10, une ligne longue repliée par ConPTY est copiée en plusieurs lignes (pas d'indicateur de repli). Une invite qui s'écrit elle-même par `Write-Host` au lieu de renvoyer son texte fausserait la hauteur annoncée.
+- Fin d'une commande longue : faire clignoter la barre des tâches quand Dock n'a pas le focus, avec un réglage, comme pour les agents.
+- Tests web : aucun encore (décision du 21 septembre). Plusieurs fonctions pures ajoutées cette nuit s'y prêteraient : `findFileLinks`, `equalizeNode`, `swapPanes`, `folderMarksOf`, `relativeEntryPath`, `formatCommandDuration`.
