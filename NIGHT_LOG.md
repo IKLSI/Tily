@@ -4,6 +4,8 @@ Session autonome sur la branche `night-session`. À chaque itération : une amé
 
 Les essais se font dans un Dock de développement lancé avec son propre dossier de données (`DOCK_DATA_DIR` dans le scratchpad) et un port de débogage dédié (9247). Frappes, clics et captures passent uniquement par le protocole de débogage de la WebView2, après avoir vérifié que la page chargée est bien le bundle de ce build. Aucune action globale de souris ou de clavier, donc rien ne peut atteindre ton Dock. Les opérations Git se font dans un clone jetable du dépôt, dans le scratchpad.
 
+Version HTML de ce journal, avec un sommaire des itérations : `file:///C:/Users/maxim/Desktop/nuit-dock-2026-09-30.html` (régénérée à la fin de la nuit).
+
 ## Itérations
 
 ### 1. Égaliser les panes d'un onglet
