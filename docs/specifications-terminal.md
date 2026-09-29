@@ -78,6 +78,8 @@ Ces valeurs sont des références de réalisation, pas des contraintes de taille
 
 **Convention proposée.** Le menu contextuel d’un fichier ou d’un dossier propose aussi « Afficher dans l’Explorateur Windows », qui ouvre son dossier parent avec l’élément sélectionné ; celui d’un dossier propose en plus « Ouvrir dans l’éditeur ».
 
+**Convention proposée.** Au renommage d’un fichier, seul son nom avant la dernière extension est sélectionné, comme dans l’Explorateur Windows : taper un nouveau nom garde l’extension. Un dossier ou un nom qui commence par un point est sélectionné en entier.
+
 ## 5. Workspaces et panneau en arborescence
 
 | ID | Exigence retenue |

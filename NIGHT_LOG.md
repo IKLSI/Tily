@@ -259,6 +259,14 @@ Un sous-agent a relu tout le diff de la nuit (`main..night-session`) sans rien m
   - Ctrl + Entrée n'enregistre pas et garde le focus sur le champ ;
   - saisir 45 puis Ctrl + Entrée enregistre : `persistence.json` contient 45.
 
+### 37. Renommer un fichier garde son extension
+
+- **Quoi** : au renommage d'un fichier dans l'arbre (F2 ou menu « Renommer »), seul le nom avant la dernière extension est sélectionné, comme dans l'Explorateur Windows et VS Code. Un dossier ou un nom qui commence par un point (`.gitignore`) reste sélectionné en entier. `InlineNameEditor` accepte pour cela une fin de sélection (`selectionEnd`), calculée par `renameSelectionEnd`.
+- **Pourquoi** : F2 sélectionnait tout le nom. Taper le nouveau nom effaçait l'extension : `alpha.txt` renommé en « renamed » devenait `renamed`, sans extension, et perdait son association dans Windows.
+- **Vérifié** : dans l'instance de test, sur un dossier de test :
+  - F2 sur `sub` sélectionne « sub » ; sur `.gitignore`, « .gitignore » ; sur `alpha.txt`, « alpha » ;
+  - taper « omega » puis Entrée renomme le fichier en `omega.txt`, qui reste sélectionné dans l'arbre.
+
 ## Reste à faire et idées
 
 - **Taille de police et zoom du terminal** : police fixe à 14 px. La spécification classe ce point « À décider » (section 4), je n'y ai donc pas touché ; c'est à trancher.

@@ -1,5 +1,6 @@
 import { memo, type MouseEvent } from 'react'
 import type { FileEntry } from '../bridge/messages'
+import { renameSelectionEnd } from '../explorer/fileTree'
 import { Icon } from './Icon'
 import { IconName } from './iconName'
 import { InlineNameEditor } from './InlineNameEditor'
@@ -55,7 +56,7 @@ export const FileTreeRow = memo(function FileTreeRow({ entry, parent, depth, sel
       </span>
       <Icon name={entry.isDirectory ? IconName.Folder : IconName.File} className="shrink-0 text-dock-muted" />
       {renaming ? (
-        <InlineNameEditor value={entry.name} label={`Nouveau nom de ${entry.name}`} className="h-[18px] min-w-0 flex-1 text-[12px]" onCommit={handleCommitRename} onCancel={handlers.cancelRename} />
+        <InlineNameEditor value={entry.name} label={`Nouveau nom de ${entry.name}`} className="h-[18px] min-w-0 flex-1 text-[12px]" selectionEnd={renameSelectionEnd(entry)} onCommit={handleCommitRename} onCancel={handlers.cancelRename} />
       ) : (
         <span className="min-w-0 truncate">{entry.name}</span>
       )}
