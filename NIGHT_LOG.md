@@ -285,6 +285,12 @@ Un sous-agent a relu tout le diff de la nuit (`main..night-session`) sans rien m
   - à 1 100 px, Branche / Tag passe à 88 px, `main` restant entier, Graphe à 48 px et le message à 157 px : « Premier commit de test » est entier ;
   - avec trois branches divergentes, Graphe passe à 68 px et les trois voies restent entières (capture).
 
+### 40. La barre d'outils Git tient sur une ligne
+
+- **Quoi** : la barre Fetch / Pull / Push / Annuler / Actualiser de l'en-tête Git s'étend de 4 px de chaque côté dans la marge du panneau. Elle gagne 8 px et ses icônes s'alignent sur le nom du dépôt au-dessus. Les boutons eux-mêmes, partagés par 13 barres, ne changent pas.
+- **Pourquoi** : à la largeur par défaut du panneau (280 px), il manquait 4 px (264 px de boutons pour 260 px de ligne). Le bouton « Actualiser » passait donc seul sur une deuxième ligne, ce qui ressemblait à une erreur de mise en page et faisait descendre tout le panneau d'une ligne.
+- **Vérifié** : dans l'instance de test, la barre fait 268 px sur une seule ligne de 24 px, avec les cinq boutons sur la même ligne, et l'icône « Fetch » est alignée sur le nom du dépôt (capture).
+
 ## Reste à faire et idées
 
 - **Taille de police et zoom du terminal** : police fixe à 14 px. La spécification classe ce point « À décider » (section 4), je n'y ai donc pas touché ; c'est à trancher.

@@ -55,7 +55,7 @@ export function GitHeader({ state, busy }: GitHeaderProps) {
         <span className="ml-auto" />
         <GitToolButton icon={IconName.Graph} label="Graphe" tip={graphOpen ? 'Masquer le graphe et revenir aux terminaux' : 'Afficher le graphe des branches et des commits à la place des terminaux'} pressed={graphOpen} onClick={toggleGitGraph} />
       </div>
-      <div className="flex flex-wrap items-center gap-[2px]">
+      <div className="-mx-[4px] flex flex-wrap items-center gap-[2px]">
         <GitToolButton icon={IconName.Fetch} label="Fetch" tip={noRemote ? 'Aucun dépôt distant configuré' : 'Fetch de toutes les branches distantes (git fetch --all)'} disabled={working || noRemote} onClick={fetchRemote} />
         <GitToolButton icon={IconName.Pull} label={head.behind > 0 ? `Pull ${head.behind}` : 'Pull'} tip={head.upstream ? `Pull depuis ${head.upstream}` : 'Aucune branche distante suivie'} disabled={working || !head.upstream} onClick={pullBranch} />
         <GitToolButton icon={IconName.Push} label={head.ahead > 0 ? `Push ${head.ahead}` : 'Push'} tip={pushTip} disabled={working || head.detached || head.unborn || noRemote} onClick={pushBranch} />
