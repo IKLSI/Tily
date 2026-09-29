@@ -205,6 +205,8 @@ Les splits peuvent être imbriqués. L’action de fermeture d’un pane retire 
 
 **Convention proposée.** Tant qu’une fenêtre est ouverte (palette, sélecteur de projets, paramètres, confirmation), Tab et Maj + Tab parcourent ses seuls éléments, en boucle : le focus ne rejoint jamais un terminal masqué derrière elle.
 
+**Convention proposée.** L’étoile d’une commande (clic ou Ctrl + Entrée) la marque comme favorite et la place en tête de la palette. Seules les commandes en portent une : ni les entrées de navigation, ni « Rejoindre », ni « Rouvrir l’onglet fermé ». Au plus 50 favoris ; au-delà, la barre de statut demande d’en retirer un.
+
 ### Touche Leader
 
 Le principe d’une touche Leader est retenu. Le raccourci par défaut est **Ctrl + Espace** et son délai d’expiration est de **5 secondes**. Le mapping et le délai sont personnalisables.

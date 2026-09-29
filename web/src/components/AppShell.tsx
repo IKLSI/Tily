@@ -3,7 +3,7 @@ import { useShallow } from 'zustand/react/shallow'
 import { bridge } from '../bridge/bridge'
 import { PickTarget, type NotificationSettings, type Project, type Settings } from '../bridge/messages'
 import { activePane, activeTab, activeWorkspace, DEFAULT_SHELL, EXPLORER_DEFAULT, EXPLORER_MAX, EXPLORER_MIN, findWorkspace, RightPanelView, SIDEBAR_DEFAULT, SIDEBAR_MAX, SIDEBAR_MIN, type Session, type SplitAxis, type SplitPath, type Workspace } from '../model/session'
-import type { PaletteItem } from '../palette/paletteItems'
+import { toggleFavoriteCommand, type PaletteItem } from '../palette/paletteItems'
 import { waitingPanes } from '../agents/agentSummary'
 import { Command, handleDocumentShortcut, runCommand } from '../keyboard/shortcuts'
 import { agentKey, useAgentStore } from '../store/agentStore'
@@ -187,7 +187,7 @@ const panelActions: WorkspacePanelActions = {
 }
 
 export function AppShell({ session }: AppShellProps) {
-  const { selectTab, selectPane, toggleSidebar, setSidebarWidth, setExplorerWidth, newWorkspace, newTab, moveTab, shiftTab, setSplitRatio, toggleFavorite } = useSessionStore.getState()
+  const { selectTab, selectPane, toggleSidebar, setSidebarWidth, setExplorerWidth, newWorkspace, newTab, moveTab, shiftTab, setSplitRatio } = useSessionStore.getState()
   const { leaderActive, shells, projects, projectsRoot, projectsError, settingsSnapshot, pickedPath, importedPreferences } = useHostStore(
     useShallow((state) => ({
       leaderActive: state.leaderActive,
@@ -380,7 +380,7 @@ export function AppShell({ session }: AppShellProps) {
       <AttentionToasts waiting={waiting} onJoin={handleJoinPane} onDismiss={handleDismissAttention} />
       {projectPickerOpen && <ProjectPicker projects={projects} root={projectsRoot} error={projectsError} onClose={handleCloseProjectPicker} onSelect={handleSelectProject} />}
       {settingsOpen && <SettingsDialog snapshot={settingsSnapshot} pickedPath={pickedPath} imported={importedPreferences} onClose={handleCloseSettings} onSave={handleSaveSettings} onPick={handlePickPath} onExport={handleExportPreferences} onImport={handleImportPreferences} onInstallHooks={handleInstallHooks} onRemoveHooks={handleRemoveHooks} onTestNotification={handleTestNotification} />}
-      {paletteOpen && <CommandPalette session={session} shells={availableShells} onClose={handleClosePalette} onRun={handleRunPaletteItem} onToggleFavorite={toggleFavorite} />}
+      {paletteOpen && <CommandPalette session={session} shells={availableShells} onClose={handleClosePalette} onRun={handleRunPaletteItem} onToggleFavorite={toggleFavoriteCommand} />}
       {deleteRequest && <DeleteConfirmDialog request={deleteRequest} onConfirm={confirmDelete} onCancel={handleCancelDelete} />}
       {gitConfirmation && <GitConfirmDialog confirmation={gitConfirmation} onConfirm={handleConfirmGit} onCancel={handleCancelGit} />}
       {closeConfirmation && <CloseConfirmDialog confirmation={closeConfirmation} onConfirm={confirmClose} onCancel={handleCancelClose} />}

@@ -104,6 +104,7 @@ export const DEFAULT_GIT_GRAPH: GitGraphLayout = {
 }
 export const DEFAULT_SHELL = 'powershell'
 export const CLOSED_TABS_MAX = 5
+export const FAVORITES_MAX = 50
 export const SPLIT_RATIO_MIN = 0.15
 export const SPLIT_RATIO_MAX = 0.85
 export const SPLIT_RATIO_DEFAULT = 0.5

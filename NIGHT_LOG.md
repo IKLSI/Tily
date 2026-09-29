@@ -449,6 +449,19 @@ Dock garde les cinq derniers onglets fermés, mais seul le dernier pouvait être
 - Vérifié dans l'instance de dev : trois onglets (`Temp`, `Windows`, `Users`) ouverts puis fermés, la palette les liste dans l'ordre inverse de fermeture. J'ai rouvert `Windows`, celui du milieu : il reprend sa place dans le workspace, avec un terminal dans `C:\Windows`, et la liste ne contient plus que `Users`, `Temp` et les plus anciens. Ctrl + Maj + Z a ensuite rouvert `Users`, le dernier fermé.
 - Documenté comme **convention proposée** en section 6 de la spec.
 
+### 57. Plus d'étoile sur « Rejoindre », et pas plus de 50 favoris
+
+En relisant la palette pour l'itération 56, j'ai remarqué que les entrées « Rejoindre · … » (panes en attente d'un agent) affichaient une étoile de favori. Un clic ou Ctrl + Entrée ajoutait `attention-<pane>` aux favoris, mais l'étoile ne se remplissait jamais : seules les commandes sont relues comme favorites. Chaque essai laissait donc un identifiant invisible dans la session. Or l'hôte refuse d'enregistrer une session qui compte plus de 50 favoris : passé ce cap, chaque sauvegarde échouait avec « Favoris invalides. Les changements ne sont pas enregistrés. », sans moyen de comprendre pourquoi.
+
+- Les entrées « Rejoindre » n'ont plus d'étoile, comme celles des onglets fermés.
+- `toggleFavoriteCommand` refuse un 51ᵉ favori avec « Pas plus de 50 favoris : retirez une étoile avant d'en ajouter une. » dans la barre de statut. Le message s'efface à la bascule suivante.
+- Vérifié dans l'instance de dev :
+  - un agent simulé (`ping` dans le pane et fichier d'état `waiting`) : l'entrée « Rejoindre » n'a pas d'étoile, et Ctrl + Entrée ne fait rien ;
+  - une session à 50 favoris : ajouter « Split côte à côte » est refusé avec le message, la session enregistrée garde 50 favoris ; retirer une étoile efface le message, puis l'ajout passe et la session est bien enregistrée.
+- Les favoris de l'instance de dev ont été remis à zéro après l'essai.
+- Les identifiants `attention-…` déjà enregistrés par ce bug restent dans les sessions existantes. Ils sont invisibles et comptent dans les 50 ; je ne les ai pas nettoyés pour ne pas toucher aux données sans nécessité.
+- Documenté comme **convention proposée** en section 9 de la spec.
+
 ## Reste à faire et idées
 
 - **Taille de police et zoom du terminal** : police fixe à 14 px. La spécification classe ce point « À décider » (section 4), je n'y ai donc pas touché ; c'est à trancher.

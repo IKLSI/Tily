@@ -2,8 +2,9 @@ import { waitingPanes } from '../agents/agentSummary'
 import { bridge } from '../bridge/bridge'
 import type { ShellProfile } from '../bridge/messages'
 import { Command, runCommand } from '../keyboard/shortcuts'
-import { activeTab, activeWorkspace, folderName, panesOf, type Session } from '../model/session'
+import { activeTab, activeWorkspace, FAVORITES_MAX, folderName, panesOf, type Session } from '../model/session'
 import { useAgentStore } from '../store/agentStore'
+import { useHostStore } from '../store/hostStore'
 import { useSessionStore } from '../store/sessionStore'
 import { RenameOrigin, useUiStore } from '../store/uiStore'
 import { closeOtherTabsKeepingText, closeTabKeepingText, duplicateTabKeepingLayout, restoreClosedTab, restoreClosedTabAt } from '../terminal/tabLifecycle'
@@ -26,6 +27,8 @@ export interface PaletteItem extends SearchItem {
 }
 
 const SEPARATOR = ' · '
+const NO_STATUS = ''
+const FAVORITES_FULL_STATUS = `Pas plus de ${FAVORITES_MAX} favoris : retirez une étoile avant d’en ajouter une.`
 
 const command = (id: string, label: string, run: () => void, hint?: string): PaletteItem => ({ id, kind: PaletteKind.Command, label, hint, favorite: false, run })
 
@@ -95,7 +98,6 @@ const attentionItems = (session: Session): PaletteItem[] =>
     kind: PaletteKind.Attention,
     label: `Rejoindre${SEPARATOR}${pane.label}`,
     hint: pane.detail,
-    favorite: false,
     run: () => joinPane(pane.paneId),
   }))
 
@@ -133,6 +135,20 @@ const navigationItems = (session: Session): PaletteItem[] => {
       })),
     ]),
   ])
+}
+
+export const toggleFavoriteCommand = (commandId: string): void => {
+  const { session, toggleFavorite } = useSessionStore.getState()
+  const { status, setStatus } = useHostStore.getState()
+  const favorites = session?.favorites ?? []
+  if (!favorites.includes(commandId) && favorites.length >= FAVORITES_MAX) {
+    setStatus(FAVORITES_FULL_STATUS)
+    return
+  }
+  toggleFavorite(commandId)
+  if (status.text === FAVORITES_FULL_STATUS) {
+    setStatus(NO_STATUS)
+  }
 }
 
 export const buildPaletteItems = (session: Session, shells: ShellProfile[]): PaletteItem[] => {
