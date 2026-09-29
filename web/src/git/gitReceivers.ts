@@ -1,4 +1,4 @@
-import { GitDiffSource, type GitCommitDetails, type GitDiff, type GitFailureCode, type GitHistory, type GitState } from '../bridge/gitMessages'
+import { GitChangeKind, GitDiffSource, type GitCommitDetails, type GitDiff, type GitFailureCode, type GitHistory, type GitState } from '../bridge/gitMessages'
 import { useGitStore, type GitFileTarget } from '../store/gitStore'
 import { StatusLevel, useHostStore } from '../store/hostStore'
 import { refocusGitIfLost } from './gitFocus'
@@ -9,13 +9,13 @@ const COMMIT_OPERATION = 'git.commit'
 const AUTO_FETCH_OPERATION = 'git.autoFetch'
 
 const followShownFile = (state: GitState, file: GitFileTarget): void => {
-  const inStaged = state.staged.some((change) => change.path === file.path)
-  const inUnstaged = state.unstaged.some((change) => change.path === file.path)
+  const inStaged = state.staged.find((change) => change.path === file.path)
+  const inUnstaged = state.unstaged.find((change) => change.path === file.path)
   const stillThere = file.source === GitDiffSource.Staged ? inStaged : inUnstaged
   if (stillThere) {
-    reloadDiff(file)
+    reloadDiff({ ...file, untracked: stillThere.kind === GitChangeKind.Untracked })
   } else if (inStaged || inUnstaged) {
-    reloadDiff({ ...file, source: inStaged ? GitDiffSource.Staged : GitDiffSource.Unstaged })
+    reloadDiff({ ...file, source: inStaged ? GitDiffSource.Staged : GitDiffSource.Unstaged, untracked: !inStaged && inUnstaged?.kind === GitChangeKind.Untracked })
   } else {
     closeDrawer()
   }

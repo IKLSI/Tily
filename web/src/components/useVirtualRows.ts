@@ -9,6 +9,7 @@ export interface VirtualRange {
 
 export const useVirtualRows = (containerRef: RefObject<HTMLElement | null>, count: number, rowHeight: number): { range: VirtualRange; handleScroll: () => void } => {
   const [viewport, setViewport] = useState({ top: 0, height: 0 })
+  const filled = count > 0
 
   const measure = useCallback(() => {
     const container = containerRef.current
@@ -26,7 +27,7 @@ export const useVirtualRows = (containerRef: RefObject<HTMLElement | null>, coun
     const observer = new ResizeObserver(measure)
     observer.observe(container)
     return () => observer.disconnect()
-  }, [containerRef, measure])
+  }, [containerRef, measure, filled])
 
   const start = Math.max(0, Math.floor(viewport.top / rowHeight) - OVERSCAN_ROWS)
   const end = Math.min(count, Math.ceil((viewport.top + viewport.height) / rowHeight) + OVERSCAN_ROWS)
