@@ -30,6 +30,22 @@ public sealed class DroppedPathsTests
     }
 
     [Fact]
+    public void Format_WhenPowerShellPathHasTypographicApostrophe_ThenQuotesAndDoublesIt()
+    {
+        var text = DroppedPaths.Format([@"C:\Docs\Lettre d’information.pdf"], "powershell");
+
+        Assert.Equal(@"'C:\Docs\Lettre d’’information.pdf' ", text);
+    }
+
+    [Fact]
+    public void Format_WhenPathHasOnlyNonBreakingSpace_ThenQuotesIt()
+    {
+        var text = DroppedPaths.Format(["C:\\Docs\\A\u00A0B.txt"], "powershell");
+
+        Assert.Equal("'C:\\Docs\\A\u00A0B.txt' ", text);
+    }
+
+    [Fact]
     public void Format_WhenPowerShellPathHasDollar_ThenQuotesItLiterally()
     {
         var text = DroppedPaths.Format([@"C:\$Recycle.Bin"], "powershell");

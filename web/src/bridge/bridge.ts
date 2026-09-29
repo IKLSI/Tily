@@ -4,7 +4,7 @@ type Handler<T extends HostMessageType> = (message: HostMessageOf<T>) => void
 
 interface WebViewChannel {
   postMessage(message: unknown): void
-  postMessageWithAdditionalObjects(message: unknown, additionalObjects: ArrayLike<File>): void
+  postMessageWithAdditionalObjects?(message: unknown, additionalObjects: ArrayLike<File>): void
   addEventListener(type: 'message', listener: (event: { data: HostToWebMessage }) => void): void
 }
 
@@ -23,7 +23,7 @@ export const bridge = {
     channel?.postMessage(message)
   },
   sendWithFiles(message: WebToHostMessage, files: ArrayLike<File>): void {
-    channel?.postMessageWithAdditionalObjects(message, files)
+    channel?.postMessageWithAdditionalObjects?.(message, files)
   },
   on<T extends HostMessageType>(type: T, handler: Handler<T>): () => void {
     const set = handlers.get(type) ?? new Set<Handler<HostMessageType>>()
