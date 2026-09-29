@@ -40,8 +40,11 @@ export function PaneOverlay({ state, active, shells, onRestart, onRestartIn, onC
   useEffect(() => {
     const focused = document.activeElement
     const pane = overlayRef.current?.closest(PANE_SELECTOR)
+    const typingInTerminal = Boolean(focused && pane?.contains(focused) && !overlayRef.current?.contains(focused))
     if ((active && focused === document.body) || (focused && pane?.contains(focused))) {
-      guardUntilRef.current = performance.now() + ACTIVATION_GUARD_MS
+      if (typingInTerminal) {
+        guardUntilRef.current = performance.now() + ACTIVATION_GUARD_MS
+      }
       defaultRef.current?.focus()
     }
   }, [pathMissing, active])

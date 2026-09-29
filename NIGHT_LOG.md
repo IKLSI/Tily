@@ -705,6 +705,29 @@ Les flèches (itération 47) et les premières lettres (itération 69) permetten
   - Ctrl + Maj + B depuis le panneau le masque et rend le focus au terminal.
 - **Conventions proposées** complétées (sections 5 et 9 de la spec), architecture front et README mis à jour.
 
+### 76. Cinquième relecture indépendante : corrections des itérations 62 à 71
+
+Un sous-agent a relu les itérations 62 à 71 (`bc8a377..53db6dc`) sans rien modifier. Il n'a trouvé aucun défaut important, mais 12 constats mineurs. Je les ai traités ou consignés.
+
+- **Ctrl + Maj + A avalé dans la vue Git** : dans les listes « Modifications » et « Branches », le « tout sélectionner » (Ctrl + A) ne vérifiait pas Maj, et prenait donc aussi Ctrl + Maj + A. Vérifié : depuis la branche `main` de la liste, Ctrl + Maj + A répond maintenant « Aucun agent en attente. ».
+- **Espace dans le panneau** : juste après une lettre, Espace était ajouté à la recherche et n'activait plus la ligne. Un espace qui ne prolonge aucun nom laisse maintenant la ligne s'activer. Vérifié : G puis Espace sélectionne `GameSolver`.
+- **Thread UI** : la vérification d'existence du chemin de `terminal.dropPath` se fait dans la file de requêtes de fond. Un partage réseau injoignable ne peut plus figer Dock. Vérifié : `C:\Program Files` revient bien, entre guillemets, et un chemin inexistant est refusé.
+- **Garde de 600 ms** : elle ne s'arme plus que si l'on tapait dans le terminal du pane quand le message est apparu. Rejoindre volontairement un pane qui affiche déjà un message n'est plus concerné. Vérifié :
+  - `exit` puis Entrée 300 ms plus tard : le shell n'est pas relancé ;
+  - Alt + flèche vers ce pane puis Entrée aussitôt : il est relancé.
+- **Tests** :
+  - `OpenProcess` attrape aussi les processus morts entre la liste et l'ouverture du handle (`InvalidOperationException`, `Win32Exception`) ;
+  - le test Ctrl + C rétablit l'état du processus de test dans un `finally`.
+- **Accessibilité** : la zone du message de refus des favoris est toujours présente dans la palette et seul son texte change, pour qu'un lecteur d'écran l'annonce à coup sûr.
+- **Recherche par lettres** : AltGr est accepté, ce qui permet d'atteindre `@types` au clavier AZERTY. La doc dit maintenant « tout caractère imprimable ».
+- **README** : Ctrl + Maj + A ne concerne que Claude Code. L'adaptateur Codex CLI ne sait pas encore dire qu'un agent attend.
+- **Consigné pour décision** en section 18 de la spec :
+  - l'exception d'Alt + flèche sur un onglet ou une ligne du panneau ;
+  - l'ambiguïté de la « Décision prise » sur la confirmation avant de fermer un workspace. Aujourd'hui, un workspace de plus de cinq onglets sans programme actif se ferme sans confirmation, et ses onglets au-delà des cinq derniers ne sont plus restaurables.
+  - L'issue GitHub [D01] n'a pas été touchée, puisqu'il ne fallait pas intervenir sur les issues : c'est à reporter.
+- **Non traité** : `sessionStore.ts` dépasse la limite de 400 lignes (468). Le dépassement existait avant cette nuit, qui n'y a ajouté que 8 lignes. Le découper serait une refonte, hors du cadre de la nuit.
+- **Au passage** : le commit de l'itération 75 portait le gitmoji ♿, qui ne fait pas partie de la liste autorisée. J'ai corrigé son message (`--amend`, devenu `627884f` avec ✨) et je l'ai repoussé avec `--force-with-lease`, sur `night-session` seulement. Ses 82 prédécesseurs de la nuit sont conformes.
+
 ## Reste à faire et idées
 
 - **Alt + flèche sur un onglet ou une ligne du panneau** : quand un onglet de la barre ou une ligne du panneau des workspaces a le focus, Alt + flèche déplace cet élément (itérations 14, 47 et 58) au lieu de changer de pane, comme le prévoit le tableau retenu de la section 9. C'est une dérogation à confirmer ou à retirer ; la spec la signale comme « exception à confirmer ».

@@ -124,11 +124,9 @@ export function SearchDialog<T extends SearchItem>({ label, placeholder, emptyMe
             )
           })}
         </div>
-        {notice && (
-          <p role="status" className="mt-2 border-t border-dock-line px-3 pt-2 text-xs text-dock-warning">
-            {notice}
-          </p>
-        )}
+        <p role="status" className={notice ? 'mt-2 border-t border-dock-line px-3 pt-2 text-xs text-dock-warning' : undefined}>
+          {notice}
+        </p>
       </div>
     </div>
   )

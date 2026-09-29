@@ -12,7 +12,8 @@ export interface TypedText {
 export const NO_TYPED_TEXT: TypedText = { text: '', at: 0 }
 
 export const typeAheadText = (previous: TypedText, event: KeyboardEvent): TypedText | null => {
-  if (event.key.length !== 1 || event.ctrlKey || event.altKey || event.metaKey || event.nativeEvent.isComposing) {
+  const altGraph = event.getModifierState('AltGraph')
+  if (event.key.length !== 1 || (!altGraph && (event.ctrlKey || event.altKey)) || event.metaKey || event.nativeEvent.isComposing) {
     return null
   }
   const typing = event.timeStamp - previous.at <= TYPE_AHEAD_RESET_MS

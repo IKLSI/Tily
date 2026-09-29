@@ -54,6 +54,7 @@ export const COLLAPSE_KEY = 'ArrowLeft'
 const PANEL_ROW_SELECTOR = '[data-panel-row]'
 const ACTIVE_ROW_SELECTOR = `${PANEL_ROW_SELECTOR}[aria-current="true"]`
 const WORKSPACE_LIST_SELECTOR = '[data-workspace-list]'
+const SPACE_KEY = ' '
 const WORKSPACE_SLOT_SELECTOR = '[data-workspace-slot]'
 let panelTyped = NO_TYPED_TEXT
 
@@ -73,9 +74,13 @@ export const handlePanelRowKeys = (event: KeyboardEvent<HTMLElement>): void => {
     event.preventDefault()
     focusActivePane()
   } else if (typed) {
+    const found = typeAheadIndex(rows.map((row) => row.dataset.rowName ?? ''), index, typed.text)
+    if (found < 0 && event.key === SPACE_KEY) {
+      return
+    }
     event.preventDefault()
     panelTyped = typed
-    rows[typeAheadIndex(rows.map((row) => row.dataset.rowName ?? ''), index, typed.text)]?.focus()
+    rows[found]?.focus()
   }
 }
 

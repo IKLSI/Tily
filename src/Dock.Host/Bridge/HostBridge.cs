@@ -19,6 +19,7 @@ public sealed class HostBridge : IDisposable
     private const string TextSavePrefix = """{"type":"text.save",""";
     private const string DropPrefix = """{"type":"terminal.drop",""";
     private const string TerminalCommandPrefix = "terminal.";
+    private const string InvalidDroppedPath = "Chemin déposé invalide.";
     private static readonly string ApplicationVersion = typeof(HostBridge).Assembly.GetName().Version?.ToString(3) ?? string.Empty;
     private static readonly TimeSpan WriteDrainTimeout = TimeSpan.FromSeconds(10);
     private static readonly JsonSerializerOptions JsonOptions = SessionRepository.JsonOptions;
@@ -107,13 +108,25 @@ public sealed class HostBridge : IDisposable
 
     private void PostDroppedPath(BridgeCommandModel command)
     {
-        if (command.Path is not { } path || path.Any(char.IsControl) || !Path.IsPathFullyQualified(path) || !(File.Exists(path) || Directory.Exists(path)))
+        var paneId = RequirePane(command);
+        var shellId = command.Shell ?? ShellCatalog.DefaultShellId;
+        if (command.Path is not { } path || path.Any(char.IsControl) || !Path.IsPathFullyQualified(path))
         {
-            Post(new { type = "error", message = "Chemin déposé invalide." });
+            Post(new { type = "error", message = InvalidDroppedPath });
             return;
         }
 
-        Post(new { type = "terminal.dropped", pane = RequirePane(command), text = DroppedPaths.Format([path], command.Shell ?? ShellCatalog.DefaultShellId) });
+        _queries.Enqueue(() =>
+        {
+            if (File.Exists(path) || Directory.Exists(path))
+            {
+                Post(new { type = "terminal.dropped", pane = paneId, text = DroppedPaths.Format([path], shellId) });
+            }
+            else
+            {
+                Post(new { type = "error", message = InvalidDroppedPath });
+            }
+        });
     }
 
     private void Receive(string json)

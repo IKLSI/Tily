@@ -101,7 +101,7 @@ export function GitRefsSidebar({ state, width }: GitRefsSidebarProps) {
     if (!current) {
       return
     }
-    if (event.ctrlKey && event.key.toLowerCase() === 'a') {
+    if (event.ctrlKey && !event.shiftKey && event.key.toLowerCase() === 'a') {
       selectAllRefs(keys, current)
     } else if (event.key === 'Delete') {
       deleteSelectedRefs(current)

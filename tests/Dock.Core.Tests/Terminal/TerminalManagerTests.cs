@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Text;
 using Dock.Core.Native;
@@ -78,14 +79,21 @@ public sealed class TerminalManagerTests
         var directory = new TaskCompletionSource<string>();
         manager.CurrentDirectoryChanged += (_, path) => directory.TrySetResult(path);
         ProcessApi.SetConsoleCtrlHandler(IntPtr.Zero, true);
-        var session = manager.Start("pane-ctrl-c", ShellCatalog.DefaultShellId, Path.GetTempPath(), 100, 30);
-        await directory.Task.WaitAsync(Timeout);
-        session.Write(Encoding.UTF8.GetBytes("ping -t 127.0.0.1 > $null\r"));
-        await WaitForAsync(() => RunsPing(manager, "pane-ctrl-c"));
+        try
+        {
+            var session = manager.Start("pane-ctrl-c", ShellCatalog.DefaultShellId, Path.GetTempPath(), 100, 30);
+            await directory.Task.WaitAsync(Timeout);
+            session.Write(Encoding.UTF8.GetBytes("ping -t 127.0.0.1 > $null\r"));
+            await WaitForAsync(() => RunsPing(manager, "pane-ctrl-c"));
 
-        session.Write(Encoding.UTF8.GetBytes("\u0003"));
+            session.Write(Encoding.UTF8.GetBytes("\u0003"));
 
-        Assert.True(await EventuallyAsync(() => !RunsPing(manager, "pane-ctrl-c")), "Ctrl + C n’a pas interrompu le programme du pane.");
+            Assert.True(await EventuallyAsync(() => !RunsPing(manager, "pane-ctrl-c")), "Ctrl + C n’a pas interrompu le programme du pane.");
+        }
+        finally
+        {
+            ProcessApi.SetConsoleCtrlHandler(IntPtr.Zero, false);
+        }
     }
 
     [Fact]
@@ -140,14 +148,16 @@ public sealed class TerminalManagerTests
 
     private static Process? OpenProcess(int processId)
     {
+        Process? process = null;
         try
         {
-            var process = Process.GetProcessById(processId);
+            process = Process.GetProcessById(processId);
             _ = process.SafeHandle;
             return process;
         }
-        catch (ArgumentException)
+        catch (Exception exception) when (exception is ArgumentException or InvalidOperationException or Win32Exception)
         {
+            process?.Dispose();
             return null;
         }
     }
