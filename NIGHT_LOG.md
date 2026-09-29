@@ -379,12 +379,19 @@ Les douze constats de la relecture sont traités (itérations 44 à 46).
   - un aller-retour d'onglet le termine aussi ;
   - graphe Git ouvert par-dessus les terminaux : le zoom laisse le focus au graphe.
 
+### 50. Bilan de nuit en HTML
+
+- **Quoi** : un bilan lisible d'un coup d'œil, `NIGHT_LOG.html`, à côté de ce journal. On y trouve les chiffres de la nuit, ce qu'il faut lire d'abord (incident de 0 h 40, SDK .NET 10 installé), ce qui reste à décider (nouveaux raccourcis proposés, collage de plusieurs lignes, taille de police, tests web), les changements classés par thème avec leur numéro d'itération, puis le reste à faire. Il n'est pas versionné (`.git/info/exclude`) : ce journal reste la référence.
+- **Pourquoi** : près de cinquante entrées détaillées sont longues à relire au réveil. Tes consignes demandent un fichier HTML pour tout récapitulatif à relire.
+- **Vérifié** : HTML bien formé (analyse automatique des balises) et rendu contrôlé avec Edge en mode headless, dans un profil temporaire isolé.
+
 ## Reste à faire et idées
 
 - **Taille de police et zoom du terminal** : police fixe à 14 px. La spécification classe ce point « À décider » (section 4), je n'y ai donc pas touché ; c'est à trancher.
 - **Graphe Git dans une fenêtre très étroite** : depuis l'itération 39, Auteur et Date s'effacent, puis la colonne des branches rétrécit jusqu'à 88 px et celle du graphe jusqu'à la largeur de ses voies. En dessous d'environ 400 px pour la table (fenêtre de 900 px avec les trois panneaux ouverts), le message reste coupé : replier le panneau des références ou celui des workspaces reste nécessaire.
 - **Message de pane pendant une saisie** : un message qui apparaît sur le pane où l'on tape prend le focus, et la frappe suivante peut le déclencher. Pour un dossier disparu, le bouton par défaut est donc « Ignorer », sans effet sur le shell, mais le signalement peut alors disparaître sans avoir été lu. Le cas est rare : il faut que le dossier du pane actif disparaisse pendant la saisie.
 - **Glisser-déposer depuis l'Explorateur** : depuis l'itération 32, il est vérifié avec un vrai glisser OLE de fichier, le même mécanisme que l'Explorateur. Un essai à la main depuis l'Explorateur, avec une image dans Claude Code par exemple, reste conseillé.
+- **Collage de plusieurs lignes** : coller un texte de plusieurs lignes dans un shell qui n'a pas activé le collage encadré (bracketed paste) exécute chaque ligne comme une commande. Windows Terminal demande une confirmation dans ce cas. Je ne l'ai pas ajouté : c'est un choix entre sécurité et friction qui te revient. Il faudrait le limiter aux programmes sans collage encadré, pour ne pas gêner les prompts collés dans Claude Code.
 - **Tests web** : il n'y en a toujours aucun (décision du 21 septembre). Les fonctions pures ajoutées cette nuit (`fitGraphColumns`, `menuPlaceOf`, `selectAdjacentTab`…) s'y prêteraient bien si tu changes d'avis.
 - **Effacer un terminal** : non ajouté au menu contextuel. Sous Windows 10, ConPTY ne permet pas de vider son propre tampon, et un effacement côté xterm.js pourrait réapparaître au premier redimensionnement.
 
