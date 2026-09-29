@@ -220,6 +220,8 @@ Les splits peuvent être imbriqués. L’action de fermeture d’un pane retire 
 
 **Retenu.** Un lien affiché dans un terminal s’ouvre par Ctrl + clic ; le clic simple reste réservé à la sélection de texte et au placement du curseur, sans jamais ouvrir de lien.
 
+**Convention proposée.** Un chemin de fichier affiché dans un terminal est aussi un lien : absolu (`C:\dépôt.cs`, `C:/app/index.js`) ou relatif avec un séparateur (`src/app.ts`, `..\web\App.tsx`), éventuellement suivi d’une ligne et d’une colonne (`:12`, `:12:5`, `(42,17)`) ; un simple nom de fichier n’est lié que s’il porte une ligne. Ctrl + clic l’ouvre dans l’éditeur configuré, à la ligne et à la colonne indiquées pour les éditeurs de la famille VS Code (`code`, `code-insiders`, `codium`, `cursor`, `windsurf`, par `-g`), au début du fichier pour les autres. Un chemin relatif part du dossier du pane ; un fichier absent est signalé dans la barre de statut. Les chemins qui contiennent des espaces et les parties d’URL ne sont pas liés.
+
 **Conventions proposées.** Reconnaître les URL présentes dans le texte ainsi que les hyperliens explicites émis par les programmes (séquence OSC 8). Ouvrir le lien dans le navigateur par défaut de Windows, jamais dans la fenêtre de Dock. N’ouvrir que les liens `http` et `https` ; un autre schéma est ignoré et signalé dans la barre de statut. Souligner le lien au survol pour montrer qu’il est actif.
 
 **Retenu (29 septembre 2026).** Dans un pane où Dock détecte Claude Code ou Codex CLI, Maj + Entrée et Ctrl + Entrée insèrent un retour à la ligne dans le prompt au lieu de l’envoyer (Dock transmet Échap + Entrée, que les deux agents interprètent ainsi). Dans les autres panes, ces combinaisons restent transmises telles quelles au shell.

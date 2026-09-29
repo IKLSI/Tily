@@ -121,6 +121,22 @@ L'indication de l'itération 5 n'apparaissait que sur les lignes d'onglets : inv
 - Vérifié dans l'instance de dev : `Start-Sleep 11` dans « Général », passage à « Workspace 2 » ; la coche apparaît sur l'onglet « repo », puis sur la ligne de « Général » une fois replié, puis dans l'en-tête après Ctrl + Maj + B.
 - Spec (convention de la section 12) et architecture front mises à jour.
 
+### 12. Ctrl + clic sur un chemin de fichier dans le terminal
+
+Les erreurs de compilation, de tests ou de lint affichent `src/app.ts:12:5` ou `Program.cs(42,17)`. Seules les URL étaient cliquables : il fallait retrouver le fichier à la main.
+
+- Les chemins de fichiers deviennent des liens, soulignés au survol : absolus ou relatifs avec séparateur, suivis ou non de `:ligne`, `:ligne:colonne` ou `(ligne,colonne)`. Un nom seul n'est lié que s'il porte une ligne, pour ne pas souligner chaque `package.json`.
+- Ctrl + clic l'ouvre dans l'éditeur configuré. Pour VS Code et ses dérivés (`code`, `cursor`, `windsurf`…), on passe `-g chemin:ligne:colonne` pour arriver directement à la bonne ligne ; un autre éditeur reçoit juste le fichier. Le clic simple n'ouvre toujours rien, comme le veut la décision sur les liens.
+- Un chemin relatif part du dossier du pane (côté hôte, `EditorLocation.Resolve`). Un fichier absent est signalé (« Fichier introuvable : … »).
+- Détection vérifiée sur des sorties types : tsc, dotnet, pytest, pile Node et `git status`. Les URL, versions et noms isolés ne sont pas liés.
+- 8 tests (`EditorLocationTests`).
+- Vérifié dans l'instance de dev, avec un faux `code.cmd` qui journalise ses arguments pour ne pas ouvrir ton VS Code :
+  - Ctrl + clic sur `src\Dock.Core\Git\GitRunner.cs(42,17): error CS1002` lance `-g …epo\src\Dock.Core\Git\GitRunner.cs:42:17` ;
+  - un clic simple ne lance rien ;
+  - un fichier absent affiche le message.
+- **Limites** : un chemin qui contient des espaces n'est pas lié. Un lien sur deux lignes repliées non plus.
+- **Convention proposée** en section 9 de la spec. Architectures mises à jour.
+
 ## Reste à faire et idées
 
 - Déplacer un pane vers un onglet d'un autre workspace (l'itération 8 se limite au workspace du pane).

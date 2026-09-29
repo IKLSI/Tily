@@ -46,17 +46,19 @@ public static class LocalActions
         LaunchEditor(path, editorCommand);
     }
 
-    public static void OpenFileInEditor(string path, string editorCommand)
+    public static void OpenFileInEditor(string path, string editorCommand, int line = 0, int column = 0)
     {
         if (!File.Exists(path))
         {
             throw new InvalidOperationException($"Le fichier n’existe plus : {path}");
         }
 
-        LaunchEditor(path, editorCommand);
+        LaunchEditor(EditorLocation.Arguments(editorCommand, path, line, column), editorCommand);
     }
 
-    private static void LaunchEditor(string path, string editorCommand)
+    private static void LaunchEditor(string path, string editorCommand) => LaunchEditor([path], editorCommand);
+
+    private static void LaunchEditor(IReadOnlyList<string> arguments, string editorCommand)
     {
         if (string.IsNullOrWhiteSpace(editorCommand))
         {
@@ -65,7 +67,13 @@ public static class LocalActions
 
         try
         {
-            Process.Start(new ProcessStartInfo(editorCommand) { ArgumentList = { path }, UseShellExecute = true, WindowStyle = ProcessWindowStyle.Hidden });
+            var start = new ProcessStartInfo(editorCommand) { UseShellExecute = true, WindowStyle = ProcessWindowStyle.Hidden };
+            foreach (var argument in arguments)
+            {
+                start.ArgumentList.Add(argument);
+            }
+
+            Process.Start(start);
         }
         catch (Exception exception) when (exception is System.ComponentModel.Win32Exception or FileNotFoundException)
         {

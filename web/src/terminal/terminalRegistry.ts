@@ -10,6 +10,7 @@ import { bridge } from '../bridge/bridge'
 import type { Pane } from '../model/session'
 import { COMMAND_DONE_OSC, receiveCommandDone } from './commandNotices'
 import { trackCommandOutput } from './commandOutput'
+import { registerFileLinks } from './fileLinks'
 
 const ACK_THRESHOLD = 256 * 1024
 const MAX_WEBGL_CONTEXTS = 14
@@ -217,6 +218,7 @@ const createHandle = (pane: Pane): TerminalHandle => {
     return true
   })
   trackCommandOutput(terminal)
+  registerFileLinks(terminal, pane.id)
   terminal.buffer.onBufferChange(() => forgetChunks(handle))
   terminal.onResize(({ cols, rows }) => {
     forgetChunks(handle)
