@@ -1,4 +1,5 @@
 import type { KeyboardEvent } from 'react'
+import { NO_TYPED_TEXT, typeAheadIndex, typeAheadText } from '../keyboard/typeAhead'
 import type { Session } from '../model/session'
 import type { MoveTabHandler } from './tabDrag'
 
@@ -51,17 +52,24 @@ export const COLLAPSE_KEY = 'ArrowLeft'
 
 const PANEL_ROW_SELECTOR = '[data-panel-row]'
 const WORKSPACE_SLOT_SELECTOR = '[data-workspace-slot]'
+let panelTyped = NO_TYPED_TEXT
+
 export const handlePanelRowKeys = (event: KeyboardEvent<HTMLElement>): void => {
   const target = event.target
-  if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || !(target instanceof HTMLElement) || !target.matches(PANEL_ROW_SELECTOR)) {
+  if (event.altKey || event.ctrlKey || event.metaKey || !(target instanceof HTMLElement) || !target.matches(PANEL_ROW_SELECTOR)) {
     return
   }
   const rows = Array.from(event.currentTarget.querySelectorAll<HTMLElement>(PANEL_ROW_SELECTOR))
   const index = rows.indexOf(target)
+  const typed = typeAheadText(panelTyped, event)
   const destinations: Record<string, number> = { ArrowDown: index + 1, ArrowUp: index - 1, Home: 0, End: rows.length - 1 }
-  if (event.key in destinations) {
+  if (!event.shiftKey && event.key in destinations) {
     event.preventDefault()
     rows[destinations[event.key]]?.focus()
+  } else if (typed) {
+    event.preventDefault()
+    panelTyped = typed
+    rows[typeAheadIndex(rows.map((row) => row.dataset.rowName ?? ''), index, typed.text)]?.focus()
   }
 }
 

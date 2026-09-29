@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent, type MouseEvent } from 'react'
 import { EntryKind, type FileEntry } from '../bridge/messages'
-import { entryRows, RowKind, typeAheadMatch, type TreeRow } from '../explorer/fileTree'
+import { entryRows, RowKind, type TreeRow } from '../explorer/fileTree'
 import {
   copyEntryPath,
   createEntry,
@@ -14,6 +14,7 @@ import {
   refreshFolders,
   renameEntry,
 } from '../explorer/fileExplorerActions'
+import { NO_TYPED_TEXT, typeAheadIndex, typeAheadText, type TypedText } from '../keyboard/typeAhead'
 import { RightPanelView } from '../model/session'
 import { togglePanelView } from '../panel/rightPanel'
 import { useExplorerStore, type EntryDraft } from '../store/explorerStore'
@@ -69,10 +70,6 @@ const handleCancelDraft = (): void => {
   refocusFileTreeIfLost()
 }
 
-const TYPE_AHEAD_RESET_MS = 700
-
-const isTypeAheadKey = (event: KeyboardEvent): boolean => event.key.length === 1 && !event.ctrlKey && !event.altKey && !event.metaKey && !event.nativeEvent.isComposing
-
 const selectAndFocus = (row: TreeRow | undefined): void => {
   if (row?.entry) {
     useExplorerStore.getState().select(row.entry.path)
@@ -86,7 +83,7 @@ export function FileTree({ root, rows, expanded, selectedPath, renamingPath, dra
   const entries = entryRows(rows)
   const selectedIndex = entries.findIndex((row) => row.entry?.path === selectedPath)
   const focusablePath = entries[Math.max(selectedIndex, 0)]?.entry?.path
-  const typedRef = useRef({ text: '', at: 0 })
+  const typedRef = useRef(NO_TYPED_TEXT)
 
   useEffect(() => {
     if (focusablePath && document.activeElement === treeRef.current) {
@@ -138,17 +135,15 @@ export function FileTree({ root, rows, expanded, selectedPath, renamingPath, dra
     setMenu({ x: rect ? rect.left + rect.width / 2 : 0, y: rect ? rect.bottom : 0, entry: row.entry, parent: row.parent })
   }
 
-  const typingSince = (at: number): boolean => at - typedRef.current.at <= TYPE_AHEAD_RESET_MS
-  const jumpToTyped = (key: string, at: number) => {
-    const text = typingSince(at) ? typedRef.current.text + key : key
-    typedRef.current = { text, at }
-    const cycling = [...text].every((character) => character === text[0])
-    selectAndFocus(typeAheadMatch(entries, cycling ? selectedIndex + 1 : selectedIndex, cycling ? text[0] : text))
+  const jumpToTyped = (typed: TypedText) => {
+    typedRef.current = typed
+    selectAndFocus(entries[typeAheadIndex(entries.map((row) => row.entry?.name ?? ''), selectedIndex, typed.text)])
   }
 
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     const current = entries[selectedIndex]
     const entry = current?.entry
+    const typed = typeAheadText(typedRef.current, event)
     if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'e') {
       togglePanelView(RightPanelView.Files, true)
     } else if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'g') {
@@ -163,8 +158,8 @@ export function FileTree({ root, rows, expanded, selectedPath, renamingPath, dra
       selectAndFocus(entries.at(-1))
     } else if (event.key === 'Escape') {
       focusActivePane()
-    } else if (isTypeAheadKey(event) && (event.key !== ' ' || typingSince(event.timeStamp))) {
-      jumpToTyped(event.key, event.timeStamp)
+    } else if (typed) {
+      jumpToTyped(typed)
     } else if (!current || !entry) {
       return
     } else if (event.key === 'ArrowRight' && entry.isDirectory) {

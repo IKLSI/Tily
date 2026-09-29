@@ -99,6 +99,7 @@ export function WorkspaceTabRow({ workspaceId, tab, siblings, active, renaming, 
             type="button"
             aria-current={active || undefined}
             data-panel-row=""
+            data-row-name={tab.name}
             data-tip={tip}
             className="flex h-full min-w-0 flex-1 cursor-pointer items-center gap-[8px] text-left text-[13px]"
             onClick={handleClick}

@@ -614,6 +614,17 @@ Dans un dossier chargé, par exemple un projet avec `node_modules`, `src`, `test
 - **Incident pendant l'essai** : une séquence de touches contenait par erreur le code de Suppr au lieu du point. L'arbre a donc demandé confirmation pour placer `web/tsconfig.app.json` dans la corbeille. J'ai annulé par Échap, rien n'a été supprimé : le fichier est intact et `git status` ne montrait que mes changements. Désormais, aucun essai sur l'arbre d'un vrai dossier n'envoie Suppr, Entrée ou F2.
 - **Convention proposée** en section 4 de la spec ; architecture front et README mis à jour.
 
+### 69. Les premières lettres d'un nom amènent aussi à une ligne du panneau des workspaces
+
+Suite de l'itération 68. Le panneau des workspaces se parcourt aux flèches depuis l'itération 47. Avec une vingtaine de lignes (quatre workspaces et leurs onglets dans l'instance de dev), atteindre `LZGChallenge` demandait autant de ↓.
+
+- Taper les premières lettres d'un nom donne le focus à la ligne visible suivante qui commence ainsi, workspace ou onglet, sans l'afficher, comme les flèches. Les règles sont celles de l'arbre : sans casse ni accents, frappes rapprochées cumulées, même lettre répétée pour passer d'une ligne à l'autre, en boucle.
+- La logique quitte `fileTree.ts` pour un module partagé, `keyboard/typeAhead.ts` (`typeAheadText`, `typeAheadIndex`), utilisé par l'arbre et par le panneau. Les lignes du panneau portent leur nom dans `data-row-name` : leur texte contient aussi l'icône d'état et le shell.
+- Vérifié dans l'instance de dev :
+  - panneau : G → `GameSolver`, L → `LZGChallenge`, D → `Dock`, W → le premier `web` puis le suivant, P revient en boucle à `PlannerATM`, « ap » → `api`, « dr » → `dropdemo` ;
+  - arbre, après la mise en commun : P → `public` puis `package.json`, T → `tsconfig.app.json`, « vi » → `vite.config.ts`.
+- **Convention proposée** complétée en section 5 de la spec ; architecture front et README mis à jour.
+
 ## Reste à faire et idées
 
 - **Alt + flèche sur un onglet ou une ligne du panneau** : quand un onglet de la barre ou une ligne du panneau des workspaces a le focus, Alt + flèche déplace cet élément (itérations 14, 47 et 58) au lieu de changer de pane, comme le prévoit le tableau retenu de la section 9. C'est une dérogation à confirmer ou à retirer ; la spec la signale comme « exception à confirmer ».

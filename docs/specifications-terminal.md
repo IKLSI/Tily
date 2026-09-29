@@ -108,7 +108,7 @@ La commande « Renommer le workspace » dans la palette active le même éditeur
 
 **Convention proposée.** « Fermer le workspace », dans son menu contextuel ou dans la palette pour le workspace actif (nommé dans l’entrée), ferme tous ses onglets avec une seule confirmation si des programmes tournent ; ses derniers onglets restent restaurables un par un.
 
-**Convention proposée.** Au clavier, dans le panneau des workspaces, ↑ / ↓ / Début / Fin passent d’une ligne visible à l’autre, workspaces et onglets confondus ; → déplie un workspace replié, ← le replie ou, depuis un onglet, remonte à son workspace. Tab parcourt toujours chaque bouton.
+**Convention proposée.** Au clavier, dans le panneau des workspaces, ↑ / ↓ / Début / Fin passent d’une ligne visible à l’autre, workspaces et onglets confondus ; → déplie un workspace replié, ← le replie ou, depuis un onglet, remonte à son workspace. Tab parcourt toujours chaque bouton. Taper les premières lettres d’un nom donne le focus à la ligne visible suivante qui commence ainsi, comme dans l’arbre des fichiers.
 
 **Décision prise.** Un workspace créé depuis le sélecteur de projets porte automatiquement le nom du dossier choisi. Un workspace créé sans projet reçoit un nom automatique descriptif ; un nom saisi manuellement reste prioritaire et n’est jamais écrasé. Le premier onglet PowerShell reprend le dossier du pane actif ou, au premier lancement, le dossier utilisateur. Un clic sur un workspace rejoint son dernier onglet et son dernier pane actifs. Replier une branche ne change pas la sélection.
 
