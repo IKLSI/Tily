@@ -219,7 +219,7 @@ Un sous-agent a relu tout le diff de la nuit (`main..night-session`) sans rien m
 - **Taille de police et zoom du terminal** : police fixe à 14 px. La spécification classe ce point « À décider » (section 4), je n'y ai donc pas touché ; c'est à trancher.
 - **Colonne des branches du graphe Git** : Auteur et Date s'effacent quand la place manque, mais la colonne des branches (200 px) ne se replie pas d'elle-même dans une fenêtre très étroite.
 - **Dossier disparu** : le message garde ses boutons hors d'atteinte du clavier. C'est voulu, car le shell est toujours vivant et garde le focus ; un raccourci dédié serait à étudier.
-- **Glisser-déposer réel depuis l'Explorateur** : le dépôt de fichiers a été vérifié par le protocole de débogage (le même chemin que Chromium), pas avec une vraie souris depuis l'Explorateur ; à confirmer à la main.
+- **Glisser-déposer depuis l'Explorateur** : depuis l'itération 32, il est vérifié avec un vrai glisser OLE de fichier, le même mécanisme que l'Explorateur. Un essai à la main depuis l'Explorateur, avec une image dans Claude Code par exemple, reste conseillé.
 - **Tests web** : il n'y en a toujours aucun (décision du 21 septembre). Les fonctions pures ajoutées cette nuit (`fitGraphColumns`, `menuPlaceOf`, `selectAdjacentTab`…) s'y prêteraient bien si tu changes d'avis.
 - **Effacer un terminal** : non ajouté au menu contextuel. Sous Windows 10, ConPTY ne permet pas de vider son propre tampon, et un effacement côté xterm.js pourrait réapparaître au premier redimensionnement.
 
