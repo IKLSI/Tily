@@ -656,6 +656,16 @@ Quand plusieurs agents attendent en même temps, les entrées « Rejoindre » de
   - les indices commencent par « depuis 1 min » et « depuis moins d'une minute ».
 - **Convention proposée** ajoutée en section 12 de la spec ; architecture front mise à jour.
 
+### 72. Ctrl + Maj + A rejoint d'abord l'agent qui attend depuis le plus longtemps
+
+Depuis l'itération 71, la palette classe les attentes de la plus ancienne à la plus récente. Ctrl + Maj + A (itération 63), lui, suivait l'ordre du panneau. Les deux chemins pour rejoindre un agent ne proposaient donc pas le même ordre, et le raccourci pouvait faire passer une attente récente avant une attente ancienne.
+
+- `longestWaitingFirst` (dans `agentSummary.ts`) donne l'ordre commun à la palette et au raccourci : de l'attente la plus ancienne à la plus récente, avec l'ordre du panneau pour départager les égalités. Ctrl + Maj + A rejoint l'attente qui suit le pane actif dans cet ordre, en boucle. Depuis un pane qui n'attend pas, il rejoint la plus ancienne.
+- Vérifié dans l'instance de dev :
+  - deux agents simulés, A dans LZGChallenge puis B dans Dock six secondes plus tard ; Dock précède LZGChallenge dans le panneau ;
+  - depuis un pane de GameSolver, trois Ctrl + Maj + A donnent A, puis B, puis de nouveau A.
+- Convention de la section 12 de la spec et architecture front mises à jour.
+
 ## Reste à faire et idées
 
 - **Alt + flèche sur un onglet ou une ligne du panneau** : quand un onglet de la barre ou une ligne du panneau des workspaces a le focus, Alt + flèche déplace cet élément (itérations 14, 47 et 58) au lieu de changer de pane, comme le prévoit le tableau retenu de la section 9. C'est une dérogation à confirmer ou à retirer ; la spec la signale comme « exception à confirmer ».

@@ -1,5 +1,4 @@
-import { nextPaneInState } from '../agents/agentSummary'
-import { AgentState } from '../bridge/messages'
+import { longestWaitingFirst, waitingPanes } from '../agents/agentSummary'
 import { activeTab, activeWorkspace, RightPanelView } from '../model/session'
 import { useAgentStore } from '../store/agentStore'
 import { useGitStore } from '../store/gitStore'
@@ -99,9 +98,10 @@ export const joinNextWaitingPane = (): void => {
   if (!session) {
     return
   }
+  const { agents, since } = useAgentStore.getState()
+  const ordered = longestWaitingFirst(waitingPanes(session, agents), since, Date.now()).map((pane) => pane.paneId)
   const workspace = activeWorkspace(session)
-  const tabs = session.workspaces.flatMap((candidate) => candidate.tabs)
-  const paneId = nextPaneInState(tabs, useAgentStore.getState().agents, AgentState.Waiting, workspace ? activeTab(workspace).active : undefined)
+  const paneId = ordered[(ordered.indexOf(workspace ? activeTab(workspace).active : '') + 1) % ordered.length]
   if (paneId) {
     joinPane(paneId)
   } else {

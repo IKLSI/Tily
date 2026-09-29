@@ -301,7 +301,7 @@ La gestion actuelle des worktrees reste celle des fonctions wtr et rmwt du profi
 
 **Convention proposée.** Dans la palette, chaque entrée « Rejoindre » indique depuis combien de temps l’agent attend (« depuis 3 min »), mesuré depuis que Dock a reçu cet état, et les entrées vont de l’attente la plus ancienne à la plus récente.
 
-**Convention proposée.** Leader puis A, Ctrl + Maj + A ou « Rejoindre l’agent en attente suivant » dans la palette rejoint le pane en attente qui suit le pane actif dans l’ordre du panneau (workspaces, onglets, panes), tous workspaces confondus et en boucle ; répété, il passe d’une attente à l’autre. Sans agent en attente, la barre de statut l’indique.
+**Convention proposée.** Leader puis A, Ctrl + Maj + A ou « Rejoindre l’agent en attente suivant » dans la palette rejoint le pane en attente qui suit le pane actif dans l’ordre de la palette, de l’attente la plus ancienne à la plus récente (ordre du panneau à égalité), tous workspaces confondus et en boucle ; répété, il passe d’une attente à l’autre. Sans agent en attente, la barre de statut l’indique.
 
 **Décision de périmètre.** L’architecture doit permettre des adaptateurs Claude Code et Codex CLI, mais leur détection fiable et leurs notifications sont reportées à une évolution dédiée. Tant qu’un adaptateur ne peut pas établir un état, afficher « État inconnu » plutôt que d’inférer une activité depuis le seul processus.
 

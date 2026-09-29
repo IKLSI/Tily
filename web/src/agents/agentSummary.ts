@@ -124,6 +124,9 @@ export const waitedFor = (elapsedMs: number): string => {
   return `depuis ${Math.floor(minutes / MINUTES_PER_HOUR)} h ${String(minutes % MINUTES_PER_HOUR).padStart(2, '0')}`
 }
 
+export const longestWaitingFirst = (panes: WaitingPane[], since: Record<string, number>, now: number): WaitingPane[] =>
+  panes.toSorted((first, second) => (since[first.paneId] ?? now) - (since[second.paneId] ?? now))
+
 export const waitingPanes = (session: Session, agents: AgentMap): WaitingPane[] =>
   session.workspaces.flatMap((workspace) =>
     workspace.tabs.flatMap((tab) =>
