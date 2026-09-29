@@ -11,6 +11,7 @@ import { endPaneZoom, togglePaneZoom } from '../terminal/paneZoom'
 import { togglePanelView } from '../panel/rightPanel'
 import { RenameOrigin, useUiStore } from '../store/uiStore'
 import { startWorktreeCreation } from '../worktree/worktreeActions'
+import { toggleStatusLog } from '../statusLog/statusLogActions'
 
 const LEADER_TIMEOUT_MS = 5000
 const MODIFIER_KEYS = new Set(['Control', 'Shift', 'Alt', 'AltGraph', 'Meta'])
@@ -41,6 +42,7 @@ export enum Command {
   ToggleExplorer = 'toggleExplorer',
   ToggleGit = 'toggleGit',
   ToggleNotes = 'toggleNotes',
+  ToggleStatusLog = 'toggleStatusLog',
   ToggleSidebar = 'toggleSidebar',
   TogglePaneZoom = 'togglePaneZoom',
   JoinWaitingAgent = 'joinWaitingAgent',
@@ -58,6 +60,7 @@ const LEADER_KEYS: Record<string, Command> = {
   e: Command.ToggleExplorer,
   g: Command.ToggleGit,
   o: Command.ToggleNotes,
+  l: Command.ToggleStatusLog,
   b: Command.ToggleSidebar,
   ',': Command.Settings,
   x: Command.ClosePane,
@@ -89,6 +92,7 @@ const DIRECT_LETTER_KEYS: Record<string, Command> = {
   e: Command.ToggleExplorer,
   g: Command.ToggleGit,
   o: Command.ToggleNotes,
+  l: Command.ToggleStatusLog,
   b: Command.ToggleSidebar,
   a: Command.JoinWaitingAgent,
 }
@@ -287,6 +291,9 @@ export const runCommand = (command: Command): void => {
       break
     case Command.ToggleNotes:
       togglePanelView(RightPanelView.Notes, true)
+      break
+    case Command.ToggleStatusLog:
+      toggleStatusLog()
       break
     case Command.ToggleSidebar:
       toggleSidebar()

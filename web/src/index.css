@@ -44,6 +44,12 @@
   --color-dock-lane-5: #c98fa5;
   --color-dock-lane-6: #9fbf6f;
   --color-dock-lane-7: #c9906a;
+  --color-dock-syntax-keyword: #c98fa5;
+  --color-dock-syntax-string: #a9c4b4;
+  --color-dock-syntax-number: #c9a65f;
+  --color-dock-syntax-title: #7f9fc9;
+  --color-dock-syntax-attr: #6fb3b0;
+  --color-dock-syntax-comment: #6d746f;
   --font-sans: 'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif;
   --font-mono: 'CaskaydiaCove Nerd Font Mono', 'Cascadia Mono', 'Cascadia Code', Consolas, 'Symbols Nerd Font Mono', monospace;
 }
@@ -113,4 +119,178 @@ html[data-git-dragging] * {
 
 [aria-invalid='true']:focus-visible {
   outline-color: var(--color-dock-error);
+}
+
+.dock-markdown {
+  font-size: 14px;
+  line-height: 1.6;
+  overflow-wrap: break-word;
+}
+
+.dock-markdown > :first-child {
+  margin-top: 0;
+}
+
+.dock-markdown :is(p, ul, ol, blockquote, pre, table, details) {
+  margin: 0 0 14px;
+}
+
+.dock-markdown :is(h1, h2, h3, h4, h5, h6) {
+  margin: 24px 0 12px;
+  color: var(--color-dock-ink);
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.dock-markdown :is(h1, h2) {
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--color-dock-line);
+}
+
+.dock-markdown h1 {
+  font-size: 24px;
+}
+
+.dock-markdown h2 {
+  font-size: 19px;
+}
+
+.dock-markdown h3 {
+  font-size: 16px;
+}
+
+.dock-markdown :is(h4, h5, h6) {
+  font-size: 14px;
+}
+
+.dock-markdown :is(ul, ol) {
+  padding-left: 24px;
+}
+
+.dock-markdown ul {
+  list-style: disc;
+}
+
+.dock-markdown ol {
+  list-style: decimal;
+}
+
+.dock-markdown li + li {
+  margin-top: 3px;
+}
+
+.dock-markdown li:has(> input[type='checkbox']) {
+  list-style: none;
+}
+
+.dock-markdown input[type='checkbox'] {
+  margin: 0 6px 0 -18px;
+  vertical-align: middle;
+  accent-color: var(--color-dock-green);
+}
+
+.dock-markdown a {
+  color: var(--color-dock-lane-1);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.dock-markdown blockquote {
+  padding: 0 12px;
+  border-left: 3px solid var(--color-dock-line);
+  color: var(--color-dock-ink-soft);
+}
+
+.dock-markdown hr {
+  margin: 20px 0;
+  border: 0;
+  border-top: 1px solid var(--color-dock-line);
+}
+
+.dock-markdown img {
+  display: inline;
+  max-width: 100%;
+}
+
+.dock-markdown :is(code, pre) {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+}
+
+.dock-markdown :not(pre) > code {
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: var(--color-dock-paper);
+}
+
+.dock-markdown pre {
+  overflow-x: auto;
+  padding: 10px 12px;
+  border: 1px solid var(--color-dock-line);
+  border-radius: 6px;
+  background: var(--color-dock-terminal);
+  line-height: 1.45;
+}
+
+.dock-markdown table {
+  display: block;
+  overflow-x: auto;
+  border-collapse: collapse;
+}
+
+.dock-markdown :is(th, td) {
+  padding: 5px 10px;
+  border: 1px solid var(--color-dock-line);
+}
+
+.dock-markdown th {
+  background: var(--color-dock-paper);
+  font-weight: 600;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-built_in,
+.hljs-literal,
+.hljs-type {
+  color: var(--color-dock-syntax-keyword);
+}
+
+.hljs-string,
+.hljs-regexp,
+.hljs-addition,
+.hljs-symbol {
+  color: var(--color-dock-syntax-string);
+}
+
+.hljs-number,
+.hljs-variable,
+.hljs-template-variable {
+  color: var(--color-dock-syntax-number);
+}
+
+.hljs-title,
+.hljs-section,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class {
+  color: var(--color-dock-syntax-title);
+}
+
+.hljs-attr,
+.hljs-attribute,
+.hljs-property,
+.hljs-meta {
+  color: var(--color-dock-syntax-attr);
+}
+
+.hljs-comment,
+.hljs-quote {
+  color: var(--color-dock-syntax-comment);
+  font-style: italic;
+}
+
+.hljs-deletion {
+  color: var(--color-dock-diff-removed-ink);
 }

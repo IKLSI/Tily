@@ -28,6 +28,7 @@ import { DeleteConfirmDialog } from './DeleteConfirmDialog'
 import { EmptyState } from './EmptyState'
 import { GitConfirmDialog } from './GitConfirmDialog'
 import { GitContextMenu } from './GitContextMenu'
+import { FilePreviewDrawer } from './FilePreviewDrawer'
 import { GitDiffDrawer } from './GitDiffDrawer'
 import { GitGraphView } from './GitGraphView'
 import { Header } from './Header'
@@ -229,6 +230,7 @@ export function AppShell({ session }: AppShellProps) {
   const tab = workspace ? activeTab(workspace) : undefined
   const panelView = tab?.panel ?? RightPanelView.Files
   const gitShown = Boolean(tab?.explorer) && panelView === RightPanelView.Git
+  const filesShown = Boolean(tab?.explorer) && panelView === RightPanelView.Files
   const graphShown = gitShown && gitGraphReady
   const tabId = tab?.id
   const activePaneId = tab?.active
@@ -340,6 +342,7 @@ export function AppShell({ session }: AppShellProps) {
           <SplitView key={currentTab.id} node={zoomedPane ? { pane: zoomedPane } : currentTab.tree} zoomed={zoomedPane !== undefined} onToggleZoom={togglePaneZoom} activePaneId={currentTab.active} onFocus={selectPane} onClose={closePaneKeepingText} onSplit={handleSplit} onResize={handleResize} shells={availableShells} onRestart={restartPane} onRestartIn={restartPaneIn} onChangeShell={changePaneShell} onDismissState={dismissPaneState} />
           {graphShown && <GitGraphView layout={session.gitGraph} />}
           {gitShown && <GitDiffDrawer />}
+          {filesShown && <FilePreviewDrawer />}
           {gitShown && <GitContextMenu />}
         </div>
       </>

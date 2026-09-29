@@ -1,5 +1,7 @@
 import type { Session } from '../model/session'
 import type { GitHostMessage, GitSettings, GitWebMessage } from './gitMessages'
+import type { PreviewHostMessage, PreviewKind, PreviewWebMessage } from './previewMessages'
+import type { StatusLogEntry, StatusLogHostMessage, StatusLogWebMessage } from './statusLogMessages'
 import type { UpdateHostMessage, UpdateSettings, UpdateWebMessage } from './updateMessages'
 import type { WorktreeHostMessage, WorktreeSettings, WorktreeWebMessage } from './worktreeMessages'
 
@@ -36,6 +38,7 @@ export interface FileEntry {
   name: string
   path: string
   isDirectory: boolean
+  preview?: PreviewKind
 }
 
 export interface GitContext {
@@ -147,7 +150,7 @@ export interface PaneAgent {
 }
 
 export type HostToWebMessage =
-  | { type: 'app.hello'; version: string; session: Session; shells: ShellProfile[]; home: string; text: Record<string, string>; persistence: PersistenceSettings; recovery?: string }
+  | { type: 'app.hello'; version: string; session: Session; shells: ShellProfile[]; home: string; text: Record<string, string>; persistence: PersistenceSettings; statusLog: StatusLogEntry[]; recovery?: string }
   | { type: 'app.closing'; activity: PaneActivity[] }
   | { type: 'session.saved' }
   | { type: 'session.saveFailed'; message: string }
@@ -171,8 +174,10 @@ export type HostToWebMessage =
   | { type: 'files.deleted'; path: string }
   | { type: 'error'; pane?: string; message: string }
   | GitHostMessage
+  | PreviewHostMessage
   | WorktreeHostMessage
   | UpdateHostMessage
+  | StatusLogHostMessage
 
 export type WebToHostMessage =
   | { type: 'app.ready' }
@@ -210,8 +215,10 @@ export type WebToHostMessage =
   | { type: 'window.closeCancel' }
   | { type: 'window.title'; title: string }
   | GitWebMessage
+  | PreviewWebMessage
   | WorktreeWebMessage
   | UpdateWebMessage
+  | StatusLogWebMessage
 
 export type HostMessageType = HostToWebMessage['type']
 export type HostMessageOf<T extends HostMessageType> = Extract<HostToWebMessage, { type: T }>

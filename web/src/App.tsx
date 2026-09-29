@@ -12,11 +12,14 @@ import { receiveActivity, receiveApplicationClosing } from './terminal/closeGuar
 import { queryContext, receiveContext } from './terminal/contextActions'
 import { startExternalDrops } from './terminal/externalDrop'
 import { receiveCreated, receiveDeleted, receiveListing, receiveRenamed } from './explorer/fileExplorerActions'
+import { receivePreview } from './preview/previewActions'
 import { receiveGitAutoFetchEnded, receiveGitAutoFetchStarted, receiveGitChanged, receiveGitDetails, receiveGitDiff, receiveGitDone, receiveGitFailed, receiveGitHistory, receiveGitPushRejected, receiveGitState } from './git/gitReceivers'
 import { insertIntoPane, joinPane } from './terminal/terminalActions'
 import { receiveWorktreeCreated, receiveWorktreeDone, receiveWorktreeFailed, receiveWorktreePlan, receiveWorktreeProgress } from './worktree/worktreeReceivers'
 import { terminalRegistry } from './terminal/terminalRegistry'
 import { receiveUpdateRestart, receiveUpdateState } from './update/updateActions'
+import { receiveStatusLogCleared, receiveStatusLogEntry, startStatusLog } from './statusLog/statusLogActions'
+import { useStatusLogStore } from './store/statusLogStore'
 import { forgetRemovedText, markTextSaveFailed, primeSessionText, startTextAutosave } from './terminal/textPersistence'
 
 const SAVE_DEBOUNCE_MS = 500
@@ -32,10 +35,12 @@ export default function App() {
     let stopAutosave: (() => void) | undefined
     const stopNotifier = startAttentionNotifier()
     const stopExternalDrops = startExternalDrops()
+    const stopStatusLog = startStatusLog()
     const { markFailed, markExited, markPathMissing, markAlive } = usePaneStore.getState()
     const subscriptions = [
       bridge.on('app.hello', (message) => {
         setHello(message.version, message.shells, message.home, message.persistence)
+        useStatusLogStore.getState().load(message.statusLog)
         terminalRegistry.configure(message.persistence.linesPerPane)
         primeSessionText(message.session, message.text)
         void document.fonts.load('14px "Symbols Nerd Font Mono"').then(() => {
@@ -91,6 +96,7 @@ export default function App() {
       bridge.on('files.created', (message) => receiveCreated(message.path)),
       bridge.on('files.renamed', (message) => receiveRenamed(message.path, message.target)),
       bridge.on('files.deleted', (message) => receiveDeleted(message.path)),
+      bridge.on('preview.loaded', receivePreview),
       bridge.on('git.state', (message) => receiveGitState(message.path, message.state, message.error)),
       bridge.on('git.changed', (message) => receiveGitChanged(message.path)),
       bridge.on('git.history', (message) => receiveGitHistory(message.history, message.error)),
@@ -108,6 +114,8 @@ export default function App() {
       bridge.on('worktrees.failed', (message) => receiveWorktreeFailed(message.operation, message.message, message.output, message.lockedBy)),
       bridge.on('update.state', (message) => receiveUpdateState(message)),
       bridge.on('update.restart', receiveUpdateRestart),
+      bridge.on('statusLog.added', (message) => receiveStatusLogEntry(message.entry)),
+      bridge.on('statusLog.cleared', receiveStatusLogCleared),
       bridge.on('terminal.exit', (message) => {
         terminalRegistry.markExited(message.pane, message.code)
         markExited(message.pane, message.code)
@@ -127,6 +135,7 @@ export default function App() {
     return () => {
       stopNotifier()
       stopExternalDrops()
+      stopStatusLog()
       stopAutosave?.()
       subscriptions.forEach((unsubscribe) => unsubscribe())
     }

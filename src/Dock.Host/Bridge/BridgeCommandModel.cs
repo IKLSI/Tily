@@ -13,6 +13,7 @@ public sealed class BridgeCommandModel
     public string? Path { get; init; }
     public string? Target { get; init; }
     public string? Url { get; init; }
+    public string? Href { get; init; }
     public string? Field { get; init; }
     public string? Title { get; init; }
     public string? Body { get; init; }
@@ -23,6 +24,7 @@ public sealed class BridgeCommandModel
     public string? File { get; init; }
     public string? OldFile { get; init; }
     public string? Message { get; init; }
+    public string? Level { get; init; }
     public string? Commit { get; init; }
     public string? Reference { get; init; }
     public string? NewName { get; init; }

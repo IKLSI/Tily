@@ -36,9 +36,11 @@ public sealed class HostBridge : IDisposable
     private readonly AgentStateFeed _agents;
     private readonly AttentionNotifier _notifier;
     private readonly FileExplorerFeed _files;
+    private readonly FilePreviewFeed _preview;
     private readonly GitFeed _git;
     private readonly WorktreeFeed _worktrees;
     private readonly UpdateFeed _updates;
+    private readonly StatusLogFeed _statusLog;
     private SettingsModel _settings;
     private ShellPathsModel _shellPaths = ShellPathsModel.Empty;
     private PersistenceSettingsModel _persistence = PersistenceSettingsModel.Default;
@@ -65,10 +67,12 @@ public sealed class HostBridge : IDisposable
         _terminals = new TerminalManager();
         _writes = new BackgroundQueue(PostBackgroundError);
         _queries = new BackgroundQueue(PostBackgroundError);
+        _statusLog = new StatusLogFeed(dataDirectory, _writes, Post);
         _agents = new AgentStateFeed(dataDirectory, _terminals, Post);
         _notifier = new AttentionNotifier(dispatcher, windowHandle, paneId => PostNow(new { type = "agent.join", pane = paneId }));
         _notifier.Register();
         _files = new FileExplorerFeed(windowHandle, () => _settings.Editor, Post, PostBackgroundError);
+        _preview = new FilePreviewFeed(() => _settings.Editor, Post, PostBackgroundError);
         _git = new GitFeed(Post, () => _settings.Git.AutoFetch, PostBackgroundError);
         _worktrees = new WorktreeFeed(Post, () => _settings, _git.RefreshSoon, PostBackgroundError);
         _updates = new UpdateFeed(Post, ApplicationVersion, dataDirectory);
@@ -82,6 +86,7 @@ public sealed class HostBridge : IDisposable
     {
         _core = core;
         core.WebMessageReceived += HandleWebMessage;
+        _preview.Attach(core);
         _agents.Start();
     }
 
@@ -284,6 +289,9 @@ public sealed class HostBridge : IDisposable
             case var type when type.StartsWith("files.", StringComparison.Ordinal):
                 _files.Handle(command);
                 break;
+            case var type when type.StartsWith("preview.", StringComparison.Ordinal):
+                _preview.Handle(command);
+                break;
             case var type when type.StartsWith("git.", StringComparison.Ordinal):
                 _git.Handle(command);
                 break;
@@ -292,6 +300,9 @@ public sealed class HostBridge : IDisposable
                 break;
             case var type when type.StartsWith("update.", StringComparison.Ordinal):
                 _updates.Handle(command);
+                break;
+            case var type when type.StartsWith("statusLog.", StringComparison.Ordinal):
+                _statusLog.Handle(command);
                 break;
             case "link.open":
                 LocalActions.OpenLink(command.Url ?? throw new InvalidOperationException("Lien manquant."));
@@ -391,7 +402,7 @@ public sealed class HostBridge : IDisposable
         var session = loaded.Session ?? SessionFactory.Initial();
         _texts.MoveClosedTabText(session);
         var text = _texts.Load();
-        var recovery = string.Join(" ", new[] { loaded.Error, text.Error }.Where(error => error is not null));
+        var recovery = string.Join(" ", new[] { loaded.Error, text.Error, _statusLog.LoadError }.Where(error => error is not null));
         Post(new
         {
             type = "app.hello",
@@ -401,6 +412,7 @@ public sealed class HostBridge : IDisposable
             home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
             text = text.Text,
             persistence = _persistence,
+            statusLog = _statusLog.Entries(),
             recovery = recovery.Length > 0 ? recovery : null
         });
         _updates.PostState();
@@ -630,6 +642,7 @@ public sealed class HostBridge : IDisposable
         _agents.Dispose();
         _notifier.Dispose();
         _files.Dispose();
+        _preview.Dispose();
         _git.Dispose();
         foreach (var buffer in _buffers.Values)
         {

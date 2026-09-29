@@ -23,10 +23,12 @@ export const FileTreeRow = memo(function FileTreeRow({ entry, parent, depth, sel
     handlers.select(entry.path)
     if (entry.isDirectory && !renaming) {
       handlers.toggle(entry.path)
+    } else if (entry.preview && !renaming) {
+      handlers.activate(entry)
     }
   }
   const handleDoubleClick = () => {
-    if (!entry.isDirectory) {
+    if (!entry.isDirectory && !entry.preview) {
       handlers.activate(entry)
     }
   }
