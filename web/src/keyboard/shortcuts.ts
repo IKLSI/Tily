@@ -10,6 +10,7 @@ import { focusPane, joinNextWaitingPane } from '../terminal/terminalActions'
 import { endPaneZoom, togglePaneZoom } from '../terminal/paneZoom'
 import { togglePanelView } from '../panel/rightPanel'
 import { RenameOrigin, useUiStore } from '../store/uiStore'
+import { startWorktreeCreation } from '../worktree/worktreeActions'
 
 const LEADER_TIMEOUT_MS = 5000
 const MODIFIER_KEYS = new Set(['Control', 'Shift', 'Alt', 'AltGraph', 'Meta'])
@@ -17,32 +18,6 @@ const CANCEL_KEY = 'Escape'
 const TAB_KEY = 'Tab'
 const SHORTCUT_BLOCKERS = 'input, textarea, select, [contenteditable="true"], [role="menu"], [role="dialog"], [role="alertdialog"]'
 const LEADER_EXPIRED_STATUS = 'Leader expiré : la saisie revient au terminal.'
-
-export interface LeaderHint {
-  keys: string
-  label: string
-}
-
-export const LEADER_HINTS: LeaderHint[] = [
-  { keys: 'T', label: 'onglet' },
-  { keys: 'V', label: 'côte à côte' },
-  { keys: 'H', label: 'haut / bas' },
-  { keys: 'W', label: 'workspace' },
-  { keys: 'F', label: 'projet' },
-  { keys: 'E', label: 'fichiers' },
-  { keys: 'G', label: 'git' },
-  { keys: 'B', label: 'workspaces' },
-  { keys: 'X', label: 'fermer le pane' },
-  { keys: 'M', label: 'agrandir / réduire le pane' },
-  { keys: 'Z', label: 'rouvrir' },
-  { keys: 'A', label: 'agent en attente' },
-  { keys: 'P', label: 'palette' },
-  { keys: ',', label: 'paramètres' },
-  { keys: '← ↑ → ↓', label: 'pane voisin' },
-  { keys: 'PgUp / PgDn', label: 'déplacer l’onglet' },
-  { keys: 'Échap', label: 'annuler' },
-  { keys: 'Ctrl + Espace', label: 'envoyer au terminal' },
-]
 
 export enum Command {
   Palette = 'palette',
@@ -67,6 +42,7 @@ export enum Command {
   ToggleSidebar = 'toggleSidebar',
   TogglePaneZoom = 'togglePaneZoom',
   JoinWaitingAgent = 'joinWaitingAgent',
+  CreateWorktree = 'createWorktree',
 }
 
 const LEADER_KEYS: Record<string, Command> = {
@@ -76,6 +52,7 @@ const LEADER_KEYS: Record<string, Command> = {
   h: Command.SplitTopBottom,
   w: Command.NewWorkspace,
   f: Command.Projects,
+  n: Command.CreateWorktree,
   e: Command.ToggleExplorer,
   g: Command.ToggleGit,
   b: Command.ToggleSidebar,
@@ -311,6 +288,9 @@ export const runCommand = (command: Command): void => {
       break
     case Command.JoinWaitingAgent:
       joinNextWaitingPane()
+      break
+    case Command.CreateWorktree:
+      startWorktreeCreation()
       break
   }
 }

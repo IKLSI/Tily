@@ -14,6 +14,7 @@ import { startExternalDrops } from './terminal/externalDrop'
 import { receiveCreated, receiveDeleted, receiveListing, receiveRenamed } from './explorer/fileExplorerActions'
 import { receiveGitChanged, receiveGitDetails, receiveGitDiff, receiveGitDone, receiveGitFailed, receiveGitHistory, receiveGitPushRejected, receiveGitState } from './git/gitReceivers'
 import { insertIntoPane, joinPane } from './terminal/terminalActions'
+import { receiveWorktreeCreated, receiveWorktreeDone, receiveWorktreeFailed, receiveWorktreePlan, receiveWorktreeProgress } from './worktree/worktreeReceivers'
 import { terminalRegistry } from './terminal/terminalRegistry'
 import { forgetRemovedText, markTextSaveFailed, primeSessionText, startTextAutosave } from './terminal/textPersistence'
 
@@ -97,6 +98,11 @@ export default function App() {
       bridge.on('git.done', (message) => receiveGitDone(message.operation, message.message, message.warning)),
       bridge.on('git.failed', (message) => receiveGitFailed(message.operation, message.message, message.output, message.code)),
       bridge.on('git.pushRejected', (message) => receiveGitPushRejected(message.operation, message.branch, message.message, message.output)),
+      bridge.on('worktrees.planned', (message) => receiveWorktreePlan(message.request, message.plan)),
+      bridge.on('worktrees.progress', (message) => receiveWorktreeProgress(message.operation, message.message)),
+      bridge.on('worktrees.created', (message) => receiveWorktreeCreated(message.path, message.name, message.install)),
+      bridge.on('worktrees.done', (message) => receiveWorktreeDone(message.operation, message.message, message.warnings)),
+      bridge.on('worktrees.failed', (message) => receiveWorktreeFailed(message.operation, message.message, message.output, message.lockedBy)),
       bridge.on('terminal.exit', (message) => {
         terminalRegistry.markExited(message.pane, message.code)
         markExited(message.pane, message.code)

@@ -1,4 +1,4 @@
-import { LEADER_HINTS } from '../keyboard/shortcuts'
+import { LEADER_HINTS } from '../keyboard/leaderHints'
 
 export function LeaderHints() {
   return (

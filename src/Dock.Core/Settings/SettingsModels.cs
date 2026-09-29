@@ -2,6 +2,7 @@ using Dock.Core.Agents;
 using Dock.Core.Context;
 using Dock.Core.Projects;
 using Dock.Core.Session;
+using Dock.Core.Worktrees;
 
 namespace Dock.Core.Settings;
 
@@ -12,6 +13,7 @@ public sealed class SettingsModel
     public PersistenceSettingsModel Persistence { get; set; } = PersistenceSettingsModel.Default;
     public string ProjectsRoot { get; set; } = ProjectCatalog.DefaultRoot;
     public NotificationSettingsModel Notifications { get; set; } = NotificationSettingsModel.Default;
+    public WorktreeSettingsModel Worktrees { get; set; } = WorktreeSettingsModel.Default;
 }
 
 public sealed record ShellSettingModel(string Id, string Name, string DefaultExecutable, string Configured, bool Available);

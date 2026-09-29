@@ -1,11 +1,12 @@
 using System.Text.Json;
 using Dock.Core.Session;
+using Dock.Core.Worktrees;
 
 namespace Dock.Core.Projects;
 
-public sealed record ProjectsSettingsModel(string Root)
+public sealed record ProjectsSettingsModel(string Root, WorktreeSettingsModel? Worktrees = null)
 {
-    public static readonly ProjectsSettingsModel Default = new(ProjectCatalog.DefaultRoot);
+    public static readonly ProjectsSettingsModel Default = new(ProjectCatalog.DefaultRoot, WorktreeSettingsModel.Default);
 }
 
 public sealed class ProjectsSettingsRepository
@@ -33,7 +34,9 @@ public sealed class ProjectsSettingsRepository
         try
         {
             var settings = JsonSerializer.Deserialize<ProjectsSettingsModel>(File.ReadAllText(_filePath), SessionRepository.JsonOptions);
-            return settings is null || string.IsNullOrWhiteSpace(settings.Root) ? ProjectsSettingsModel.Default : settings;
+            return settings is null || string.IsNullOrWhiteSpace(settings.Root)
+                ? ProjectsSettingsModel.Default
+                : settings with { Worktrees = (settings.Worktrees ?? WorktreeSettingsModel.Default).Normalized() };
         }
         catch (JsonException)
         {

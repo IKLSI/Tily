@@ -62,11 +62,13 @@ Signature : `rmwt [Slug] [-KeepBranch]`.
 
 La fonction n’arrête pas automatiquement les programmes qui verrouillent le dossier et indique de les fermer si la suppression échoue. Elle n’appelle pas directement l’API de WezTerm.
 
-Points à garder à l’esprit pour des tests ultérieurs : les opérations sont forcées et peuvent toucher fichiers, branche et base. Tester dans un dépôt jetable avec base de test ou sans base. Les contrôles par préfixe de chemin et la construction du chemin à partir du slug ne constituent pas un contrat suffisant pour une nouvelle API native de suppression. Aucune réécriture de ces fonctions n’est effectuée ici.
+Points à garder à l’esprit pour des tests ultérieurs : les opérations sont forcées et peuvent toucher fichiers, branche et base. Tester dans un dépôt jetable avec base de test ou sans base. Les contrôles par préfixe de chemin et la construction du chemin à partir du slug ne constituent pas un contrat suffisant pour une nouvelle API native de suppression. Aucune réécriture de ces fonctions n’est effectuée ici. Depuis le 29 septembre 2026, Dock en propose une version native (`Dock.Core/Worktrees`, section 11 de la spécification) : cette inspection sert désormais de référence de comportement, Dock faisant foi en cas de divergence future avec le profil.
 
 ## Contrat de synchronisation pour Dock
 
-- Charger les fonctions du profil, sans les reproduire dans un formulaire de gestion des worktrees.
+Ce contrat s’applique aux `wtr` et `rmwt` tapés au terminal, qui restent utilisables à côté de la gestion native (mêmes chemins, même base par défaut).
+
+- Charger les fonctions du profil ; la création et la suppression depuis l’interface passent par la version native de Dock, pas par ces fonctions.
 - Après `wtr`, suivre le nouveau dossier du même pane et actualiser son nom automatique, son contexte Git et les actions de dossier.
 - Après `rmwt`, refléter le dossier dans lequel le shell est réellement revenu. Si un autre pane pointe vers un dossier supprimé, afficher l’indisponibilité et proposer un dossier de repli ; ne pas fermer arbitrairement cet autre pane.
 - Conserver les noms manuels et l’appartenance des onglets aux workspaces.

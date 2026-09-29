@@ -21,7 +21,7 @@ Le panneau de gauche présente les workspaces et leurs onglets. Les états d’a
 - Couche « Projet » obligatoire au-dessus des workspaces.
 - Maintien des agents ou serveurs en arrière-plan après fermeture de l’application ; reprise des processus après réouverture.
 - Orchestration de tâches entre agents ou interface de conversation dédiée aux agents.
-- Gestion avancée des worktrees et création automatique de workspaces liée à leur cycle de vie.
+- Création ou fermeture automatique de workspaces liée au cycle de vie des worktrees : seules les actions explicites de l’utilisateur en ouvrent ou en ferment (voir la gestion des worktrees en section 11).
 - Modèles de workspace et mode focus dédié.
 - Recherche globale dans le contenu des fichiers du projet.
 - Recherche dans la sortie des terminaux : ce besoin a été retiré du périmètre.
@@ -234,6 +234,8 @@ Le principe d’une touche Leader est retenu. Le raccourci par défaut est **Ctr
 
 Les séquences Leader sont consommées par l’application uniquement lorsqu’elles correspondent à une commande active. Une commande non reconnue ou expirée rend la saisie au pane actif ; les raccourcis personnalisés peuvent désactiver ou remplacer les valeurs par défaut.
 
+**Convention proposée.** Leader puis N ouvre la création d’un worktree (section 11), comme le Leader + n de WezTerm ; aucun raccourci direct.
+
 **Convention proposée.** Ctrl + Tab et Ctrl + Maj + Tab passent à l’onglet suivant ou précédent du workspace actif, en boucle, comme dans Windows Terminal. Ces combinaisons n’envoient au shell que Tab ou Maj + Tab, qui restent disponibles sans Ctrl.
 
 **Convention proposée.** Leader puis B, ou Ctrl + Maj + B, masque ou affiche le panneau des workspaces (WS-08), en rendant le focus au terminal s’il était dans le panneau ; quand il l’affiche, le focus va à l’onglet actif dans le panneau. « Aller au panneau des workspaces », dans la palette, y amène le focus sans le masquer.
@@ -248,7 +250,7 @@ Ce sélecteur recherche des dossiers, pas du texte dans les fichiers. L’interf
 
 **Décision prise.** Le chemin est `C:\\Files\\Projects`. Reprendre la profondeur de premier niveau de WezTerm, exclure `worktrees` de la liste des projets puis l’exposer séparément si nécessaire. Le sélecteur ne recherche que des dossiers et ne détecte pas les workspaces déjà ouverts : chaque sélection peut créer un nouveau workspace. Le nom initial est celui du dossier sélectionné.
 
-**Convention proposée.** Les dossiers de premier niveau de `worktrees` sont listés à part, après les projets, avec la mention « worktree », comme le préfixe `[wt]` du sélecteur WezTerm ; en choisir un ouvre un workspace comme pour un projet.
+**Convention proposée.** Les dossiers de premier niveau de `worktrees` sont listés à part, après les projets, avec la mention « worktree », comme le préfixe `[wt]` du sélecteur WezTerm ; en choisir un ouvre un workspace comme pour un projet. Quand un autre dossier des worktrees est réglé (section 11), c’est lui qui est listé, et il est retiré de la liste des projets s’il se trouve dans le dossier des projets.
 
 ## 11. Actions contextuelles et worktrees
 
@@ -266,9 +268,22 @@ Les actions utilisent le **dossier du pane actif**, jamais un hypothétique doss
 
 **Convention proposée.** L’en-tête de chaque pane affiche la branche Git de son dossier, ou « HEAD détachée », à côté du chemin ; rien hors d’un dépôt. Elle est relue après chaque commande, pour suivre un `git switch` ou un `wtr`. Dans un pane de moins de 520 px de large, elle est masquée et reste lisible dans l’infobulle de « Copier la branche ». Dans la palette, l’entrée de chaque pane rappelle aussi sa branche, qu’on peut donc taper pour le retrouver.
 
-La gestion actuelle des worktrees reste celle des fonctions wtr et rmwt du profil. L’interface doit suivre les changements observables depuis le shell. Aucun comportement de création/suppression automatique de workspace n’est validé.
+### Gestion des worktrees
 
-**Contrat de synchronisation.** Après `wtr`, le pane qui exécute la commande devient la source de vérité pour le dossier courant et le contexte Git ; l’interface relit ces valeurs et met à jour le workspace ou l’onglet déjà associé sans créer de doublon automatiquement. Après `rmwt`, elle relit le dossier et Git, marque comme indisponibles les panes dont le chemin n’existe plus et propose de les fermer ou de choisir un dossier de repli. L’interface n’exécute pas elle-même les effets de `wtr`/`rmwt` et ne supprime pas un workspace sans action explicite de l’utilisateur.
+**Retenu (29 septembre 2026).** Dock liste, ouvre, crée et supprime les worktrees Git en natif, avec le comportement de `wtr` et `rmwt` : les étapes Git, les ports de développement aléatoires, `pnpm install` et la base de données répliquée (PostgreSQL sous Docker, SQL Server). La règle précédente, qui interdisait de réimplémenter ces fonctions, est levée. `wtr` et `rmwt` restent utilisables au terminal, avec les mêmes chemins ; l’interface suit aussi leurs effets (contrat ci-dessous). Décisions de l’utilisateur :
+
+| Sujet | Décision |
+| --- | --- |
+| Points d’entrée | Vue Git, palette, Leader, panneau des workspaces, et une icône d’arbre à côté de « Ouvrir un projet » qui fait choisir le projet source. Sur chaque ligne d’onglet du panneau, un bouton d’arbre affiché au survol, comme la croix, crée un worktree du projet de l’onglet ; hors dépôt Git, il est grisé avec une infobulle. |
+| Branche | Nouvelle branche depuis une base, ou branche existante, locale ou distante. |
+| Réglages | Dossier des worktrees (par défaut `worktrees` du dossier des projets) et base par défaut (`develop`), modifiables dans Paramètres. |
+| Ouverture | Nouveau workspace, ouvert dès que le dossier existe ; `pnpm install` tourne visiblement dans son terminal ; la base est répliquée en parallèle ; progression et avertissements dans la barre de statut. |
+| Suppression | La confirmation liste les onglets et panes concernés, avec « Fermer ces onglets » (cochée), « Garder la branche » et « Supprimer la base répliquée ». |
+| Cycle de vie | Jamais d’ouverture ni de fermeture automatique : seulement proposer. |
+
+**Convention proposée.** Le formulaire affiche le dossier cible calculé par l’hôte (`<dossier des worktrees>\<projet>-<dernier segment de la branche>`) et refuse un dossier existant, un nom de branche invalide, une branche déjà utilisée par un autre worktree. Une nouvelle branche part de `origin/<base>` après un fetch, sans branche suivie (un push la publiera sous son propre nom) ; une branche distante crée une branche locale qui la suit. Les ports reprennent les fichiers et l’expression de `wtr` ; un port sans remplaçant libre est signalé. Un échec Git arrête la création ; les ports, `pnpm install` et la base ne produisent que des avertissements. « Ouvrir » un worktree rejoint un pane qui s’y trouve déjà, sinon ouvre un workspace. La suppression refuse le dépôt principal, vérifie d’abord qu’aucun programme ne verrouille le dossier (le worktree reste alors intact, avec « Réessayer » et, quand Windows les connaît, les processus en cause), puis supprime le dossier, fait un prune, supprime la base répliquée (jamais une base identique à celle du dépôt principal) et la branche, sauf si elle est gardée ou si HEAD est détachée.
+
+**Contrat de synchronisation.** Après `wtr`, le pane qui exécute la commande devient la source de vérité pour le dossier courant et le contexte Git ; l’interface relit ces valeurs et met à jour le workspace ou l’onglet déjà associé sans créer de doublon automatiquement. Après `rmwt`, elle relit le dossier et Git, marque comme indisponibles les panes dont le chemin n’existe plus et propose de les fermer ou de choisir un dossier de repli. L’interface ne rejoue pas les effets d’un `wtr`/`rmwt` tapé au terminal et ne supprime pas un workspace sans action explicite de l’utilisateur.
 
 ### Gestion visuelle de Git
 
@@ -349,6 +364,8 @@ L’export de préférences ne doit pas embarquer implicitement la sortie des te
 **Convention de fichiers.** Les préférences exportables, l’état de session et l’historique restent séparés, chacun avec une version de schéma. L’emplacement exact peut être choisi par l’implémentation dans les répertoires de données Windows appropriés ; il doit être documenté et stable. Une confirmation est requise avant un import qui remplace une configuration existante.
 
 **Convention proposée.** L’en-tête de l’écran Paramètres affiche la version de Dock (« Dock 1.0.0 »), pour la comparer aux versions publiées ou la citer dans un signalement.
+
+**Retenu (29 septembre 2026).** Le dossier des worktrees et la base par défaut font partie des préférences exportées, sous une clé `worktrees` facultative : un fichier de version 1 qui ne la contient pas reste importable, avec les valeurs par défaut.
 
 **Convention proposée.** À l’import, une valeur de persistance hors bornes (sauvegarde du texte, lignes par pane, historique global) est ramenée dans sa plage, et chaque correction est signalée dans l’écran Paramètres, sous l’avis d’import, avant tout enregistrement.
 
@@ -443,6 +460,9 @@ Ces scénarios définissent les vérifications à effectuer sur l’application 
 | R28 | Dans un terminal, Ctrl + clic sur une URL puis sur un hyperlien OSC 8, clic simple sur un lien, puis Ctrl + clic sur un lien `file:` ou d’un autre schéma. | Les liens `http` et `https` s’ouvrent dans le navigateur par défaut avec Ctrl + clic uniquement ; le clic simple sélectionne sans rien ouvrir ; un autre schéma n’est jamais ouvert et un message l’explique. |
 | R29 | Ouvrir l’explorateur par son bouton dans un onglet, changer d’onglet puis revenir, faire `cd` dans le shell, changer de pane, double-cliquer un fichier, créer, renommer puis supprimer un fichier. | Fermé par défaut, l’état est propre à chaque onglet ; l’explorateur suit le dossier du pane actif ; le fichier s’ouvre dans l’éditeur ; les opérations sur les fichiers sont visibles immédiatement et la suppression passe par une confirmation. |
 | R30 | Dans un dépôt de test, ouvrir la vue Git puis enchaîner : stage d’un fichier et lecture de son diff, commit, création et merge d’une branche, conflit provoqué, annulation de la dernière opération, stash, tag et cherry-pick, push vers un dépôt distant, réécriture de l’historique et nouveau push. | Branches et graphe reflètent chaque opération, y compris celles faites au terminal ; le conflit liste ses fichiers et se termine ou s’annule ; « Annuler » restaure l’état précédent ; le push refusé ne propose le forçage qu’avec `--force-with-lease` et confirmation. |
+| R31 | Dans un dépôt de test avec un worktree créé par `wtr`, ouvrir la vue Git, puis ouvrir ce worktree depuis sa section. | La section « Worktrees » liste le dépôt principal et le worktree avec leur branche ; « Ouvrir » rejoint un pane déjà dans le worktree, sinon ouvre un workspace. |
+| R32 | Créer un worktree par Leader puis N (nouvelle branche), par l’icône d’arbre (branche existante) et depuis le menu d’une branche distante, dans un projet qui a des ports, un `package.json` et une base de test. | Workspace ouvert dès la création, `pnpm install` lancé dans son terminal, ports remplacés, base répliquée et chaîne de connexion réécrite ; bilan et avertissements dans la barre de statut. |
+| R33 | Supprimer ce worktree avec un pane ouvert dedans, d’abord sans fermer le pane, puis en le fermant. | Premier essai refusé, worktree intact et « Réessayer » ; second essai : pane fermé, dossier, base répliquée et branche supprimés, sauf la branche si « Garder la branche » est cochée. |
 
 ## 18. Décisions restantes avant développement
 
@@ -458,5 +478,6 @@ Ces scénarios définissent les vérifications à effectuer sur l’application 
 10. **Fait :** critères mesurables de performance et versions minimales de Windows consignés en section 15 à l’issue du spike.
 11. **À décider :** sur un onglet de la barre ou une ligne du panneau des workspaces qui a le focus, Alt + flèche déplace cet élément au lieu de changer de pane comme le prévoit le tableau retenu de la section 9 (conventions proposées des sections 5, 6 et 9). Garder cette exception ou la retirer.
 12. **À décider :** la « Décision prise » de la section 5 demande une confirmation pour supprimer un workspace « lorsqu’il contient des onglets ou des processus actifs ». Aujourd’hui, « Fermer le workspace » (menu du panneau, palette) ne confirme que si des programmes tournent : un workspace de plus de cinq onglets inactifs se ferme sans confirmation et ses onglets au-delà des cinq derniers ne sont plus restaurables. Préciser si la confirmation doit porter sur tout workspace qui contient des onglets.
+13. **Fait (29 septembre 2026) :** gestion native des worktrees (section 11, recettes R31 à R33) ; `wtr` et `rmwt` restent utilisables au terminal avec les mêmes chemins.
 
 Ces décisions ne bloquent pas la compréhension du produit ; elles évitent de traiter un comportement accidentel comme une exigence validée.

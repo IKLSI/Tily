@@ -1,6 +1,8 @@
 import type { KeyboardEvent, MouseEvent, PointerEvent } from 'react'
 import { nextPaneInState, tabAgents, type AgentMap } from '../agents/agentSummary'
 import { activePane, DEFAULT_SHELL, panesOf, type Tab } from '../model/session'
+import { useHostStore } from '../store/hostStore'
+import { openWorktreeDialog } from '../worktree/worktreeActions'
 import { AgentStateIcon } from './AgentStateIcon'
 import { Icon } from './Icon'
 import { IconName } from './iconName'
@@ -8,7 +10,7 @@ import { InlineNameEditor } from './InlineNameEditor'
 import { TabLayoutGlyph } from './TabLayoutGlyph'
 import { beginTabDrag } from './tabDrag'
 import { TruncatedName } from './TruncatedName'
-import { COLLAPSE_KEY, focusOwnWorkspaceRow, isMenuKey, menuRequestFor, MOVE_KEYS, PANEL_CLOSE_BUTTON, PANEL_DROP_LINE, type PanelMenuRequest, type WorkspacePanelActions } from './workspacePanel'
+import { COLLAPSE_KEY, focusOwnWorkspaceRow, isMenuKey, menuRequestFor, MOVE_KEYS, PANEL_CLOSE_BUTTON, PANEL_DROP_LINE, PANEL_HOVER_BUTTON, type PanelMenuRequest, type WorkspacePanelActions } from './workspacePanel'
 
 interface WorkspaceTabRowProps {
   workspaceId: string
@@ -30,11 +32,16 @@ const LEAD = 'flex w-[14px] shrink-0 justify-center text-dock-muted'
 const SHELL_LABELS: Record<string, string> = { pwsh: 'pwsh', cmd: 'cmd', gitbash: 'bash' }
 const SHELL_NAMES: Record<string, string> = { pwsh: 'PowerShell 7', cmd: 'Invite de commandes', gitbash: 'Git Bash' }
 
+const WORKTREE_TIP = 'Créer un worktree de ce projet'
+const NO_REPOSITORY_TIP = 'Créer un worktree : le dossier du pane actif de cet onglet n’est pas dans un dépôt Git'
+
 const paneCountLabel = (count: number): string => (count === 1 ? '1 pane' : `${count} panes`)
 
 export function WorkspaceTabRow({ workspaceId, tab, siblings, active, renaming, dragging, dropBefore, currentPaneId, agents, actions, onOpenMenu }: WorkspaceTabRowProps) {
   const summary = tabAgents(tab, agents)
-  const shell = activePane(tab).shell
+  const pane = activePane(tab)
+  const shell = pane.shell
+  const inRepository = useHostStore((state) => state.contexts[pane.id]?.isRepository === true)
   const customShell = shell === DEFAULT_SHELL ? null : shell
   const tip = [tab.name, customShell && (SHELL_NAMES[customShell] ?? customShell), paneCountLabel(panesOf(tab.tree).length), summary?.tip].filter(Boolean).join(' · ')
   const rowState = active ? 'bg-dock-green-soft text-dock-green-deep' : 'text-dock-ink-soft hover:bg-dock-panel hover:text-dock-ink'
@@ -52,6 +59,11 @@ export function WorkspaceTabRow({ workspaceId, tab, siblings, active, renaming, 
   }
   const handleRename = () => actions.startRenameTab(tab.id)
   const handleClose = () => actions.closeTab(tab.id)
+  const handleCreateWorktree = () => {
+    if (inRepository) {
+      openWorktreeDialog(pane.path)
+    }
+  }
   const handleAuxClick = (event: MouseEvent) => {
     if (event.button === MIDDLE_BUTTON) {
       event.preventDefault()
@@ -115,6 +127,9 @@ export function WorkspaceTabRow({ workspaceId, tab, siblings, active, renaming, 
             {customShell && <span className="shrink-0 font-mono text-[10.5px] text-dock-muted @max-[260px]:hidden">{SHELL_LABELS[customShell] ?? customShell}</span>}
           </button>
         )}
+        <button type="button" className={PANEL_HOVER_BUTTON} data-tip={inRepository ? WORKTREE_TIP : NO_REPOSITORY_TIP} aria-label={`Créer un worktree depuis l’onglet ${tab.name}`} aria-disabled={!inRepository} onClick={handleCreateWorktree}>
+          <Icon name={IconName.Worktree} size={11} />
+        </button>
         <button type="button" className={PANEL_CLOSE_BUTTON} data-tip="Fermer l’onglet" aria-label={`Fermer l’onglet ${tab.name}`} onClick={handleClose}>
           <Icon name={IconName.Close} size={10} />
         </button>

@@ -11,6 +11,9 @@ public sealed class GitWatcher : IDisposable
         "HEAD", "index", "packed-refs", "refs", "MERGE_HEAD", "CHERRY_PICK_HEAD", "REVERT_HEAD", "REBASE_HEAD", "rebase-merge", "rebase-apply"
     };
 
+    private const string WorktreesEntry = "worktrees";
+    private static readonly HashSet<string> WorktreeEntries = new(StringComparer.OrdinalIgnoreCase) { "HEAD", "locked", "gitdir" };
+
     private readonly string[] _gitDirectories;
     private readonly List<FileSystemWatcher> _watchers = [];
     private readonly Action _changed;
@@ -97,7 +100,15 @@ public sealed class GitWatcher : IDisposable
         }
 
         var relative = Path.GetRelativePath(gitDirectory, path);
-        return !relative.EndsWith(".lock", StringComparison.OrdinalIgnoreCase) && GitEntries.Contains(relative.Split(Path.DirectorySeparatorChar)[0]);
+        var parts = relative.Split(Path.DirectorySeparatorChar);
+        if (relative.EndsWith(".lock", StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        return string.Equals(parts[0], WorktreesEntry, StringComparison.OrdinalIgnoreCase)
+            ? parts.Length <= 2 || WorktreeEntries.Contains(parts[2])
+            : GitEntries.Contains(parts[0]);
     }
 
     private static bool IsWithin(string path, string directory) =>

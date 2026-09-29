@@ -46,6 +46,17 @@ public sealed class ProjectCatalogTests : IDisposable
     }
 
     [Fact]
+    public void List_WhenWorktreeFolderConfigured_ThenListsItAndHidesItFromProjects()
+    {
+        Directory.CreateDirectory(Path.Combine(_root, "projet"));
+        Directory.CreateDirectory(Path.Combine(_root, "arbres", "projet-vue"));
+
+        var list = ProjectCatalog.List(_root, Path.Combine(_root, "arbres"));
+
+        Assert.Equal([("projet", false), ("projet-vue", true)], list.Projects.Select(project => (project.Name, project.Worktree)));
+    }
+
+    [Fact]
     public void List_WhenRootMissing_ThenReturnsEmptyWithFrenchError()
     {
         var list = ProjectCatalog.List(_root);

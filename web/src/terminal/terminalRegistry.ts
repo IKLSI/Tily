@@ -56,12 +56,15 @@ export interface TerminalHandle {
 
 const handles = new Map<string, TerminalHandle>()
 const primedText = new Map<string, { text: string; kind: RestoreKind }>()
+const initialCommands = new Map<string, string>()
 let scrollbackLines = DEFAULT_SCROLLBACK_LINES
 let webglUnavailable = false
 
 const start = (handle: TerminalHandle, pane: Pane): void => {
   handle.started = true
-  bridge.send({ type: 'terminal.create', pane: pane.id, shell: pane.shell, cwd: pane.path, cols: handle.terminal.cols, rows: handle.terminal.rows })
+  const command = initialCommands.get(pane.id)
+  initialCommands.delete(pane.id)
+  bridge.send({ type: 'terminal.create', pane: pane.id, shell: pane.shell, cwd: pane.path, cols: handle.terminal.cols, rows: handle.terminal.rows, command })
 }
 
 const isShown = (handle: TerminalHandle): boolean => handle.terminal.element?.isConnected === true
@@ -315,6 +318,9 @@ export const terminalRegistry = {
     return Object.fromEntries([...primedText].filter(([, primed]) => primed.kind === RestoreKind.Tab).map(([paneId, primed]) => [paneId, primed.text]))
   },
 
+  runAtStart(paneId: string, command: string): void {
+    initialCommands.set(paneId, command)
+  },
   prime(paneId: string, text: string, kind: RestoreKind = RestoreKind.Tab): void {
     primedText.set(paneId, { text, kind })
   },

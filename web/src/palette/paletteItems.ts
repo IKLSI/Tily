@@ -11,6 +11,9 @@ import { closeOtherTabsKeepingText, closeTabKeepingText, closeWorkspaceKeepingTe
 import { joinPane } from '../terminal/terminalActions'
 import { OpenTarget } from '../bridge/messages'
 import { copyPaneBranch, copyPanePath, openPaneFolder } from '../terminal/contextActions'
+import { WorktreePickerKind } from '../store/worktreeStore'
+import { openWorktreePicker, requestWorktreeRemoval } from '../worktree/worktreeActions'
+import { worktreeTarget } from '../worktree/worktreePaths'
 import type { SearchItem } from './searchFilter'
 
 enum PaletteKind {
@@ -50,6 +53,8 @@ const commandItems = (session: Session, shells: ShellProfile[]): PaletteItem[] =
     command('previous-tab', 'Onglet précédent', () => runCommand(Command.PreviousTab), 'Ctrl + Maj + Tab'),
     command('new-workspace', 'Nouveau workspace', () => runCommand(Command.NewWorkspace), 'Ctrl + Maj + W'),
     command('projects', 'Ouvrir un projet', () => runCommand(Command.Projects), 'Leader puis F'),
+    command('create-worktree', 'Créer un worktree…', () => runCommand(Command.CreateWorktree), 'Leader puis N'),
+    command('open-worktree', 'Ouvrir un worktree…', () => openWorktreePicker(WorktreePickerKind.Open)),
     command('toggle-explorer', 'Afficher / masquer les fichiers', () => runCommand(Command.ToggleExplorer), 'Ctrl + Maj + E'),
     command('toggle-git', 'Afficher / masquer Git', () => runCommand(Command.ToggleGit), 'Ctrl + Maj + G'),
     command('settings', 'Paramètres', () => runCommand(Command.Settings), 'Leader puis ,'),
@@ -81,6 +86,11 @@ const commandItems = (session: Session, shells: ShellProfile[]): PaletteItem[] =
       command('open-explorer', 'Ouvrir le dossier du pane actif dans l’explorateur', () => openPaneFolder(paneId, OpenTarget.Explorer)),
       command('copy-branch', 'Copier la branche Git du pane actif', () => copyPaneBranch(paneId)),
     )
+    const context = useHostStore.getState().contexts[paneId]
+    if (context?.worktreeRoot) {
+      const { path, name } = worktreeTarget(context.worktreeRoot)
+      items.push(command('remove-worktree', `Supprimer ce worktree${SEPARATOR}${name}…`, () => requestWorktreeRemoval(path, context.branch ?? undefined)))
+    }
     items.push(
       command('rename-tab', 'Renommer l’onglet', () => ui.startRenamingTab(tab.id)),
       command('duplicate-tab', 'Dupliquer l’onglet', () => duplicateTabKeepingLayout(tab.id)),

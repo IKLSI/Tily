@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Text;
 using Dock.Core.Agents;
 using Dock.Core.Context;
 using Dock.Core.Shell;
@@ -21,7 +22,7 @@ public sealed class TerminalManager : IDisposable
     public event Action<string, string>? CurrentDirectoryChanged;
     public event Action<string, uint>? Exited;
 
-    public TerminalSession Start(string paneId, string shellId, string workingDirectory, int columns, int rows)
+    public TerminalSession Start(string paneId, string shellId, string workingDirectory, int columns, int rows, string? initialCommand = null)
     {
         Stop(paneId);
         var profile = ShellCatalog.Resolve(shellId, _paths);
@@ -44,7 +45,31 @@ public sealed class TerminalManager : IDisposable
             }
         };
         _sessions[paneId] = session;
+        if (!string.IsNullOrWhiteSpace(initialCommand))
+        {
+            RunWhenReady(session, shellId, initialCommand);
+        }
+
         return session;
+    }
+
+    private static void RunWhenReady(TerminalSession session, string shellId, string command)
+    {
+        var input = Encoding.UTF8.GetBytes(command.ReplaceLineEndings(" ").Trim() + "\r");
+        if (!ShellCatalog.ReportsCurrentDirectory(shellId))
+        {
+            session.Write(input);
+            return;
+        }
+
+        var pending = 1;
+        session.CurrentDirectoryChanged += _ =>
+        {
+            if (Interlocked.Exchange(ref pending, 0) == 1)
+            {
+                session.Write(input);
+            }
+        };
     }
 
     public IReadOnlyList<MissingDirectoryModel> MissingDirectories() =>

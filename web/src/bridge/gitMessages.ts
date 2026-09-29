@@ -1,3 +1,5 @@
+import type { Worktree } from './worktreeMessages'
+
 export enum GitChangeKind {
   Modified = 'modified',
   Added = 'added',
@@ -151,6 +153,7 @@ export interface GitState {
   lastMessage?: string
   undo?: GitUndoInfo
   forcePushAllowed: boolean
+  worktrees: Worktree[]
 }
 
 export interface GitGraphSegment {

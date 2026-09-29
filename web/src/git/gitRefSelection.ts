@@ -11,6 +11,7 @@ export enum GitRefScope {
   Remote = 'remote',
   Tags = 'tags',
   Stashes = 'stashes',
+  Worktrees = 'worktrees',
 }
 
 interface GitSelectedRefs {

@@ -1,5 +1,6 @@
 using Dock.Core.Agents;
 using Dock.Core.Session;
+using Dock.Core.Worktrees;
 
 namespace Dock.Core.Settings;
 
@@ -13,6 +14,7 @@ public sealed class PreferencesDocumentModel
     public PersistenceSettingsModel? Persistence { get; set; }
     public string? ProjectsRoot { get; set; }
     public NotificationSettingsModel? Notifications { get; set; }
+    public WorktreeSettingsModel? Worktrees { get; set; }
 
     public static PreferencesDocumentModel From(SettingsModel settings) => new()
     {
@@ -21,7 +23,8 @@ public sealed class PreferencesDocumentModel
         Editor = settings.Editor,
         Persistence = settings.Persistence,
         ProjectsRoot = settings.ProjectsRoot,
-        Notifications = settings.Notifications
+        Notifications = settings.Notifications,
+        Worktrees = settings.Worktrees
     };
 
     public string? MissingKey()

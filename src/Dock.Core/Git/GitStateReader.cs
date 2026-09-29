@@ -1,3 +1,5 @@
+using Dock.Core.Worktrees;
+
 namespace Dock.Core.Git;
 
 public static class GitStateReader
@@ -27,7 +29,8 @@ public static class GitStateReader
             refs.Remotes,
             lastMessage,
             GitUndo.Describe(repository, undo, status.Head, operation),
-            status.Head.Branch is { } branch && forcePushAllowed(branch));
+            status.Head.Branch is { } branch && forcePushAllowed(branch),
+            WorktreeLister.TryList(repository));
     }
 
     public static string Signature(GitStateModel state) =>
