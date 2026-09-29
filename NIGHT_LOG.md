@@ -173,6 +173,14 @@ Pour citer un fichier à Claude Code ou dans une commande, le chemin complet (`C
 - Vérifié dans l'instance de dev : sur `docs\TESTING.md`, le presse-papiers (intercepté dans la page) reçoit `docs\TESTING.md` et la barre de statut l'annonce.
 - **Convention proposée** en section 4 de la spec.
 
+### 17. Aide du Leader lisible à toute largeur
+
+L'aide affichée après Ctrl + Espace tenait sur deux lignes dans les 42 px de l'en-tête et rognait la fin au-delà. Avec les trois entrées ajoutées cette nuit (=, !, Maj + flèche), elle ne tenait plus : à 1 264 px de large, Maj + flèche, PgUp / PgDn, Échap et Ctrl + Espace disparaissaient.
+
+- Le badge « Leader… » reste dans l'en-tête, et les séquences s'affichent dans un panneau flottant juste en dessous, en grille (colonnes d'au moins 200 px), pendant les 5 s du Leader. Le panneau ne prend pas le focus et disparaît avec le Leader.
+- Vérifié dans l'instance de dev, fenêtre redimensionnée par son handle : à 1 084 px, les 24 séquences sont visibles en trois colonnes, aucune rognée.
+- Architecture front mise à jour.
+
 ## Reste à faire et idées
 
 - Déplacer un pane vers un onglet d'un autre workspace (l'itération 8 se limite au workspace du pane).
