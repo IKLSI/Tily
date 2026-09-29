@@ -43,7 +43,7 @@ public sealed class FileExplorerFeed : IDisposable
                 break;
             case "files.openAt":
                 var location = RequirePath(command);
-                _queue.Enqueue(() => OpenAt(EditorLocation.Resolve(command.Cwd, location), command.Line, command.Column));
+                _queue.Enqueue(() => OpenAt(command.Cwd, location, command.Line, command.Column));
                 break;
             case "files.reveal":
                 LocalActions.RevealInExplorer(RequirePath(command));
@@ -148,13 +148,10 @@ public sealed class FileExplorerFeed : IDisposable
         _post(new { type = "files.listed", path = listing.Path, entries = listing.Entries, total = listing.Total, error = listing.Error });
     }
 
-    private void OpenAt(string path, int line, int column)
+    private void OpenAt(string? folder, string location, int line, int column)
     {
-        if (!File.Exists(path))
-        {
-            throw new InvalidOperationException($"Fichier introuvable : {path}");
-        }
-
+        var path = EditorLocation.ResolveExisting(folder, location, File.Exists)
+            ?? throw new InvalidOperationException($"Fichier introuvable : {EditorLocation.Resolve(folder, location)}");
         LocalActions.OpenFileInEditor(path, _editorCommand(), line, column);
     }
 

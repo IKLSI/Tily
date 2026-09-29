@@ -67,13 +67,7 @@ public static class LocalActions
 
         try
         {
-            var start = new ProcessStartInfo(editorCommand) { UseShellExecute = true, WindowStyle = ProcessWindowStyle.Hidden };
-            foreach (var argument in arguments)
-            {
-                start.ArgumentList.Add(argument);
-            }
-
-            Process.Start(start);
+            Process.Start(new ProcessStartInfo(editorCommand, EditorLocation.CommandLine(arguments)) { UseShellExecute = true, WindowStyle = ProcessWindowStyle.Hidden });
         }
         catch (Exception exception) when (exception is System.ComponentModel.Win32Exception or FileNotFoundException)
         {

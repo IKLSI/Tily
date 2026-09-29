@@ -62,6 +62,46 @@ public sealed class EditorLocationTests
     }
 
     [Fact]
+    public void ResolveExisting_WhenGitDiffSidePrefix_ThenFallsBackToFileWithoutPrefix()
+    {
+        var path = EditorLocation.ResolveExisting(@"D:\dépôt", "b/web/src/a.ts", candidate => candidate == @"D:\dépôt\web\src\a.ts");
+
+        Assert.Equal(@"D:\dépôt\web\src\a.ts", path);
+    }
+
+    [Fact]
+    public void ResolveExisting_WhenPrefixedFolderExists_ThenKeepsIt()
+    {
+        var path = EditorLocation.ResolveExisting(@"D:\dépôt", "a/b.ts", candidate => candidate == @"D:\dépôt\a\b.ts");
+
+        Assert.Equal(@"D:\dépôt\a\b.ts", path);
+    }
+
+    [Fact]
+    public void ResolveExisting_WhenNothingExists_ThenReturnsNull()
+    {
+        var path = EditorLocation.ResolveExisting(@"D:\dépôt", "a/web/x.ts", _ => false);
+
+        Assert.Null(path);
+    }
+
+    [Fact]
+    public void CommandLine_WhenShellCharacters_ThenQuotesEveryArgument()
+    {
+        var commandLine = EditorLocation.CommandLine(["-g", @"C:\R&D\a^b%c.ts:3:1"]);
+
+        Assert.Equal(@"""-g"" ""C:\R&D\a^b%c.ts:3:1""", commandLine);
+    }
+
+    [Fact]
+    public void CommandLine_WhenTrailingBackslash_ThenKeepsClosingQuote()
+    {
+        var commandLine = EditorLocation.CommandLine([@"C:\"]);
+
+        Assert.Equal(@"""C:\\""", commandLine);
+    }
+
+    [Fact]
     public void Arguments_WhenNoLine_ThenOpensFileOnly()
     {
         var arguments = EditorLocation.Arguments("code.cmd", @"C:\dépôt\a.cs", 0, 0);

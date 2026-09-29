@@ -19,6 +19,23 @@ public static class EditorLocation
         return Path.GetFullPath(Path.Combine(folder, path));
     }
 
+    public static string? ResolveExisting(string? folder, string path, Func<string, bool> exists)
+    {
+        var resolved = Resolve(folder, path);
+        if (exists(resolved))
+        {
+            return resolved;
+        }
+
+        var diffSide = path.Length > 2 && path[0] is 'a' or 'b' && path[1] is '/' or '\\' && !Path.IsPathRooted(path);
+        var withoutSide = diffSide ? Resolve(folder, path[2..]) : null;
+        return withoutSide is not null && exists(withoutSide) ? withoutSide : null;
+    }
+
+    public static string CommandLine(IEnumerable<string> arguments) => string.Join(' ', arguments.Select(Quote));
+
+    private static string Quote(string argument) => argument.EndsWith('\\') ? $"\"{argument}\\\"" : $"\"{argument}\"";
+
     public static IReadOnlyList<string> Arguments(string editorCommand, string path, int line, int column) =>
         line > 0 && GotoEditors.Contains(Path.GetFileNameWithoutExtension(editorCommand.Trim().Trim('"')))
             ? ["-g", $"{path}:{line}:{Math.Max(column, 1)}"]

@@ -191,6 +191,23 @@ L'aperçu de l'explorateur ne connaissait que le Markdown et le texte. Une captu
 - Vérifié dans l'instance de dev : `docs\images\files.png` du clone s'affiche avec « Image · 1586 × 922 », puis `git.png` au clic suivant.
 - **Convention proposée** en section 4 de la spec. README et architecture back mis à jour.
 
+### 19. Deuxième relecture indépendante (itérations 11 à 17) et corrections
+
+Un sous-agent a relu le diff des itérations 11 à 17 sans rien modifier, en reproduisant ses constats avec node, git et .NET dans un dossier temporaire. Il a relevé 1 défaut important et 6 mineurs, tous corrigés :
+
+- **Important, sécurité : injection de commande par l'éditeur**. L'éditeur par défaut, `code.cmd`, passe par cmd.exe. .NET ne mettait entre guillemets que les arguments contenant un espace : un `&` dans un nom de dossier sans espace (`R&D`, ou un `docs&calc` piégé dans un dépôt cloné) laissait cmd.exe exécuter la suite. Le défaut existait déjà pour « Ouvrir dans l'éditeur » de l'explorateur, et l'itération 12 lui ajoutait une voie d'accès. Chaque argument est maintenant toujours entre guillemets (`EditorLocation.CommandLine`). Un test d'intégration lance un vrai `.cmd` sur un dossier `R&md,injecte^%x` : il échoue sans la correction (chemin coupé au `&`) et passe avec.
+- **Liens de fichiers** :
+  - les lettres accentuées font partie du chemin (`D:\Projets\dépôt\…` n'est plus coupé en `t\src\…`) ;
+  - la suite d'un chemin replié sur deux lignes n'est plus liée ;
+  - les domaines (`www.example.com/…`, `hote.com:8080`) ne sont plus pris pour des fichiers ;
+  - les chemins `a/…` et `b/…` de `git diff` sont cherchés sans ce préfixe côté hôte (`EditorLocation.ResolveExisting`, 3 tests) ;
+  - la zone cliquable suit les cellules du terminal, donc un emoji ou un caractère CJK devant le chemin ne la décale plus ;
+  - un numéro de ligne énorme n'empêche plus l'ouverture.
+- **Débordement de l'en-tête** : un workspace passé dans le menu « +N » montre sa coche ou sa croix dans ce menu et sur le bouton.
+- **Revert sans effet** : si les modifications du commit sont déjà absentes, le message dit « Rien à défaire… » au lieu de « Le revert a échoué. » (1 test).
+- Vérifié dans l'instance de dev : Ctrl + clic sur le dernier caractère de `✅ b/src/Dock.Core/Git/GitRunner.cs:7:2` ouvre `…\repo\src\Dock.Core\Git\GitRunner.cs:7:2`, arguments entre guillemets. Un décalage d'une cellule aurait raté le lien. 427 tests au vert.
+- Spec (conventions des liens de fichiers) mise à jour.
+
 ## Reste à faire et idées
 
 - Déplacer un pane vers un onglet d'un autre workspace (l'itération 8 se limite au workspace du pane).
