@@ -293,6 +293,8 @@ Les actions utilisent le **dossier du pane actif**, jamais un hypothétique doss
 
 **Retenu (25 septembre 2026).** Les libellés et les messages de la vue Git gardent les termes Git anglais, invariables : Push, Pull, Fetch, Stash, Stage et Unstage (fichiers Staged et Unstaged), Merge, Rebase, Amend, Checkout et Cherry-pick. Les phrases restent en français et emploient ces termes comme des noms, par exemple « Push vers origin/main terminé. », « 3 commits à push » ou « Faites un pull pour les intégrer ».
 
+**Retenu (29 septembre 2026, issue #100).** Ouvrir la vue Git lance un fetch de toutes les branches distantes (`git fetch --all`), y compris au démarrage de Dock si elle était ouverte, puis chaque fois que le pane actif passe à un autre dépôt, au plus une fois toutes les 5 minutes par dépôt (un fetch manuel compte). Ce fetch est discret : la barre de progression s’affiche, mais ni message de réussite ni erreur (hors ligne, authentification) ; un dépôt sans dépôt distant est ignoré. Il se désactive dans les Paramètres (« Fetch automatique à l’ouverture de la vue Git », activé par défaut).
+
 **Convention proposée.** Quand la place manque dans le graphe, Date puis Auteur sont masqués à l’affichage pour laisser au moins 200 px au message, sans changer le réglage mémorisé ; ils réapparaissent dès que la place revient.
 
 ## 12. Attention, agents et notifications
@@ -463,6 +465,7 @@ Ces scénarios définissent les vérifications à effectuer sur l’application 
 | R31 | Dans un dépôt de test avec un worktree créé par `wtr`, ouvrir la vue Git, puis ouvrir ce worktree depuis sa section. | La section « Worktrees » liste le dépôt principal et le worktree avec leur branche ; « Ouvrir » rejoint un pane déjà dans le worktree, sinon ouvre un workspace. |
 | R32 | Créer un worktree par Leader puis N (nouvelle branche), par l’icône d’arbre (branche existante) et depuis le menu d’une branche distante, dans un projet qui a des ports, un `package.json` et une base de test. | Workspace ouvert dès la création, `pnpm install` lancé dans son terminal, ports remplacés, base répliquée et chaîne de connexion réécrite ; bilan et avertissements dans la barre de statut. |
 | R33 | Supprimer ce worktree avec un pane ouvert dedans, d’abord sans fermer le pane, puis en le fermant. | Premier essai refusé, worktree intact et « Réessayer » ; second essai : pane fermé, dossier, base répliquée et branche supprimés, sauf la branche si « Garder la branche » est cochée. |
+| R36 | Dans un dépôt de test dont le dépôt distant a reçu un commit d’un autre clone, ouvrir la vue Git, la fermer et la rouvrir aussitôt, passer à un pane d’un autre dépôt, puis décocher le fetch automatique dans les Paramètres et recommencer après 5 minutes, enfin couper le réseau. | Le commit distant apparaît dans le graphe sans clic sur Fetch ; la réouverture immédiate ne relance pas de fetch ; l’autre dépôt a le sien ; réglage décoché : aucun fetch ; hors ligne : aucun message d’erreur. |
 
 ## 18. Décisions restantes avant développement
 
