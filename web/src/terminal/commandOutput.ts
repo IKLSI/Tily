@@ -1,5 +1,5 @@
 import type { IBuffer, IMarker, Terminal } from '@xterm/xterm'
-import { COMMAND_DONE_OSC } from './commandNotices'
+import { COMMAND_DONE_OSC, decodeCommandText } from './commandNotices'
 
 const CWD_OSC = 7
 const ENTER = '\r'
@@ -62,14 +62,6 @@ const startOutput = (track: CommandTrack, marker: IMarker | undefined, offset: n
   track.candidate = null
   track.outputStart?.marker.dispose()
   track.outputStart = marker ? { marker, offset, command } : null
-}
-
-const decodeCommand = (value: string | undefined): string => {
-  try {
-    return value ? new TextDecoder().decode(Uint8Array.from(atob(value), (character) => character.charCodeAt(0))) : ''
-  } catch {
-    return ''
-  }
 }
 
 const withoutSpaces = (text: string): string => text.replace(/\s+/g, '')
@@ -152,7 +144,7 @@ export const trackCommandOutput = (terminal: Terminal): void => {
       track.announcesExecution = true
       track.running = true
       track.settling = null
-      const command = decodeCommand(value)
+      const command = decodeCommandText(value)
       if (track.typedStart) {
         startOutput(track, track.typedStart, NEXT_ROW, command)
         track.typedStart = null

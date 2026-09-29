@@ -24,7 +24,7 @@ public sealed class PowerShellIntegrationTests
         return string.Concat(output.Result.Where(character => character != '\x1b')).Trim();
     }
 
-    private static List<string> CommandNotices(string output) => Regex.Matches(output, @"]6973;done;[0-9;]*").Select(match => match.Value).ToList();
+    private static List<string> CommandNotices(string output) => Regex.Matches(output, @"]6973;done;[0-9]+;[01]").Select(match => match.Value).ToList();
 
     [Fact]
     public void Prompt_WhenLastCommandFailed_ThenOriginalPromptSeesFailure()
@@ -95,6 +95,17 @@ public sealed class PowerShellIntegrationTests
         var output = RunWithWrapper("function global:PSConsoleHostReadLine { 'git status -s' }", "prompt | Out-Null", "PSConsoleHostReadLine");
 
         Assert.Contains($"]6973;exec;{Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes("git status -s"))}", output);
+    }
+
+    [Fact]
+    public void Prompt_WhenNewHistoryEntry_ThenAnnouncesCommandText()
+    {
+        var output = RunWithWrapper(
+            "$fin = Get-Date",
+            "Add-History -InputObject ([pscustomobject]@{ CommandLine = 'pnpm build --filter é'; ExecutionStatus = 'Completed'; StartExecutionTime = $fin.AddSeconds(-12); EndExecutionTime = $fin })",
+            "prompt");
+
+        Assert.Contains($"]6973;done;12000;1;{Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes("pnpm build --filter é"))}", output);
     }
 
     [Fact]

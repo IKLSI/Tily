@@ -3,6 +3,7 @@ import { create } from 'zustand'
 export interface CommandNotice {
   success: boolean
   durationMs: number
+  command: string
 }
 
 interface CommandState {

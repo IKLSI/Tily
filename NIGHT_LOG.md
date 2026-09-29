@@ -230,6 +230,16 @@ Avec Alt + PgUp / PgDn, `shortcuts.ts` était repassé à 427 lignes, au-dessus 
 - L'enum `Command` et les tables de touches (Leader, Leader + Maj + flèche, Ctrl + Maj + lettre, Alt + flèche ou page) passent dans `keyboard/commands.ts`. `shortcuts.ts` réexporte `Command`, donc aucun import ne change. Il revient à 328 lignes.
 - Vérifié dans l'instance de dev : Ctrl + Maj + D ouvre un split, Leader puis X le ferme, Ctrl + P ouvre la palette.
 
+### 22. Nommer la commande terminée
+
+« Commande terminée après 11 s dans l'onglet « repo » » ne disait pas laquelle. Avec plusieurs builds en parallèle, il fallait aller voir.
+
+- L'annonce `done` du wrapper transmet aussi le texte de la commande (base64 UTF-8, tiré de l'historique PowerShell). La barre de statut, le journal et l'infobulle de l'onglet citent sa première ligne, tronquée à 48 caractères : « « Start-Sleep 11; Write-Output 'fini' » terminée après 11 s dans l'onglet « repo ». ».
+- Le décodage base64 est partagé avec la copie de sortie (`decodeCommandText`).
+- 1 test PowerShell de plus (texte accentué dans l'annonce). L'extraction des annonces dans les tests suit le nouveau format.
+- Vérifié dans l'instance de dev avec `Start-Sleep 11; Write-Output 'fini'` lancé avant Ctrl + Maj + T.
+- Spec et architecture back mises à jour.
+
 ## Reste à faire et idées
 
 - Déplacer un pane vers un onglet d'un autre workspace (l'itération 8 se limite au workspace du pane).

@@ -10,6 +10,15 @@ const NOTICE_MIN_MS = 10_000
 const SECOND_MS = 1000
 const SECONDS_PER_MINUTE = 60
 const MINUTES_PER_HOUR = 60
+const COMMAND_LABEL_CHARS = 48
+
+export const decodeCommandText = (value: string | undefined): string => {
+  try {
+    return value ? new TextDecoder().decode(Uint8Array.from(atob(value), (character) => character.charCodeAt(0))) : ''
+  } catch {
+    return ''
+  }
+}
 
 export const formatCommandDuration = (durationMs: number): string => {
   const seconds = Math.round(durationMs / SECOND_MS)
@@ -23,13 +32,22 @@ export const formatCommandDuration = (durationMs: number): string => {
   return `${Math.floor(minutes / MINUTES_PER_HOUR)} h ${String(minutes % MINUTES_PER_HOUR).padStart(2, '0')} min`
 }
 
-export const commandNoticeTip = (notice: CommandNotice): string =>
-  `${notice.success ? 'Commande terminée' : 'Commande en échec'} après ${formatCommandDuration(notice.durationMs)}`
+const commandLabel = (command: string): string => {
+  const firstLine = command.split(/\r?\n/)[0].trim()
+  return firstLine.length > COMMAND_LABEL_CHARS ? `${firstLine.slice(0, COMMAND_LABEL_CHARS - 1)}…` : firstLine
+}
+
+export const commandNoticeTip = (notice: CommandNotice): string => {
+  const label = commandLabel(notice.command)
+  const outcome = notice.success ? 'terminée' : 'en échec'
+  const duration = formatCommandDuration(notice.durationMs)
+  return label ? `« ${label} » ${outcome} après ${duration}` : `Commande ${outcome} après ${duration}`
+}
 
 const parseCommandDone = (data: string): CommandNotice | null => {
-  const [kind, duration, success] = data.split(';')
+  const [kind, duration, success, command] = data.split(';')
   const durationMs = Number(duration)
-  return kind === DONE_KIND && duration !== '' && Number.isFinite(durationMs) ? { durationMs, success: success === SUCCESS_FLAG } : null
+  return kind === DONE_KIND && duration !== '' && Number.isFinite(durationMs) ? { durationMs, success: success === SUCCESS_FLAG, command: decodeCommandText(command) } : null
 }
 
 const displayedTab = (): Tab | undefined => {

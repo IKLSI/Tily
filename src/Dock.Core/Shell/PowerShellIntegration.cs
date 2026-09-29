@@ -21,7 +21,8 @@ public static class PowerShellIntegration
                 if ($dockLast -and $dockLast.Id -ne $global:__DockLastCommandId) {
                     $global:__DockLastCommandId = $dockLast.Id
                     $dockMilliseconds = [int64]($dockLast.EndExecutionTime - $dockLast.StartExecutionTime).TotalMilliseconds
-                    [Console]::Write("$dockEsc]6973;done;$dockMilliseconds;$([int]$dockSucceeded)$dockEsc\")
+                    $dockCommandText = [Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes([string]$dockLast.CommandLine))
+                    [Console]::Write("$dockEsc]6973;done;$dockMilliseconds;$([int]$dockSucceeded);$dockCommandText$dockEsc\")
                 }
                 if (-not $global:__DockOriginalReadLine -and (Test-Path Function:\PSConsoleHostReadLine)) {
                     $global:__DockOriginalReadLine = $function:PSConsoleHostReadLine
