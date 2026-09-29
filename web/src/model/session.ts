@@ -194,7 +194,27 @@ export const setRatioAt = (node: SplitNode, path: SplitPath, ratio: number): Spl
   return { ...node, [side]: setRatioAt(node[side], rest, ratio) }
 }
 
-const renewPaneIds = (node: SplitNode, paneIds: Record<string, string>): SplitNode => {
+const spanAlong = (node: SplitNode, axis: SplitAxis): number => {
+  if (isLeaf(node)) {
+    return 1
+  }
+  const a = spanAlong(node.a, axis)
+  const b = spanAlong(node.b, axis)
+  return node.axis === axis ? a + b : Math.max(a, b)
+}
+
+export const equalizeNode = (node: SplitNode): SplitNode => {
+  if (isLeaf(node)) {
+    return node
+  }
+  const a = equalizeNode(node.a)
+  const b = equalizeNode(node.b)
+  const spanA = spanAlong(a, node.axis)
+  const ratio = clampRatio(spanA / (spanA + spanAlong(b, node.axis)))
+  return a === node.a && b === node.b && ratio === node.ratio ? node : { ...node, ratio, a, b }
+}
+
+const renewPaneIds =(node: SplitNode, paneIds: Record<string, string>): SplitNode => {
   if (isLeaf(node)) {
     const id = newId()
     paneIds[node.pane.id] = id

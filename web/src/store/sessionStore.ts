@@ -20,6 +20,7 @@ import {
   panesOf,
   pruneNode,
   setRatioAt,
+  equalizeNode,
   splitLeaf,
   updatePane,
   RightPanelView,
@@ -66,6 +67,7 @@ interface SessionState {
   restoreTab: (position?: number) => { tab: Tab; paneIds: Record<string, string> } | null
   splitPane: (axis: SplitAxis) => void
   setSplitRatio: (tabId: string, path: SplitPath, ratio: number) => void
+  equalizeSplits: (tabId: string) => void
   closePane: (paneId: string) => void
   setPanePath: (paneId: string, path: string) => void
   setPaneShell: (paneId: string, shell: string) => void
@@ -413,6 +415,16 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
         const tab = draft.workspaces.flatMap((workspace) => workspace.tabs).find((candidate) => candidate.id === tabId)
         if (tab) {
           tab.tree = setRatioAt(tab.tree, path, ratio)
+        }
+      }),
+    })),
+
+  equalizeSplits: (tabId) =>
+    set((state) => ({
+      session: mutateSession(state.session, (draft) => {
+        const tab = draft.workspaces.flatMap((workspace) => workspace.tabs).find((candidate) => candidate.id === tabId)
+        if (tab) {
+          tab.tree = equalizeNode(tab.tree)
         }
       }),
     })),

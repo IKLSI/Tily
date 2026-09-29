@@ -69,6 +69,7 @@ Aucun droit administrateur n’est nécessaire. Dock vérifie ensuite lui-même 
 | W | Ctrl + Maj + W | Nouveau workspace |
 | X | Ctrl + Maj + X | Fermer le terminal actif |
 | M | Ctrl + Maj + M | Agrandir / réduire le terminal actif (ou double-clic sur son en-tête) |
+| = | — | Donner la même place à chaque terminal de l’onglet actif (aussi dans la palette) |
 | E | Ctrl + Maj + E | Explorateur de fichiers |
 | G | Ctrl + Maj + G | Vue Git |
 | O | Ctrl + Maj + O | Notes du workspace |

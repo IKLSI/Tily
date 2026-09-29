@@ -45,6 +45,7 @@ export enum Command {
   ToggleStatusLog = 'toggleStatusLog',
   ToggleSidebar = 'toggleSidebar',
   TogglePaneZoom = 'togglePaneZoom',
+  EqualizePanes = 'equalizePanes',
   JoinWaitingAgent = 'joinWaitingAgent',
   CreateWorktree = 'createWorktree',
 }
@@ -65,6 +66,7 @@ const LEADER_KEYS: Record<string, Command> = {
   ',': Command.Settings,
   x: Command.ClosePane,
   m: Command.TogglePaneZoom,
+  '=': Command.EqualizePanes,
   z: Command.RestoreTab,
   a: Command.JoinWaitingAgent,
   ArrowRight: Command.FocusPaneRight,
@@ -214,6 +216,13 @@ const toggleSidebar = (): void => {
   toggle()
 }
 
+const equalizeActiveTab = (): void => {
+  const workspace = currentWorkspace()
+  if (workspace) {
+    useSessionStore.getState().equalizeSplits(activeTab(workspace).id)
+  }
+}
+
 const focusPaneToward = (direction: Direction): void => {
   if (useUiStore.getState().zoomedPaneId !== null) {
     endPaneZoom(true)
@@ -300,6 +309,9 @@ export const runCommand = (command: Command): void => {
       break
     case Command.TogglePaneZoom:
       togglePaneZoom()
+      break
+    case Command.EqualizePanes:
+      equalizeActiveTab()
       break
     case Command.JoinWaitingAgent:
       joinNextWaitingPane()

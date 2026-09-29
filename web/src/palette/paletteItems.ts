@@ -2,7 +2,7 @@ import { longestWaitingFirst, waitedFor, waitingPanes } from '../agents/agentSum
 import { bridge } from '../bridge/bridge'
 import type { GitContext, ShellProfile } from '../bridge/messages'
 import { Command, revealWorkspacePanel, runCommand } from '../keyboard/shortcuts'
-import { activeTab, activeWorkspace, FAVORITES_MAX, folderName, panesOf, type Pane, type Session } from '../model/session'
+import { activeTab, activeWorkspace, FAVORITES_MAX, folderName, isLeaf, panesOf, type Pane, type Session } from '../model/session'
 import { useAgentStore } from '../store/agentStore'
 import { useHostStore } from '../store/hostStore'
 import { useSessionStore } from '../store/sessionStore'
@@ -92,6 +92,9 @@ const commandItems = (session: Session, shells: ShellProfile[]): PaletteItem[] =
     if (context?.worktreeRoot) {
       const { path, name } = worktreeTarget(context.worktreeRoot)
       items.push(command('remove-worktree', `Supprimer ce worktree${SEPARATOR}${name}…`, () => requestWorktreeRemoval(path, context.branch ?? undefined)))
+    }
+    if (!isLeaf(tab.tree)) {
+      items.push(command('equalize-panes', 'Égaliser les panes de l’onglet', () => runCommand(Command.EqualizePanes), 'Leader puis ='))
     }
     items.push(
       command('rename-tab', 'Renommer l’onglet', () => ui.startRenamingTab(tab.id)),
