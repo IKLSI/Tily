@@ -1,5 +1,6 @@
 import { create } from 'zustand'
-import type { EntryKind, FileEntry } from '../bridge/messages'
+import type { EntryKind, FileEntry, GitPathMark } from '../bridge/messages'
+import { folderMarksOf, markKey } from '../explorer/gitMarks'
 
 export interface DirectoryListing {
   entries: FileEntry[]
@@ -26,6 +27,9 @@ interface ExplorerState {
   renamingPath: string | null
   draft: EntryDraft | null
   deleteRequest: DeleteRequest | null
+  gitMarks: Map<string, GitPathMark>
+  gitFolderMarks: Map<string, GitPathMark>
+  setGitMarks: (root: string | null, marks: GitPathMark[]) => void
   setListing: (path: string, listing: DirectoryListing) => void
   setExpanded: (path: string, expanded: boolean) => void
   select: (path: string | null) => void
@@ -48,6 +52,9 @@ export const useExplorerStore = create<ExplorerState>()((set) => ({
   renamingPath: null,
   draft: null,
   deleteRequest: null,
+  gitMarks: new Map(),
+  gitFolderMarks: new Map(),
+  setGitMarks: (root, marks) => set({ gitMarks: new Map(marks.map((mark) => [markKey(mark.path), mark])), gitFolderMarks: folderMarksOf(root, marks) }),
   setListing: (path, listing) => set((state) => ({ listings: { ...state.listings, [path]: listing } })),
   setExpanded: (path, expanded) => set((state) => (Boolean(state.expanded[path]) === expanded ? state : { expanded: { ...state.expanded, [path]: expanded } })),
   select: (selectedPath) => set({ selectedPath }),

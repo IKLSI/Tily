@@ -20,6 +20,7 @@ import { togglePanelView } from '../panel/rightPanel'
 import { closePreview, openPreview } from '../preview/previewActions'
 import { usePreviewStore } from '../store/previewStore'
 import { useExplorerStore, type EntryDraft } from '../store/explorerStore'
+import { markKey } from '../explorer/gitMarks'
 import { FileContextMenu, type FileMenuActions } from './FileContextMenu'
 import { FileTreeRow } from './FileTreeRow'
 import { leafIndent, type FileMenuRequest, type FileTreeHandlers } from './fileTreeHandlers'
@@ -83,6 +84,8 @@ const selectAndFocus = (row: TreeRow | undefined): void => {
 
 export function FileTree({ root, rows, expanded, selectedPath, renamingPath, draft, onOpenTerminal }: FileTreeProps) {
   const [menu, setMenu] = useState<FileMenuRequest | null>(null)
+  const gitMarks = useExplorerStore((state) => state.gitMarks)
+  const gitFolderMarks = useExplorerStore((state) => state.gitFolderMarks)
   const treeRef = useRef<HTMLDivElement>(null)
   const entries = entryRows(rows)
   const selectedIndex = entries.findIndex((row) => row.entry?.path === selectedPath)
@@ -220,6 +223,7 @@ export function FileTree({ root, rows, expanded, selectedPath, renamingPath, dra
                 focusable={row.entry.path === focusablePath}
                 expanded={Boolean(expanded[row.entry.path])}
                 renaming={row.entry.path === renamingPath}
+                mark={(row.entry.isDirectory ? gitFolderMarks : gitMarks).get(markKey(row.entry.path))}
                 handlers={handlers}
               />
             )

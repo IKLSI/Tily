@@ -15,6 +15,7 @@ public sealed class FileExplorerFeed : IDisposable
     private readonly HashSet<string> _changed = new(StringComparer.Ordinal);
     private readonly object _sync = new();
     private readonly Timer _changeTimer;
+    private readonly ExplorerGitMarks _gitMarks;
 
     public FileExplorerFeed(nint windowHandle, Func<string> editorCommand, Action<object> post, Action<Exception> onError)
     {
@@ -23,6 +24,7 @@ public sealed class FileExplorerFeed : IDisposable
         _post = post;
         _queue = new BackgroundQueue(onError);
         _changeTimer = new Timer(_ => ListChanged());
+        _gitMarks = new ExplorerGitMarks(post, _queue);
     }
 
     public void Handle(BridgeCommandModel command)
@@ -34,6 +36,7 @@ public sealed class FileExplorerFeed : IDisposable
                 break;
             case "files.refresh":
                 List(WatchedPaths());
+                _gitMarks.Refresh();
                 break;
             case "files.open":
                 LocalActions.OpenFileInEditor(RequirePath(command), _editorCommand());
@@ -57,6 +60,7 @@ public sealed class FileExplorerFeed : IDisposable
 
     private void Watch(string[] paths)
     {
+        _gitMarks.Follow(paths.FirstOrDefault() ?? string.Empty);
         List<string> added;
         lock (_sync)
         {
@@ -173,6 +177,7 @@ public sealed class FileExplorerFeed : IDisposable
     public void Dispose()
     {
         _changeTimer.Dispose();
+        _gitMarks.Dispose();
         lock (_sync)
         {
             foreach (var watcher in _watchers.Values)

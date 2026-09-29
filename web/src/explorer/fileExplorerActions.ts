@@ -1,5 +1,5 @@
 import { bridge } from '../bridge/bridge'
-import { OpenTarget, type EntryKind, type FileEntry } from '../bridge/messages'
+import { OpenTarget, type EntryKind, type FileEntry, type GitPathMark } from '../bridge/messages'
 import { activeTab, activeWorkspace, folderName } from '../model/session'
 import { useExplorerStore, type DeleteRequest } from '../store/explorerStore'
 import { StatusLevel, useHostStore } from '../store/hostStore'
@@ -111,6 +111,8 @@ export const insertPathInActivePane = (path: string): void => {
     useHostStore.getState().setStatus(PANE_BUSY_STATUS)
   }
 }
+
+export const receiveGitMarks = (root: string | null, marks: GitPathMark[]): void => useExplorerStore.getState().setGitMarks(root, marks)
 
 export const receiveListing = (path: string, entries: FileEntry[], total: number, error: string | undefined): void =>
   useExplorerStore.getState().setListing(path, { entries, total, error: error ?? null })

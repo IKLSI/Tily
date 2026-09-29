@@ -1,5 +1,5 @@
 import type { Session } from '../model/session'
-import type { GitHostMessage, GitSettings, GitWebMessage } from './gitMessages'
+import type { GitChangeKind, GitHostMessage, GitSettings, GitWebMessage } from './gitMessages'
 import type { PreviewHostMessage, PreviewKind, PreviewWebMessage } from './previewMessages'
 import type { StatusLogEntry, StatusLogHostMessage, StatusLogWebMessage } from './statusLogMessages'
 import type { UpdateHostMessage, UpdateSettings, UpdateWebMessage } from './updateMessages'
@@ -39,6 +39,12 @@ export interface FileEntry {
   path: string
   isDirectory: boolean
   preview?: PreviewKind
+}
+
+export interface GitPathMark {
+  path: string
+  kind: GitChangeKind
+  conflicted: boolean
 }
 
 export interface GitContext {
@@ -170,6 +176,7 @@ export type HostToWebMessage =
   | { type: 'context.result'; pane: string; path: string; git: GitContext }
   | { type: 'files.listed'; path: string; entries: FileEntry[]; total: number; error?: string }
   | { type: 'files.created'; path: string }
+  | { type: 'files.gitMarks'; root: string | null; marks: GitPathMark[] }
   | { type: 'files.renamed'; path: string; target: string }
   | { type: 'files.deleted'; path: string }
   | { type: 'error'; pane?: string; message: string }

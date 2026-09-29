@@ -1,5 +1,6 @@
 import { memo, type DragEvent, type MouseEvent } from 'react'
-import type { FileEntry } from '../bridge/messages'
+import type { FileEntry, GitPathMark } from '../bridge/messages'
+import { fileMarkView, folderMarkView } from '../explorer/gitMarks'
 import { renameSelectionEnd } from '../explorer/fileTree'
 import { TREE_PATH_TYPE, treeDragValue } from '../terminal/externalDrop'
 import { Icon } from './Icon'
@@ -15,10 +16,12 @@ interface FileTreeRowProps {
   focusable: boolean
   expanded: boolean
   renaming: boolean
+  mark?: GitPathMark
   handlers: FileTreeHandlers
 }
 
-export const FileTreeRow = memo(function FileTreeRow({ entry, parent, depth, selected, focusable, expanded, renaming, handlers }: FileTreeRowProps) {
+export const FileTreeRow = memo(function FileTreeRow({ entry, parent, depth, selected, focusable, expanded, renaming, mark, handlers }: FileTreeRowProps) {
+  const markView = mark ? (entry.isDirectory ? folderMarkView(mark) : fileMarkView(mark)) : undefined
   const handleClick = () => {
     handlers.select(entry.path)
     if (entry.isDirectory && !renaming) {
@@ -68,7 +71,12 @@ export const FileTreeRow = memo(function FileTreeRow({ entry, parent, depth, sel
       {renaming ? (
         <InlineNameEditor value={entry.name} label={`Nouveau nom de ${entry.name}`} className="h-[18px] min-w-0 flex-1 text-[12px]" selectionEnd={renameSelectionEnd(entry)} onCommit={handleCommitRename} onCancel={handlers.cancelRename} />
       ) : (
-        <span className="min-w-0 truncate">{entry.name}</span>
+        <span className={`min-w-0 truncate ${markView && !selected ? markView.className : ''}`}>{entry.name}</span>
+      )}
+      {markView && !renaming && (
+        <span className={`ml-auto w-[12px] shrink-0 text-center font-mono text-[11px] font-semibold ${markView.className}`} data-tip={markView.label}>
+          {markView.letter}
+        </span>
       )}
     </div>
   )

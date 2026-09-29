@@ -11,7 +11,7 @@ import { useUiStore } from './store/uiStore'
 import { receiveActivity, receiveApplicationClosing } from './terminal/closeGuard'
 import { queryContext, receiveContext } from './terminal/contextActions'
 import { startExternalDrops } from './terminal/externalDrop'
-import { receiveCreated, receiveDeleted, receiveListing, receiveRenamed } from './explorer/fileExplorerActions'
+import { receiveCreated, receiveDeleted, receiveGitMarks, receiveListing, receiveRenamed } from './explorer/fileExplorerActions'
 import { receivePreview } from './preview/previewActions'
 import { receiveGitAutoFetchEnded, receiveGitAutoFetchStarted, receiveGitChanged, receiveGitDetails, receiveGitDiff, receiveGitDone, receiveGitFailed, receiveGitHistory, receiveGitPushRejected, receiveGitState } from './git/gitReceivers'
 import { insertIntoPane, joinPane } from './terminal/terminalActions'
@@ -94,6 +94,7 @@ export default function App() {
       bridge.on('context.result', (message) => receiveContext(message.pane, message.path, message.git)),
       bridge.on('files.listed', (message) => receiveListing(message.path, message.entries, message.total, message.error)),
       bridge.on('files.created', (message) => receiveCreated(message.path)),
+      bridge.on('files.gitMarks', (message) => receiveGitMarks(message.root, message.marks)),
       bridge.on('files.renamed', (message) => receiveRenamed(message.path, message.target)),
       bridge.on('files.deleted', (message) => receiveDeleted(message.path)),
       bridge.on('preview.loaded', receivePreview),
