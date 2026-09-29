@@ -1,5 +1,6 @@
 import { useEffect, useRef, type PointerEvent } from 'react'
 import type { DeleteRequest } from '../store/explorerStore'
+import { keepTabInside } from './focusTrap'
 
 interface DeleteConfirmDialogProps {
   request: DeleteRequest
@@ -36,7 +37,7 @@ export function DeleteConfirmDialog({ request, onConfirm, onCancel }: DeleteConf
 
   return (
     <div className="absolute inset-0 z-40 flex items-start justify-center bg-dock-paper/60 pt-[12vh]" onPointerDown={handleBackdropPointerDown}>
-      <div role="alertdialog" aria-label={title} className="flex w-[480px] max-w-[94vw] flex-col rounded-lg border border-dock-line bg-dock-panel shadow-xl">
+      <div role="alertdialog" aria-label={title} className="flex w-[480px] max-w-[94vw] flex-col rounded-lg border border-dock-line bg-dock-panel shadow-xl" onKeyDown={keepTabInside}>
         <div className="flex items-center justify-between gap-3 border-b border-dock-line px-4 py-3">
           <h2 className="min-w-0 truncate text-[15px] font-semibold text-dock-ink">{title}</h2>
           <span className="shrink-0 text-[11px] text-dock-muted">Entrée supprime · Échap annule</span>

@@ -240,6 +240,16 @@ Un sous-agent a relu tout le diff de la nuit (`main..night-session`) sans rien m
   - un clic sur le fond du message à droite rend ce pane actif, focus sur « Relancer » ;
   - Tab, Entrée sur « Choisir un shell », puis Échap : le menu se ferme et le focus revient sur son bouton.
 
+### 35. Tab ne quitte plus une fenêtre ouverte
+
+- **Quoi** : un utilitaire `keepTabInside` (`focusTrap.ts`) fait boucler Tab et Maj + Tab à l'intérieur des fenêtres modales : palette et sélecteur de projets (`SearchDialog`), paramètres, et confirmations de fermeture, de suppression et Git. Tab sur le dernier élément revient au premier, Maj + Tab sur le premier va au dernier ; la palette, qui n'a qu'un champ, le garde.
+- **Pourquoi** : dans Paramètres, Maj + Tab depuis le premier champ envoyait le focus dans le terminal masqué derrière la fenêtre. xterm.js garde Tab, donc le focus y restait bloqué : la saisie partait au shell alors que la fenêtre restait affichée. Même chose depuis la palette ou une confirmation. La spécification demande d'éviter les pièges de focus (section 16).
+- **Vérifié** : dans l'instance de test,
+  - Paramètres : Maj + Tab depuis le premier champ va sur « Enregistrer », puis Tab revient au premier champ ;
+  - palette : Tab et Maj + Tab laissent le focus dans le champ de recherche ;
+  - confirmation de fermeture avec un `ping` actif : Tab et Maj + Tab alternent entre « Annuler » et « Arrêter et fermer » ;
+  - Échap ferme chaque fenêtre et rend le focus au terminal.
+
 ## Reste à faire et idées
 
 - **Taille de police et zoom du terminal** : police fixe à 14 px. La spécification classe ce point « À décider » (section 4), je n'y ai donc pas touché ; c'est à trancher.

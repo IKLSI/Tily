@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ChangeEvent, type KeyboardEvent, type PointerEvent } from 'react'
 import { NotificationSound, PickTarget, type ImportedPreferences, type NotificationSettings, type PersistenceSettings, type PickedPath, type Settings, type SettingsSnapshot } from '../bridge/messages'
+import { keepTabInside } from './focusTrap'
 
 interface SettingsDialogProps {
   snapshot: SettingsSnapshot | null
@@ -107,6 +108,8 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
     if (event.key === 'Enter' && event.ctrlKey) {
       event.preventDefault()
       handleSave()
+    } else {
+      keepTabInside(event)
     }
   }
   const updateDraft = (patch: Partial<Settings>) => setDraft((current) => (current ? { ...current, ...patch } : current))

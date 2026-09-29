@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react'
 import { filterSearchItems, type SearchItem } from '../palette/searchFilter'
+import { keepTabInside } from './focusTrap'
 
 interface SearchDialogProps<T extends SearchItem> {
   label: string
@@ -66,7 +67,7 @@ export function SearchDialog<T extends SearchItem>({ label, placeholder, emptyMe
 
   return (
     <div className="absolute inset-0 z-30 flex items-start justify-center bg-dock-paper/60 pt-[12vh]" onPointerDown={handleBackdropPointerDown}>
-      <div role="dialog" aria-label={label} className="flex max-h-[70vh] w-[560px] max-w-[92vw] flex-col rounded-lg border border-dock-line bg-dock-panel p-2 shadow-xl">
+      <div role="dialog" aria-label={label} className="flex max-h-[70vh] w-[560px] max-w-[92vw] flex-col rounded-lg border border-dock-line bg-dock-panel p-2 shadow-xl" onKeyDown={keepTabInside}>
         <input
           type="text"
           role="combobox"
