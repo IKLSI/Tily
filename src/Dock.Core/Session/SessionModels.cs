@@ -34,6 +34,7 @@ public sealed class ClosedTabModel
     public int Index { get; set; }
     public TabModel Tab { get; set; } = new();
     public Dictionary<string, string>? Text { get; set; }
+    public string? WorkspaceNote { get; set; }
 }
 
 public sealed class WorkspaceModel
@@ -43,6 +44,7 @@ public sealed class WorkspaceModel
     public List<TabModel> Tabs { get; set; } = new();
     public string Active { get; set; } = string.Empty;
     public bool? Expanded { get; set; }
+    public string? Note { get; set; }
 }
 
 public sealed class TabModel
@@ -101,5 +103,6 @@ public static class SessionLimits
     public const int MaxClosedTextChars = 2_000_000;
     public const int MaxFavorites = 50;
     public const int MaxFavoriteLength = 100;
-    public static readonly string[] Panels = ["files", "git"];
+    public const int MaxNoteChars = 100_000;
+    public static readonly string[] Panels = ["files", "git", "notes"];
 }

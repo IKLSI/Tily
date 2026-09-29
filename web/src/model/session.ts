@@ -32,6 +32,7 @@ export type SplitPath = SplitSide[]
 export enum RightPanelView {
   Files = 'files',
   Git = 'git',
+  Notes = 'notes',
 }
 
 export interface Tab {
@@ -50,6 +51,7 @@ export interface Workspace {
   tabs: Tab[]
   active: string
   expanded?: boolean
+  note?: string
 }
 
 export interface ClosedTab {
@@ -57,6 +59,7 @@ export interface ClosedTab {
   workspaceName: string
   index: number
   tab: Tab
+  workspaceNote?: string
 }
 
 export interface GitGraphLayout {
@@ -105,6 +108,8 @@ export const DEFAULT_GIT_GRAPH: GitGraphLayout = {
 export const DEFAULT_SHELL = 'powershell'
 export const CLOSED_TABS_MAX = 5
 export const FAVORITES_MAX = 50
+export const NOTE_MAX_CHARS = 100_000
+const NOTE_PREVIEW_CHARS = 80
 export const SPLIT_RATIO_MIN = 0.15
 export const SPLIT_RATIO_MAX = 0.85
 export const SPLIT_RATIO_DEFAULT = 0.5
@@ -121,6 +126,11 @@ export const clampGitGraph = (layout: GitGraphLayout): GitGraphLayout => ({
   authorWidth: clampWidth(layout.authorWidth, GIT_COLUMN_MIN, GIT_COLUMN_MAX),
   dateWidth: clampWidth(layout.dateWidth, GIT_COLUMN_MIN, GIT_COLUMN_MAX),
 })
+
+export const notePreview = (note: string | undefined): string => {
+  const line = (note ?? '').split(/\r?\n/).map((candidate) => candidate.trim()).find((candidate) => candidate.length > 0) ?? ''
+  return line.length > NOTE_PREVIEW_CHARS ? `${line.slice(0, NOTE_PREVIEW_CHARS - 1)}…` : line
+}
 
 export const isLeaf = (node: SplitNode): node is SplitLeaf => 'pane' in node
 

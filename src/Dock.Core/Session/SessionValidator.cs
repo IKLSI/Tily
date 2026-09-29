@@ -70,7 +70,7 @@ public static class SessionValidator
 
         foreach (var closed in session.Closed)
         {
-            if (string.IsNullOrEmpty(closed.WorkspaceId) || closed.WorkspaceName is null || closed.Index < 0 || (closed.Text is not null && closed.Text.Values.Any(text => text is null || text.Length > SessionLimits.MaxClosedTextChars)))
+            if (string.IsNullOrEmpty(closed.WorkspaceId) || closed.WorkspaceName is null || closed.Index < 0 || (closed.Text is not null && closed.Text.Values.Any(text => text is null || text.Length > SessionLimits.MaxClosedTextChars)) || closed.WorkspaceNote?.Length > SessionLimits.MaxNoteChars)
             {
                 return ValidationResultModel.Fail("Onglet fermé invalide.");
             }
@@ -90,6 +90,11 @@ public static class SessionValidator
         if (string.IsNullOrEmpty(workspace.Id) || workspace.Name is null || workspace.Tabs.Count == 0)
         {
             return ValidationResultModel.Fail("Workspace invalide.");
+        }
+
+        if (workspace.Note?.Length > SessionLimits.MaxNoteChars)
+        {
+            return ValidationResultModel.Fail("Note du workspace trop longue.");
         }
 
         foreach (var tab in workspace.Tabs)

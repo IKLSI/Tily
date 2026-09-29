@@ -185,6 +185,41 @@ public sealed class SessionValidatorTests
     }
 
     [Fact]
+    public void Validate_WhenWorkspaceNoteWithinLimit_ThenKeepsIt()
+    {
+        var session = SessionFactory.Initial();
+        session.Workspaces[0].Note = "Port de l’API : 5123";
+
+        var result = SessionValidator.Validate(session);
+
+        Assert.True(result.IsValid);
+        Assert.Equal("Port de l’API : 5123", session.Workspaces[0].Note);
+    }
+
+    [Fact]
+    public void Validate_WhenWorkspaceNoteTooLong_ThenFails()
+    {
+        var session = SessionFactory.Initial();
+        session.Workspaces[0].Note = new string('a', SessionLimits.MaxNoteChars + 1);
+
+        var result = SessionValidator.Validate(session);
+
+        Assert.Equal("Note du workspace trop longue.", result.Error);
+    }
+
+    [Fact]
+    public void Validate_WhenClosedTabWorkspaceNoteTooLong_ThenFails()
+    {
+        var session = SessionFactory.Initial();
+        var closedTab = SessionFactory.Tab("C:\\", "powershell");
+        session.Closed.Add(new ClosedTabModel { WorkspaceId = "ferme", WorkspaceName = "Fermé", Index = 0, Tab = closedTab, WorkspaceNote = new string('a', SessionLimits.MaxNoteChars + 1) });
+
+        var result = SessionValidator.Validate(session);
+
+        Assert.Equal("Onglet fermé invalide.", result.Error);
+    }
+
+    [Fact]
     public void Validate_WhenExplorerWidthOutOfRange_ThenClampsIt()
     {
         var session = SessionFactory.Initial();

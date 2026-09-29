@@ -39,6 +39,7 @@ export enum Command {
   RestoreTab = 'restoreTab',
   ToggleExplorer = 'toggleExplorer',
   ToggleGit = 'toggleGit',
+  ToggleNotes = 'toggleNotes',
   ToggleSidebar = 'toggleSidebar',
   TogglePaneZoom = 'togglePaneZoom',
   JoinWaitingAgent = 'joinWaitingAgent',
@@ -55,6 +56,7 @@ const LEADER_KEYS: Record<string, Command> = {
   n: Command.CreateWorktree,
   e: Command.ToggleExplorer,
   g: Command.ToggleGit,
+  o: Command.ToggleNotes,
   b: Command.ToggleSidebar,
   ',': Command.Settings,
   x: Command.ClosePane,
@@ -85,6 +87,7 @@ const DIRECT_LETTER_KEYS: Record<string, Command> = {
   z: Command.RestoreTab,
   e: Command.ToggleExplorer,
   g: Command.ToggleGit,
+  o: Command.ToggleNotes,
   b: Command.ToggleSidebar,
   a: Command.JoinWaitingAgent,
 }
@@ -279,6 +282,9 @@ export const runCommand = (command: Command): void => {
       break
     case Command.ToggleGit:
       togglePanelView(RightPanelView.Git, true)
+      break
+    case Command.ToggleNotes:
+      togglePanelView(RightPanelView.Notes, true)
       break
     case Command.ToggleSidebar:
       toggleSidebar()
