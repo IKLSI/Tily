@@ -1,4 +1,4 @@
-import { waitingPanes } from '../agents/agentSummary'
+import { waitedFor, waitingPanes } from '../agents/agentSummary'
 import { bridge } from '../bridge/bridge'
 import type { ShellProfile } from '../bridge/messages'
 import { Command, runCommand } from '../keyboard/shortcuts'
@@ -94,14 +94,20 @@ const commandItems = (session: Session, shells: ShellProfile[]): PaletteItem[] =
   return items
 }
 
-const attentionItems = (session: Session): PaletteItem[] =>
-  waitingPanes(session, useAgentStore.getState().agents).map((pane) => ({
-    id: `${ATTENTION_PREFIX}${pane.paneId}`,
-    kind: PaletteKind.Attention,
-    label: `Rejoindre${SEPARATOR}${pane.label}`,
-    hint: pane.detail,
-    run: () => joinPane(pane.paneId),
-  }))
+const attentionItems = (session: Session): PaletteItem[] => {
+  const { agents, since } = useAgentStore.getState()
+  const now = Date.now()
+  const waitingSince = (paneId: string): number => since[paneId] ?? now
+  return waitingPanes(session, agents)
+    .toSorted((first, second) => waitingSince(first.paneId) - waitingSince(second.paneId))
+    .map((pane) => ({
+      id: `${ATTENTION_PREFIX}${pane.paneId}`,
+      kind: PaletteKind.Attention,
+      label: `Rejoindre${SEPARATOR}${pane.label}`,
+      hint: `${waitedFor(now - waitingSince(pane.paneId))} · ${pane.detail}`,
+      run: () => joinPane(pane.paneId),
+    }))
+}
 
 const closedTabItems = (session: Session): PaletteItem[] =>
   session.closed

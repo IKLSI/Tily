@@ -643,6 +643,19 @@ Au passage : la version de Dock n'apparaissait nulle part dans l'interface. Elle
 - Vérifié dans l'instance de dev : Leader puis « , » ouvre les Paramètres, dont l'en-tête indique « Paramètres Dock 1.0.0 ».
 - Contrat du pont (`app.hello {version, …}`), architecture front et **convention proposée** (spec, écran Paramètres) mis à jour.
 
+### 71. La palette dit depuis combien de temps chaque agent attend
+
+Quand plusieurs agents attendent en même temps, les entrées « Rejoindre » de la palette ne disaient pas lequel attendait depuis le plus longtemps. Elles suivaient l'ordre du panneau.
+
+- `agentStore` retient, pour chaque pane, l'instant où son état-message actuel a été reçu pour la première fois (`since`). Chaque nouvel état ou message remet ce compteur à zéro, comme l'acquittement.
+- Les entrées « Rejoindre » commencent leur indice par la durée : « depuis moins d'une minute », « depuis 12 min » ou « depuis 1 h 05 » (`waitedFor`). Elles sont classées de l'attente la plus ancienne à la plus récente.
+- La durée est placée en tête de l'indice : au premier essai, en fin d'indice, elle était coupée par manque de place.
+- Tout se passe côté interface : la durée est comptée depuis la réception de l'état par Dock, à la seconde près (l'état arrive par `agent.states`).
+- Vérifié dans l'instance de dev avec deux agents simulés :
+  - LZGChallenge, en attente depuis un peu plus d'une minute, passe devant Dock, en attente depuis quelques secondes, alors que Dock le précède dans le panneau ;
+  - les indices commencent par « depuis 1 min » et « depuis moins d'une minute ».
+- **Convention proposée** ajoutée en section 12 de la spec ; architecture front mise à jour.
+
 ## Reste à faire et idées
 
 - **Alt + flèche sur un onglet ou une ligne du panneau** : quand un onglet de la barre ou une ligne du panneau des workspaces a le focus, Alt + flèche déplace cet élément (itérations 14, 47 et 58) au lieu de changer de pane, comme le prévoit le tableau retenu de la section 9. C'est une dérogation à confirmer ou à retirer ; la spec la signale comme « exception à confirmer ».

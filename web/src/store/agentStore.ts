@@ -6,6 +6,7 @@ export const agentKey = (agent: PaneAgent): string => `${agent.state}|${agent.me
 interface AgentStoreState {
   agents: Record<string, PaneAgent>
   acknowledged: Record<string, string>
+  since: Record<string, number>
   setAgents: (panes: PaneAgent[]) => void
   acknowledge: (paneId: string) => void
 }
@@ -13,11 +14,19 @@ interface AgentStoreState {
 export const useAgentStore = create<AgentStoreState>()((set) => ({
   agents: {},
   acknowledged: {},
+  since: {},
   setAgents: (panes) =>
     set((state) => {
       const agents = Object.fromEntries(panes.map((agent) => [agent.paneId, agent]))
       const acknowledged = Object.fromEntries(Object.entries(state.acknowledged).filter(([paneId, key]) => agents[paneId] !== undefined && agentKey(agents[paneId]) === key))
-      return { agents, acknowledged }
+      const now = Date.now()
+      const since = Object.fromEntries(
+        panes.map((agent) => {
+          const previous = state.agents[agent.paneId]
+          return [agent.paneId, previous && agentKey(previous) === agentKey(agent) ? (state.since[agent.paneId] ?? now) : now]
+        }),
+      )
+      return { agents, acknowledged, since }
     }),
   acknowledge: (paneId) =>
     set((state) => {
