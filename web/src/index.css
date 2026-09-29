@@ -105,6 +105,10 @@ html[data-git-dragging] * {
   outline-offset: -2px;
 }
 
+[data-git-graph-list]:focus-visible {
+  outline: none;
+}
+
 [aria-invalid='true']:focus-visible {
   outline-color: var(--color-dock-error);
 }

@@ -677,6 +677,18 @@ Suite des itérations 71 et 72. Les cartes d'attention, en bas à gauche, resten
   - un peu plus d'une minute après, elle indique « depuis 1 min », sans autre action.
 - Convention de la section 12 de la spec et architecture front complétées.
 
+### 74. Graphe Git : les séparateurs de colonnes ne s'allument plus au moindre survol
+
+En relisant la vue Git, j'ai vu le graphe entouré de plusieurs cadres verts dès qu'il avait le focus : un autour de la liste entière, un autour de la ligne active, et deux traits épais sur toute la hauteur entre les colonnes.
+
+- **Traits entre les colonnes** : les séparateurs réglables (`GitColumnResizer`) utilisaient `group-hover` et `group-focus-visible` de Tailwind. Or ces variantes réagissent à n'importe quel ancêtre marqué `group`, et la liste du graphe en est un. Survoler le graphe ou lui donner le focus allumait donc les deux séparateurs, alors que seul le séparateur survolé ou focalisé devait réagir. Mesuré avant la correction : 1,6 px vert au survol comme au focus du graphe, au lieu de 1 px gris. Ils utilisent maintenant un groupe nommé (`group/resizer`).
+- **Double cadre** : la liste porte `focus:outline-none` et signale le focus par le contour de sa ligne active (`aria-activedescendant`). Mais la règle globale `:focus-visible`, hors couche, l'emportait sur l'utilitaire Tailwind et ajoutait un cadre autour de toute la liste. Une règle `[data-git-graph-list]:focus-visible { outline: none }` rétablit l'intention d'origine : seule la ligne active est encadrée.
+- Vérifié dans l'instance de dev :
+  - avec le focus ou le survol du graphe, les séparateurs restent à 1 px gris et la liste n'a plus de contour ;
+  - la ligne active garde le sien et suit ↓.
+  - Le trait vert restant au début de la colonne Message est voulu : c'est la barre de couleur de la voie du commit.
+- **Au passage** : une boîte d'erreur Windows (« Windows cannot find … ») était restée ouverte depuis mon premier lanceur défectueux de l'itération 64, dont le chemin avait été mal échappé. Je l'ai fermée en la ciblant par son titre exact.
+
 ## Reste à faire et idées
 
 - **Alt + flèche sur un onglet ou une ligne du panneau** : quand un onglet de la barre ou une ligne du panneau des workspaces a le focus, Alt + flèche déplace cet élément (itérations 14, 47 et 58) au lieu de changer de pane, comme le prévoit le tableau retenu de la section 9. C'est une dérogation à confirmer ou à retirer ; la spec la signale comme « exception à confirmer ».

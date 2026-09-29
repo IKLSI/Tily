@@ -66,7 +66,7 @@ export function GitColumnResizer({ side, width, defaultWidth, label, narrowed, o
       aria-disabled={narrowed}
       tabIndex={narrowed ? UNTABBABLE : TABBABLE}
       data-tip={narrowed ? NARROWED_TIP : `${label} (glisser ou flèches, double-clic pour la largeur par défaut)`}
-      className={`group absolute inset-y-0 z-10 flex w-[7px] justify-center focus-visible:outline-none ${narrowed ? 'cursor-default' : 'cursor-ew-resize'} ${side === ResizerSide.Right ? '-right-[4px]' : '-left-[4px]'}`}
+      className={`group/resizer absolute inset-y-0 z-10 flex w-[7px] justify-center focus-visible:outline-none ${narrowed ? 'cursor-default' : 'cursor-ew-resize'} ${side === ResizerSide.Right ? '-right-[4px]' : '-left-[4px]'}`}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
@@ -75,7 +75,7 @@ export function GitColumnResizer({ side, width, defaultWidth, label, narrowed, o
       onDoubleClick={handleDoubleClick}
       onKeyDown={handleKeyDown}
     >
-      <span className="h-full w-px bg-dock-line group-hover:w-0.5 group-hover:bg-dock-green group-focus-visible:w-0.5 group-focus-visible:bg-dock-focus" />
+      <span className="h-full w-px bg-dock-line group-hover/resizer:w-0.5 group-hover/resizer:bg-dock-green group-focus-visible/resizer:w-0.5 group-focus-visible/resizer:bg-dock-focus" />
     </span>
   )
 }
