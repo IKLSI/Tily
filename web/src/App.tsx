@@ -30,7 +30,7 @@ export default function App() {
     let stopAutosave: (() => void) | undefined
     const stopNotifier = startAttentionNotifier()
     const stopExternalDrops = startExternalDrops()
-    const { markFailed, markExited, markPathMissing, clear } = usePaneStore.getState()
+    const { markFailed, markExited, markPathMissing, markAlive } = usePaneStore.getState()
     const subscriptions = [
       bridge.on('app.hello', (message) => {
         setHello(message.shells, message.home, message.persistence)
@@ -79,7 +79,7 @@ export default function App() {
       bridge.on('terminal.dropped', (message) => insertIntoPane(message.pane, message.text)),
       bridge.on('terminal.cwd', (message) => {
         setPanePath(message.pane, message.path)
-        clear(message.pane)
+        markAlive(message.pane)
       }),
       bridge.on('terminal.pathMissing', (message) => markPathMissing(message.pane, message.path, message.fallback)),
       bridge.on('projects.listed', (message) => setProjects(message.root, message.projects, message.error ?? null)),

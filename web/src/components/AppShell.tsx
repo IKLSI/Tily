@@ -18,8 +18,7 @@ import { toggleRightPanel } from '../panel/rightPanel'
 import { useGitStore } from '../store/gitStore'
 import { changePaneShell, dismissPaneState, restartPane, restartPaneIn } from '../terminal/paneLifecycle'
 import { closeOtherTabsKeepingText, closePaneKeepingText, closeTabKeepingText, closeWorkspaceKeepingText, duplicateTabKeepingLayout, restoreClosedTab } from '../terminal/tabLifecycle'
-import { joinPane } from '../terminal/terminalActions'
-import { terminalRegistry } from '../terminal/terminalRegistry'
+import { focusPane, joinPane } from '../terminal/terminalActions'
 import { AttentionToasts } from './AttentionToasts'
 import { CloseConfirmDialog } from './CloseConfirmDialog'
 import { CommandPalette } from './CommandPalette'
@@ -46,8 +45,6 @@ import { WorkspaceTree } from './WorkspaceTree'
 interface AppShellProps {
   session: Session
 }
-
-const focusPane = (paneId: string) => terminalRegistry.get(paneId)?.terminal.focus()
 
 const currentWorkspace = (): Workspace | undefined => {
   const { session } = useSessionStore.getState()

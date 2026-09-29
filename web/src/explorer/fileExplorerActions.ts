@@ -4,7 +4,7 @@ import { activeTab, activeWorkspace, folderName } from '../model/session'
 import { useExplorerStore, type DeleteRequest } from '../store/explorerStore'
 import { StatusLevel, useHostStore } from '../store/hostStore'
 import { useSessionStore } from '../store/sessionStore'
-import { terminalRegistry } from '../terminal/terminalRegistry'
+import { focusPane } from '../terminal/terminalActions'
 
 const TREE_SELECTOR = '[data-file-tree]'
 const ROW_SELECTOR = '[data-file-row]'
@@ -26,7 +26,7 @@ export const focusActivePane = (): void => {
   const { session } = useSessionStore.getState()
   const workspace = session ? activeWorkspace(session) : undefined
   if (workspace) {
-    terminalRegistry.get(activeTab(workspace).active)?.terminal.focus()
+    focusPane(activeTab(workspace).active)
   }
 }
 

@@ -18,6 +18,7 @@ public sealed class HostBridge : IDisposable
     private const int MaxCharsPerMessage = 512 * 1024;
     private const string TextSavePrefix = """{"type":"text.save",""";
     private const string DropPrefix = """{"type":"terminal.drop",""";
+    private const string TerminalCommandPrefix = "terminal.";
     private static readonly TimeSpan WriteDrainTimeout = TimeSpan.FromSeconds(10);
     private static readonly JsonSerializerOptions JsonOptions = SessionRepository.JsonOptions;
 
@@ -137,7 +138,7 @@ public sealed class HostBridge : IDisposable
         }
         catch (Exception exception)
         {
-            Post(new { type = "error", pane = command.Pane, message = exception.Message });
+            Post(new { type = "error", pane = FailedTerminalPane(command), message = exception.Message });
         }
     }
 
@@ -262,7 +263,7 @@ public sealed class HostBridge : IDisposable
                 CancelClose();
                 break;
             default:
-                Post(new { type = "error", pane = command.Pane, message = $"Commande inconnue : {command.Type}" });
+                Post(new { type = "error", pane = FailedTerminalPane(command), message = $"Commande inconnue : {command.Type}" });
                 break;
         }
     }
@@ -548,6 +549,9 @@ public sealed class HostBridge : IDisposable
 
     private static string RequirePane(BridgeCommandModel command) =>
         command.Pane ?? throw new InvalidOperationException("Identifiant de pane manquant.");
+
+    private static string? FailedTerminalPane(BridgeCommandModel command) =>
+        command.Type.StartsWith(TerminalCommandPrefix, StringComparison.Ordinal) ? command.Pane : null;
 
     private void Post(object message) => _dispatcher.TryEnqueue(() => PostNow(message));
 

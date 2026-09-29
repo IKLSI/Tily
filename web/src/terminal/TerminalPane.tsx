@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useRef, type MouseEvent } from 'react'
 import type { Pane } from '../model/session'
 import { handleTerminalKey } from '../keyboard/shortcuts'
 import { useUiStore } from '../store/uiStore'
-import { copyPaneSelection, hasPaneSelection, isMouseTrackedByProgram, pasteIntoPane } from './terminalActions'
+import { copyPaneSelection, focusPane, hasPaneSelection, isMouseTrackedByProgram, pasteIntoPane } from './terminalActions'
 import { terminalRegistry } from './terminalRegistry'
 
 interface TerminalPaneProps {
@@ -43,7 +43,7 @@ export function TerminalPane({ pane, active, onFocus, onContextMenu }: TerminalP
   useEffect(() => {
     const { renamingWorkspaceId, renamingTabId, paletteOpen, projectPickerOpen, settingsOpen, closeConfirmation } = useUiStore.getState()
     if (active && !renamingWorkspaceId && !renamingTabId && !paletteOpen && !projectPickerOpen && !settingsOpen && !closeConfirmation) {
-      terminalRegistry.get(pane.id)?.terminal.focus()
+      focusPane(pane.id)
     }
   }, [active, pane.id])
 

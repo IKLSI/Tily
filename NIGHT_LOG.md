@@ -214,11 +214,25 @@ Un sous-agent a relu tout le diff de la nuit (`main..night-session`) sans rien m
 
   Les entrées 12 et 13 ont été complétées en conséquence.
 
+### 33. Les messages de pane restent joignables au clavier, deux faux signalements corrigés
+
+- **Quoi** :
+  - quand un message recouvre un pane (shell terminé, échec de démarrage, dossier disparu), son bouton par défaut reçoit le focus chaque fois que le pane devient actif, et plus seulement à l'apparition du message. `focusPane` remplace les appels directs au terminal (activation d'un pane, retour de la palette ou d'un renommage, repli du panneau, `joinPane`) et vise d'abord ce bouton. Pour un dossier disparu, c'est « Ignorer » : le shell y tourne encore et Entrée ne doit pas l'arrêter ; Maj + Tab mène à « Relancer dans le dossier de repli ». La ligne « Repli : … » passe au-dessus des boutons, où l'infobulle ne la cache plus ;
+  - à la restauration, le message « dossier disparu » ne restait pas une seconde : le shell, démarré dans le dossier personnel, signalait ce dossier, et tout changement de dossier effaçait l'état du pane. `markAlive` garde maintenant ce message jusqu'au choix de l'utilisateur ;
+  - l'hôte n'associe plus un pane qu'aux erreurs des commandes `terminal.*`. Avant, « Ouvrir dans l'explorateur » sur un dossier disparu, ou un éditeur introuvable, affichait « Le shell n'a pas pu démarrer » sur un shell vivant, avec « Relancer » comme action par défaut.
+- **Pourquoi** : en revenant sur un pane dont le shell était terminé (Alt + flèche), le focus retombait dans le terminal masqué : Entrée ne relançait rien et Tab restait capturé. C'était le piège noté dans le reste à faire. En le corrigeant, j'ai trouvé les deux autres défauts ; le premier rendait la recette R22 (restauration avec dossier disparu) fausse en pratique.
+- **Vérifié** : dans l'instance de test,
+  - shell terminé : Alt + ← puis Alt + → rendent le focus à « Relancer » ; Entrée relance et `echo` s'exécute sans clic ;
+  - dossier supprimé depuis l'autre pane : Alt + → donne le focus à « Ignorer » ; Entrée masque le message et le shell répond toujours ;
+  - restauration avec un dossier disparu : le message reste, focus sur « Ignorer » ; Maj + Tab puis Entrée relancent le shell dans le dossier de repli ;
+  - « Ouvrir dans l'explorateur » sur un dossier disparu : l'erreur s'affiche dans la barre de statut seulement ;
+  - palette puis Échap : le focus revient au terminal.
+
 ## Reste à faire et idées
 
 - **Taille de police et zoom du terminal** : police fixe à 14 px. La spécification classe ce point « À décider » (section 4), je n'y ai donc pas touché ; c'est à trancher.
 - **Colonne des branches du graphe Git** : Auteur et Date s'effacent quand la place manque, mais la colonne des branches (200 px) ne se replie pas d'elle-même dans une fenêtre très étroite.
-- **Dossier disparu** : le message garde ses boutons hors d'atteinte du clavier. C'est voulu, car le shell est toujours vivant et garde le focus ; un raccourci dédié serait à étudier.
+- **Message de pane pendant une saisie** : un message qui apparaît sur le pane où l'on tape prend le focus, et la frappe suivante peut le déclencher. Pour un dossier disparu, le bouton par défaut est donc « Ignorer », sans effet sur le shell, mais le signalement peut alors disparaître sans avoir été lu. Le cas est rare : il faut que le dossier du pane actif disparaisse pendant la saisie.
 - **Glisser-déposer depuis l'Explorateur** : depuis l'itération 32, il est vérifié avec un vrai glisser OLE de fichier, le même mécanisme que l'Explorateur. Un essai à la main depuis l'Explorateur, avec une image dans Claude Code par exemple, reste conseillé.
 - **Tests web** : il n'y en a toujours aucun (décision du 21 septembre). Les fonctions pures ajoutées cette nuit (`fitGraphColumns`, `menuPlaceOf`, `selectAdjacentTab`…) s'y prêteraient bien si tu changes d'avis.
 - **Effacer un terminal** : non ajouté au menu contextuel. Sous Windows 10, ConPTY ne permet pas de vider son propre tampon, et un effacement côté xterm.js pourrait réapparaître au premier redimensionnement.

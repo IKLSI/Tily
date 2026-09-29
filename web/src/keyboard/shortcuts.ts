@@ -5,7 +5,7 @@ import { Direction, paneInDirection } from '../components/paneNavigation'
 import { useSessionStore } from '../store/sessionStore'
 import { requestApplicationClose } from '../terminal/closeGuard'
 import { closePaneKeepingText, restoreClosedTab } from '../terminal/tabLifecycle'
-import { terminalRegistry } from '../terminal/terminalRegistry'
+import { focusPane } from '../terminal/terminalActions'
 import { togglePanelView } from '../panel/rightPanel'
 import { RenameOrigin, useUiStore } from '../store/uiStore'
 
@@ -201,7 +201,7 @@ const SIDEBAR_SELECTOR = 'aside'
 const toggleSidebar = (): void => {
   const { session, toggleSidebar: toggle } = useSessionStore.getState()
   if (session && !session.sidebarCollapsed && document.activeElement?.closest(SIDEBAR_SELECTOR)) {
-    terminalRegistry.get(currentPaneId())?.terminal.focus()
+    focusPane(currentPaneId())
   }
   toggle()
 }

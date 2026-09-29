@@ -29,14 +29,14 @@ const DANGER = `${BUTTON} border-dock-line text-dock-muted hover:text-dock-error
 export function PaneOverlay({ state, shells, onRestart, onRestartIn, onChangeShell, onDismiss, onClose }: PaneOverlayProps) {
   const [menuOpen, setMenuOpen] = useState(false)
   const overlayRef = useRef<HTMLDivElement>(null)
-  const restartRef = useRef<HTMLButtonElement>(null)
+  const defaultRef = useRef<HTMLButtonElement>(null)
   const pathMissing = state.kind === PaneStateKind.PathMissing
 
   useEffect(() => {
     const focused = document.activeElement
     const pane = overlayRef.current?.closest(PANE_SELECTOR)
-    if (!pathMissing && (focused === document.body || (focused && pane?.contains(focused)))) {
-      restartRef.current?.focus()
+    if (focused === document.body || (focused && pane?.contains(focused))) {
+      defaultRef.current?.focus()
     }
   }, [pathMissing])
 
@@ -55,19 +55,20 @@ export function PaneOverlay({ state, shells, onRestart, onRestartIn, onChangeShe
     <div ref={overlayRef} role="alert" className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-dock-terminal/90 p-4 text-center">
       <p className="text-[13px] font-semibold text-dock-ink">{TITLES[state.kind]}</p>
       <p className="max-w-full font-mono text-[11px] break-words text-dock-muted">{state.message}</p>
+      {pathMissing && state.fallback && <p className="max-w-full font-mono text-[11px] break-words text-dock-green">{`Repli : ${state.fallback}`}</p>}
       <div className="flex flex-wrap items-center justify-center gap-2">
         {pathMissing ? (
           <>
             <button type="button" className={PRIMARY} data-tip={`Relancer un shell neuf dans ${state.fallback ?? ''}`} onClick={handleRestartInFallback}>
               Relancer dans le dossier de repli
             </button>
-            <button type="button" className={SECONDARY} data-tip="Garder ce shell tel quel et masquer ce message" onClick={onDismiss}>
+            <button ref={defaultRef} type="button" className={SECONDARY} data-overlay-default data-tip="Garder ce shell tel quel et masquer ce message (Entrée)" onClick={onDismiss}>
               Ignorer
             </button>
           </>
         ) : (
           <>
-            <button ref={restartRef} type="button" className={PRIMARY} data-tip="Relancer le même shell dans ce pane (Entrée)" onClick={onRestart}>
+            <button ref={defaultRef} type="button" className={PRIMARY} data-overlay-default data-tip="Relancer le même shell dans ce pane (Entrée)" onClick={onRestart}>
               Relancer
             </button>
             <div className="relative">
@@ -82,7 +83,6 @@ export function PaneOverlay({ state, shells, onRestart, onRestartIn, onChangeShe
           Fermer le pane
         </button>
       </div>
-      {pathMissing && state.fallback && <p className="font-mono text-[11px] text-dock-green">{`Repli : ${state.fallback}`}</p>}
     </div>
   )
 }

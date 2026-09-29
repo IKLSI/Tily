@@ -5,7 +5,7 @@ import { useAgentStore } from '../store/agentStore'
 import { useHostStore } from '../store/hostStore'
 import { usePaneStore } from '../store/paneStore'
 import { copyPaneBranch, copyPanePath, gitSummary, openPaneFolder, queryContext } from '../terminal/contextActions'
-import { copyPaneSelection, focusPaneTerminal, hasPaneSelection, pasteIntoPane, selectAllInPane } from '../terminal/terminalActions'
+import { copyPaneSelection, focusPane, hasPaneSelection, pasteIntoPane, selectAllInPane } from '../terminal/terminalActions'
 import { TerminalPane } from '../terminal/TerminalPane'
 import { AgentBadge } from './AgentBadge'
 import { PaneOverlay } from './PaneOverlay'
@@ -97,7 +97,7 @@ export const PaneView = memo(function PaneView({ pane, active, onFocus, onClose,
   const handleContextMenu = (x: number, y: number) => setMenu({ x, y })
   const handleDismissMenu = useCallback(() => {
     setMenu(null)
-    focusPaneTerminal(pane.id)
+    focusPane(pane.id)
   }, [pane.id])
   const menuActions: TerminalMenuActions = {
     copy: () => copyPaneSelection(pane.id),

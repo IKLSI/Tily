@@ -8,6 +8,7 @@ import { terminalRegistry } from './terminalRegistry'
 const COPY_FAILED = 'Copie dans le presse-papiers impossible.'
 const PASTE_FAILED = 'Lecture du presse-papiers impossible.'
 const NO_MOUSE_TRACKING = 'none'
+const OVERLAY_DEFAULT_SELECTOR = '[data-overlay-default]'
 
 const reportFailure = (message: string) => (): void => useHostStore.getState().setStatus(message, StatusLevel.Error)
 
@@ -35,7 +36,17 @@ export const selectAllInPane = (paneId: string): void => terminalRegistry.get(pa
 
 export const isMouseTrackedByProgram = (paneId: string): boolean => (terminalRegistry.get(paneId)?.terminal.modes.mouseTrackingMode ?? NO_MOUSE_TRACKING) !== NO_MOUSE_TRACKING
 
-export const focusPaneTerminal = (paneId: string): void => terminalRegistry.get(paneId)?.terminal.focus()
+const overlayDefaultOf = (paneId: string): HTMLElement | null =>
+  document.querySelector<HTMLElement>(`[data-pane-id="${CSS.escape(paneId)}"] ${OVERLAY_DEFAULT_SELECTOR}`)
+
+export const focusPane = (paneId: string): void => {
+  const overlayDefault = overlayDefaultOf(paneId)
+  if (overlayDefault) {
+    overlayDefault.focus()
+  } else {
+    terminalRegistry.get(paneId)?.terminal.focus()
+  }
+}
 
 export const insertIntoPane = (paneId: string, text: string): void => {
   const terminal = terminalRegistry.get(paneId)?.terminal
@@ -59,5 +70,5 @@ export const joinPane = (paneId: string): void => {
   if (activeTabShowsGit()) {
     useGitStore.getState().setGraphOpen(false)
   }
-  focusPaneTerminal(paneId)
+  focusPane(paneId)
 }

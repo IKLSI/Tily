@@ -17,6 +17,7 @@ interface PaneStoreState {
   markFailed: (paneId: string, message: string) => void
   markExited: (paneId: string, code: number) => void
   markPathMissing: (paneId: string, path: string, fallback: string) => void
+  markAlive: (paneId: string) => void
   dismiss: (paneId: string) => void
   clear: (paneId: string) => void
 }
@@ -39,6 +40,8 @@ export const usePaneStore = create<PaneStoreState>()((set) => ({
       const blocked = (state.states[paneId] && state.states[paneId].kind !== PaneStateKind.PathMissing) || ignoredPaths.get(paneId) === path
       return blocked ? state : { states: { ...state.states, [paneId]: { kind: PaneStateKind.PathMissing, message: path, fallback } } }
     }),
+  markAlive: (paneId) =>
+    set((state) => (state.states[paneId] && state.states[paneId].kind !== PaneStateKind.PathMissing ? { states: without(state.states, paneId) } : state)),
   dismiss: (paneId) =>
     set((state) => {
       const current = state.states[paneId]
