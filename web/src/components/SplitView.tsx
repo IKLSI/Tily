@@ -9,6 +9,8 @@ type SplitResizeHandler = (path: SplitPath, ratio: number) => void
 interface SplitViewProps {
   node: SplitNode
   path?: SplitPath
+  zoomed?: boolean
+  onToggleZoom: (paneId: string) => void
   activePaneId: string
   onFocus: (paneId: string) => void
   onClose: (paneId: string) => void
@@ -23,16 +25,16 @@ interface SplitViewProps {
 
 const ROOT_PATH: SplitPath = []
 
-export function SplitView({ node, path = ROOT_PATH, activePaneId, onFocus, onClose, onSplit, onResize, shells, onRestart, onRestartIn, onChangeShell, onDismissState }: SplitViewProps) {
+export function SplitView({ node, path = ROOT_PATH, zoomed = false, onToggleZoom, activePaneId, onFocus, onClose, onSplit, onResize, shells, onRestart, onRestartIn, onChangeShell, onDismissState }: SplitViewProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   if (isLeaf(node)) {
-    return <PaneView pane={node.pane} active={node.pane.id === activePaneId} onFocus={onFocus} onClose={onClose} onSplit={onSplit} shells={shells} onRestart={onRestart} onRestartIn={onRestartIn} onChangeShell={onChangeShell} onDismissState={onDismissState} />
+    return <PaneView pane={node.pane} active={node.pane.id === activePaneId} zoomed={zoomed} onToggleZoom={onToggleZoom} onFocus={onFocus} onClose={onClose} onSplit={onSplit} shells={shells} onRestart={onRestart} onRestartIn={onRestartIn} onChangeShell={onChangeShell} onDismissState={onDismissState} />
   }
   const horizontal = node.axis === SplitAxis.Horizontal
   const handleResize = (ratio: number) => onResize(path, ratio)
   const child = (side: SplitSide, flex: number) => (
     <div className="min-h-0 min-w-0" style={{ flex, flexBasis: 0 }}>
-      <SplitView node={node[side]} path={[...path, side]} activePaneId={activePaneId} onFocus={onFocus} onClose={onClose} onSplit={onSplit} onResize={onResize} shells={shells} onRestart={onRestart} onRestartIn={onRestartIn} onChangeShell={onChangeShell} onDismissState={onDismissState} />
+      <SplitView node={node[side]} path={[...path, side]} onToggleZoom={onToggleZoom} activePaneId={activePaneId} onFocus={onFocus} onClose={onClose} onSplit={onSplit} onResize={onResize} shells={shells} onRestart={onRestart} onRestartIn={onRestartIn} onChangeShell={onChangeShell} onDismissState={onDismissState} />
     </div>
   )
   return (

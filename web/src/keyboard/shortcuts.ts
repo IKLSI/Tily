@@ -6,6 +6,7 @@ import { useSessionStore } from '../store/sessionStore'
 import { requestApplicationClose } from '../terminal/closeGuard'
 import { closePaneKeepingText, restoreClosedTab } from '../terminal/tabLifecycle'
 import { focusPane } from '../terminal/terminalActions'
+import { togglePaneZoom } from '../terminal/paneZoom'
 import { togglePanelView } from '../panel/rightPanel'
 import { RenameOrigin, useUiStore } from '../store/uiStore'
 
@@ -31,6 +32,7 @@ export const LEADER_HINTS: LeaderHint[] = [
   { keys: 'G', label: 'git' },
   { keys: 'B', label: 'workspaces' },
   { keys: 'X', label: 'fermer le pane' },
+  { keys: 'M', label: 'agrandir le pane' },
   { keys: 'Z', label: 'rouvrir' },
   { keys: 'P', label: 'palette' },
   { keys: ',', label: 'paramètres' },
@@ -61,6 +63,7 @@ export enum Command {
   ToggleExplorer = 'toggleExplorer',
   ToggleGit = 'toggleGit',
   ToggleSidebar = 'toggleSidebar',
+  TogglePaneZoom = 'togglePaneZoom',
 }
 
 const LEADER_KEYS: Record<string, Command> = {
@@ -75,6 +78,7 @@ const LEADER_KEYS: Record<string, Command> = {
   b: Command.ToggleSidebar,
   ',': Command.Settings,
   x: Command.ClosePane,
+  m: Command.TogglePaneZoom,
   z: Command.RestoreTab,
   ArrowRight: Command.FocusPaneRight,
   ArrowDown: Command.FocusPaneDown,
@@ -96,6 +100,7 @@ const DIRECT_LETTER_KEYS: Record<string, Command> = {
   h: Command.SplitTopBottom,
   w: Command.NewWorkspace,
   x: Command.ClosePane,
+  m: Command.TogglePaneZoom,
   z: Command.RestoreTab,
   e: Command.ToggleExplorer,
   g: Command.ToggleGit,
@@ -278,6 +283,9 @@ export const runCommand = (command: Command): void => {
       break
     case Command.ToggleSidebar:
       toggleSidebar()
+      break
+    case Command.TogglePaneZoom:
+      togglePaneZoom()
       break
   }
 }

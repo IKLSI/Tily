@@ -62,6 +62,7 @@ Aucun droit administrateur n’est nécessaire. Pour mettre à jour, fermer Dock
 | F | — | Sélecteur de projets |
 | W | Ctrl + Maj + W | Nouveau workspace |
 | X | Ctrl + Maj + X | Fermer le terminal actif |
+| M | Ctrl + Maj + M | Agrandir / réduire le terminal actif (ou double-clic sur son en-tête) |
 | E | Ctrl + Maj + E | Explorateur de fichiers |
 | G | Ctrl + Maj + G | Vue Git |
 | B | Ctrl + Maj + B | Afficher / masquer les workspaces |

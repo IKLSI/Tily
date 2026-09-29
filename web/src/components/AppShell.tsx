@@ -19,6 +19,7 @@ import { useGitStore } from '../store/gitStore'
 import { changePaneShell, dismissPaneState, restartPane, restartPaneIn } from '../terminal/paneLifecycle'
 import { closeOtherTabsKeepingText, closePaneKeepingText, closeTabKeepingText, closeWorkspaceKeepingText, duplicateTabKeepingLayout, restoreClosedTab } from '../terminal/tabLifecycle'
 import { focusPane, joinPane } from '../terminal/terminalActions'
+import { togglePaneZoom, zoomedPaneOf } from '../terminal/paneZoom'
 import { AttentionToasts } from './AttentionToasts'
 import { CloseConfirmDialog } from './CloseConfirmDialog'
 import { CommandPalette } from './CommandPalette'
@@ -198,8 +199,9 @@ export function AppShell({ session }: AppShellProps) {
       importedPreferences: state.importedPreferences,
     })),
   )
-  const { renamingWorkspaceId, renameOrigin, renamingTabId, tabRenameOrigin, paletteOpen, projectPickerOpen, settingsOpen, closeConfirmation } = useUiStore(
+  const { renamingWorkspaceId, renameOrigin, renamingTabId, tabRenameOrigin, paletteOpen, projectPickerOpen, settingsOpen, closeConfirmation, zoomedPaneId } = useUiStore(
     useShallow((state) => ({
+      zoomedPaneId: state.zoomedPaneId,
       renamingWorkspaceId: state.renamingWorkspaceId,
       renameOrigin: state.renameOrigin,
       renamingTabId: state.renamingTabId,
@@ -224,6 +226,12 @@ export function AppShell({ session }: AppShellProps) {
   const graphShown = gitShown && gitGraphReady
   const tabId = tab?.id
   const activePaneId = tab?.active
+
+  useEffect(() => {
+    if (zoomedPaneId !== null && zoomedPaneId !== activePaneId) {
+      useUiStore.getState().clearPaneZoom()
+    }
+  }, [zoomedPaneId, activePaneId, tabId])
   const availableShells = useMemo(() => shells.filter((shell) => shell.available), [shells])
 
   useEffect(() => {
@@ -245,7 +253,7 @@ export function AppShell({ session }: AppShellProps) {
     if (graphShown) {
       takeFocusFromCoveredTerminals()
     }
-  }, [graphShown, tabId, activePaneId])
+  }, [graphShown, tabId, activePaneId, zoomedPaneId])
 
   const handleClosePalette = () => {
     closePalette()
@@ -300,6 +308,7 @@ export function AppShell({ session }: AppShellProps) {
 
   const renderMain = (current: Workspace) => {
     const currentTab = activeTab(current)
+    const zoomedPane = zoomedPaneOf(currentTab, zoomedPaneId)
     const handleResize = (path: SplitPath, ratio: number) => setSplitRatio(currentTab.id, path, ratio)
     return (
       <>
@@ -321,7 +330,7 @@ export function AppShell({ session }: AppShellProps) {
           onMove={moveTab}
         />
         <div className="relative min-h-0 flex-1 border-t border-dock-line bg-dock-panel p-1">
-          <SplitView key={currentTab.id} node={currentTab.tree} activePaneId={currentTab.active} onFocus={selectPane} onClose={closePaneKeepingText} onSplit={handleSplit} onResize={handleResize} shells={availableShells} onRestart={restartPane} onRestartIn={restartPaneIn} onChangeShell={changePaneShell} onDismissState={dismissPaneState} />
+          <SplitView key={currentTab.id} node={zoomedPane ? { pane: zoomedPane } : currentTab.tree} zoomed={zoomedPane !== undefined} onToggleZoom={togglePaneZoom} activePaneId={currentTab.active} onFocus={selectPane} onClose={closePaneKeepingText} onSplit={handleSplit} onResize={handleResize} shells={availableShells} onRestart={restartPane} onRestartIn={restartPaneIn} onChangeShell={changePaneShell} onDismissState={dismissPaneState} />
           {graphShown && <GitGraphView layout={session.gitGraph} />}
           {gitShown && <GitDiffDrawer />}
           {gitShown && <GitContextMenu />}

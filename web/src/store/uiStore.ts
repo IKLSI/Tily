@@ -59,6 +59,9 @@ interface UiState {
   startDraggingWorkspace: (workspaceId: string) => void
   setWorkspaceDropTarget: (target: WorkspaceDropTarget | null) => void
   stopDraggingWorkspace: () => void
+  zoomedPaneId: string | null
+  togglePaneZoom: (paneId: string) => void
+  clearPaneZoom: () => void
 }
 
 export const useUiStore = create<UiState>()((set) => ({
@@ -95,4 +98,7 @@ export const useUiStore = create<UiState>()((set) => ({
   startDraggingWorkspace: (draggingWorkspaceId) => set({ draggingWorkspaceId, workspaceDropTarget: null }),
   setWorkspaceDropTarget: (workspaceDropTarget) => set({ workspaceDropTarget }),
   stopDraggingWorkspace: () => set({ draggingWorkspaceId: null, workspaceDropTarget: null }),
+  zoomedPaneId: null,
+  togglePaneZoom: (paneId) => set((state) => ({ zoomedPaneId: state.zoomedPaneId === paneId ? null : paneId })),
+  clearPaneZoom: () => set({ zoomedPaneId: null }),
 }))

@@ -40,6 +40,7 @@ const commandItems = (session: Session, shells: ShellProfile[]): PaletteItem[] =
     command('split-x', 'Split côte à côte', () => runCommand(Command.SplitSideBySide), 'Ctrl + Maj + D'),
     command('split-y', 'Split haut / bas', () => runCommand(Command.SplitTopBottom), 'Ctrl + Maj + H'),
     command('close-pane', 'Fermer le pane actif', () => runCommand(Command.ClosePane), 'Ctrl + Maj + X'),
+    command('toggle-zoom', 'Agrandir / réduire le pane actif', () => runCommand(Command.TogglePaneZoom), 'Ctrl + Maj + M'),
     command('next-tab', 'Onglet suivant', () => runCommand(Command.NextTab), 'Ctrl + Tab'),
     command('previous-tab', 'Onglet précédent', () => runCommand(Command.PreviousTab), 'Ctrl + Maj + Tab'),
     command('new-workspace', 'Nouveau workspace', () => runCommand(Command.NewWorkspace), 'Ctrl + Maj + W'),

@@ -366,6 +366,19 @@ Les douze constats de la relecture sont traités (itérations 44 à 46).
 - **Pourquoi** : ces raccourcis existaient, affichés dans les indications du Leader, mais le README ne les citait pas, pas plus que plusieurs gestes ajoutés cette nuit. C'est la première page qu'on lit.
 - **Vérifié** : chaque raccourci ajouté a été relu dans `LEADER_KEYS`, `DIRECT_LETTER_KEYS`, `DIRECT_PAGE_KEYS` et `LEADER_HINTS`. Plus tôt dans l'itération, l'exploration de la vue Git (checkout de `autre` par Entrée dans le panneau des références, bascule de Ctrl + Maj + G quatre fois de suite) n'a montré aucun défaut.
 
+### 49. Agrandir temporairement un pane
+
+- **Quoi** : Leader puis M, Ctrl + Maj + M, la palette (« Agrandir / réduire le pane actif ») ou un double-clic sur l'en-tête d'un pane l'agrandit à toute la zone de l'onglet, comme le zoom de tmux. La disposition enregistrée ne change pas et les autres terminaux continuent de tourner dans `terminalRegistry`. Un bouton « Réduire » apparaît dans l'en-tête du pane agrandi. Le même geste, ce bouton, un split, le passage à un autre pane ou à un autre onglet le réduisent. Un onglet d'un seul pane affiche « Un seul pane dans cet onglet : rien à agrandir. ». L'état (`zoomedPaneId`) n'est pas persisté. Le tout est noté « Convention proposée » dans la spécification, hors du tableau retenu des raccourcis.
+- **Pourquoi** : avec trois ou quatre splits, lire une longue sortie ou travailler avec un agent dans un pane étroit est pénible, et refaire la disposition ensuite l'est encore plus. C'est une fonction courante des multiplexeurs (tmux, Windows Terminal).
+- **Vérifié** : dans l'instance de test,
+  - un seul pane : message ;
+  - après un split, Ctrl + Maj + M n'affiche que le pane actif, focus dans son terminal (capture) ;
+  - « Réduire » rétablit les deux panes ;
+  - un double-clic sur l'en-tête de l'autre pane l'agrandit ;
+  - un split pendant le zoom le termine et montre les trois panes ;
+  - un aller-retour d'onglet le termine aussi ;
+  - graphe Git ouvert par-dessus les terminaux : le zoom laisse le focus au graphe.
+
 ## Reste à faire et idées
 
 - **Taille de police et zoom du terminal** : police fixe à 14 px. La spécification classe ce point « À décider » (section 4), je n'y ai donc pas touché ; c'est à trancher.
