@@ -13,6 +13,7 @@ interface TerminalPaneProps {
 }
 
 const MOUSE_RIGHT_BUTTON = 2
+const PANE_SELECTOR = '[data-pane-id]'
 
 export function TerminalPane({ pane, active, onFocus, onContextMenu }: TerminalPaneProps) {
   const hostRef = useRef<HTMLDivElement>(null)
@@ -42,7 +43,8 @@ export function TerminalPane({ pane, active, onFocus, onContextMenu }: TerminalP
 
   useEffect(() => {
     const { renamingWorkspaceId, renamingTabId, paletteOpen, projectPickerOpen, settingsOpen, closeConfirmation } = useUiStore.getState()
-    if (active && !renamingWorkspaceId && !renamingTabId && !paletteOpen && !projectPickerOpen && !settingsOpen && !closeConfirmation) {
+    const focusAlreadyInPane = Boolean(hostRef.current?.closest(PANE_SELECTOR)?.contains(document.activeElement))
+    if (active && !focusAlreadyInPane && !renamingWorkspaceId && !renamingTabId && !paletteOpen && !projectPickerOpen && !settingsOpen && !closeConfirmation) {
       focusPane(pane.id)
     }
   }, [active, pane.id])

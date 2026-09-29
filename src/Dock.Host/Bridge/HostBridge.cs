@@ -551,7 +551,7 @@ public sealed class HostBridge : IDisposable
         command.Pane ?? throw new InvalidOperationException("Identifiant de pane manquant.");
 
     private static string? FailedTerminalPane(BridgeCommandModel command) =>
-        command.Type.StartsWith(TerminalCommandPrefix, StringComparison.Ordinal) ? command.Pane : null;
+        command.Type is { } type && type.StartsWith(TerminalCommandPrefix, StringComparison.Ordinal) ? command.Pane : null;
 
     private void Post(object message) => _dispatcher.TryEnqueue(() => PostNow(message));
 

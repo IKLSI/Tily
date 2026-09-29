@@ -9,6 +9,10 @@ const COPY_FAILED = 'Copie dans le presse-papiers impossible.'
 const PASTE_FAILED = 'Lecture du presse-papiers impossible.'
 const NO_MOUSE_TRACKING = 'none'
 const OVERLAY_DEFAULT_SELECTOR = '[data-overlay-default]'
+const TABBABLE = 0
+const UNTABBABLE = -1
+const VIEWPORT_SELECTOR = '.xterm-viewport'
+const TAB_INDEX_ATTRIBUTE = 'tabindex'
 
 const reportFailure = (message: string) => (): void => useHostStore.getState().setStatus(message, StatusLevel.Error)
 
@@ -45,6 +49,19 @@ export const focusPane = (paneId: string): void => {
     overlayDefault.focus()
   } else {
     terminalRegistry.get(paneId)?.terminal.focus()
+  }
+}
+
+export const setPaneTerminalTabbable = (paneId: string, tabbable: boolean): void => {
+  const terminal = terminalRegistry.get(paneId)?.terminal
+  const viewport = terminal?.element?.querySelector<HTMLElement>(VIEWPORT_SELECTOR)
+  if (terminal?.textarea) {
+    terminal.textarea.tabIndex = tabbable ? TABBABLE : UNTABBABLE
+  }
+  if (viewport && tabbable) {
+    viewport.removeAttribute(TAB_INDEX_ATTRIBUTE)
+  } else if (viewport) {
+    viewport.tabIndex = UNTABBABLE
   }
 }
 

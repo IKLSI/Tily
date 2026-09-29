@@ -318,6 +318,17 @@ Un sous-agent a relu tout le diff de la nuit (`main..night-session`) sans rien m
 - **Pourquoi** : à la première ouverture de l'explorateur sur un dossier, tout le panneau restait encadré par le contour de focus et aucune ligne n'était visée. La première flèche sélectionnait bien une ligne, mais l'état initial avait l'air d'un défaut. Depuis un dossier déjà lu, le focus allait déjà sur une ligne.
 - **Vérifié** : dans l'instance de test relancée, l'ouverture des fichiers par Ctrl + Maj + E, y compris sur un sous-dossier jamais lu, laisse le focus sur la première ligne de l'arbre (`gamma.txt`, capture). À l'itération 37, dans le même cas, il restait sur le conteneur. L'état intermédiaire n'a pas pu être observé : sur ces petits dossiers, la liste arrive en moins de 250 ms.
 
+### 44. Deuxième relecture indépendante, premier lot : focus des panes et robustesse de l'hôte
+
+Un sous-agent a relu les itérations 30 à 42 (`86c8152..HEAD`) sans rien modifier. Il a rapporté 12 constats, dont 5 confirmés par une reproduction en navigateur isolé. Ce premier lot traite ceux qui touchent au focus des panes et à l'hôte ; je les ai tous reproduits ou vérifiés dans l'instance de test.
+
+- **Régression de l'itération 34** : Tab ou un focus posé sur un bouton d'en-tête d'un pane inactif rendait bien ce pane actif, mais son terminal reprenait aussitôt le focus. Les boutons d'en-tête d'un pane inactif n'étaient donc plus joignables au clavier. `TerminalPane` ne focalise plus son terminal si le focus est déjà dans le pane. Vérifié : le focus reste sur « Copier le chemin » du pane de gauche, devenu actif.
+- **Maj + Tab sous un message** : depuis « Relancer », Maj + Tab atteignait la zone de saisie de xterm.js (`tabIndex` 0), puis sa zone défilante, masquées sous le message ; pour un dossier disparu, la frappe partait au shell sans être vue. Tant qu'un message recouvre le pane, `setPaneTerminalTabbable` les sort de l'ordre de Tab, puis rétablit les valeurs de xterm.js. Vérifié : Maj + Tab va sur « Fermer le pane » de l'en-tête, et après la relance la zone de saisie repasse à 0 et la zone défilante perd son attribut.
+- **Dépôt de fichier sur un pane recouvert** : le chemin était tapé dans le terminal masqué. `externalDrop` refuse désormais le dépôt sur un tel pane. Vérifié avec un vrai glisser simulé par CDP : rien sur le pane recouvert, chemin inséré dans le pane libre.
+- **Hôte et message sans `type`** : `"type": null` passait la désérialisation, et `FailedTerminalPane` levait alors une exception dans le `catch` de `Handle`, ce qui pouvait arrêter l'hôte. Le cas est désormais géré. Vérifié : après un tel message envoyé depuis la page, l'hôte reste vivant et affiche l'erreur dans la barre de statut.
+
+Les constats restants (glisser des workspaces, piège de Tab et zones défilantes, infobulle des onglets, redimensionnement des colonnes du graphe, chaîne magique) font l'objet des itérations suivantes.
+
 ## Reste à faire et idées
 
 - **Taille de police et zoom du terminal** : police fixe à 14 px. La spécification classe ce point « À décider » (section 4), je n'y ai donc pas touché ; c'est à trancher.

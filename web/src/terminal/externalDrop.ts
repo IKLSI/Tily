@@ -1,5 +1,6 @@
 import { bridge } from '../bridge/bridge'
 import { allPanes, DEFAULT_SHELL } from '../model/session'
+import { usePaneStore } from '../store/paneStore'
 import { useSessionStore } from '../store/sessionStore'
 
 const FILES_TYPE = 'Files'
@@ -12,8 +13,10 @@ const carries = (event: DragEvent, type: string): boolean => Boolean(event.dataT
 
 const carriesExternalData = (event: DragEvent): boolean => EXTERNAL_TYPES.some((type) => carries(event, type))
 
-const paneIdUnder = (event: DragEvent): string | undefined =>
-  event.target instanceof Element ? event.target.closest<HTMLElement>(PANE_SELECTOR)?.dataset.paneId : undefined
+const openPaneIdUnder = (event: DragEvent): string | undefined => {
+  const paneId = event.target instanceof Element ? event.target.closest<HTMLElement>(PANE_SELECTOR)?.dataset.paneId : undefined
+  return paneId && !usePaneStore.getState().states[paneId] ? paneId : undefined
+}
 
 const shellOf = (paneId: string): string => {
   const { session } = useSessionStore.getState()
@@ -26,7 +29,7 @@ const handleDragOver = (event: DragEvent): void => {
   }
   event.preventDefault()
   if (event.dataTransfer) {
-    event.dataTransfer.dropEffect = carries(event, FILES_TYPE) && paneIdUnder(event) ? COPY_DROP : NO_DROP
+    event.dataTransfer.dropEffect = carries(event, FILES_TYPE) && openPaneIdUnder(event) ? COPY_DROP : NO_DROP
   }
 }
 
@@ -35,7 +38,7 @@ const handleDrop = (event: DragEvent): void => {
     return
   }
   event.preventDefault()
-  const paneId = paneIdUnder(event)
+  const paneId = openPaneIdUnder(event)
   const files = event.dataTransfer?.files
   if (paneId && files && files.length > 0) {
     bridge.sendWithFiles({ type: 'terminal.drop', pane: paneId, shell: shellOf(paneId) }, files)

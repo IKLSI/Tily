@@ -5,7 +5,7 @@ import { useAgentStore } from '../store/agentStore'
 import { useHostStore } from '../store/hostStore'
 import { usePaneStore } from '../store/paneStore'
 import { copyPaneBranch, copyPanePath, gitSummary, openPaneFolder, queryContext } from '../terminal/contextActions'
-import { copyPaneSelection, focusPane, hasPaneSelection, pasteIntoPane, selectAllInPane } from '../terminal/terminalActions'
+import { copyPaneSelection, focusPane, hasPaneSelection, pasteIntoPane, selectAllInPane, setPaneTerminalTabbable } from '../terminal/terminalActions'
 import { TerminalPane } from '../terminal/TerminalPane'
 import { AgentBadge } from './AgentBadge'
 import { PaneOverlay } from './PaneOverlay'
@@ -81,6 +81,11 @@ export const PaneView = memo(function PaneView({ pane, active, onFocus, onClose,
   useEffect(() => {
     queryContext(pane.id)
   }, [pane.id, pane.path])
+
+  const covered = paneState !== undefined
+  useEffect(() => {
+    setPaneTerminalTabbable(pane.id, !covered)
+  }, [pane.id, covered])
 
   const handleHeaderMouseDown = () => onFocus(pane.id)
   const handleFocusWithin = () => {
