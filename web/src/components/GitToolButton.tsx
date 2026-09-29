@@ -7,10 +7,11 @@ interface GitToolButtonProps {
   label?: string
   disabled?: boolean
   pressed?: boolean
+  labelClassName?: string
   onClick: () => void
 }
 
-export function GitToolButton({ icon, tip, label, disabled = false, pressed, onClick }: GitToolButtonProps) {
+export function GitToolButton({ icon, tip, label, disabled = false, pressed, labelClassName = '', onClick }: GitToolButtonProps) {
   const handleClick = () => {
     if (!disabled) {
       onClick()
@@ -28,7 +29,7 @@ export function GitToolButton({ icon, tip, label, disabled = false, pressed, onC
       onClick={handleClick}
     >
       <Icon name={icon} />
-      {label && <span className="whitespace-nowrap">{label}</span>}
+      {label && <span className={`whitespace-nowrap ${labelClassName}`}>{label}</span>}
     </button>
   )
 }

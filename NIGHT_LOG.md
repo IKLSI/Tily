@@ -156,7 +156,14 @@ La vue Git proposait cherry-pick, merge, rebase et reset, mais pas le revert, po
   - revert de « Suppression de l'ancien night log » depuis le graphe : commit `Revert "…"` créé, `NIGHT_LOG.md` restauré, message « Revert de 2009a21 sur « night-session » terminé. » ;
   - « Annuler » ramène HEAD sur `2009a21`.
 - **Convention proposée** en section 11 de la spec, README mis à jour.
-- **Remarque** : l'en-tête du panneau Git manque de place à 280 px : le bouton « Actualiser » passe à la ligne sous « Annuler ». À revoir.
+- **Remarque** : l'en-tête du panneau Git manquait de place à 280 px (corrigé à l'itération 15).
+
+### 15. Rangée d'outils du panneau Git sur une seule ligne
+
+Remarque de l'itération 14 : à la largeur par défaut du panneau (280 px), avec « Pull 16 » en retard, le bouton « Actualiser » passait seul sur une deuxième ligne.
+
+- Sous 300 px de rangée, « Annuler » ne montre plus que son icône, par une requête de conteneur comme pour la branche dans l'en-tête des panes. L'infobulle et le libellé accessible restent.
+- Vérifié dans l'instance de dev : à 268 px, Fetch, « Pull 16 », Push, Annuler et Actualiser tiennent sur la même ligne.
 
 ## Reste à faire et idées
 
