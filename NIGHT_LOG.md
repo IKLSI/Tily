@@ -131,7 +131,7 @@ Les erreurs de compilation, de tests ou de lint affichent `src/app.ts:12:5` ou `
 - Détection vérifiée sur des sorties types : tsc, dotnet, pytest, pile Node et `git status`. Les URL, versions et noms isolés ne sont pas liés.
 - 8 tests (`EditorLocationTests`).
 - Vérifié dans l'instance de dev, avec un faux `code.cmd` qui journalise ses arguments pour ne pas ouvrir ton VS Code :
-  - Ctrl + clic sur `src\Dock.Core\Git\GitRunner.cs(42,17): error CS1002` lance `-g …epo\src\Dock.Core\Git\GitRunner.cs:42:17` ;
+  - Ctrl + clic sur `src\Dock.Core\Git\GitRunner.cs(42,17): error CS1002` lance `-g …\repo\src\Dock.Core\Git\GitRunner.cs:42:17` ;
   - un clic simple ne lance rien ;
   - un fichier absent affiche le message.
 - **Limites** : un chemin qui contient des espaces n'est pas lié. Un lien sur deux lignes repliées non plus.
