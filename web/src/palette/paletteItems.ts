@@ -7,7 +7,7 @@ import { useAgentStore } from '../store/agentStore'
 import { useHostStore } from '../store/hostStore'
 import { useSessionStore } from '../store/sessionStore'
 import { RenameOrigin, useUiStore } from '../store/uiStore'
-import { closeOtherTabsKeepingText, closeTabKeepingText, duplicateTabKeepingLayout, restoreClosedTab, restoreClosedTabAt } from '../terminal/tabLifecycle'
+import { closeOtherTabsKeepingText, closeTabKeepingText, closeWorkspaceKeepingText, duplicateTabKeepingLayout, restoreClosedTab, restoreClosedTabAt } from '../terminal/tabLifecycle'
 import { joinPane } from '../terminal/terminalActions'
 import { OpenTarget } from '../bridge/messages'
 import { copyPaneBranch, copyPanePath, openPaneFolder } from '../terminal/contextActions'
@@ -68,6 +68,7 @@ const commandItems = (session: Session, shells: ShellProfile[]): PaletteItem[] =
       command('rename-workspace', 'Renommer le workspace', () => ui.startRenamingWorkspace(workspace.id, RenameOrigin.Header)),
       command('move-workspace-up', 'Monter le workspace', () => store.moveWorkspace(workspace.id, -1)),
       command('move-workspace-down', 'Descendre le workspace', () => store.moveWorkspace(workspace.id, 1)),
+      command('close-workspace', `Fermer le workspace${SEPARATOR}${workspace.name}`, () => closeWorkspaceKeepingText(workspace.id)),
     )
   }
   if (tab) {

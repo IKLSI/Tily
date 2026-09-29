@@ -543,6 +543,17 @@ Dock sert d'abord à suivre plusieurs agents Claude Code ou Codex CLI répartis 
   - l'entrée de palette apparaît en tapant « agent ».
 - Nouveau raccourci, donc **convention proposée** (section 12 de la spec) ; il rejoint la liste des raccourcis à valider. README mis à jour.
 
+### 64. « Fermer le workspace » dans la palette
+
+La palette sait fermer l'onglet actif ou les autres onglets, mais pas le workspace : il fallait passer par le menu contextuel du panneau, donc par la souris ou par le panneau au clavier.
+
+- Nouvelle entrée « Fermer le workspace · nom » pour le workspace actif. Le nom figure dans l'entrée parce que l'action est large. Elle passe par `closeWorkspaceKeepingText`, comme le menu : une seule confirmation si des programmes tournent, et les derniers onglets restent restaurables.
+- Vérifié dans l'instance de dev sur un workspace de test, « Workspace 5 », avec un `ping` en cours :
+  - l'entrée ouvre la confirmation qui liste `PING`, et Échap la referme en gardant le workspace ;
+  - Entrée sur « Arrêter et fermer » ferme le workspace, et la barre de statut annonce « Workspace « Workspace 5 » fermé. Ctrl + Maj + Z rouvre ses derniers onglets un par un. » ;
+  - son onglet figure dans les onglets fermés de la palette, avec « Workspace 5 » en indice.
+- **Convention proposée** ajoutée en section 5 de la spec ; architecture front mise à jour.
+
 ## Reste à faire et idées
 
 - **Taille de police et zoom du terminal** : police fixe à 14 px. La spécification classe ce point « À décider » (section 4), je n'y ai donc pas touché ; c'est à trancher.
