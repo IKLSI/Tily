@@ -101,7 +101,7 @@ export function GitChangesView({ state, busy }: GitChangesViewProps) {
     const index = rows.findIndex((row) => row.key === target.dataset.gitRow)
     const current = rows[index]
     const extend = event.shiftKey
-    if (event.ctrlKey && event.key.toLowerCase() === 'a') {
+    if (event.ctrlKey && !event.shiftKey && event.key.toLowerCase() === 'a') {
       useGitStore.getState().setChangeSelection({ keys: new Set(rows.map((row) => row.key)), anchor: current?.key ?? rows[0]?.key ?? null })
     } else if (event.key === 'ArrowDown') {
       moveTo(rows[index < 0 ? 0 : Math.min(index + 1, rows.length - 1)], extend)

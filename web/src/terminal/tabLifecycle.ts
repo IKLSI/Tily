@@ -31,6 +31,26 @@ export const closeTabKeepingText = (tabId: string): void => {
   }
 }
 
+const closeTabsNow = (tabIds: string[]): void => {
+  const tabs = tabIds.map(tabOf).filter((tab): tab is Tab => tab !== undefined)
+  const text = terminalRegistry.snapshot(tabs.flatMap(paneIdsOf))
+  const { closeTab } = useSessionStore.getState()
+  for (const tab of tabs) {
+    closeTab(tab.id)
+  }
+  keepClosedTabText(text)
+  useHostStore.getState().setStatus(tabs.length === 1 ? 'Onglet fermé. Ctrl + Maj + Z le rouvre avec un nouveau terminal.' : `${tabs.length} onglets fermés. Ctrl + Maj + Z rouvre les derniers un par un.`)
+}
+
+export const closeOtherTabsKeepingText = (tabId: string): void => {
+  const { session } = useSessionStore.getState()
+  const others = session?.workspaces.find((workspace) => workspace.tabs.some((tab) => tab.id === tabId))?.tabs.filter((tab) => tab.id !== tabId) ?? []
+  if (others.length > 0) {
+    const title = others.length === 1 ? 'Fermer l’autre onglet ?' : `Fermer les ${others.length} autres onglets ?`
+    requestClose(title, others.flatMap(paneIdsOf), () => closeTabsNow(others.map((tab) => tab.id)))
+  }
+}
+
 const closeWorkspaceNow = (workspaceId: string): void => {
   const { session, closeTab } = useSessionStore.getState()
   const workspace = session ? findWorkspace(session, workspaceId) : undefined
@@ -66,8 +86,16 @@ export const closePaneKeepingText = (paneId: string): void => {
   }
 }
 
-export const restoreClosedTab = (): void => {
-  const restored = useSessionStore.getState().restoreTab()
+export const duplicateTabKeepingLayout = (tabId: string): void => {
+  const tab = tabOf(tabId)
+  if (tab) {
+    useSessionStore.getState().duplicateTab(tabId)
+    useHostStore.getState().setStatus(`Onglet « ${tab.name} » dupliqué : nouveaux terminaux dans les mêmes dossiers.`)
+  }
+}
+
+const reopenClosedTab = (position?: number): void => {
+  const restored = useSessionStore.getState().restoreTab(position)
   if (!restored) {
     useHostStore.getState().setStatus('Aucun onglet fermé à rouvrir.')
     return
@@ -77,3 +105,7 @@ export const restoreClosedTab = (): void => {
   }
   useHostStore.getState().setStatus(`Onglet « ${restored.tab.name} » rouvert avec de nouveaux terminaux.`)
 }
+
+export const restoreClosedTab = (): void => reopenClosedTab()
+
+export const restoreClosedTabAt = (position: number): void => reopenClosedTab(position)

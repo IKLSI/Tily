@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Dock.Core.Native;
 
 namespace Dock.Core.Context;
 
@@ -10,6 +11,33 @@ public static class LocalActions
     {
         RequireDirectory(path);
         Process.Start(new ProcessStartInfo(ExplorerExecutable) { ArgumentList = { path }, UseShellExecute = false });
+    }
+
+    public static void RevealInExplorer(string path)
+    {
+        if (!File.Exists(path) && !Directory.Exists(path))
+        {
+            throw new InvalidOperationException($"L’élément n’existe plus : {path}");
+        }
+
+        var item = ShellFileApi.ILCreateFromPath(Path.GetFullPath(path));
+        if (item == 0)
+        {
+            throw new InvalidOperationException($"Impossible d’afficher l’élément dans l’explorateur : {path}");
+        }
+
+        try
+        {
+            var code = ShellFileApi.SHOpenFolderAndSelectItems(item, 0, null, 0);
+            if (code != 0)
+            {
+                throw new InvalidOperationException($"L’explorateur n’a pas pu afficher l’élément (code 0x{code:X8}) : {path}");
+            }
+        }
+        finally
+        {
+            ShellFileApi.ILFree(item);
+        }
     }
 
     public static void OpenInEditor(string path, string editorCommand)

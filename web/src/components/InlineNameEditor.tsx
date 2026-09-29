@@ -6,17 +6,19 @@ interface InlineNameEditorProps {
   value: string
   label: string
   className: string
+  selectionEnd?: number
   onCommit: (name: string) => void
   onCancel: () => void
 }
 
-export function InlineNameEditor({ value, label, className, onCommit, onCancel }: InlineNameEditorProps) {
+export function InlineNameEditor({ value, label, className, selectionEnd, onCommit, onCancel }: InlineNameEditorProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const settledRef = useRef(false)
+  const initialSelectionEndRef = useRef(selectionEnd ?? value.length)
 
   useEffect(() => {
     inputRef.current?.focus()
-    inputRef.current?.select()
+    inputRef.current?.setSelectionRange(0, initialSelectionEndRef.current)
   }, [])
 
   const settle = (action: () => void) => {

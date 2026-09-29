@@ -8,7 +8,7 @@ import { InlineNameEditor } from './InlineNameEditor'
 import { TabLayoutGlyph } from './TabLayoutGlyph'
 import { beginTabDrag } from './tabDrag'
 import { TruncatedName } from './TruncatedName'
-import { isMenuKey, menuRequestFor, PANEL_CLOSE_BUTTON, PANEL_DROP_LINE, type PanelMenuRequest, type WorkspacePanelActions } from './workspacePanel'
+import { COLLAPSE_KEY, focusOwnWorkspaceRow, isMenuKey, menuRequestFor, MOVE_KEYS, PANEL_CLOSE_BUTTON, PANEL_DROP_LINE, type PanelMenuRequest, type WorkspacePanelActions } from './workspacePanel'
 
 interface WorkspaceTabRowProps {
   workspaceId: string
@@ -66,6 +66,12 @@ export function WorkspaceTabRow({ workspaceId, tab, siblings, active, renaming, 
     } else if (isMenuKey(event)) {
       event.preventDefault()
       onOpenMenu(menuRequestFor(event, workspaceId, tab.id))
+    } else if (event.altKey && event.key in MOVE_KEYS) {
+      event.preventDefault()
+      actions.shiftTab(tab.id, MOVE_KEYS[event.key])
+    } else if (!event.altKey && event.key === COLLAPSE_KEY) {
+      event.preventDefault()
+      focusOwnWorkspaceRow(event.currentTarget)
     }
   }
   const handleContextMenu = (event: MouseEvent) => {
@@ -92,6 +98,8 @@ export function WorkspaceTabRow({ workspaceId, tab, siblings, active, renaming, 
           <button
             type="button"
             aria-current={active || undefined}
+            data-panel-row=""
+            data-row-name={tab.name}
             data-tip={tip}
             className="flex h-full min-w-0 flex-1 cursor-pointer items-center gap-[8px] text-left text-[13px]"
             onClick={handleClick}

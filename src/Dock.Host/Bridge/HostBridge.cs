@@ -17,11 +17,16 @@ public sealed class HostBridge : IDisposable
 {
     private const int MaxCharsPerMessage = 512 * 1024;
     private const string TextSavePrefix = """{"type":"text.save",""";
+    private const string DropPrefix = """{"type":"terminal.drop",""";
+    private const string TerminalCommandPrefix = "terminal.";
+    private const string InvalidDroppedPath = "Chemin déposé invalide.";
+    private static readonly string ApplicationVersion = typeof(HostBridge).Assembly.GetName().Version?.ToString(3) ?? string.Empty;
     private static readonly TimeSpan WriteDrainTimeout = TimeSpan.FromSeconds(10);
     private static readonly JsonSerializerOptions JsonOptions = SessionRepository.JsonOptions;
 
     private readonly DispatcherQueue _dispatcher;
     private readonly Action _closeWindow;
+    private readonly Action<string> _setTitle;
     private readonly nint _windowHandle;
     private readonly string _dataDirectory;
     private readonly SessionRepository _sessions;
@@ -43,11 +48,12 @@ public sealed class HostBridge : IDisposable
     private bool _closing;
     private DispatcherQueueTimer? _closeTimer;
 
-    public HostBridge(DispatcherQueue dispatcher, string dataDirectory, nint windowHandle, Action closeWindow)
+    public HostBridge(DispatcherQueue dispatcher, string dataDirectory, nint windowHandle, Action closeWindow, Action<string> setTitle)
     {
         _dispatcher = dispatcher;
         _windowHandle = windowHandle;
         _closeWindow = closeWindow;
+        _setTitle = setTitle;
         _dataDirectory = dataDirectory;
         _sessions = new SessionRepository(dataDirectory);
         _settingsService = new SettingsService(dataDirectory);
@@ -70,8 +76,57 @@ public sealed class HostBridge : IDisposable
     public void Attach(CoreWebView2 core)
     {
         _core = core;
-        core.WebMessageReceived += (_, args) => Receive(args.WebMessageAsJson);
+        core.WebMessageReceived += HandleWebMessage;
         _agents.Start();
+    }
+
+    private void HandleWebMessage(CoreWebView2 sender, CoreWebView2WebMessageReceivedEventArgs args)
+    {
+        var json = args.WebMessageAsJson;
+        if (json.StartsWith(DropPrefix, StringComparison.Ordinal))
+        {
+            ReceiveDrop(json, args.AdditionalObjects?.OfType<CoreWebView2File>().Select(file => file.Path).ToList() ?? []);
+        }
+        else
+        {
+            Receive(json);
+        }
+    }
+
+    private void ReceiveDrop(string json, IReadOnlyList<string> paths)
+    {
+        try
+        {
+            var command = JsonSerializer.Deserialize<BridgeCommandModel>(json, JsonOptions) ?? throw new InvalidOperationException("Dépôt de fichiers illisible.");
+            Post(new { type = "terminal.dropped", pane = RequirePane(command), text = DroppedPaths.Format(paths, command.Shell ?? ShellCatalog.DefaultShellId) });
+        }
+        catch (Exception exception) when (exception is JsonException or InvalidOperationException)
+        {
+            Post(new { type = "error", message = exception.Message });
+        }
+    }
+
+    private void PostDroppedPath(BridgeCommandModel command)
+    {
+        var paneId = RequirePane(command);
+        var shellId = command.Shell ?? ShellCatalog.DefaultShellId;
+        if (command.Path is not { } path || path.Any(char.IsControl) || !Path.IsPathFullyQualified(path))
+        {
+            Post(new { type = "error", message = InvalidDroppedPath });
+            return;
+        }
+
+        _queries.Enqueue(() =>
+        {
+            if (File.Exists(path) || Directory.Exists(path))
+            {
+                Post(new { type = "terminal.dropped", pane = paneId, text = DroppedPaths.Format([path], shellId) });
+            }
+            else
+            {
+                Post(new { type = "error", message = InvalidDroppedPath });
+            }
+        });
     }
 
     private void Receive(string json)
@@ -110,7 +165,7 @@ public sealed class HostBridge : IDisposable
         }
         catch (Exception exception)
         {
-            Post(new { type = "error", pane = command.Pane, message = exception.Message });
+            Post(new { type = "error", pane = FailedTerminalPane(command), message = exception.Message });
         }
     }
 
@@ -207,6 +262,9 @@ public sealed class HostBridge : IDisposable
             case "terminal.close":
                 CloseTerminal(RequirePane(command));
                 break;
+            case "terminal.dropPath":
+                PostDroppedPath(command);
+                break;
             case "terminal.activity":
                 Post(new { type = "terminal.activityResult", panes = _terminals.Activity(command.Panes ?? []) });
                 break;
@@ -234,8 +292,11 @@ public sealed class HostBridge : IDisposable
             case "window.closeCancel":
                 CancelClose();
                 break;
+            case "window.title":
+                _setTitle(WindowTitle.For(command.Title));
+                break;
             default:
-                Post(new { type = "error", pane = command.Pane, message = $"Commande inconnue : {command.Type}" });
+                Post(new { type = "error", pane = FailedTerminalPane(command), message = $"Commande inconnue : {command.Type}" });
                 break;
         }
     }
@@ -302,6 +363,7 @@ public sealed class HostBridge : IDisposable
         Post(new
         {
             type = "app.hello",
+            version = ApplicationVersion,
             session,
             shells = ShellCatalog.Profiles(_shellPaths),
             home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
@@ -477,7 +539,7 @@ public sealed class HostBridge : IDisposable
                 return;
             }
 
-            PostNow(new { type = "settings.imported", settings = result.Settings, path });
+            PostNow(new { type = "settings.imported", settings = result.Settings, path, warnings = result.Warnings });
         }
         catch (Exception exception)
         {
@@ -521,6 +583,9 @@ public sealed class HostBridge : IDisposable
 
     private static string RequirePane(BridgeCommandModel command) =>
         command.Pane ?? throw new InvalidOperationException("Identifiant de pane manquant.");
+
+    private static string? FailedTerminalPane(BridgeCommandModel command) =>
+        command.Type is { } type && type.StartsWith(TerminalCommandPrefix, StringComparison.Ordinal) ? command.Pane : null;
 
     private void Post(object message) => _dispatcher.TryEnqueue(() => PostNow(message));
 

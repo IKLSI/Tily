@@ -9,9 +9,11 @@ import { usePaneStore } from './store/paneStore'
 import { useSessionStore } from './store/sessionStore'
 import { useUiStore } from './store/uiStore'
 import { receiveActivity, receiveApplicationClosing } from './terminal/closeGuard'
-import { receiveContext } from './terminal/contextActions'
+import { queryContext, receiveContext } from './terminal/contextActions'
+import { startExternalDrops } from './terminal/externalDrop'
 import { receiveCreated, receiveDeleted, receiveListing, receiveRenamed } from './explorer/fileExplorerActions'
 import { receiveGitChanged, receiveGitDetails, receiveGitDiff, receiveGitDone, receiveGitFailed, receiveGitHistory, receiveGitPushRejected, receiveGitState } from './git/gitReceivers'
+import { insertIntoPane, joinPane } from './terminal/terminalActions'
 import { terminalRegistry } from './terminal/terminalRegistry'
 import { forgetRemovedText, markTextSaveFailed, primeSessionText, startTextAutosave } from './terminal/textPersistence'
 
@@ -27,10 +29,11 @@ export default function App() {
     const { setHello, setStatus, setProjects, setUnsaved, applySettings, setPickedPath, setImportedPreferences } = useHostStore.getState()
     let stopAutosave: (() => void) | undefined
     const stopNotifier = startAttentionNotifier()
-    const { markFailed, markExited, markPathMissing, clear } = usePaneStore.getState()
+    const stopExternalDrops = startExternalDrops()
+    const { markFailed, markExited, markPathMissing, markAlive } = usePaneStore.getState()
     const subscriptions = [
       bridge.on('app.hello', (message) => {
-        setHello(message.shells, message.home, message.persistence)
+        setHello(message.version, message.shells, message.home, message.persistence)
         terminalRegistry.configure(message.persistence.linesPerPane)
         primeSessionText(message.session, message.text)
         void document.fonts.load('14px "Symbols Nerd Font Mono"').then(() => {
@@ -59,17 +62,13 @@ export default function App() {
       bridge.on('dialog.picked', (message) => setPickedPath({ field: message.field, path: message.path })),
       bridge.on('settings.exported', (message) => setStatus(`Préférences exportées dans ${message.path}.`)),
       bridge.on('settings.imported', (message) => {
-        setImportedPreferences({ settings: message.settings, path: message.path })
+        setImportedPreferences({ settings: message.settings, path: message.path, warnings: message.warnings })
         setStatus(`Préférences lues depuis ${message.path} : Enregistrer remplace la configuration actuelle.`)
       }),
       bridge.on('app.closing', (message) => receiveApplicationClosing(message.activity)),
       bridge.on('terminal.activityResult', (message) => receiveActivity(message.panes)),
       bridge.on('agent.states', (message) => useAgentStore.getState().setAgents(message.panes)),
-      bridge.on('agent.join', (message) => {
-        useAgentStore.getState().acknowledge(message.pane)
-        useSessionStore.getState().selectPane(message.pane)
-        terminalRegistry.get(message.pane)?.terminal.focus()
-      }),
+      bridge.on('agent.join', (message) => joinPane(message.pane)),
       bridge.on('session.saved', () => setUnsaved(false)),
       bridge.on('session.saveFailed', (message) => {
         setUnsaved(true)
@@ -77,9 +76,11 @@ export default function App() {
         setStatus(`${message.message} Les changements ne sont pas enregistrés.`, StatusLevel.Error)
       }),
       bridge.on('terminal.output', (message) => terminalRegistry.write(message.pane, message.data)),
+      bridge.on('terminal.dropped', (message) => insertIntoPane(message.pane, message.text)),
       bridge.on('terminal.cwd', (message) => {
         setPanePath(message.pane, message.path)
-        clear(message.pane)
+        markAlive(message.pane)
+        queryContext(message.pane)
       }),
       bridge.on('terminal.pathMissing', (message) => markPathMissing(message.pane, message.path, message.fallback)),
       bridge.on('projects.listed', (message) => setProjects(message.root, message.projects, message.error ?? null)),
@@ -114,6 +115,7 @@ export default function App() {
     }
     return () => {
       stopNotifier()
+      stopExternalDrops()
       stopAutosave?.()
       subscriptions.forEach((unsubscribe) => unsubscribe())
     }

@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState, type KeyboardEvent, type MouseEvent } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent, type MouseEvent } from 'react'
 import { EntryKind, type FileEntry } from '../bridge/messages'
 import { entryRows, RowKind, type TreeRow } from '../explorer/fileTree'
 import {
@@ -6,11 +6,15 @@ import {
   createEntry,
   focusActivePane,
   focusFileRow,
+  insertPathInActivePane,
   openFile,
+  openFolderInEditor,
+  revealInExplorer,
   refocusFileTreeIfLost,
   refreshFolders,
   renameEntry,
 } from '../explorer/fileExplorerActions'
+import { NO_TYPED_TEXT, typeAheadIndex, typeAheadText, type TypedText } from '../keyboard/typeAhead'
 import { RightPanelView } from '../model/session'
 import { togglePanelView } from '../panel/rightPanel'
 import { useExplorerStore, type EntryDraft } from '../store/explorerStore'
@@ -75,9 +79,17 @@ const selectAndFocus = (row: TreeRow | undefined): void => {
 
 export function FileTree({ root, rows, expanded, selectedPath, renamingPath, draft, onOpenTerminal }: FileTreeProps) {
   const [menu, setMenu] = useState<FileMenuRequest | null>(null)
+  const treeRef = useRef<HTMLDivElement>(null)
   const entries = entryRows(rows)
   const selectedIndex = entries.findIndex((row) => row.entry?.path === selectedPath)
   const focusablePath = entries[Math.max(selectedIndex, 0)]?.entry?.path
+  const typedRef = useRef(NO_TYPED_TEXT)
+
+  useEffect(() => {
+    if (focusablePath && document.activeElement === treeRef.current) {
+      focusFileRow(focusablePath)
+    }
+  }, [focusablePath])
 
   const handlers: FileTreeHandlers = useMemo(
     () => ({
@@ -97,6 +109,9 @@ export function FileTree({ root, rows, expanded, selectedPath, renamingPath, dra
     rename: startRename,
     remove: requestDelete,
     copyPath: copyEntryPath,
+    insertPath: insertPathInActivePane,
+    reveal: revealInExplorer,
+    openFolder: openFolderInEditor,
     refresh: refreshFolders,
   }
 
@@ -120,9 +135,15 @@ export function FileTree({ root, rows, expanded, selectedPath, renamingPath, dra
     setMenu({ x: rect ? rect.left + rect.width / 2 : 0, y: rect ? rect.bottom : 0, entry: row.entry, parent: row.parent })
   }
 
+  const jumpToTyped = (typed: TypedText) => {
+    typedRef.current = typed
+    selectAndFocus(entries[typeAheadIndex(entries.map((row) => row.entry?.name ?? ''), selectedIndex, typed.text)])
+  }
+
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     const current = entries[selectedIndex]
     const entry = current?.entry
+    const typed = typeAheadText(typedRef.current, event)
     if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'e') {
       togglePanelView(RightPanelView.Files, true)
     } else if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'g') {
@@ -137,6 +158,8 @@ export function FileTree({ root, rows, expanded, selectedPath, renamingPath, dra
       selectAndFocus(entries.at(-1))
     } else if (event.key === 'Escape') {
       focusActivePane()
+    } else if (typed) {
+      jumpToTyped(typed)
     } else if (!current || !entry) {
       return
     } else if (event.key === 'ArrowRight' && entry.isDirectory) {
@@ -169,6 +192,7 @@ export function FileTree({ root, rows, expanded, selectedPath, renamingPath, dra
   return (
     <>
       <div
+        ref={treeRef}
         role="tree"
         aria-label="Fichiers du dossier courant"
         data-file-tree=""

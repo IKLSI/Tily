@@ -1,16 +1,21 @@
-import { useEffect, useLayoutEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useRef, type MouseEvent } from 'react'
 import type { Pane } from '../model/session'
 import { handleTerminalKey } from '../keyboard/shortcuts'
 import { useUiStore } from '../store/uiStore'
+import { copyPaneSelection, focusPane, hasPaneSelection, isMouseTrackedByProgram, pasteIntoPane } from './terminalActions'
 import { terminalRegistry } from './terminalRegistry'
 
 interface TerminalPaneProps {
   pane: Pane
   active: boolean
   onFocus: (paneId: string) => void
+  onContextMenu: (x: number, y: number) => void
 }
 
-export function TerminalPane({ pane, active, onFocus }: TerminalPaneProps) {
+const MOUSE_RIGHT_BUTTON = 2
+const PANE_SELECTOR = '[data-pane-id]'
+
+export function TerminalPane({ pane, active, onFocus, onContextMenu }: TerminalPaneProps) {
   const hostRef = useRef<HTMLDivElement>(null)
   const paneRef = useRef(pane)
 
@@ -23,19 +28,13 @@ export function TerminalPane({ pane, active, onFocus }: TerminalPaneProps) {
     if (!host) {
       return
     }
+    const paneId = pane.id
     const handle = terminalRegistry.attach(paneRef.current, host)
     handle.keyHandler = (event) =>
       handleTerminalKey(event, {
-        hasSelection: () => handle.terminal.hasSelection(),
-        copySelection: () => {
-          if (handle.terminal.hasSelection()) {
-            void navigator.clipboard.writeText(handle.terminal.getSelection())
-            handle.terminal.clearSelection()
-          }
-        },
-        pasteClipboard: () => {
-          void navigator.clipboard.readText().then((text) => handle.terminal.paste(text))
-        },
+        hasSelection: () => hasPaneSelection(paneId),
+        copySelection: () => copyPaneSelection(paneId),
+        pasteClipboard: () => pasteIntoPane(paneId),
       })
     const observer = new ResizeObserver(() => handle.fit.fit())
     observer.observe(host)
@@ -44,12 +43,22 @@ export function TerminalPane({ pane, active, onFocus }: TerminalPaneProps) {
 
   useEffect(() => {
     const { renamingWorkspaceId, renamingTabId, paletteOpen, projectPickerOpen, settingsOpen, closeConfirmation } = useUiStore.getState()
-    if (active && !renamingWorkspaceId && !renamingTabId && !paletteOpen && !projectPickerOpen && !settingsOpen && !closeConfirmation) {
-      terminalRegistry.get(pane.id)?.terminal.focus()
+    const focusAlreadyInPane = Boolean(hostRef.current?.closest(PANE_SELECTOR)?.contains(document.activeElement))
+    if (active && !focusAlreadyInPane && !renamingWorkspaceId && !renamingTabId && !paletteOpen && !projectPickerOpen && !settingsOpen && !closeConfirmation) {
+      focusPane(pane.id)
     }
   }, [active, pane.id])
 
   const handleMouseDown = () => onFocus(pane.id)
 
-  return <div ref={hostRef} className="h-full min-h-0 p-1" onMouseDown={handleMouseDown} />
+  const handleContextMenu = (event: MouseEvent<HTMLDivElement>) => {
+    if (event.button === MOUSE_RIGHT_BUTTON && !event.shiftKey && isMouseTrackedByProgram(pane.id)) {
+      return
+    }
+    event.preventDefault()
+    onFocus(pane.id)
+    onContextMenu(event.clientX, event.clientY)
+  }
+
+  return <div ref={hostRef} className="h-full min-h-0 p-1" onMouseDown={handleMouseDown} onContextMenu={handleContextMenu} />
 }

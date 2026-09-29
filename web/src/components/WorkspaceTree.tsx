@@ -7,7 +7,8 @@ import { Icon } from './Icon'
 import { IconName } from './iconName'
 import { WorkspaceContextMenu } from './WorkspaceContextMenu'
 import { WorkspaceItem } from './WorkspaceItem'
-import type { PanelMenuRequest, WorkspacePanelActions } from './workspacePanel'
+import { isWorkspaceDropTarget } from './workspaceDrag'
+import { handlePanelRowKeys, menuPlaceOf, PANEL_DROP_LINE, type PanelMenuRequest, type WorkspacePanelActions } from './workspacePanel'
 
 interface WorkspaceTreeProps {
   session: Session
@@ -20,8 +21,14 @@ const NAME_SEPARATOR = '\n'
 const HEADER_BUTTON = 'flex size-[24px] cursor-pointer items-center justify-center rounded-md text-dock-muted hover:bg-dock-green-hover hover:text-dock-ink'
 
 export function WorkspaceTree({ session, renamingWorkspaceId, renamingTabId, actions }: WorkspaceTreeProps) {
-  const { draggingTabId, tabDropTarget, springWorkspaceIds } = useUiStore(
-    useShallow((state) => ({ draggingTabId: state.draggingTabId, tabDropTarget: state.tabDropTarget, springWorkspaceIds: state.springWorkspaceIds })),
+  const { draggingTabId, tabDropTarget, springWorkspaceIds, draggingWorkspaceId, workspaceDropTarget } = useUiStore(
+    useShallow((state) => ({
+      draggingTabId: state.draggingTabId,
+      tabDropTarget: state.tabDropTarget,
+      springWorkspaceIds: state.springWorkspaceIds,
+      draggingWorkspaceId: state.draggingWorkspaceId,
+      workspaceDropTarget: state.workspaceDropTarget,
+    })),
   )
   const agents = useAgentStore((state) => state.agents)
   const [menu, setMenu] = useState<PanelMenuRequest | null>(null)
@@ -49,7 +56,7 @@ export function WorkspaceTree({ session, renamingWorkspaceId, renamingTabId, act
           <Icon name={IconName.Plus} />
         </button>
       </div>
-      <nav className="min-h-0 flex-1 overflow-auto px-[8px] pb-[8px]">
+      <nav className="min-h-0 flex-1 overflow-auto px-[8px] pb-[8px]" data-workspace-list="" onKeyDown={handlePanelRowKeys}>
         {session.workspaces.map((workspace) => (
           <WorkspaceItem
             key={workspace.id}
@@ -62,12 +69,19 @@ export function WorkspaceTree({ session, renamingWorkspaceId, renamingTabId, act
             agents={agents}
             draggingTabId={workspace.tabs.some((tab) => tab.id === draggingTabId) ? draggingTabId : null}
             dropTarget={tabDropTarget?.workspaceId === workspace.id ? tabDropTarget : null}
+            draggingSelf={workspace.id === draggingWorkspaceId}
+            dropBefore={draggingWorkspaceId !== null && isWorkspaceDropTarget(workspaceDropTarget, workspace.id)}
             actions={actions}
             onOpenMenu={handleOpenMenu}
           />
         ))}
+        {draggingWorkspaceId !== null && isWorkspaceDropTarget(workspaceDropTarget) && (
+          <div aria-hidden="true" className="relative h-[4px]">
+            <span className={PANEL_DROP_LINE} />
+          </div>
+        )}
       </nav>
-      {menu && <WorkspaceContextMenu request={menu} actions={actions} onRun={handleRunMenu} onDismiss={handleDismissMenu} />}
+      {menu && <WorkspaceContextMenu request={menu} place={menuPlaceOf(session, menu)} actions={actions} onRun={handleRunMenu} onDismiss={handleDismissMenu} />}
     </aside>
   )
 }

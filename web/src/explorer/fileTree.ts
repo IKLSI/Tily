@@ -63,6 +63,13 @@ export const buildFileTree = (root: string, listings: Record<string, DirectoryLi
 
 export const entryRows = (rows: TreeRow[]): TreeRow[] => rows.filter((row) => row.kind === RowKind.Entry)
 
+const EXTENSION_SEPARATOR = '.'
+
+export const renameSelectionEnd = (entry: FileEntry): number => {
+  const separator = entry.name.lastIndexOf(EXTENSION_SEPARATOR)
+  return entry.isDirectory || separator <= 0 ? entry.name.length : separator
+}
+
 export const targetFolder = (rows: TreeRow[], selectedPath: string | null, root: string): string => {
   const row = rows.find((candidate) => candidate.entry?.path === selectedPath)
   if (!row?.entry) {

@@ -11,6 +11,10 @@ export interface TabDropTarget {
   beforeTabId?: string
 }
 
+export interface WorkspaceDropTarget {
+  beforeWorkspaceId?: string
+}
+
 export interface PaneActivityView {
   paneId: string
   label: string
@@ -30,6 +34,8 @@ interface UiState {
   draggingTabId: string | null
   tabDropTarget: TabDropTarget | null
   springWorkspaceIds: string[]
+  draggingWorkspaceId: string | null
+  workspaceDropTarget: WorkspaceDropTarget | null
   paletteOpen: boolean
   openPalette: () => void
   closePalette: () => void
@@ -50,6 +56,12 @@ interface UiState {
   setTabDropTarget: (target: TabDropTarget | null) => void
   openSpringWorkspace: (workspaceId: string) => void
   stopDraggingTab: () => void
+  startDraggingWorkspace: (workspaceId: string) => void
+  setWorkspaceDropTarget: (target: WorkspaceDropTarget | null) => void
+  stopDraggingWorkspace: () => void
+  zoomedPaneId: string | null
+  togglePaneZoom: (paneId: string) => void
+  clearPaneZoom: () => void
 }
 
 export const useUiStore = create<UiState>()((set) => ({
@@ -60,6 +72,8 @@ export const useUiStore = create<UiState>()((set) => ({
   draggingTabId: null,
   tabDropTarget: null,
   springWorkspaceIds: [],
+  draggingWorkspaceId: null,
+  workspaceDropTarget: null,
   paletteOpen: false,
   openPalette: () => set({ paletteOpen: true, projectPickerOpen: false, settingsOpen: false }),
   closePalette: () => set({ paletteOpen: false }),
@@ -81,4 +95,10 @@ export const useUiStore = create<UiState>()((set) => ({
   openSpringWorkspace: (workspaceId) =>
     set((state) => (state.springWorkspaceIds.includes(workspaceId) ? state : { springWorkspaceIds: [...state.springWorkspaceIds, workspaceId] })),
   stopDraggingTab: () => set({ draggingTabId: null, tabDropTarget: null, springWorkspaceIds: [] }),
+  startDraggingWorkspace: (draggingWorkspaceId) => set({ draggingWorkspaceId, workspaceDropTarget: null }),
+  setWorkspaceDropTarget: (workspaceDropTarget) => set({ workspaceDropTarget }),
+  stopDraggingWorkspace: () => set({ draggingWorkspaceId: null, workspaceDropTarget: null }),
+  zoomedPaneId: null,
+  togglePaneZoom: (paneId) => set((state) => ({ zoomedPaneId: state.zoomedPaneId === paneId ? null : paneId })),
+  clearPaneZoom: () => set({ zoomedPaneId: null }),
 }))

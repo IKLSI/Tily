@@ -2,10 +2,10 @@ import { useEffect, useMemo } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { bridge } from '../bridge/bridge'
 import { PickTarget, type NotificationSettings, type Project, type Settings } from '../bridge/messages'
-import { activePane, activeTab, activeWorkspace, DEFAULT_SHELL, EXPLORER_MAX, EXPLORER_MIN, findWorkspace, RightPanelView, SIDEBAR_MAX, SIDEBAR_MIN, type Session, type SplitAxis, type SplitPath, type Workspace } from '../model/session'
-import type { PaletteItem } from '../palette/paletteItems'
+import { activePane, activeTab, activeWorkspace, DEFAULT_SHELL, EXPLORER_DEFAULT, EXPLORER_MAX, EXPLORER_MIN, findWorkspace, RightPanelView, SIDEBAR_DEFAULT, SIDEBAR_MAX, SIDEBAR_MIN, type Session, type SplitAxis, type SplitPath, type Workspace } from '../model/session'
+import { toggleFavoriteCommand, type PaletteItem } from '../palette/paletteItems'
 import { waitingPanes } from '../agents/agentSummary'
-import { Command, runCommand } from '../keyboard/shortcuts'
+import { Command, handleDocumentShortcut, handleLeaderKeyCapture, runCommand } from '../keyboard/shortcuts'
 import { agentKey, useAgentStore } from '../store/agentStore'
 import { useHostStore } from '../store/hostStore'
 import { useSessionStore } from '../store/sessionStore'
@@ -13,12 +13,13 @@ import { RenameOrigin, useUiStore } from '../store/uiStore'
 import { cancelClose, confirmClose } from '../terminal/closeGuard'
 import { confirmDelete, focusFileTree } from '../explorer/fileExplorerActions'
 import { useExplorerStore } from '../store/explorerStore'
-import { focusGitPanel } from '../git/gitFocus'
+import { focusGitPanel, takeFocusFromCoveredTerminals } from '../git/gitFocus'
 import { toggleRightPanel } from '../panel/rightPanel'
 import { useGitStore } from '../store/gitStore'
 import { changePaneShell, dismissPaneState, restartPane, restartPaneIn } from '../terminal/paneLifecycle'
-import { closePaneKeepingText, closeTabKeepingText, closeWorkspaceKeepingText, restoreClosedTab } from '../terminal/tabLifecycle'
-import { terminalRegistry } from '../terminal/terminalRegistry'
+import { closeOtherTabsKeepingText, closePaneKeepingText, closeTabKeepingText, closeWorkspaceKeepingText, duplicateTabKeepingLayout, restoreClosedTab } from '../terminal/tabLifecycle'
+import { focusPane, joinPane } from '../terminal/terminalActions'
+import { togglePaneZoom, useEndZoomWhenPaneChanges, zoomedPaneOf } from '../terminal/paneZoom'
 import { AttentionToasts } from './AttentionToasts'
 import { CloseConfirmDialog } from './CloseConfirmDialog'
 import { CommandPalette } from './CommandPalette'
@@ -38,6 +39,7 @@ import { SplitView } from './SplitView'
 import { StatusBar } from './StatusBar'
 import { TabBar } from './TabBar'
 import { Tooltip } from './Tooltip'
+import { useWindowTitle } from './useWindowTitle'
 import type { WorkspacePanelActions } from './workspacePanel'
 import type { HeaderWorkspaceActions } from './workspaceStrip'
 import { WorkspaceTree } from './WorkspaceTree'
@@ -45,8 +47,6 @@ import { WorkspaceTree } from './WorkspaceTree'
 interface AppShellProps {
   session: Session
 }
-
-const focusPane = (paneId: string) => terminalRegistry.get(paneId)?.terminal.focus()
 
 const currentWorkspace = (): Workspace | undefined => {
   const { session } = useSessionStore.getState()
@@ -105,11 +105,7 @@ const handleSplit = (paneId: string, axis: SplitAxis): void => {
   splitPane(axis)
 }
 
-const handleJoinPane = (paneId: string): void => {
-  useAgentStore.getState().acknowledge(paneId)
-  useSessionStore.getState().selectPane(paneId)
-  focusPane(paneId)
-}
+const handleJoinPane = (paneId: string): void => joinPane(paneId)
 
 const handleSelectWorkspace = (workspaceId: string): void => {
   useSessionStore.getState().selectWorkspace(workspaceId)
@@ -129,6 +125,8 @@ const handleNewWorkspace = (): void => {
   const workspaceId = newWorkspace(`Workspace ${(session?.workspaces.length ?? 0) + 1}`, useHostStore.getState().home, DEFAULT_SHELL)
   useUiStore.getState().startRenamingWorkspace(workspaceId, RenameOrigin.Panel)
 }
+
+const handleOpenProjects = (): void => runCommand(Command.Projects)
 
 const handleNewTabIn = (workspaceId: string): void => {
   const { selectWorkspace, newTab } = useSessionStore.getState()
@@ -159,6 +157,11 @@ const handleCancelGit = (): void => {
   focusGitPanel()
 }
 
+const modalOpen = (): boolean => {
+  const { settingsOpen, closeConfirmation, paletteOpen, projectPickerOpen } = useUiStore.getState()
+  return settingsOpen || paletteOpen || projectPickerOpen || closeConfirmation !== null || useExplorerStore.getState().deleteRequest !== null || useGitStore.getState().confirmation !== null
+}
+
 const panelActions: WorkspacePanelActions = {
   selectWorkspace: (workspaceId) => useSessionStore.getState().selectWorkspace(workspaceId),
   toggleWorkspace: (workspaceId) => useSessionStore.getState().toggleWorkspace(workspaceId),
@@ -168,6 +171,10 @@ const panelActions: WorkspacePanelActions = {
   closeWorkspace: closeWorkspaceKeepingText,
   newTabIn: handleNewTabIn,
   collapseOthers: (workspaceId) => useSessionStore.getState().collapseOtherWorkspaces(workspaceId),
+  moveWorkspace: (workspaceId, offset) => useSessionStore.getState().moveWorkspace(workspaceId, offset),
+  moveWorkspaceBefore: (workspaceId, beforeWorkspaceId) => useSessionStore.getState().moveWorkspaceBefore(workspaceId, beforeWorkspaceId),
+  shiftTab: (tabId, offset) => useSessionStore.getState().shiftTab(tabId, offset),
+  duplicateTab: duplicateTabKeepingLayout,
   selectTab: handleSelectTab,
   startRenameTab: (tabId) => useUiStore.getState().startRenamingTab(tabId, RenameOrigin.Panel),
   commitRenameTab: handleCommitTabRename,
@@ -176,11 +183,11 @@ const panelActions: WorkspacePanelActions = {
   moveTab: (tabId, workspaceId, beforeTabId) => useSessionStore.getState().moveTab(tabId, workspaceId, beforeTabId),
   joinPane: handleJoinPane,
   newWorkspace: handleNewWorkspace,
-  openProjects: () => runCommand(Command.Projects),
+  openProjects: handleOpenProjects,
 }
 
 export function AppShell({ session }: AppShellProps) {
-  const { selectTab, selectPane, toggleSidebar, setSidebarWidth, setExplorerWidth, newWorkspace, newTab, moveTab, setSplitRatio, toggleFavorite } = useSessionStore.getState()
+  const { selectTab, selectPane, toggleSidebar, setSidebarWidth, setExplorerWidth, newWorkspace, newTab, moveTab, shiftTab, setSplitRatio } = useSessionStore.getState()
   const { leaderActive, shells, projects, projectsRoot, projectsError, settingsSnapshot, pickedPath, importedPreferences } = useHostStore(
     useShallow((state) => ({
       leaderActive: state.leaderActive,
@@ -193,8 +200,9 @@ export function AppShell({ session }: AppShellProps) {
       importedPreferences: state.importedPreferences,
     })),
   )
-  const { renamingWorkspaceId, renameOrigin, renamingTabId, tabRenameOrigin, paletteOpen, projectPickerOpen, settingsOpen, closeConfirmation } = useUiStore(
+  const { renamingWorkspaceId, renameOrigin, renamingTabId, tabRenameOrigin, paletteOpen, projectPickerOpen, settingsOpen, closeConfirmation, zoomedPaneId } = useUiStore(
     useShallow((state) => ({
+      zoomedPaneId: state.zoomedPaneId,
       renamingWorkspaceId: state.renamingWorkspaceId,
       renameOrigin: state.renameOrigin,
       renamingTabId: state.renamingTabId,
@@ -216,6 +224,12 @@ export function AppShell({ session }: AppShellProps) {
   const tab = workspace ? activeTab(workspace) : undefined
   const panelView = tab?.panel ?? RightPanelView.Files
   const gitShown = Boolean(tab?.explorer) && panelView === RightPanelView.Git
+  const graphShown = gitShown && gitGraphReady
+  const tabId = tab?.id
+  const activePaneId = tab?.active
+
+  useWindowTitle(workspace, tab)
+  useEndZoomWhenPaneChanges(zoomedPaneId, tab)
   const availableShells = useMemo(() => shells.filter((shell) => shell.available), [shells])
 
   useEffect(() => {
@@ -225,14 +239,30 @@ export function AppShell({ session }: AppShellProps) {
         event.preventDefault()
         openPalette()
       }
+      if (!modalOpen()) {
+        handleDocumentShortcut(event)
+      }
     }
+    document.addEventListener('keydown', handleLeaderKeyCapture, true)
     document.addEventListener('keydown', handleKeyDown)
-    return () => document.removeEventListener('keydown', handleKeyDown)
+    return () => {
+      document.removeEventListener('keydown', handleLeaderKeyCapture, true)
+      document.removeEventListener('keydown', handleKeyDown)
+    }
   }, [openPalette])
+
+  useEffect(() => {
+    if (graphShown) {
+      takeFocusFromCoveredTerminals()
+    }
+  }, [graphShown, tabId, activePaneId, zoomedPaneId])
 
   const handleClosePalette = () => {
     closePalette()
     focusActivePane()
+    if (graphShown) {
+      takeFocusFromCoveredTerminals()
+    }
   }
   const handleRunPaletteItem = (item: PaletteItem) => {
     handleClosePalette()
@@ -280,6 +310,7 @@ export function AppShell({ session }: AppShellProps) {
 
   const renderMain = (current: Workspace) => {
     const currentTab = activeTab(current)
+    const zoomedPane = zoomedPaneOf(currentTab, zoomedPaneId)
     const handleResize = (path: SplitPath, ratio: number) => setSplitRatio(currentTab.id, path, ratio)
     return (
       <>
@@ -294,12 +325,15 @@ export function AppShell({ session }: AppShellProps) {
           onCommitRename={handleCommitTabRename}
           onCancelRename={finishTabRename}
           onClose={closeTabKeepingText}
+          onCloseOthers={closeOtherTabsKeepingText}
+          onShift={shiftTab}
+          onDuplicate={duplicateTabKeepingLayout}
           onNew={newTab}
           onMove={moveTab}
         />
         <div className="relative min-h-0 flex-1 border-t border-dock-line bg-dock-panel p-1">
-          <SplitView key={currentTab.id} node={currentTab.tree} activePaneId={currentTab.active} onFocus={selectPane} onClose={closePaneKeepingText} onSplit={handleSplit} onResize={handleResize} shells={availableShells} onRestart={restartPane} onRestartIn={restartPaneIn} onChangeShell={changePaneShell} onDismissState={dismissPaneState} />
-          {gitShown && gitGraphReady && <GitGraphView layout={session.gitGraph} />}
+          <SplitView key={currentTab.id} node={zoomedPane ? { pane: zoomedPane } : currentTab.tree} zoomed={zoomedPane !== undefined} onToggleZoom={togglePaneZoom} activePaneId={currentTab.active} onFocus={selectPane} onClose={closePaneKeepingText} onSplit={handleSplit} onResize={handleResize} shells={availableShells} onRestart={restartPane} onRestartIn={restartPaneIn} onChangeShell={changePaneShell} onDismissState={dismissPaneState} />
+          {graphShown && <GitGraphView layout={session.gitGraph} />}
           {gitShown && <GitDiffDrawer />}
           {gitShown && <GitContextMenu />}
         </div>
@@ -334,15 +368,15 @@ export function AppShell({ session }: AppShellProps) {
               renamingTabId={tabRenameOrigin === RenameOrigin.Panel ? renamingTabId : null}
               actions={panelActions}
             />
-            <SidebarResizer width={session.sidebar} min={SIDEBAR_MIN} max={SIDEBAR_MAX} label="Largeur du panneau des workspaces" onResize={setSidebarWidth} />
+            <SidebarResizer width={session.sidebar} min={SIDEBAR_MIN} max={SIDEBAR_MAX} defaultWidth={SIDEBAR_DEFAULT} label="Largeur du panneau des workspaces" onResize={setSidebarWidth} />
           </>
         )}
         <main className="relative flex min-h-0 min-w-0 flex-1 flex-col">
-          {workspace ? renderMain(workspace) : <EmptyState canRestore={session.closed.length > 0} onNewWorkspace={handleNewWorkspace} onRestoreTab={restoreClosedTab} />}
+          {workspace ? renderMain(workspace) : <EmptyState canRestore={session.closed.length > 0} onNewWorkspace={handleNewWorkspace} onOpenProject={handleOpenProjects} onRestoreTab={restoreClosedTab} />}
         </main>
         {tab?.explorer && (
           <>
-            <SidebarResizer width={session.explorerWidth} min={EXPLORER_MIN} max={EXPLORER_MAX} label="Largeur du panneau de droite" reversed onResize={setExplorerWidth} />
+            <SidebarResizer width={session.explorerWidth} min={EXPLORER_MIN} max={EXPLORER_MAX} defaultWidth={EXPLORER_DEFAULT} label="Largeur du panneau de droite" reversed onResize={setExplorerWidth} />
             <RightPanel view={panelView} root={activePane(tab).path} width={session.explorerWidth} onClose={toggleRightPanel} onOpenTerminal={handleOpenTerminalAt} />
           </>
         )}
@@ -350,7 +384,7 @@ export function AppShell({ session }: AppShellProps) {
       <AttentionToasts waiting={waiting} onJoin={handleJoinPane} onDismiss={handleDismissAttention} />
       {projectPickerOpen && <ProjectPicker projects={projects} root={projectsRoot} error={projectsError} onClose={handleCloseProjectPicker} onSelect={handleSelectProject} />}
       {settingsOpen && <SettingsDialog snapshot={settingsSnapshot} pickedPath={pickedPath} imported={importedPreferences} onClose={handleCloseSettings} onSave={handleSaveSettings} onPick={handlePickPath} onExport={handleExportPreferences} onImport={handleImportPreferences} onInstallHooks={handleInstallHooks} onRemoveHooks={handleRemoveHooks} onTestNotification={handleTestNotification} />}
-      {paletteOpen && <CommandPalette session={session} shells={availableShells} onClose={handleClosePalette} onRun={handleRunPaletteItem} onToggleFavorite={toggleFavorite} />}
+      {paletteOpen && <CommandPalette session={session} shells={availableShells} onClose={handleClosePalette} onRun={handleRunPaletteItem} onToggleFavorite={toggleFavoriteCommand} />}
       {deleteRequest && <DeleteConfirmDialog request={deleteRequest} onConfirm={confirmDelete} onCancel={handleCancelDelete} />}
       {gitConfirmation && <GitConfirmDialog confirmation={gitConfirmation} onConfirm={handleConfirmGit} onCancel={handleCancelGit} />}
       {closeConfirmation && <CloseConfirmDialog confirmation={closeConfirmation} onConfirm={confirmClose} onCancel={handleCancelClose} />}

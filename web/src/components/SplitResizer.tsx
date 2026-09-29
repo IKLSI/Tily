@@ -1,5 +1,5 @@
 import { useRef, type KeyboardEvent, type PointerEvent, type RefObject } from 'react'
-import { SPLIT_RATIO_MAX, SPLIT_RATIO_MIN, SplitAxis } from '../model/session'
+import { SPLIT_RATIO_DEFAULT, SPLIT_RATIO_MAX, SPLIT_RATIO_MIN, SplitAxis } from '../model/session'
 
 const KEYBOARD_STEP = 0.05
 const PERCENT = 100
@@ -41,6 +41,7 @@ export function SplitResizer({ axis, ratio, containerRef, onResize }: SplitResiz
     draggingRef.current = false
     document.body.style.cursor = ''
   }
+  const handleDoubleClick = () => onResize(SPLIT_RATIO_DEFAULT)
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (DECREASE_KEYS.has(event.key) || INCREASE_KEYS.has(event.key)) {
       event.preventDefault()
@@ -53,6 +54,7 @@ export function SplitResizer({ axis, ratio, containerRef, onResize }: SplitResiz
       role="separator"
       aria-orientation={horizontal ? 'vertical' : 'horizontal'}
       aria-label="Redimensionner les panes"
+      data-tip="Glisser ou flèches pour redimensionner, double-clic pour partager à parts égales"
       aria-valuemin={Math.round(SPLIT_RATIO_MIN * PERCENT)}
       aria-valuemax={Math.round(SPLIT_RATIO_MAX * PERCENT)}
       aria-valuenow={Math.round(ratio * PERCENT)}
@@ -62,6 +64,7 @@ export function SplitResizer({ axis, ratio, containerRef, onResize }: SplitResiz
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
       onPointerCancel={handlePointerUp}
+      onDoubleClick={handleDoubleClick}
       onKeyDown={handleKeyDown}
     >
       <div

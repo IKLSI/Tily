@@ -1,5 +1,7 @@
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Text;
+using Dock.Core.Native;
 using Dock.Core.Shell;
 using Dock.Core.Terminal;
 using Xunit;
@@ -9,6 +11,7 @@ namespace Dock.Core.Tests.Terminal;
 public sealed class TerminalManagerTests
 {
     private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(30);
+    private static readonly TimeSpan StopTimeout = TimeSpan.FromSeconds(10);
 
     [Fact]
     public async Task Start_WhenPowerShell_ThenReportsCurrentDirectoryAndInjectsPaneVariable()
@@ -38,12 +41,18 @@ public sealed class TerminalManagerTests
         await directory.Task.WaitAsync(Timeout);
         session.Write(Encoding.UTF8.GetBytes("Start-Process cmd -WindowStyle Hidden -ArgumentList '/c','ping -t 127.0.0.1 > nul'\r"));
         await WaitForAsync(() => session.JobProcessIds().Count >= 3);
-        var processIds = session.JobProcessIds();
+        var processes = session.JobProcessIds().Select(OpenProcess).OfType<Process>().ToList();
 
         manager.Stop("pane-job");
-        await Task.Delay(TimeSpan.FromSeconds(2));
 
-        Assert.Empty(processIds.Where(IsAlive));
+        try
+        {
+            Assert.All(processes, process => Assert.True(process.WaitForExit(StopTimeout), $"Processus {process.Id} encore vivant après l’arrêt du pane."));
+        }
+        finally
+        {
+            processes.ForEach(process => process.Dispose());
+        }
     }
 
     [Fact]
@@ -61,6 +70,30 @@ public sealed class TerminalManagerTests
 
         Assert.Equal("pane-activity", activity.PaneId);
         Assert.DoesNotContain("powershell", activity.Processes, StringComparer.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task Write_WhenHostIgnoresCtrlC_ThenCtrlCStillInterruptsProgram()
+    {
+        using var manager = new TerminalManager();
+        var directory = new TaskCompletionSource<string>();
+        manager.CurrentDirectoryChanged += (_, path) => directory.TrySetResult(path);
+        ProcessApi.SetConsoleCtrlHandler(IntPtr.Zero, true);
+        try
+        {
+            var session = manager.Start("pane-ctrl-c", ShellCatalog.DefaultShellId, Path.GetTempPath(), 100, 30);
+            await directory.Task.WaitAsync(Timeout);
+            session.Write(Encoding.UTF8.GetBytes("ping -t 127.0.0.1 > $null\r"));
+            await WaitForAsync(() => RunsPing(manager, "pane-ctrl-c"));
+
+            session.Write(Encoding.UTF8.GetBytes("\u0003"));
+
+            Assert.True(await EventuallyAsync(() => !RunsPing(manager, "pane-ctrl-c")), "Ctrl + C n’a pas interrompu le programme du pane.");
+        }
+        finally
+        {
+            ProcessApi.SetConsoleCtrlHandler(IntPtr.Zero, false);
+        }
     }
 
     [Fact]
@@ -97,16 +130,35 @@ public sealed class TerminalManagerTests
         }
     }
 
-    private static bool IsAlive(int processId)
+    private static async Task<bool> EventuallyAsync(Func<bool> condition)
     {
         try
         {
-            using var process = Process.GetProcessById(processId);
-            return !process.HasExited;
+            await WaitForAsync(condition);
+            return true;
         }
-        catch (ArgumentException)
+        catch (TimeoutException)
         {
             return false;
+        }
+    }
+
+    private static bool RunsPing(TerminalManager manager, string paneId) =>
+        manager.Activity(new[] { paneId }).Any(activity => activity.Processes.Contains("ping", StringComparer.OrdinalIgnoreCase));
+
+    private static Process? OpenProcess(int processId)
+    {
+        Process? process = null;
+        try
+        {
+            process = Process.GetProcessById(processId);
+            _ = process.SafeHandle;
+            return process;
+        }
+        catch (Exception exception) when (exception is ArgumentException or InvalidOperationException or Win32Exception)
+        {
+            process?.Dispose();
+            return null;
         }
     }
 }

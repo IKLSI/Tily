@@ -44,6 +44,7 @@ public sealed class PtyProcess : IDisposable
                 lpAttributeList = attributeList
             };
             var flags = ProcessApi.ExtendedStartupInfoPresent | ProcessApi.CreateUnicodeEnvironment | ProcessApi.CreateSuspended;
+            LetChildrenReceiveCtrlC();
             var created = ProcessApi.CreateProcessW(null, new StringBuilder(commandLine), IntPtr.Zero, IntPtr.Zero, false, flags, environmentBlock, workingDirectory, ref startupInfo, out var information);
             if (!created)
             {
@@ -73,6 +74,8 @@ public sealed class PtyProcess : IDisposable
         ProcessApi.GetExitCodeProcess(_processHandle, out var exitCode);
         return exitCode;
     }
+
+    private static void LetChildrenReceiveCtrlC() => ProcessApi.SetConsoleCtrlHandler(IntPtr.Zero, false);
 
     private static string BuildEnvironmentBlock(IReadOnlyDictionary<string, string> environment)
     {

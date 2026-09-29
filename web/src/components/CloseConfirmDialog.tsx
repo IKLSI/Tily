@@ -1,5 +1,6 @@
 import { useEffect, useRef, type PointerEvent } from 'react'
 import type { CloseConfirmation } from '../store/uiStore'
+import { keepTabInside } from './focusTrap'
 
 interface CloseConfirmDialogProps {
   confirmation: CloseConfirmation
@@ -34,7 +35,7 @@ export function CloseConfirmDialog({ confirmation, onConfirm, onCancel }: CloseC
 
   return (
     <div className="absolute inset-0 z-40 flex items-start justify-center bg-dock-paper/60 pt-[12vh]" onPointerDown={handleBackdropPointerDown}>
-      <div role="alertdialog" aria-label={confirmation.title} className="flex max-h-[76vh] w-[520px] max-w-[94vw] flex-col rounded-lg border border-dock-line bg-dock-panel shadow-xl">
+      <div role="alertdialog" aria-label={confirmation.title} className="flex max-h-[76vh] w-[520px] max-w-[94vw] flex-col rounded-lg border border-dock-line bg-dock-panel shadow-xl" onKeyDown={keepTabInside}>
         <div className="flex items-center justify-between border-b border-dock-line px-4 py-3">
           <h2 className="text-[15px] font-semibold text-dock-ink">{confirmation.title}</h2>
           <span className="text-[11px] text-dock-muted">Entrée arrête · Échap annule</span>

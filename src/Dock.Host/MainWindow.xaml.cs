@@ -16,6 +16,7 @@ public sealed partial class MainWindow : Window
     private static readonly Color Muted = Color.FromArgb(255, 0x84, 0x8B, 0x87);
     private static readonly Color Hover = Color.FromArgb(255, 0x24, 0x28, 0x2A);
     private readonly HostBridge _bridge;
+    private readonly string _startUrl = ResolveStartUrl();
     private bool _closeConfirmed;
 
     public MainWindow()
@@ -29,7 +30,8 @@ public sealed partial class MainWindow : Window
 
         AppWindow.SetIcon(Path.Combine(AppContext.BaseDirectory, "Assets", "Dock.ico"));
         ApplyDarkTitleBar();
-        _bridge = new HostBridge(DispatcherQueue, App.DataDirectory, WinRT.Interop.WindowNative.GetWindowHandle(this), ForceClose);
+        _bridge = new HostBridge(DispatcherQueue, App.DataDirectory, WinRT.Interop.WindowNative.GetWindowHandle(this), ForceClose, SetTitle);
+        View.AllowDrop = true;
         Closed += HandleClosed;
         Activated += HandleActivated;
         _ = InitializeWebViewAsync();
@@ -47,10 +49,15 @@ public sealed partial class MainWindow : Window
         core.Settings.IsGeneralAutofillEnabled = false;
         core.Settings.IsPasswordAutosaveEnabled = false;
         core.PermissionRequested += HandlePermissionRequested;
+        core.NavigationStarting += HandleNavigationStarting;
+        core.NewWindowRequested += HandleNewWindowRequested;
         core.SetVirtualHostNameToFolderMapping(VirtualHost, Path.Combine(AppContext.BaseDirectory, "wwwroot"), CoreWebView2HostResourceAccessKind.Allow);
         _bridge.Attach(core);
-        core.Navigate(ResolveStartUrl());
+        core.Navigate(_startUrl);
+        View.Focus(FocusState.Programmatic);
     }
+
+    private void SetTitle(string title) => Title = title;
 
     private void ApplyDarkTitleBar()
     {
@@ -72,6 +79,15 @@ public sealed partial class MainWindow : Window
         var devServer = Environment.GetEnvironmentVariable(DevServerVariable);
         return string.IsNullOrWhiteSpace(devServer) ? $"https://{VirtualHost}/index.html" : devServer;
     }
+
+    private void HandleNavigationStarting(CoreWebView2 sender, CoreWebView2NavigationStartingEventArgs args) => args.Cancel = !IsSameOrigin(args.Uri, _startUrl);
+
+    private static void HandleNewWindowRequested(CoreWebView2 sender, CoreWebView2NewWindowRequestedEventArgs args) => args.Handled = true;
+
+    private static bool IsSameOrigin(string candidate, string reference) =>
+        Uri.TryCreate(candidate, UriKind.Absolute, out var candidateUri)
+        && Uri.TryCreate(reference, UriKind.Absolute, out var referenceUri)
+        && Uri.Compare(candidateUri, referenceUri, UriComponents.SchemeAndServer, UriFormat.Unescaped, StringComparison.OrdinalIgnoreCase) == 0;
 
     private static void HandlePermissionRequested(CoreWebView2 sender, CoreWebView2PermissionRequestedEventArgs args)
     {

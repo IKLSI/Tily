@@ -22,7 +22,7 @@ export function Header({ workspaceName, renaming, sidebarCollapsed, leaderActive
       <button
         type="button"
         className="cursor-pointer rounded border border-dock-line px-2 text-lg leading-tight text-dock-muted hover:bg-dock-green-hover hover:text-dock-ink"
-        data-tip={sidebarCollapsed ? 'Afficher les workspaces' : 'Masquer les workspaces'}
+        data-tip={sidebarCollapsed ? 'Afficher les workspaces (Ctrl + Maj + B)' : 'Masquer les workspaces (Ctrl + Maj + B)'}
         onClick={onToggleSidebar}
       >
         ☰

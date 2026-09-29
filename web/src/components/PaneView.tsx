@@ -1,17 +1,21 @@
-import { memo, useEffect } from 'react'
+import { memo, useCallback, useEffect, useState, type MouseEvent } from 'react'
 import { OpenTarget, type ShellProfile } from '../bridge/messages'
 import { SplitAxis, type Pane } from '../model/session'
 import { useAgentStore } from '../store/agentStore'
 import { useHostStore } from '../store/hostStore'
 import { usePaneStore } from '../store/paneStore'
 import { copyPaneBranch, copyPanePath, gitSummary, openPaneFolder, queryContext } from '../terminal/contextActions'
+import { copyPaneSelection, focusPane, hasPaneSelection, pasteIntoPane, selectAllInPane, setPaneTerminalTabbable } from '../terminal/terminalActions'
 import { TerminalPane } from '../terminal/TerminalPane'
 import { AgentBadge } from './AgentBadge'
 import { PaneOverlay } from './PaneOverlay'
+import { TerminalContextMenu, type TerminalMenuActions, type TerminalMenuRequest } from './TerminalContextMenu'
 
 interface PaneViewProps {
   pane: Pane
   active: boolean
+  zoomed: boolean
+  onToggleZoom: (paneId: string) => void
   onFocus: (paneId: string) => void
   onClose: (paneId: string) => void
   onSplit: (paneId: string, axis: SplitAxis) => void
@@ -23,6 +27,8 @@ interface PaneViewProps {
 }
 
 const HEADER_BUTTON = 'flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded hover:bg-dock-green-hover hover:text-dock-ink'
+const BUTTON_SELECTOR = 'button'
+const SINGLE_CLICK = 1
 const MUTED_BUTTON = 'opacity-40 hover:bg-transparent hover:text-dock-muted'
 const ICON_SIZE = 12
 const ICON_PROPS = { width: ICON_SIZE, height: ICON_SIZE, viewBox: '0 0 12 12', fill: 'none', stroke: 'currentColor', strokeWidth: 1.2, strokeLinecap: 'round', strokeLinejoin: 'round' } as const
@@ -47,6 +53,8 @@ const FolderIcon = () => (
   </svg>
 )
 
+const DETACHED_LABEL = 'HEAD détachée'
+
 const BranchIcon = () => (
   <svg {...ICON_PROPS} aria-hidden="true">
     <circle cx="3" cy="2.5" r="1.2" />
@@ -63,6 +71,12 @@ const SplitIcon = ({ horizontal }: { horizontal: boolean }) => (
   </svg>
 )
 
+const UnzoomIcon = () => (
+  <svg {...ICON_PROPS} aria-hidden="true">
+    <path d="M4.5 1.5v3h-3M7.5 1.5v3h3M4.5 10.5v-3h-3M7.5 10.5v-3h3" />
+  </svg>
+)
+
 const CloseIcon = () => (
   <svg {...ICON_PROPS} aria-hidden="true">
     <line x1="3" y1="3" x2="9" y2="9" />
@@ -70,16 +84,33 @@ const CloseIcon = () => (
   </svg>
 )
 
-export const PaneView = memo(function PaneView({ pane, active, onFocus, onClose, onSplit, shells, onRestart, onRestartIn, onChangeShell, onDismissState }: PaneViewProps) {
+export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZoom, onFocus, onClose, onSplit, shells, onRestart, onRestartIn, onChangeShell, onDismissState }: PaneViewProps) {
   const paneState = usePaneStore((state) => state.states[pane.id])
   const context = useHostStore((state) => state.contexts[pane.id])
   const agent = useAgentStore((state) => state.agents[pane.id])
+  const [menu, setMenu] = useState<TerminalMenuRequest | null>(null)
 
   useEffect(() => {
     queryContext(pane.id)
   }, [pane.id, pane.path])
 
+  const covered = paneState !== undefined
+  useEffect(() => {
+    setPaneTerminalTabbable(pane.id, !covered)
+  }, [pane.id, covered])
+
   const handleHeaderMouseDown = () => onFocus(pane.id)
+  const handleHeaderDoubleClick = (event: MouseEvent) => {
+    if (!(event.target instanceof Element && event.target.closest(BUTTON_SELECTOR))) {
+      onToggleZoom(pane.id)
+    }
+  }
+  const handleToggleZoom = () => onToggleZoom(pane.id)
+  const handleFocusWithin = () => {
+    if (!active) {
+      onFocus(pane.id)
+    }
+  }
   const handleRestart = () => onRestart(pane.id)
   const handleRestartIn = (path: string) => onRestartIn(pane.id, path)
   const handleDismissState = () => onDismissState(pane.id)
@@ -91,22 +122,50 @@ export const PaneView = memo(function PaneView({ pane, active, onFocus, onClose,
   const handleSplitSideBySide = () => onSplit(pane.id, SplitAxis.Horizontal)
   const handleSplitTopBottom = () => onSplit(pane.id, SplitAxis.Vertical)
   const handleClose = () => onClose(pane.id)
+  const ignoringRepeatedClicks = (action: () => void) => (event: MouseEvent) => {
+    if (event.detail <= SINGLE_CLICK) {
+      action()
+    }
+  }
+  const handleContextMenu = (x: number, y: number) => setMenu({ x, y })
+  const handleDismissMenu = useCallback(() => {
+    setMenu(null)
+    focusPane(pane.id)
+  }, [pane.id])
+  const menuActions: TerminalMenuActions = {
+    copy: () => copyPaneSelection(pane.id),
+    paste: () => pasteIntoPane(pane.id),
+    selectAll: () => selectAllInPane(pane.id),
+    splitSideBySide: handleSplitSideBySide,
+    splitTopBottom: handleSplitTopBottom,
+    toggleZoom: handleToggleZoom,
+    close: handleClose,
+  }
   const branchTitle = context?.branch ? `Copier la branche « ${context.branch} »` : gitSummary(context)
+  const branchLabel = context?.branch ?? (context?.detachedHead ? DETACHED_LABEL : null)
 
   return (
     <section
       data-pane-id={pane.id}
-      className={`grid h-full min-h-0 grid-rows-[24px_1fr] overflow-hidden rounded-md border bg-dock-terminal ${active ? 'border-dock-green' : 'border-dock-line'}`}
+      className={`grid h-full min-h-0 grid-cols-1 grid-rows-[24px_1fr] overflow-hidden rounded-md border bg-dock-terminal ${active ? 'border-dock-green' : 'border-dock-line'}`}
+      onFocus={handleFocusWithin}
     >
       <header
-        className="flex items-center gap-1 bg-dock-panel px-2 text-[11px] text-dock-muted select-none"
+        className="@container flex items-center gap-1 bg-dock-panel px-2 text-[11px] text-dock-muted select-none"
         onMouseDown={handleHeaderMouseDown}
+        onDoubleClick={handleHeaderDoubleClick}
       >
         <span className="mr-1 font-semibold text-dock-ink">{pane.shell}</span>
         {agent && <AgentBadge agent={agent} />}
         <span className="min-w-0 flex-1 truncate font-mono text-dock-green" data-tip={pane.path}>
           {pane.path}
         </span>
+        {branchLabel && (
+          <span className="flex max-w-[35%] min-w-0 shrink items-center gap-1 font-mono text-dock-muted @max-[520px]:hidden" data-tip={gitSummary(context)}>
+            <BranchIcon />
+            <span className="truncate">{branchLabel}</span>
+          </span>
+        )}
         <button type="button" className={HEADER_BUTTON} data-tip={`Copier le chemin ${pane.path}`} aria-label="Copier le chemin" onClick={handleCopyPath}>
           <CopyIcon />
         </button>
@@ -120,20 +179,26 @@ export const PaneView = memo(function PaneView({ pane, active, onFocus, onClose,
           <BranchIcon />
         </button>
         <span className="mx-1 h-3 w-px bg-dock-line" aria-hidden="true" />
-        <button type="button" className={HEADER_BUTTON} data-tip="Split côte à côte" aria-label="Split côte à côte" onClick={handleSplitSideBySide}>
+        <button type="button" className={HEADER_BUTTON} data-tip="Split côte à côte" aria-label="Split côte à côte" onClick={ignoringRepeatedClicks(handleSplitSideBySide)}>
           <SplitIcon horizontal />
         </button>
-        <button type="button" className={HEADER_BUTTON} data-tip="Split haut / bas" aria-label="Split haut / bas" onClick={handleSplitTopBottom}>
+        <button type="button" className={HEADER_BUTTON} data-tip="Split haut / bas" aria-label="Split haut / bas" onClick={ignoringRepeatedClicks(handleSplitTopBottom)}>
           <SplitIcon horizontal={false} />
         </button>
-        <button type="button" className={`${HEADER_BUTTON} hover:text-dock-error`} data-tip="Fermer le pane" aria-label="Fermer le pane" onClick={handleClose}>
+        {zoomed && (
+          <button type="button" className={`${HEADER_BUTTON} text-dock-green`} data-tip="Réduire le pane et revoir les autres (Ctrl + Maj + M)" aria-label="Réduire le pane" onClick={handleToggleZoom}>
+            <UnzoomIcon />
+          </button>
+        )}
+        <button type="button" className={`${HEADER_BUTTON} hover:text-dock-error`} data-tip="Fermer le pane" aria-label="Fermer le pane" onClick={ignoringRepeatedClicks(handleClose)}>
           <CloseIcon />
         </button>
       </header>
       <div className="relative min-h-0">
-        <TerminalPane pane={pane} active={active} onFocus={onFocus} />
-        {paneState && <PaneOverlay state={paneState} shells={shells} onRestart={handleRestart} onRestartIn={handleRestartIn} onChangeShell={handleChangeShell} onDismiss={handleDismissState} onClose={handleClose} />}
+        <TerminalPane pane={pane} active={active} onFocus={onFocus} onContextMenu={handleContextMenu} />
+        {paneState && <PaneOverlay state={paneState} active={active} shells={shells} onRestart={handleRestart} onRestartIn={handleRestartIn} onChangeShell={handleChangeShell} onDismiss={handleDismissState} onClose={handleClose} />}
       </div>
+      {menu && <TerminalContextMenu request={menu} canCopy={hasPaneSelection(pane.id)} zoomed={zoomed} actions={menuActions} onDismiss={handleDismissMenu} />}
     </section>
   )
 })

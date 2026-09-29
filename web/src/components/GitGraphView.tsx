@@ -1,5 +1,5 @@
 import type { KeyboardEvent } from 'react'
-import { GIT_REFERENCES_MAX, GIT_REFERENCES_MIN, RightPanelView, type GitGraphLayout } from '../model/session'
+import { DEFAULT_GIT_GRAPH, GIT_REFERENCES_MAX, GIT_REFERENCES_MIN, RightPanelView, type GitGraphLayout } from '../model/session'
 import { hideGitGraph, togglePanelView } from '../panel/rightPanel'
 import { useGitStore } from '../store/gitStore'
 import { useSessionStore } from '../store/sessionStore'
@@ -45,7 +45,7 @@ export function GitGraphView({ layout }: GitGraphViewProps) {
         {layout.referencesOpen && (
           <>
             <GitRefsSidebar state={state} width={layout.referencesWidth} />
-            <SidebarResizer width={layout.referencesWidth} min={GIT_REFERENCES_MIN} max={GIT_REFERENCES_MAX} label="Largeur de la colonne des branches" onResize={handleResizeReferences} />
+            <SidebarResizer width={layout.referencesWidth} min={GIT_REFERENCES_MIN} max={GIT_REFERENCES_MAX} defaultWidth={DEFAULT_GIT_GRAPH.referencesWidth} label="Largeur de la colonne des branches" onResize={handleResizeReferences} />
           </>
         )}
         <GitGraphTable state={state} layout={layout} />

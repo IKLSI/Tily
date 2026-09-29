@@ -55,6 +55,8 @@ Exemple : « Perso » peut contenir un terminal dans Documents, un autre dans un
 | En-tête d’un pane | Shell, dossier courant et action de fermeture ; chemin tronqué si nécessaire et consultable intégralement. |
 | Panneau gauche | Workspaces, chevrons de dépliage, onglets enfants, accès aux projets et indications d’attention. |
 
+**Convention proposée.** Le titre de la fenêtre, visible dans la barre des tâches et Alt + Tab, reprend le workspace et l’onglet actifs : « workspace › onglet - Dock », ou « Dock » sans workspace.
+
 ### Règles de présentation
 
 - Pas de bordure ou barre colorée pour signaler un onglet sélectionné, un workspace sélectionné ou un résultat de palette sélectionné. Utiliser un fond discret.
@@ -76,6 +78,12 @@ Ces valeurs sont des références de réalisation, pas des contraintes de taille
 
 **Retenu (25 septembre 2026).** Bouton à droite de la barre d’onglets, commande « Afficher / masquer les fichiers » dans la palette, Leader puis E ou Ctrl + Maj + E : ouvre avec le focus dans l’arbre, ou ferme et rend le focus au terminal. Arbre dépliable dont la racine est le dossier du pane actif, dossiers d’abord puis fichiers, triés sans casse ; tout est affiché, `.git` et fichiers cachés compris ; au-delà de 2 000 éléments dans un dossier, le reste est seulement annoncé. Les dossiers affichés sont surveillés en direct, un bouton « Actualiser » relit le tout. Un clic déplie ou replie un dossier ; double-clic ou Entrée ouvre un fichier dans l’éditeur, Entrée déplie ou replie aussi un dossier. Boutons « Nouveau fichier » et « Nouveau dossier » en tête du panneau, menu contextuel (clic droit ou Maj + F10 : ouvrir dans l’éditeur, ouvrir un terminal ici, nouveau fichier, nouveau dossier, renommer, supprimer, copier le chemin), noms saisis en place ; F2 renomme, Suppr place l’élément dans la corbeille de Windows après confirmation. Navigation ↑ / ↓ / ← / → / Début / Fin, Échap rend le focus au terminal. Panneau redimensionnable par glisser ou flèches ; état ouvert par onglet et largeur mémorisés dans la session. La recherche dans le contenu des fichiers reste hors périmètre.
 
+**Convention proposée.** Dans l’arbre des fichiers, taper les premières lettres d’un nom sélectionne l’élément visible suivant qui commence ainsi, sans tenir compte de la casse ni des accents, comme dans l’Explorateur Windows ; répéter la même lettre passe d’un élément à l’autre, et la saisie repart de zéro après 0,7 seconde sans frappe.
+
+**Convention proposée.** Le menu contextuel d’un fichier ou d’un dossier propose aussi « Afficher dans l’Explorateur Windows », qui ouvre son dossier parent avec l’élément sélectionné ; celui d’un dossier propose en plus « Ouvrir dans l’éditeur ». « Insérer le chemin dans le terminal » colle son chemin complet dans le terminal actif, comme un glisser de la ligne sur ce terminal ; si un message recouvre ce terminal, rien n’est inséré et la barre de statut le dit.
+
+**Convention proposée.** Au renommage d’un fichier, seul son nom avant la dernière extension est sélectionné, comme dans l’Explorateur Windows : taper un nouveau nom garde l’extension. Un dossier ou un nom qui commence par un point est sélectionné en entier.
+
 ## 5. Workspaces et panneau en arborescence
 
 | ID | Exigence retenue |
@@ -95,6 +103,12 @@ Ces valeurs sont des références de réalisation, pas des contraintes de taille
 Le « + » du panneau crée directement un workspace et permet de modifier son nom inline. Le clic sur le titre du workspace actif démarre le renommage. Entrée ou perte de focus enregistre ; Échap annule. Un nom vide ne remplace pas le nom existant.
 
 La commande « Renommer le workspace » dans la palette active le même éditeur inline. Le panneau reflète immédiatement le nouveau nom.
+
+**Convention proposée.** Les workspaces se réordonnent par « Monter » et « Descendre » dans leur menu contextuel ou dans la palette (workspace actif), par Alt + ↑ / ↓ sur un workspace sélectionné au clavier dans le panneau, et par glisser-déposer de sa ligne, devant un autre workspace ou en fin de liste. Les onglets se déplacent de même d’un rang dans leur workspace (menu contextuel de l’onglet dans le panneau, Alt + ↑ / ↓ sur l’onglet sélectionné au clavier dans le panneau, Alt + ← / → sur un onglet de la barre qui a le focus), en plus du glisser-déposer et de Ctrl + Maj + PageUp / PageDown. L’ordre est conservé dans la session.
+
+**Convention proposée.** « Fermer le workspace », dans son menu contextuel ou dans la palette pour le workspace actif (nommé dans l’entrée), ferme tous ses onglets avec une seule confirmation si des programmes tournent ; ses derniers onglets restent restaurables un par un.
+
+**Convention proposée.** Au clavier, dans le panneau des workspaces, ↑ / ↓ / Début / Fin passent d’une ligne visible à l’autre, workspaces et onglets confondus ; → déplie un workspace replié, ← le replie ou, depuis un onglet, remonte à son workspace. Tab parcourt toujours chaque bouton. Taper les premières lettres d’un nom donne le focus à la ligne visible suivante qui commence ainsi, comme dans l’arbre des fichiers. Échap rend le focus au terminal.
 
 **Décision prise.** Un workspace créé depuis le sélecteur de projets porte automatiquement le nom du dossier choisi. Un workspace créé sans projet reçoit un nom automatique descriptif ; un nom saisi manuellement reste prioritaire et n’est jamais écrasé. Le premier onglet PowerShell reprend le dossier du pane actif ou, au premier lancement, le dossier utilisateur. Un clic sur un workspace rejoint son dernier onglet et son dernier pane actifs. Replier une branche ne change pas la sélection.
 
@@ -131,6 +145,12 @@ Le déplacement conserve le shell, le dossier, l’historique, les processus act
 
 **Décision prise.** Rouvrir restaure noms, shells, chemins, splits et texte avec de nouveaux processus et un séparateur de restauration. Ne pas réexécuter les anciennes commandes. Conserver les cinq derniers onglets fermés, y compris après redémarrage.
 
+**Convention proposée.** Un clic droit sur un onglet de la barre ouvre son menu : Renommer, Dupliquer l’onglet (même disposition, mêmes dossiers et shells, terminaux neufs, aucune commande rejouée), Déplacer à gauche ou à droite, Fermer l’onglet et Fermer les autres onglets. Ce dernier ne demande qu’une seule confirmation si des programmes tournent ; les cinq derniers onglets fermés restent restaurables.
+
+**Convention proposée.** Au clavier, dans la barre d’onglets, ← / → passent le focus à l’onglet voisin sans l’afficher, Entrée l’affiche, F2 le renomme et Alt + ← / → le déplacent d’un rang, comme ↑ / ↓, F2 et Alt + ↑ / ↓ dans le panneau des workspaces.
+
+**Convention proposée.** La palette propose une entrée « Rouvrir l’onglet fermé · nom » par onglet encore restaurable, de la plus récente à la plus ancienne, avec le workspace d’origine en indice : on peut rouvrir n’importe lequel des cinq, pas seulement le dernier. L’onglet reprend sa position d’origine dans son workspace, recréé s’il n’existe plus (position exacte quand on rouvre dans l’ordre inverse des fermetures, la plus proche sinon) ; Ctrl + Maj + Z et l’état vide rouvrent toujours le dernier fermé.
+
 ## 7. Panes et splits
 
 | ID | Exigence retenue |
@@ -143,7 +163,11 @@ Le déplacement conserve le shell, le dossier, l’historique, les processus act
 
 Les splits peuvent être imbriqués. L’action de fermeture d’un pane retire cette feuille de la disposition et agrandit la zone restante.
 
-**Conventions proposées.** Le split hérite aussi du shell du pane actif, commence à parts égales et active le nouveau pane. La fermeture du dernier pane utilise les règles de fermeture d’un onglet. Préserver les saisies, processus et sélections lorsque le panneau latéral est masqué, lorsqu’un groupe est déplié ou lorsqu’une zone est redimensionnée.
+**Convention proposée.** Leader puis M, Ctrl + Maj + M, la palette, le menu contextuel du terminal ou un double-clic sur l’en-tête d’un pane l’agrandit temporairement à toute la zone de l’onglet, sans modifier la disposition enregistrée ; les autres terminaux continuent de tourner. Le même geste, le bouton « Réduire » de son en-tête, un split, le passage à un autre pane (Alt + flèche compris, qui réduit puis passe au pane voisin) ou à un autre onglet le réduisent. Un onglet d’un seul pane n’a rien à agrandir.
+
+**Convention proposée.** Un double-clic sur un séparateur rétablit sa taille par défaut : parts égales pour un split, largeur initiale pour le panneau des workspaces, le panneau de droite et les colonnes du graphe Git.
+
+**Conventions proposées.** Le split hérite aussi du shell du pane actif, commence à parts égales et active le nouveau pane. Le pane qui reçoit le focus, y compris par un bouton de son en-tête ou du message qui le recouvre, devient le pane actif : la saisie et les commandes visent toujours le même pane. La fermeture du dernier pane utilise les règles de fermeture d’un onglet. Préserver les saisies, processus et sélections lorsque le panneau latéral est masqué, lorsqu’un groupe est déplié ou lorsqu’une zone est redimensionnée.
 
 **Décision prise.** La navigation au clavier est spatiale : chaque direction choisit le pane dont la position visuelle est la plus proche dans cette direction. En l’absence de cible dans la direction demandée, conserver le pane actif.
 
@@ -158,7 +182,11 @@ Les splits peuvent être imbriqués. L’action de fermeture d’un pane retire 
 - Suivre le dossier courant réel après les commandes de navigation, y compris après une fonction du profil qui change le dossier.
 - Ne pas remplacer le shell par un interpréteur limité à quelques commandes reconnues par l’interface.
 
-**Conventions proposées.** Préserver l’historique et le processus lors des changements de workspace. Si un shell est introuvable ou échoue au démarrage, afficher un état local au pane avec actions de relance ou de choix du shell. Ne pas basculer silencieusement vers un autre shell.
+**Convention proposée.** Un clic droit dans un terminal, ou la touche Menu, ouvre un menu contextuel : Copier (si du texte est sélectionné), Coller, Tout sélectionner, Split côte à côte, Split haut / bas, Agrandir le pane (ou Réduire le pane s’il est agrandi) et Fermer le pane. Quand le programme du terminal suit la souris, le clic droit lui revient ; Maj + clic droit ouvre alors le menu.
+
+**Convention proposée.** Déposer des fichiers ou des dossiers depuis l’Explorateur Windows sur un terminal y colle leurs chemins, comme dans Windows Terminal, protégés selon le shell (guillemets simples pour PowerShell et Git Bash, doubles pour CMD) et suivis d’une espace ; le pane devient actif. Glisser une ligne de l’arbre des fichiers de Dock sur un terminal y colle de même le chemin complet du fichier ou du dossier. Ailleurs dans Dock, le dépôt de fichiers ou de liens est refusé et n’ouvre jamais de fenêtre.
+
+**Conventions proposées.** Préserver l’historique et le processus lors des changements de workspace. Si un shell est introuvable ou échoue au démarrage, afficher un état local au pane avec actions de relance ou de choix du shell. Ne pas basculer silencieusement vers un autre shell. Tant qu’un tel message recouvre un pane, il reçoit le focus à la place du terminal chaque fois que le pane devient actif : Entrée déclenche son action par défaut, « Relancer » pour un shell arrêté, « Ignorer » pour un dossier disparu car le shell y tourne encore, et Tab parcourt les autres actions. Quand le message prend le focus alors qu’on tapait dans ce terminal, Entrée et Espace sont ignorés pendant 0,6 seconde : une frappe déjà en cours ne déclenche pas une action que l’on n’a pas eu le temps de lire. Rejoindre volontairement un pane qui affiche déjà un message n’est pas concerné. Le message d’un dossier disparu reste affiché jusqu’à ce choix, y compris à la restauration, où le shell démarre dans le dossier personnel.
 
 **Décision prise.** Le profil contenant `wtr` et `rmwt` est `%USERPROFILE%\\Documents\\WindowsPowerShell\\Microsoft.PowerShell_profile.ps1`. WezTerm utilise actuellement `powershell.exe -NoLogo`. PowerShell 7 est installé mais son profil utilisateur correspondant n’a pas été trouvé dans `Documents\\PowerShell`; il reste une alternative à configurer explicitement. Les chemins de CMD et Git Bash doivent rester configurables. Le dossier courant est obtenu par une intégration shell propre à Dock (variable d’environnement dédiée et séquence OSC émise par le prompt), décrite en section 15 ; aucune variable WezTerm n’est simulée.
 
@@ -181,6 +209,10 @@ Les splits peuvent être imbriqués. L’action de fermeture d’un pane retire 
 
 **Convention proposée.** Conserver Ctrl + Maj + P comme alias. Prévoir retour du focus à l’élément d’origine à la fermeture ; lorsqu’une commande ouvre un terminal ou un éditeur inline, son nouveau champ reçoit le focus.
 
+**Convention proposée.** Tant qu’une fenêtre est ouverte (palette, sélecteur de projets, paramètres, confirmation), Tab et Maj + Tab parcourent ses seuls éléments, en boucle : le focus ne rejoint jamais un terminal masqué derrière elle.
+
+**Convention proposée.** L’étoile d’une commande (clic ou Ctrl + Entrée) la marque comme favorite et la place en tête de la palette. Seules les commandes en portent une : ni les entrées de navigation, ni « Rejoindre », ni « Rouvrir l’onglet fermé ». Au plus 50 favoris ; au-delà, la palette demande d’en retirer un.
+
 ### Touche Leader
 
 Le principe d’une touche Leader est retenu. Le raccourci par défaut est **Ctrl + Espace** et son délai d’expiration est de **5 secondes**. Le mapping et le délai sont personnalisables.
@@ -202,6 +234,12 @@ Le principe d’une touche Leader est retenu. Le raccourci par défaut est **Ctr
 
 Les séquences Leader sont consommées par l’application uniquement lorsqu’elles correspondent à une commande active. Une commande non reconnue ou expirée rend la saisie au pane actif ; les raccourcis personnalisés peuvent désactiver ou remplacer les valeurs par défaut.
 
+**Convention proposée.** Ctrl + Tab et Ctrl + Maj + Tab passent à l’onglet suivant ou précédent du workspace actif, en boucle, comme dans Windows Terminal. Ces combinaisons n’envoient au shell que Tab ou Maj + Tab, qui restent disponibles sans Ctrl.
+
+**Convention proposée.** Leader puis B, ou Ctrl + Maj + B, masque ou affiche le panneau des workspaces (WS-08), en rendant le focus au terminal s’il était dans le panneau ; quand il l’affiche, le focus va à l’onglet actif dans le panneau. « Aller au panneau des workspaces », dans la palette, y amène le focus sans le masquer.
+
+**Convention proposée.** Les raccourcis directs fonctionnent aussi quand le focus est hors d’un terminal (panneau des workspaces, graphe Git, explorateur), sauf dans un champ de saisie, un menu ou une boîte de dialogue ; il en va de même pour le Leader, dont la touche suivante n’est jamais interceptée par l’élément qui a le focus. Exception à confirmer : sur un onglet de la barre ou une ligne du panneau des workspaces qui a le focus, Alt + flèche déplace cet élément au lieu de changer de pane.
+
 ## 10. Sélecteur de projets
 
 **Retenu.** Chercher rapidement un dossier dans `C:\\Files\\Projects`, puis ouvrir un workspace avec un premier terminal dans ce dossier. Le raccourci WezTerm Leader + F existant sert de référence fonctionnelle.
@@ -209,6 +247,8 @@ Les séquences Leader sont consommées par l’application uniquement lorsqu’e
 Ce sélecteur recherche des dossiers, pas du texte dans les fichiers. L’interface doit rester compacte et intégrée. La navigation clavier suit le principe ↑ / ↓ / Entrée / Échap.
 
 **Décision prise.** Le chemin est `C:\\Files\\Projects`. Reprendre la profondeur de premier niveau de WezTerm, exclure `worktrees` de la liste des projets puis l’exposer séparément si nécessaire. Le sélecteur ne recherche que des dossiers et ne détecte pas les workspaces déjà ouverts : chaque sélection peut créer un nouveau workspace. Le nom initial est celui du dossier sélectionné.
+
+**Convention proposée.** Les dossiers de premier niveau de `worktrees` sont listés à part, après les projets, avec la mention « worktree », comme le préfixe `[wt]` du sélecteur WezTerm ; en choisir un ouvre un workspace comme pour un projet.
 
 ## 11. Actions contextuelles et worktrees
 
@@ -224,6 +264,8 @@ Les actions utilisent le **dossier du pane actif**, jamais un hypothétique doss
 
 **Décision prise.** Montrer le chemin ciblé dans le menu ou la zone d’actions. Afficher explicitement « Aucun dépôt Git », « Aucune branche » ou « HEAD détachée » selon le contexte. Désactiver ou masquer les actions Git hors dépôt ; ne jamais afficher une branche fictive.
 
+**Convention proposée.** L’en-tête de chaque pane affiche la branche Git de son dossier, ou « HEAD détachée », à côté du chemin ; rien hors d’un dépôt. Elle est relue après chaque commande, pour suivre un `git switch` ou un `wtr`. Dans un pane de moins de 520 px de large, elle est masquée et reste lisible dans l’infobulle de « Copier la branche ». Dans la palette, l’entrée de chaque pane rappelle aussi sa branche, qu’on peut donc taper pour le retrouver.
+
 La gestion actuelle des worktrees reste celle des fonctions wtr et rmwt du profil. L’interface doit suivre les changements observables depuis le shell. Aucun comportement de création/suppression automatique de workspace n’est validé.
 
 **Contrat de synchronisation.** Après `wtr`, le pane qui exécute la commande devient la source de vérité pour le dossier courant et le contexte Git ; l’interface relit ces valeurs et met à jour le workspace ou l’onglet déjà associé sans créer de doublon automatiquement. Après `rmwt`, elle relit le dossier et Git, marque comme indisponibles les panes dont le chemin n’existe plus et propose de les fermer ou de choisir un dossier de repli. L’interface n’exécute pas elle-même les effets de `wtr`/`rmwt` et ne supprime pas un workspace sans action explicite de l’utilisateur.
@@ -235,6 +277,8 @@ La gestion actuelle des worktrees reste celle des fonctions wtr et rmwt du profi
 **Retenu (25 septembre 2026).** Le panneau de droite porte deux onglets, « Fichiers » et « Git » ; le bouton de la barre d’onglets l’ouvre ou le ferme sur sa dernière vue, mémorisée par onglet avec son ouverture. Commande « Afficher / masquer Git » dans la palette, Leader puis G ou Ctrl + Maj + G : ouvre la vue Git, y bascule depuis les fichiers, ou ferme et rend le focus au terminal. La vue suit le dépôt ou le worktree du dossier du pane actif et affiche « Aucun dépôt Git » hors dépôt ; elle se met à jour en direct, y compris après une commande tapée au terminal ou lancée par un agent. Ouvrir la vue Git affiche, à la place des terminaux de l’onglet et sous la barre d’onglets, un graphe qui regroupe l’historique et les branches, avec le focus. Colonnes « Branche / Tag », « Graphe », « Message », « Auteur » et « Date » : leur largeur se règle à la souris ou au clavier, « Auteur » et « Date » se masquent par un clic droit sur l’en-tête, et ces réglages sont mémorisés dans la session. Les étiquettes des branches et des tags sont reliées à leur commit ; une branche locale et sa branche distante sont réunies dans une seule étiquette quand elles pointent sur le même commit, la branche courante porte une coche. Les nœuds portent les initiales de l’auteur (aucune photo, aucun accès réseau), les merges une simple pastille. Une ligne « // WIP » en tête, reliée en pointillés au commit HEAD, annonce les fichiers ajoutés, modifiés, supprimés ou en conflit et l’opération en cours ; chaque stash apparaît en nœud pointillé rattaché à son commit de départ. Le graphe montre toutes les branches par défaut, une bascule « Courante » le limite à la branche courante et à son amont, et les commits se chargent par pages de 200 au défilement. À gauche du graphe, une colonne repliable et redimensionnable liste les branches locales avec leur avance et leur retard, les branches distantes par dépôt distant, les tags et les stash : un clic amène au commit dans le graphe, un double-clic fait le checkout de la branche. Ctrl + clic, Maj + clic, Maj + flèches et Ctrl + A y sélectionnent plusieurs branches, branches distantes, tags ou stash, même de sections différentes : le clic droit propose alors de les supprimer après une seule confirmation, qui signale les branches sans merge et les branches distantes, ou de copier leurs noms, et Suppr supprime la sélection ; « Annuler » restaure ensuite les branches, tags et stash locaux. Glisser une branche sur la branche courante, ou la branche courante sur une autre branche, propose un merge ou un rebase. Menus contextuels : commit (checkout, créer une branche ou un tag, cherry-pick, merge, rebase, reset soft, mixed ou hard), branche (checkout, merge, rebase, aller au commit, renommer, supprimer, supprimer la branche distante), tag (push, supprimer), stash (appliquer, appliquer et supprimer, supprimer), ligne WIP (stage de tout, stash, créer une branche) et fichiers modifiés du panneau Git, sélectionnables à plusieurs par Ctrl + clic, Maj + clic ou Ctrl + A (ouvrir dans l’éditeur, stage, unstage, marquer résolu, stash des seuls fichiers choisis, abandonner, ajouter au `.gitignore`, copier les chemins ; Espace et Suppr agissent sur toute la sélection). Échap ou la croix ferme le graphe et rend les terminaux sans fermer le panneau ; le bouton « Graphe » du panneau le rouvre. Le panneau Git montre le détail de la ligne choisie, sans onglets internes : pour la ligne WIP, les conflits, les fichiers Staged et Unstaged avec leurs actions, le message de commit, « Amend du dernier commit », « Commit » et « Commit et push » ; pour un commit, son message, son auteur, sa date et ses fichiers ; pour un stash, les mêmes informations et ses actions. En tête du panneau : dépôt, branche ou HEAD détachée, avance et retard sur la branche distante suivie, bouton « Graphe », puis Fetch, Pull, Push (qui publie une branche sans amont), Annuler et Actualiser. Le diff d’un fichier s’affiche dans un volet large par-dessus le graphe ou les terminaux : il suit le fichier choisi, se recharge quand le fichier change et se ferme par Échap ou la croix. Les branches distantes se suppriment depuis la vue après confirmation ; le reset hard, la suppression d’une branche sans merge, l’abandon de modifications, la suppression d’un stash, l’abandon d’une opération en cours et le push forcé demandent aussi une confirmation. « Annuler » couvre commit, amend, merge, pull, rebase, cherry-pick, reset (les modifications locales effacées par un reset hard sont restaurées), checkout, création, suppression et renommage de branche, tags, stash, suppression d’un stash et abandon de modifications ; il est refusé, raison en infobulle, si le dépôt a changé depuis ou si un push a publié les commits, ne couvre ni ce qui a été publié ni l’application d’un stash, et n’est pas conservé à la fermeture de Dock. Un conflit ramène le panneau sur la ligne WIP avec une bannière « Terminer » / « Abandonner » ; « Marquer résolu » demande confirmation si le fichier contient encore des marqueurs de conflit. Après un push refusé, une bannière propose « Pull » ou « Forcer le push… » avec `--force-with-lease`, refusé si la branche distante a changé depuis le dernier fetch. L’hôte exécute le `git` installé avec des arguments séparés, sans composer de ligne de commande, et respecte la configuration, les hooks et le gestionnaire d’identifiants de l’utilisateur ; la sortie d’une commande refusée, hooks compris, s’affiche dans la vue. La gestion des worktrees reste celle de `wtr`/`rmwt` ; les pull requests, le rebase interactif, le stage d’une partie de fichier et l’éditeur de conflits intégré sont hors périmètre.
 
 **Retenu (25 septembre 2026).** Les libellés et les messages de la vue Git gardent les termes Git anglais, invariables : Push, Pull, Fetch, Stash, Stage et Unstage (fichiers Staged et Unstaged), Merge, Rebase, Amend, Checkout et Cherry-pick. Les phrases restent en français et emploient ces termes comme des noms, par exemple « Push vers origin/main terminé. », « 3 commits à push » ou « Faites un pull pour les intégrer ».
+
+**Convention proposée.** Quand la place manque dans le graphe, Date puis Auteur sont masqués à l’affichage pour laisser au moins 200 px au message, sans changer le réglage mémorisé ; ils réapparaissent dès que la place revient.
 
 ## 12. Attention, agents et notifications
 
@@ -256,6 +300,10 @@ La gestion actuelle des worktrees reste celle des fonctions wtr et rmwt du profi
 - À la restauration d’une session, ne pas restaurer comme vivants les états des anciens processus.
 
 **Conventions proposées.** Agréger le nombre d’attentes par workspace, éviter les notifications répétées pour le même événement et offrir l’accès au pane sans prise de focus forcée. Si plusieurs panes attendent, permettre de choisir la destination.
+
+**Convention proposée.** Dans la palette, chaque entrée « Rejoindre » indique depuis combien de temps l’agent attend (« depuis 3 min »), mesuré depuis que Dock a reçu cet état, et les entrées vont de l’attente la plus ancienne à la plus récente. Les cartes d’attention affichent la même durée, mise à jour toutes les 30 secondes, et suivent le même ordre.
+
+**Convention proposée.** Leader puis A, Ctrl + Maj + A ou « Rejoindre l’agent en attente suivant » dans la palette rejoint le pane en attente qui suit le pane actif dans l’ordre de la palette, de l’attente la plus ancienne à la plus récente (ordre du panneau à égalité), tous workspaces confondus et en boucle ; répété, il passe d’une attente à l’autre. Sans agent en attente, la barre de statut l’indique.
 
 **Décision de périmètre.** L’architecture doit permettre des adaptateurs Claude Code et Codex CLI, mais leur détection fiable et leurs notifications sont reportées à une évolution dédiée. Tant qu’un adaptateur ne peut pas établir un état, afficher « État inconnu » plutôt que d’inférer une activité depuis le seul processus.
 
@@ -299,6 +347,10 @@ Le texte restauré est accompagné d’un séparateur explicite, par exemple « 
 L’export de préférences ne doit pas embarquer implicitement la sortie des terminaux. Un export volontaire de disposition peut être proposé séparément ; il contient alors des chemins locaux. L’import valide l’ensemble avant mutation et **remplace** la configuration courante ; il ne fusionne pas silencieusement les valeurs.
 
 **Convention de fichiers.** Les préférences exportables, l’état de session et l’historique restent séparés, chacun avec une version de schéma. L’emplacement exact peut être choisi par l’implémentation dans les répertoires de données Windows appropriés ; il doit être documenté et stable. Une confirmation est requise avant un import qui remplace une configuration existante.
+
+**Convention proposée.** L’en-tête de l’écran Paramètres affiche la version de Dock (« Dock 1.0.0 »), pour la comparer aux versions publiées ou la citer dans un signalement.
+
+**Convention proposée.** À l’import, une valeur de persistance hors bornes (sauvegarde du texte, lignes par pane, historique global) est ramenée dans sa plage, et chaque correction est signalée dans l’écran Paramètres, sous l’avis d’import, avant tout enregistrement.
 
 ## 15. Architecture fonctionnelle et choix techniques
 
@@ -353,6 +405,8 @@ Ces exigences sont des recommandations d’implémentation pour préserver les i
 - Valider les données importées avant de modifier la session courante.
 - Traiter les chemins comme des arguments structurés lors des appels aux outils locaux, y compris avec espaces et caractères spéciaux.
 
+**Convention proposée.** Un nom, un chemin ou un message coupé par manque de place (points de suspension) montre son texte complet en infobulle au survol, y compris dans la barre de statut.
+
 ## 17. Matrice de recette
 
 Ces scénarios définissent les vérifications à effectuer sur l’application finale.
@@ -402,5 +456,7 @@ Ces scénarios définissent les vérifications à effectuer sur l’application 
 8. **Fait :** noms automatiques dossier, branche absente/HEAD détachée et actions Git indisponibles hors dépôt ; contrat wtr/rmwt documenté.
 9. **Reporté :** implémenter les adaptateurs Claude Code/Codex CLI et définir leurs événements fiables dans une évolution dédiée.
 10. **Fait :** critères mesurables de performance et versions minimales de Windows consignés en section 15 à l’issue du spike.
+11. **À décider :** sur un onglet de la barre ou une ligne du panneau des workspaces qui a le focus, Alt + flèche déplace cet élément au lieu de changer de pane comme le prévoit le tableau retenu de la section 9 (conventions proposées des sections 5, 6 et 9). Garder cette exception ou la retirer.
+12. **À décider :** la « Décision prise » de la section 5 demande une confirmation pour supprimer un workspace « lorsqu’il contient des onglets ou des processus actifs ». Aujourd’hui, « Fermer le workspace » (menu du panneau, palette) ne confirme que si des programmes tournent : un workspace de plus de cinq onglets inactifs se ferme sans confirmation et ses onglets au-delà des cinq derniers ne sont plus restaurables. Préciser si la confirmation doit porter sur tout workspace qui contient des onglets.
 
 Ces décisions ne bloquent pas la compréhension du produit ; elles évitent de traiter un comportement accidentel comme une exigence validée.

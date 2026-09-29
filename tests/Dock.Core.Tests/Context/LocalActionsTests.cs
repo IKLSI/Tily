@@ -27,6 +27,16 @@ public sealed class LocalActionsTests
     }
 
     [Fact]
+    public void RevealInExplorer_WhenPathMissing_ThenRefusesInFrench()
+    {
+        var missing = Path.Combine(Path.GetTempPath(), "dock-absent-" + Guid.NewGuid().ToString("N"), "fichier.txt");
+
+        var exception = Assert.Throws<InvalidOperationException>(() => LocalActions.RevealInExplorer(missing));
+
+        Assert.Equal($"L’élément n’existe plus : {missing}", exception.Message);
+    }
+
+    [Fact]
     public void RequireWebLink_WhenRelative_ThenRefuses()
     {
         var exception = Assert.Throws<InvalidOperationException>(() => LocalActions.RequireWebLink("chemin/relatif"));

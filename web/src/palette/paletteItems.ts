@@ -1,13 +1,14 @@
-import { waitingPanes } from '../agents/agentSummary'
+import { longestWaitingFirst, waitedFor, waitingPanes } from '../agents/agentSummary'
 import { bridge } from '../bridge/bridge'
-import type { ShellProfile } from '../bridge/messages'
-import { Command, runCommand } from '../keyboard/shortcuts'
-import { activeTab, activeWorkspace, panesOf, type Session } from '../model/session'
+import type { GitContext, ShellProfile } from '../bridge/messages'
+import { Command, revealWorkspacePanel, runCommand } from '../keyboard/shortcuts'
+import { activeTab, activeWorkspace, FAVORITES_MAX, folderName, panesOf, type Pane, type Session } from '../model/session'
 import { useAgentStore } from '../store/agentStore'
+import { useHostStore } from '../store/hostStore'
 import { useSessionStore } from '../store/sessionStore'
 import { RenameOrigin, useUiStore } from '../store/uiStore'
-import { restoreClosedTab } from '../terminal/tabLifecycle'
-import { terminalRegistry } from '../terminal/terminalRegistry'
+import { closeOtherTabsKeepingText, closeTabKeepingText, closeWorkspaceKeepingText, duplicateTabKeepingLayout, restoreClosedTab, restoreClosedTabAt } from '../terminal/tabLifecycle'
+import { joinPane } from '../terminal/terminalActions'
 import { OpenTarget } from '../bridge/messages'
 import { copyPaneBranch, copyPanePath, openPaneFolder } from '../terminal/contextActions'
 import type { SearchItem } from './searchFilter'
@@ -26,6 +27,9 @@ export interface PaletteItem extends SearchItem {
 }
 
 const SEPARATOR = ' · '
+const FAVORITES_FULL_NOTICE = `Pas plus de ${FAVORITES_MAX} favoris : retirez une étoile avant d’en ajouter une.`
+const ATTENTION_PREFIX = 'attention-'
+const MOVE_TAB_PREFIX = 'move-tab-'
 
 const command = (id: string, label: string, run: () => void, hint?: string): PaletteItem => ({ id, kind: PaletteKind.Command, label, hint, favorite: false, run })
 
@@ -40,6 +44,10 @@ const commandItems = (session: Session, shells: ShellProfile[]): PaletteItem[] =
     command('split-x', 'Split côte à côte', () => runCommand(Command.SplitSideBySide), 'Ctrl + Maj + D'),
     command('split-y', 'Split haut / bas', () => runCommand(Command.SplitTopBottom), 'Ctrl + Maj + H'),
     command('close-pane', 'Fermer le pane actif', () => runCommand(Command.ClosePane), 'Ctrl + Maj + X'),
+    command('toggle-zoom', 'Agrandir / réduire le pane actif', () => runCommand(Command.TogglePaneZoom), 'Ctrl + Maj + M'),
+    command('join-waiting', 'Rejoindre l’agent en attente suivant', () => runCommand(Command.JoinWaitingAgent), 'Ctrl + Maj + A'),
+    command('next-tab', 'Onglet suivant', () => runCommand(Command.NextTab), 'Ctrl + Tab'),
+    command('previous-tab', 'Onglet précédent', () => runCommand(Command.PreviousTab), 'Ctrl + Maj + Tab'),
     command('new-workspace', 'Nouveau workspace', () => runCommand(Command.NewWorkspace), 'Ctrl + Maj + W'),
     command('projects', 'Ouvrir un projet', () => runCommand(Command.Projects), 'Leader puis F'),
     command('toggle-explorer', 'Afficher / masquer les fichiers', () => runCommand(Command.ToggleExplorer), 'Ctrl + Maj + E'),
@@ -54,10 +62,16 @@ const commandItems = (session: Session, shells: ShellProfile[]): PaletteItem[] =
       bridge.send({ type: 'settings.import' })
     }),
     command('restore-tab', 'Rouvrir le dernier onglet fermé', restoreClosedTab, 'Ctrl + Maj + Z'),
-    command('toggle-sidebar', session.sidebarCollapsed ? 'Afficher les workspaces' : 'Masquer les workspaces', store.toggleSidebar),
+    command('toggle-sidebar', session.sidebarCollapsed ? 'Afficher les workspaces' : 'Masquer les workspaces', () => runCommand(Command.ToggleSidebar), 'Ctrl + Maj + B'),
+    command('focus-sidebar', 'Aller au panneau des workspaces', revealWorkspacePanel),
   ]
   if (workspace) {
-    items.push(command('rename-workspace', 'Renommer le workspace', () => ui.startRenamingWorkspace(workspace.id, RenameOrigin.Header)))
+    items.push(
+      command('rename-workspace', 'Renommer le workspace', () => ui.startRenamingWorkspace(workspace.id, RenameOrigin.Header)),
+      command('move-workspace-up', 'Monter le workspace', () => store.moveWorkspace(workspace.id, -1)),
+      command('move-workspace-down', 'Descendre le workspace', () => store.moveWorkspace(workspace.id, 1)),
+      command('close-workspace', `Fermer le workspace${SEPARATOR}${workspace.name}`, () => closeWorkspaceKeepingText(workspace.id)),
+    )
   }
   if (tab) {
     const paneId = tab.active
@@ -67,31 +81,53 @@ const commandItems = (session: Session, shells: ShellProfile[]): PaletteItem[] =
       command('open-explorer', 'Ouvrir le dossier du pane actif dans l’explorateur', () => openPaneFolder(paneId, OpenTarget.Explorer)),
       command('copy-branch', 'Copier la branche Git du pane actif', () => copyPaneBranch(paneId)),
     )
-    items.push(command('rename-tab', 'Renommer l’onglet', () => ui.startRenamingTab(tab.id)))
+    items.push(
+      command('rename-tab', 'Renommer l’onglet', () => ui.startRenamingTab(tab.id)),
+      command('duplicate-tab', 'Dupliquer l’onglet', () => duplicateTabKeepingLayout(tab.id)),
+      command('close-tab', 'Fermer l’onglet', () => closeTabKeepingText(tab.id)),
+    )
+    if (workspace && workspace.tabs.length > 1) {
+      items.push(command('close-other-tabs', 'Fermer les autres onglets', () => closeOtherTabsKeepingText(tab.id)))
+    }
     for (const target of session.workspaces.filter((candidate) => candidate.id !== workspace?.id)) {
-      items.push(command(`move-tab-${target.id}`, `Déplacer l’onglet vers${SEPARATOR}${target.name}`, () => store.moveTab(tab.id, target.id)))
+      items.push(command(`${MOVE_TAB_PREFIX}${target.id}`, `Déplacer l’onglet vers${SEPARATOR}${target.name}`, () => store.moveTab(tab.id, target.id)))
     }
   }
   return items
 }
 
 const attentionItems = (session: Session): PaletteItem[] => {
-  const { selectPane } = useSessionStore.getState()
-  return waitingPanes(session, useAgentStore.getState().agents).map((pane) => ({
-    id: `attention-${pane.paneId}`,
+  const { agents, since } = useAgentStore.getState()
+  const now = Date.now()
+  const waitingSince = (paneId: string): number => since[paneId] ?? now
+  return longestWaitingFirst(waitingPanes(session, agents), since, now).map((pane) => ({
+    id: `${ATTENTION_PREFIX}${pane.paneId}`,
     kind: PaletteKind.Attention,
     label: `Rejoindre${SEPARATOR}${pane.label}`,
-    hint: pane.detail,
-    favorite: false,
-    run: () => {
-      selectPane(pane.paneId)
-      terminalRegistry.get(pane.paneId)?.terminal.focus()
-    },
+    hint: `${waitedFor(now - waitingSince(pane.paneId))} · ${pane.detail}`,
+    run: () => joinPane(pane.paneId),
   }))
+}
+
+const closedTabItems = (session: Session): PaletteItem[] =>
+  session.closed
+    .map((entry, position) => ({
+      id: `closed-${position}-${entry.tab.id}`,
+      kind: PaletteKind.Command,
+      label: `Rouvrir l’onglet fermé${SEPARATOR}${entry.tab.name}`,
+      hint: entry.workspaceName,
+      run: () => restoreClosedTabAt(position),
+    }))
+    .reverse()
+
+const paneHint = (pane: Pane, contexts: Record<string, GitContext>): string => {
+  const branch = contexts[pane.id]?.branch
+  return branch ? `${branch}${SEPARATOR}${pane.path}` : pane.path
 }
 
 const navigationItems = (session: Session): PaletteItem[] => {
   const { selectWorkspace, selectTab, selectPane } = useSessionStore.getState()
+  const { contexts } = useHostStore.getState()
   return session.workspaces.flatMap((workspace) => [
     { id: `ws-${workspace.id}`, kind: PaletteKind.Workspace, label: `Workspace${SEPARATOR}${workspace.name}`, run: () => selectWorkspace(workspace.id) },
     ...workspace.tabs.flatMap((tab) => [
@@ -107,18 +143,42 @@ const navigationItems = (session: Session): PaletteItem[] => {
       ...panesOf(tab.tree).map((pane) => ({
         id: `pane-${pane.id}`,
         kind: PaletteKind.Pane,
-        label: `Pane${SEPARATOR}${workspace.name} / ${tab.name} / ${pane.shell}`,
-        hint: pane.path,
+        label: `Pane${SEPARATOR}${workspace.name} / ${tab.name} / ${folderName(pane.path)} (${pane.shell})`,
+        hint: paneHint(pane, contexts),
         run: () => selectPane(pane.id),
       })),
     ]),
   ])
 }
 
+const isOrphanFavorite = (session: Session, commandId: string): boolean => {
+  if (commandId.startsWith(ATTENTION_PREFIX)) {
+    return true
+  }
+  const workspaceId = commandId.startsWith(MOVE_TAB_PREFIX) ? commandId.slice(MOVE_TAB_PREFIX.length) : null
+  return workspaceId !== null && !session.workspaces.some((workspace) => workspace.id === workspaceId) && !session.closed.some((entry) => entry.workspaceId === workspaceId)
+}
+
+export const toggleFavoriteCommand = (commandId: string): string | null => {
+  const { session, toggleFavorite, setFavorites } = useSessionStore.getState()
+  if (!session) {
+    return null
+  }
+  const kept = session.favorites.filter((candidate) => !isOrphanFavorite(session, candidate))
+  if (!kept.includes(commandId) && kept.length >= FAVORITES_MAX) {
+    return FAVORITES_FULL_NOTICE
+  }
+  if (kept.length !== session.favorites.length) {
+    setFavorites(kept)
+  }
+  toggleFavorite(commandId)
+  return null
+}
+
 export const buildPaletteItems = (session: Session, shells: ShellProfile[]): PaletteItem[] => {
   const commands = commandItems(session, shells).map((item) => ({ ...item, favorite: session.favorites.includes(item.id) }))
   const favorites = commands.filter((item) => item.favorite)
   const others = commands.filter((item) => !item.favorite)
-  return [...attentionItems(session), ...favorites, ...others, ...navigationItems(session)]
+  return [...attentionItems(session), ...favorites, ...others, ...closedTabItems(session), ...navigationItems(session)]
 }
 

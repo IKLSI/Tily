@@ -82,6 +82,7 @@ interface ShellSetting {
 export interface ImportedPreferences {
   settings: Settings
   path: string
+  warnings: string[]
 }
 
 interface AgentHooksInfo {
@@ -108,6 +109,7 @@ export interface SettingsSnapshot {
 export interface Project {
   name: string
   path: string
+  worktree: boolean
 }
 
 export interface PaneActivity {
@@ -131,7 +133,7 @@ export interface PaneAgent {
 }
 
 export type HostToWebMessage =
-  | { type: 'app.hello'; session: Session; shells: ShellProfile[]; home: string; text: Record<string, string>; persistence: PersistenceSettings; recovery?: string }
+  | { type: 'app.hello'; version: string; session: Session; shells: ShellProfile[]; home: string; text: Record<string, string>; persistence: PersistenceSettings; recovery?: string }
   | { type: 'app.closing'; activity: PaneActivity[] }
   | { type: 'session.saved' }
   | { type: 'session.saveFailed'; message: string }
@@ -142,6 +144,7 @@ export type HostToWebMessage =
   | { type: 'terminal.output'; pane: string; data: string }
   | { type: 'terminal.cwd'; pane: string; path: string }
   | { type: 'terminal.exit'; pane: string; code: number }
+  | { type: 'terminal.dropped'; pane: string; text: string }
   | { type: 'terminal.pathMissing'; pane: string; path: string; fallback: string }
   | { type: 'terminal.activityResult'; panes: PaneActivity[] }
   | { type: 'agent.states'; panes: PaneAgent[] }
@@ -174,6 +177,8 @@ export type WebToHostMessage =
   | { type: 'terminal.ack'; pane: string; chars: number }
   | { type: 'terminal.close'; pane: string }
   | { type: 'terminal.activity'; panes: string[] }
+  | { type: 'terminal.drop'; pane: string; shell: string }
+  | { type: 'terminal.dropPath'; pane: string; shell: string; path: string }
   | { type: 'projects.list' }
   | { type: 'context.query'; pane: string; path: string }
   | { type: 'context.open'; pane: string; path: string; target: OpenTarget }
@@ -181,11 +186,13 @@ export type WebToHostMessage =
   | { type: 'files.watch'; paths: string[] }
   | { type: 'files.refresh' }
   | { type: 'files.open'; path: string }
+  | { type: 'files.reveal'; path: string }
   | { type: 'files.create'; path: string; name: string; kind: EntryKind }
   | { type: 'files.rename'; path: string; parent: string; name: string }
   | { type: 'files.delete'; path: string; parent: string }
   | { type: 'window.close' }
   | { type: 'window.closeCancel' }
+  | { type: 'window.title'; title: string }
   | GitWebMessage
 
 export type HostMessageType = HostToWebMessage['type']

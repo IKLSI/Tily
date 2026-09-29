@@ -2,15 +2,20 @@ import { bridge } from '../bridge/bridge'
 import { useHostStore } from '../store/hostStore'
 import { activePane, activeTab, activeWorkspace, DEFAULT_SHELL, RightPanelView, SplitAxis, type Workspace } from '../model/session'
 import { Direction, paneInDirection } from '../components/paneNavigation'
+import { focusWorkspacePanel } from '../components/workspacePanel'
 import { useSessionStore } from '../store/sessionStore'
 import { requestApplicationClose } from '../terminal/closeGuard'
 import { closePaneKeepingText, restoreClosedTab } from '../terminal/tabLifecycle'
+import { focusPane, joinNextWaitingPane } from '../terminal/terminalActions'
+import { endPaneZoom, togglePaneZoom } from '../terminal/paneZoom'
 import { togglePanelView } from '../panel/rightPanel'
 import { RenameOrigin, useUiStore } from '../store/uiStore'
 
 const LEADER_TIMEOUT_MS = 5000
 const MODIFIER_KEYS = new Set(['Control', 'Shift', 'Alt', 'AltGraph', 'Meta'])
 const CANCEL_KEY = 'Escape'
+const TAB_KEY = 'Tab'
+const SHORTCUT_BLOCKERS = 'input, textarea, select, [contenteditable="true"], [role="menu"], [role="dialog"], [role="alertdialog"]'
 const LEADER_EXPIRED_STATUS = 'Leader expiré : la saisie revient au terminal.'
 
 export interface LeaderHint {
@@ -26,8 +31,11 @@ export const LEADER_HINTS: LeaderHint[] = [
   { keys: 'F', label: 'projet' },
   { keys: 'E', label: 'fichiers' },
   { keys: 'G', label: 'git' },
+  { keys: 'B', label: 'workspaces' },
   { keys: 'X', label: 'fermer le pane' },
+  { keys: 'M', label: 'agrandir / réduire le pane' },
   { keys: 'Z', label: 'rouvrir' },
+  { keys: 'A', label: 'agent en attente' },
   { keys: 'P', label: 'palette' },
   { keys: ',', label: 'paramètres' },
   { keys: '← ↑ → ↓', label: 'pane voisin' },
@@ -51,9 +59,14 @@ export enum Command {
   FocusPaneDown = 'focusPaneDown',
   MoveTabLeft = 'moveTabLeft',
   MoveTabRight = 'moveTabRight',
+  NextTab = 'nextTab',
+  PreviousTab = 'previousTab',
   RestoreTab = 'restoreTab',
   ToggleExplorer = 'toggleExplorer',
   ToggleGit = 'toggleGit',
+  ToggleSidebar = 'toggleSidebar',
+  TogglePaneZoom = 'togglePaneZoom',
+  JoinWaitingAgent = 'joinWaitingAgent',
 }
 
 const LEADER_KEYS: Record<string, Command> = {
@@ -65,9 +78,12 @@ const LEADER_KEYS: Record<string, Command> = {
   f: Command.Projects,
   e: Command.ToggleExplorer,
   g: Command.ToggleGit,
+  b: Command.ToggleSidebar,
   ',': Command.Settings,
   x: Command.ClosePane,
+  m: Command.TogglePaneZoom,
   z: Command.RestoreTab,
+  a: Command.JoinWaitingAgent,
   ArrowRight: Command.FocusPaneRight,
   ArrowDown: Command.FocusPaneDown,
   ArrowLeft: Command.FocusPaneLeft,
@@ -88,9 +104,12 @@ const DIRECT_LETTER_KEYS: Record<string, Command> = {
   h: Command.SplitTopBottom,
   w: Command.NewWorkspace,
   x: Command.ClosePane,
+  m: Command.TogglePaneZoom,
   z: Command.RestoreTab,
   e: Command.ToggleExplorer,
   g: Command.ToggleGit,
+  b: Command.ToggleSidebar,
+  a: Command.JoinWaitingAgent,
 }
 
 const DIRECT_ARROW_KEYS: Record<string, Command> = {
@@ -117,10 +136,14 @@ const isCloseWindow = (event: KeyboardEvent): boolean => event.altKey && event.k
 const isCopy = (event: KeyboardEvent): boolean => event.ctrlKey && event.shiftKey && !event.altKey && letterOf(event) === 'c'
 const isPlainCtrlC = (event: KeyboardEvent): boolean => event.ctrlKey && !event.shiftKey && !event.altKey && letterOf(event) === 'c'
 const isPaste = (event: KeyboardEvent): boolean => event.ctrlKey && !event.altKey && letterOf(event) === 'v'
+const isTabCycle = (event: KeyboardEvent): boolean => event.ctrlKey && !event.altKey && event.key === TAB_KEY
 
 const directCommand = (event: KeyboardEvent): Command | undefined => {
   if (event.ctrlKey && !event.altKey && letterOf(event) === 'p') {
     return Command.Palette
+  }
+  if (isTabCycle(event)) {
+    return event.shiftKey ? Command.PreviousTab : Command.NextTab
   }
   if (event.ctrlKey && event.shiftKey && !event.altKey) {
     return DIRECT_PAGE_KEYS[event.key] ?? DIRECT_LETTER_KEYS[letterOf(event)]
@@ -183,7 +206,34 @@ const currentPaneId = (): string => {
   return workspace ? activeTab(workspace).active : ''
 }
 
+const SIDEBAR_SELECTOR = 'aside'
+
+export const revealWorkspacePanel = (): void => {
+  const { session, toggleSidebar: toggle } = useSessionStore.getState()
+  if (session?.sidebarCollapsed) {
+    toggle()
+  }
+  requestAnimationFrame(() => focusWorkspacePanel(currentWorkspace()?.id))
+}
+
+const toggleSidebar = (): void => {
+  const { session, toggleSidebar: toggle } = useSessionStore.getState()
+  if (session?.sidebarCollapsed) {
+    revealWorkspacePanel()
+    return
+  }
+  if (document.activeElement?.closest(SIDEBAR_SELECTOR)) {
+    focusPane(currentPaneId())
+  }
+  toggle()
+}
+
 const focusPaneToward = (direction: Direction): void => {
+  if (useUiStore.getState().zoomedPaneId !== null) {
+    endPaneZoom(true)
+    requestAnimationFrame(() => focusPaneToward(direction))
+    return
+  }
   const target = paneInDirection(currentPaneId(), direction)
   if (target) {
     useSessionStore.getState().selectPane(target)
@@ -238,6 +288,12 @@ export const runCommand = (command: Command): void => {
     case Command.MoveTabRight:
       sessionStore.moveActiveTab(1)
       break
+    case Command.NextTab:
+      sessionStore.selectAdjacentTab(1)
+      break
+    case Command.PreviousTab:
+      sessionStore.selectAdjacentTab(-1)
+      break
     case Command.RestoreTab:
       restoreClosedTab()
       break
@@ -247,6 +303,40 @@ export const runCommand = (command: Command): void => {
     case Command.ToggleGit:
       togglePanelView(RightPanelView.Git, true)
       break
+    case Command.ToggleSidebar:
+      toggleSidebar()
+      break
+    case Command.TogglePaneZoom:
+      togglePaneZoom()
+      break
+    case Command.JoinWaitingAgent:
+      joinNextWaitingPane()
+      break
+  }
+}
+
+export const handleLeaderKeyCapture = (event: KeyboardEvent): void => {
+  if (!useHostStore.getState().leaderActive || event.isComposing || MODIFIER_KEYS.has(event.key) || (event.target instanceof Element && event.target.closest(SHORTCUT_BLOCKERS))) {
+    return
+  }
+  event.preventDefault()
+  event.stopPropagation()
+  decideInLeader(event)
+}
+
+export const handleDocumentShortcut = (event: KeyboardEvent): void => {
+  if (event.defaultPrevented || event.isComposing || useHostStore.getState().leaderActive || (event.target instanceof Element && event.target.closest(SHORTCUT_BLOCKERS))) {
+    return
+  }
+  if (isLeaderChord(event)) {
+    event.preventDefault()
+    enterLeader()
+    return
+  }
+  const command = directCommand(event)
+  if (command) {
+    event.preventDefault()
+    runCommand(command)
   }
 }
 

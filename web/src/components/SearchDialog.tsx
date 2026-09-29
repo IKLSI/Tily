@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react'
 import { filterSearchItems, type SearchItem } from '../palette/searchFilter'
+import { keepTabInside } from './focusTrap'
 
 interface SearchDialogProps<T extends SearchItem> {
   label: string
@@ -9,12 +10,13 @@ interface SearchDialogProps<T extends SearchItem> {
   onClose: () => void
   onRun: (item: T) => void
   onToggleFavorite?: (item: T) => void
+  notice?: string | null
 }
 
 const RESULT_ID_PREFIX = 'search-result-'
 const LISTBOX_ID = 'search-results'
 
-export function SearchDialog<T extends SearchItem>({ label, placeholder, emptyMessage, items, onClose, onRun, onToggleFavorite }: SearchDialogProps<T>) {
+export function SearchDialog<T extends SearchItem>({ label, placeholder, emptyMessage, items, onClose, onRun, onToggleFavorite, notice }: SearchDialogProps<T>) {
   const [query, setQuery] = useState('')
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const listRef = useRef<HTMLDivElement>(null)
@@ -66,7 +68,7 @@ export function SearchDialog<T extends SearchItem>({ label, placeholder, emptyMe
 
   return (
     <div className="absolute inset-0 z-30 flex items-start justify-center bg-dock-paper/60 pt-[12vh]" onPointerDown={handleBackdropPointerDown}>
-      <div role="dialog" aria-label={label} className="flex max-h-[70vh] w-[560px] max-w-[92vw] flex-col rounded-lg border border-dock-line bg-dock-panel p-2 shadow-xl">
+      <div role="dialog" aria-label={label} className="flex max-h-[70vh] w-[560px] max-w-[92vw] flex-col rounded-lg border border-dock-line bg-dock-panel p-2 shadow-xl" onKeyDown={keepTabInside}>
         <input
           type="text"
           role="combobox"
@@ -101,8 +103,8 @@ export function SearchDialog<T extends SearchItem>({ label, placeholder, emptyMe
                 onPointerMove={handleHover}
               >
                 <button type="button" tabIndex={-1} className="flex min-w-0 flex-1 cursor-pointer items-baseline gap-3 py-2 text-left focus:outline-none" onPointerDown={handleResultPointerDown} onClick={handleClick}>
-                  <span className="min-w-0 flex-1 truncate">{item.label}</span>
-                  {item.hint && <span className="shrink-0 truncate font-mono text-[11px] text-dock-muted">{item.hint}</span>}
+                  <span className="min-w-0 truncate">{item.label}</span>
+                  {item.hint && <span className="min-w-0 flex-1 truncate text-right font-mono text-[11px] text-dock-muted">{item.hint}</span>}
                 </button>
                 {item.favorite !== undefined && (
                   <button
@@ -122,6 +124,9 @@ export function SearchDialog<T extends SearchItem>({ label, placeholder, emptyMe
             )
           })}
         </div>
+        <p role="status" className={notice ? 'mt-2 border-t border-dock-line px-3 pt-2 text-xs text-dock-warning' : undefined}>
+          {notice}
+        </p>
       </div>
     </div>
   )

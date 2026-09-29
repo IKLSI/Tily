@@ -1,6 +1,7 @@
 import { EntryKind, type FileEntry } from '../bridge/messages'
 import type { ActionMenuItem } from './ActionMenu'
 import { FloatingMenu } from './FloatingMenu'
+import { MenuShortcut } from './MenuShortcut'
 import type { FileMenuRequest } from './fileTreeHandlers'
 
 export interface FileMenuActions {
@@ -10,6 +11,9 @@ export interface FileMenuActions {
   rename: (path: string) => void
   remove: (entry: FileEntry, parent: string) => void
   copyPath: (path: string) => void
+  insertPath: (path: string) => void
+  reveal: (path: string) => void
+  openFolder: (path: string) => void
   refresh: () => void
 }
 
@@ -18,8 +22,6 @@ interface FileContextMenuProps {
   actions: FileMenuActions
   onDismiss: () => void
 }
-
-const shortcut = (keys: string) => <span className="text-[11px] text-dock-muted">{keys}</span>
 
 const itemsFor = ({ entry, parent }: FileMenuRequest, actions: FileMenuActions): ActionMenuItem[] => {
   if (!entry) {
@@ -32,15 +34,21 @@ const itemsFor = ({ entry, parent }: FileMenuRequest, actions: FileMenuActions):
     ]
   }
   const folder = entry.isDirectory ? entry.path : parent
+  const openItems: ActionMenuItem[] = entry.isDirectory
+    ? [
+        { id: 'terminal', label: 'Ouvrir un terminal ici', run: () => actions.openTerminal(entry.path) },
+        { id: 'open-folder', label: 'Ouvrir dans l’éditeur', run: () => actions.openFolder(entry.path) },
+      ]
+    : [{ id: 'open', label: 'Ouvrir dans l’éditeur', detail: <MenuShortcut keys="Entrée" />, run: () => actions.open(entry) }]
   return [
-    entry.isDirectory
-      ? { id: 'terminal', label: 'Ouvrir un terminal ici', run: () => actions.openTerminal(entry.path) }
-      : { id: 'open', label: 'Ouvrir dans l’éditeur', detail: shortcut('Entrée'), run: () => actions.open(entry) },
+    ...openItems,
     { id: 'new-file', label: 'Nouveau fichier', run: () => actions.newEntry(folder, EntryKind.File) },
     { id: 'new-folder', label: 'Nouveau dossier', run: () => actions.newEntry(folder, EntryKind.Folder) },
-    { id: 'rename', label: 'Renommer', detail: shortcut('F2'), run: () => actions.rename(entry.path) },
-    { id: 'delete', label: 'Supprimer', detail: shortcut('Suppr'), run: () => actions.remove(entry, parent) },
+    { id: 'rename', label: 'Renommer', detail: <MenuShortcut keys="F2" />, run: () => actions.rename(entry.path) },
+    { id: 'delete', label: 'Supprimer', detail: <MenuShortcut keys="Suppr" />, run: () => actions.remove(entry, parent) },
     { id: 'copy-path', label: 'Copier le chemin', run: () => actions.copyPath(entry.path) },
+    { id: 'insert-path', label: 'Insérer le chemin dans le terminal', run: () => actions.insertPath(entry.path) },
+    { id: 'reveal', label: 'Afficher dans l’Explorateur Windows', run: () => actions.reveal(entry.path) },
   ]
 }
 

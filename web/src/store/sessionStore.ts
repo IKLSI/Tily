@@ -1,4 +1,4 @@
-import { produce } from 'immer'
+import { current, produce } from 'immer'
 import { create } from 'zustand'
 import {
   activePane,
@@ -50,19 +50,25 @@ interface SessionState {
   setGitGraphLayout: (change: Partial<GitGraphLayout>) => void
   newWorkspace: (name: string, path: string, shell: string) => string
   renameWorkspace: (workspaceId: string, name: string) => void
+  moveWorkspace: (workspaceId: string, offset: number) => void
+  moveWorkspaceBefore: (workspaceId: string, beforeWorkspaceId?: string) => void
   newTab: (shell: string) => void
   newTabAt: (path: string, shell: string) => void
   renameTab: (tabId: string, name: string) => void
   moveTab: (tabId: string, targetWorkspaceId: string, beforeTabId?: string) => void
   moveActiveTab: (offset: number) => void
+  shiftTab: (tabId: string, offset: number) => void
+  duplicateTab: (tabId: string) => void
+  selectAdjacentTab: (offset: number) => void
   closeTab: (tabId: string) => void
-  restoreTab: () => { tab: Tab; paneIds: Record<string, string> } | null
+  restoreTab: (position?: number) => { tab: Tab; paneIds: Record<string, string> } | null
   splitPane: (axis: SplitAxis) => void
   setSplitRatio: (tabId: string, path: SplitPath, ratio: number) => void
   closePane: (paneId: string) => void
   setPanePath: (paneId: string, path: string) => void
   setPaneShell: (paneId: string, shell: string) => void
   toggleFavorite: (commandId: string) => void
+  setFavorites: (commandIds: string[]) => void
 }
 
 const mutateSession = (session: Session | null, mutate: (draft: Session) => void): Session | null => (session ? produce(session, mutate) : session)
@@ -197,6 +203,32 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
       }),
     })),
 
+  moveWorkspace: (workspaceId, offset) =>
+    set((state) => ({
+      session: mutateSession(state.session, (draft) => {
+        const index = draft.workspaces.findIndex((workspace) => workspace.id === workspaceId)
+        const destination = index + offset
+        if (index < 0 || destination < 0 || destination >= draft.workspaces.length) {
+          return
+        }
+        const [workspace] = draft.workspaces.splice(index, 1)
+        draft.workspaces.splice(destination, 0, workspace)
+      }),
+    })),
+
+  moveWorkspaceBefore: (workspaceId, beforeWorkspaceId) =>
+    set((state) => ({
+      session: mutateSession(state.session, (draft) => {
+        const index = draft.workspaces.findIndex((workspace) => workspace.id === workspaceId)
+        const before = beforeWorkspaceId ? draft.workspaces.findIndex((workspace) => workspace.id === beforeWorkspaceId) : draft.workspaces.length
+        if (index < 0 || before < 0 || before === index || before === index + 1) {
+          return
+        }
+        const [workspace] = draft.workspaces.splice(index, 1)
+        draft.workspaces.splice(before > index ? before - 1 : before, 0, workspace)
+      }),
+    })),
+
   newTab: (shell) =>
     set((state) => ({
       session: mutateWorkspace(state.session, (workspace) => {
@@ -261,6 +293,44 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
       }),
     })),
 
+  shiftTab: (tabId, offset) =>
+    set((state) => ({
+      session: mutateSession(state.session, (draft) => {
+        const workspace = draft.workspaces.find((candidate) => candidate.tabs.some((tab) => tab.id === tabId))
+        const index = workspace ? workspace.tabs.findIndex((tab) => tab.id === tabId) : -1
+        const destination = index + offset
+        if (!workspace || index < 0 || destination < 0 || destination >= workspace.tabs.length) {
+          return
+        }
+        const [tab] = workspace.tabs.splice(index, 1)
+        workspace.tabs.splice(destination, 0, tab)
+      }),
+    })),
+
+  duplicateTab: (tabId) =>
+    set((state) => ({
+      session: mutateSession(state.session, (draft) => {
+        const workspace = draft.workspaces.find((candidate) => candidate.tabs.some((tab) => tab.id === tabId))
+        const index = workspace ? workspace.tabs.findIndex((tab) => tab.id === tabId) : -1
+        if (!workspace || index < 0) {
+          return
+        }
+        const { tab } = cloneTabWithNewIds(current(workspace.tabs[index]))
+        workspace.tabs.splice(index + 1, 0, tab)
+        workspace.active = tab.id
+        draft.active = workspace.id
+      }),
+    })),
+
+  selectAdjacentTab: (offset) =>
+    set((state) => ({
+      session: mutateWorkspace(state.session, (workspace) => {
+        const count = workspace.tabs.length
+        const index = Math.max(0, workspace.tabs.findIndex((tab) => tab.id === workspace.active))
+        workspace.active = workspace.tabs[(((index + offset) % count) + count) % count].id
+      }),
+    })),
+
   closeTab: (tabId) =>
     set((state) => ({
       session: mutateSession(state.session, (draft) => {
@@ -285,15 +355,17 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
       }),
     })),
 
-  restoreTab: () => {
-    const entry = get().session?.closed.at(-1)
+  restoreTab: (position) => {
+    const closed = get().session?.closed ?? []
+    const index = position ?? closed.length - 1
+    const entry = closed[index]
     if (!entry) {
       return null
     }
     const { tab, paneIds } = cloneTabWithNewIds(entry.tab)
     set((state) => ({
       session: mutateSession(state.session, (draft) => {
-        draft.closed = draft.closed.slice(0, -1)
+        draft.closed = draft.closed.filter((_, candidate) => candidate !== index)
         let workspace = findWorkspace(draft, entry.workspaceId)
         if (!workspace) {
           workspace = { id: entry.workspaceId, name: entry.workspaceName, tabs: [], active: tab.id, expanded: true }
@@ -357,6 +429,13 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
     set((state) => ({
       session: mutateSession(state.session, (draft) => {
         draft.favorites = draft.favorites.includes(commandId) ? draft.favorites.filter((candidate) => candidate !== commandId) : [...draft.favorites, commandId]
+      }),
+    })),
+
+  setFavorites: (commandIds) =>
+    set((state) => ({
+      session: mutateSession(state.session, (draft) => {
+        draft.favorites = commandIds
       }),
     })),
 

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, type KeyboardEvent } from 'react'
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import type { GitGraphRow as GitGraphRowModel, GitState } from '../bridge/gitMessages'
 import { focusGitPanel, isInGitPanel, takeGraphFocusRequest } from '../git/gitFocus'
@@ -9,7 +9,7 @@ import { useGitStore } from '../store/gitStore'
 import { useSessionStore } from '../store/sessionStore'
 import { GitGraphHeader } from './GitGraphHeader'
 import { GitGraphRow } from './GitGraphRow'
-import { GRAPH_HEADER_HEIGHT, GRAPH_ROW_HEIGHT, graphRowId, WORKING_TREE_KEY, type GitGraphRowHandlers } from './gitGraphStyles'
+import { fitGraphColumns, GRAPH_HEADER_HEIGHT, GRAPH_ROW_HEIGHT, graphRowId, WORKING_TREE_KEY, type GitGraphRowHandlers } from './gitGraphStyles'
 import { GitWorkingTreeRow } from './GitWorkingTreeRow'
 import { useVirtualRows } from './useVirtualRows'
 import { isMenuKey } from './workspacePanel'
@@ -48,7 +48,11 @@ const scrollRowIntoView = (container: HTMLElement | null, index: number, center:
 export function GitGraphTable({ state, layout }: GitGraphTableProps) {
   const { history, historyError, commit, reveal } = useGitStore(useShallow((store) => ({ history: store.history, historyError: store.historyError, commit: store.commit, reveal: store.reveal })))
   const containerRef = useRef<HTMLDivElement>(null)
+  const [width, setWidth] = useState(0)
   const commits = useMemo(() => history?.commits ?? [], [history])
+  const lanes = useMemo(() => commits.reduce((widest, entry) => Math.max(widest, entry.graph.width), history?.workingTree.width ?? SINGLE_NODE.width), [commits, history])
+  const { authorShown, dateShown, labelsWidth, graphWidth } = fitGraphColumns(layout, width, lanes)
+  const shownLayout = useMemo(() => ({ ...layout, authorShown, dateShown, labelsWidth, graphWidth }), [layout, authorShown, dateShown, labelsWidth, graphWidth])
   const hasMore = Boolean(history?.hasMore)
   const rowCount = 1 + commits.length + (hasMore ? 1 : 0)
   const { range, handleScroll } = useVirtualRows(containerRef, rowCount, GRAPH_ROW_HEIGHT)
@@ -61,6 +65,16 @@ export function GitGraphTable({ state, layout }: GitGraphTableProps) {
     if (takeGraphFocusRequest() && (document.activeElement === document.body || isInGitPanel(document.activeElement))) {
       containerRef.current?.focus()
     }
+  }, [])
+
+  useEffect(() => {
+    const container = containerRef.current
+    if (!container) {
+      return
+    }
+    const observer = new ResizeObserver(([entry]) => setWidth(entry.contentRect.width))
+    observer.observe(container)
+    return () => observer.disconnect()
   }, [])
 
   useEffect(() => {
@@ -89,7 +103,7 @@ export function GitGraphTable({ state, layout }: GitGraphTableProps) {
   const openMenuAtActive = () => {
     const key = activeIndex === 0 ? WORKING_TREE_KEY : commits[activeIndex - 1]?.sha
     const rect = key ? document.getElementById(graphRowId(key))?.getBoundingClientRect() : undefined
-    const x = (rect?.left ?? 0) + layout.labelsWidth + layout.graphWidth
+    const x = (rect?.left ?? 0) + shownLayout.labelsWidth + shownLayout.graphWidth
     const y = rect?.bottom ?? 0
     if (activeIndex === 0) {
       openWorkingTreeMenu(x, y)
@@ -127,12 +141,12 @@ export function GitGraphTable({ state, layout }: GitGraphTableProps) {
       onScroll={handleScroll}
       onKeyDown={handleKeyDown}
     >
-      <GitGraphHeader layout={layout} onResize={handleResize} onMenu={openColumnsMenu} />
+      <GitGraphHeader layout={shownLayout} stored={layout} onResize={handleResize} onMenu={openColumnsMenu} />
       {historyError && <p className="px-[12px] py-[4px] text-[12px] text-dock-error">{historyError}</p>}
       <div className="relative" style={{ height: rowCount * GRAPH_ROW_HEIGHT }}>
-        {range.start === 0 && <GitWorkingTreeRow state={state} graph={history?.workingTree ?? SINGLE_NODE} selected={commit === null} layout={layout} onSelect={selectWorkingTree} onMenu={openWorkingTreeMenu} />}
+        {range.start === 0 && <GitWorkingTreeRow state={state} graph={history?.workingTree ?? SINGLE_NODE} selected={commit === null} layout={shownLayout} onSelect={selectWorkingTree} onMenu={openWorkingTreeMenu} />}
         {commits.slice(firstCommit, lastCommit).map((entry, offset) => (
-          <GitGraphRow key={entry.sha} commit={entry} index={firstCommit + offset + 1} selected={entry.sha === commit} head={entry.sha === state.head.sha} layout={layout} remotes={state.remotes} handlers={handlers} />
+          <GitGraphRow key={entry.sha} commit={entry} index={firstCommit + offset + 1} selected={entry.sha === commit} head={entry.sha === state.head.sha} layout={shownLayout} remotes={state.remotes} handlers={handlers} />
         ))}
         {hasMore && range.end >= commits.length + 1 && (
           <div className="absolute inset-x-0 flex items-center px-[12px] text-[11px] text-dock-muted italic" style={{ top: (commits.length + 1) * GRAPH_ROW_HEIGHT, height: GRAPH_ROW_HEIGHT }}>

@@ -15,8 +15,12 @@ interface ProjectItem extends SearchItem {
   project: Project
 }
 
+const WORKTREE_HINT = 'worktree · '
+
+const hintOf = (project: Project): string => (project.worktree ? `${WORKTREE_HINT}${project.path}` : project.path)
+
 export function ProjectPicker({ projects, root, error, onClose, onSelect }: ProjectPickerProps) {
-  const items = useMemo<ProjectItem[]>(() => projects.map((project) => ({ id: project.path, label: project.name, hint: project.path, project })), [projects])
+  const items = useMemo<ProjectItem[]>(() => projects.map((project) => ({ id: project.path, label: project.name, hint: hintOf(project), project })), [projects])
   const handleRun = (item: ProjectItem) => onSelect(item.project)
 
   return (

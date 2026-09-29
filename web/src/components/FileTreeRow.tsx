@@ -1,5 +1,7 @@
-import { memo, type MouseEvent } from 'react'
+import { memo, type DragEvent, type MouseEvent } from 'react'
 import type { FileEntry } from '../bridge/messages'
+import { renameSelectionEnd } from '../explorer/fileTree'
+import { TREE_PATH_TYPE, treeDragValue } from '../terminal/externalDrop'
 import { Icon } from './Icon'
 import { IconName } from './iconName'
 import { InlineNameEditor } from './InlineNameEditor'
@@ -35,6 +37,11 @@ export const FileTreeRow = memo(function FileTreeRow({ entry, parent, depth, sel
     handlers.openMenu({ x: event.clientX, y: event.clientY, entry, parent })
   }
   const handleCommitRename = (name: string) => handlers.commitRename(entry, parent, name)
+  const handleDragStart = (event: DragEvent) => {
+    event.dataTransfer.setData(TREE_PATH_TYPE, treeDragValue(entry.path))
+    event.dataTransfer.setData('text/plain', entry.path)
+    event.dataTransfer.effectAllowed = 'copy'
+  }
 
   return (
     <div
@@ -49,13 +56,15 @@ export const FileTreeRow = memo(function FileTreeRow({ entry, parent, depth, sel
       onClick={handleClick}
       onDoubleClick={handleDoubleClick}
       onContextMenu={handleContextMenu}
+      draggable={!renaming}
+      onDragStart={handleDragStart}
     >
       <span className="flex w-[12px] shrink-0 justify-center text-dock-muted">
         {entry.isDirectory && <Icon name={IconName.Chevron} size={10} className={expanded ? 'rotate-90' : ''} />}
       </span>
       <Icon name={entry.isDirectory ? IconName.Folder : IconName.File} className="shrink-0 text-dock-muted" />
       {renaming ? (
-        <InlineNameEditor value={entry.name} label={`Nouveau nom de ${entry.name}`} className="h-[18px] min-w-0 flex-1 text-[12px]" onCommit={handleCommitRename} onCancel={handlers.cancelRename} />
+        <InlineNameEditor value={entry.name} label={`Nouveau nom de ${entry.name}`} className="h-[18px] min-w-0 flex-1 text-[12px]" selectionEnd={renameSelectionEnd(entry)} onCommit={handleCommitRename} onCancel={handlers.cancelRename} />
       ) : (
         <span className="min-w-0 truncate">{entry.name}</span>
       )}

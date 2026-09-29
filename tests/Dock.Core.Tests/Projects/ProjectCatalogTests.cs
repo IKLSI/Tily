@@ -23,6 +23,29 @@ public sealed class ProjectCatalogTests : IDisposable
     }
 
     [Fact]
+    public void List_WhenWorktreesFolderHasFolders_ThenAppendsThemAsWorktreesAfterProjects()
+    {
+        Directory.CreateDirectory(Path.Combine(_root, "projet"));
+        Directory.CreateDirectory(Path.Combine(_root, "worktrees", "projet-zeta"));
+        Directory.CreateDirectory(Path.Combine(_root, "worktrees", "Projet-alpha"));
+        File.WriteAllText(Path.Combine(_root, "worktrees", "notes.txt"), string.Empty);
+
+        var list = ProjectCatalog.List(_root);
+
+        Assert.Equal([("projet", false), ("Projet-alpha", true), ("projet-zeta", true)], list.Projects.Select(project => (project.Name, project.Worktree)));
+    }
+
+    [Fact]
+    public void List_WhenWorktreeListed_ThenPathPointsIntoWorktreesFolder()
+    {
+        Directory.CreateDirectory(Path.Combine(_root, "worktrees", "projet-branche"));
+
+        var list = ProjectCatalog.List(_root);
+
+        Assert.Equal(Path.Combine(_root, "worktrees", "projet-branche"), Assert.Single(list.Projects).Path);
+    }
+
+    [Fact]
     public void List_WhenRootMissing_ThenReturnsEmptyWithFrenchError()
     {
         var list = ProjectCatalog.List(_root);

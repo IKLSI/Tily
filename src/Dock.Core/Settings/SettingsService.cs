@@ -93,28 +93,28 @@ public sealed class SettingsService
         }
         catch (JsonException exception)
         {
-            return new PreferencesImportResultModel(null, $"Le fichier de préférences est illisible : {exception.Message}");
+            return PreferencesImportResultModel.Failed($"Le fichier de préférences est illisible : {exception.Message}");
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {
-            return new PreferencesImportResultModel(null, $"Impossible de lire {filePath} : {exception.Message}");
+            return PreferencesImportResultModel.Failed($"Impossible de lire {filePath} : {exception.Message}");
         }
 
         if (document is null)
         {
-            return new PreferencesImportResultModel(null, "Le fichier de préférences est vide.");
+            return PreferencesImportResultModel.Failed("Le fichier de préférences est vide.");
         }
 
         if (document.Version != PreferencesDocumentModel.CurrentVersion)
         {
             var version = document.Version?.ToString() ?? "absente";
-            return new PreferencesImportResultModel(null, $"Version de préférences non prise en charge : {version} (attendue : {PreferencesDocumentModel.CurrentVersion}).");
+            return PreferencesImportResultModel.Failed($"Version de préférences non prise en charge : {version} (attendue : {PreferencesDocumentModel.CurrentVersion}).");
         }
 
         var missing = document.MissingKey();
         if (missing is not null)
         {
-            return new PreferencesImportResultModel(null, $"Le fichier de préférences est incomplet : clé « {missing} » absente.");
+            return PreferencesImportResultModel.Failed($"Le fichier de préférences est incomplet : clé « {missing} » absente.");
         }
 
         var settings = new SettingsModel
@@ -127,8 +127,8 @@ public sealed class SettingsService
         };
         var validation = Validate(settings);
         return validation.IsValid
-            ? new PreferencesImportResultModel(settings, null)
-            : new PreferencesImportResultModel(null, $"Préférences refusées : {validation.Error}");
+            ? new PreferencesImportResultModel(settings, null, document.Persistence!.OutOfRangeWarnings())
+            : PreferencesImportResultModel.Failed($"Préférences refusées : {validation.Error}");
     }
 
     public SettingsSnapshotModel Snapshot(SettingsModel settings)
