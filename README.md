@@ -23,7 +23,7 @@
 - **Palette Ctrl + P** : retrouver une commande, un workspace, un onglet ou un terminal en quelques lettres.
 - **Touche Leader Ctrl + Espace** : toutes les actions au clavier, sans gêner la saisie dans le terminal.
 - **Sélecteur de projets** : ouvrir un nouveau workspace directement dans un dossier de projet ou dans l’un de ses worktrees.
-- **Explorateur de fichiers** : parcourir le dossier du terminal actif dans un panneau à droite.
+- **Explorateur de fichiers** : parcourir le dossier du terminal actif dans un panneau à droite, et lire un fichier Markdown ou texte dans un aperçu rendu, rechargé à chaque modification.
 - **Notes par workspace** : garder des notes en texte brut (tâches, ports, commandes) dans la vue « Notes » du panneau de droite, enregistrées avec la session ; une icône signale les workspaces qui en ont.
 - **Journal des messages** : un clic sur la barre de statut, ou Ctrl + Maj + L, déplie l’historique horodaté de ses messages, conservé d’une session à l’autre.
 - **Branche visible** : l’en-tête de chaque terminal affiche la branche Git de son dossier, mise à jour après chaque commande.
