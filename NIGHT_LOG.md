@@ -439,6 +439,16 @@ Un sous-agent a relu les itérations 47 à 53 (`6e125b7..HEAD`) sans rien modifi
   - la liste des touches du panneau n'est plus écrite deux fois.
 - **Vérifié** : lint, builds et 215 tests au vert ; chaque correction a été rejouée dans l'instance de test, graphe Git fermé.
 
+### 56. Rouvrir n'importe lequel des onglets fermés depuis la palette
+
+Dock garde les cinq derniers onglets fermés, mais seul le dernier pouvait être rouvert (Ctrl + Maj + Z, état vide, palette). Pour retrouver l'avant-dernier, il fallait d'abord rouvrir le dernier puis le refermer.
+
+- La palette propose maintenant une entrée « Rouvrir l’onglet fermé · nom » par onglet encore restaurable, de la plus récente à la plus ancienne, avec le workspace d'origine en indice. Taper « fermé » ou le nom de l'onglet suffit à les trouver.
+- `restoreTab` accepte une position dans `session.closed` ; sans position, il rouvre toujours le dernier. Le texte, les dossiers et le séparateur de restauration passent par le même chemin qu'avant (`restoreClosedTabAt` dans `tabLifecycle`).
+- Ces entrées n'ont pas d'étoile de favori : leur identifiant disparaît avec l'onglet.
+- Vérifié dans l'instance de dev : trois onglets (`Temp`, `Windows`, `Users`) ouverts puis fermés, la palette les liste dans l'ordre inverse de fermeture. J'ai rouvert `Windows`, celui du milieu : il reprend sa place dans le workspace, avec un terminal dans `C:\Windows`, et la liste ne contient plus que `Users`, `Temp` et les plus anciens. Ctrl + Maj + Z a ensuite rouvert `Users`, le dernier fermé.
+- Documenté comme **convention proposée** en section 6 de la spec.
+
 ## Reste à faire et idées
 
 - **Taille de police et zoom du terminal** : police fixe à 14 px. La spécification classe ce point « À décider » (section 4), je n'y ai donc pas touché ; c'est à trancher.

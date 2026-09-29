@@ -6,7 +6,7 @@ import { activeTab, activeWorkspace, folderName, panesOf, type Session } from '.
 import { useAgentStore } from '../store/agentStore'
 import { useSessionStore } from '../store/sessionStore'
 import { RenameOrigin, useUiStore } from '../store/uiStore'
-import { closeOtherTabsKeepingText, closeTabKeepingText, duplicateTabKeepingLayout, restoreClosedTab } from '../terminal/tabLifecycle'
+import { closeOtherTabsKeepingText, closeTabKeepingText, duplicateTabKeepingLayout, restoreClosedTab, restoreClosedTabAt } from '../terminal/tabLifecycle'
 import { joinPane } from '../terminal/terminalActions'
 import { OpenTarget } from '../bridge/messages'
 import { copyPaneBranch, copyPanePath, openPaneFolder } from '../terminal/contextActions'
@@ -99,6 +99,17 @@ const attentionItems = (session: Session): PaletteItem[] =>
     run: () => joinPane(pane.paneId),
   }))
 
+const closedTabItems = (session: Session): PaletteItem[] =>
+  session.closed
+    .map((entry, position) => ({
+      id: `closed-${position}-${entry.tab.id}`,
+      kind: PaletteKind.Command,
+      label: `Rouvrir l’onglet fermé${SEPARATOR}${entry.tab.name}`,
+      hint: entry.workspaceName,
+      run: () => restoreClosedTabAt(position),
+    }))
+    .reverse()
+
 const navigationItems = (session: Session): PaletteItem[] => {
   const { selectWorkspace, selectTab, selectPane } = useSessionStore.getState()
   return session.workspaces.flatMap((workspace) => [
@@ -128,6 +139,6 @@ export const buildPaletteItems = (session: Session, shells: ShellProfile[]): Pal
   const commands = commandItems(session, shells).map((item) => ({ ...item, favorite: session.favorites.includes(item.id) }))
   const favorites = commands.filter((item) => item.favorite)
   const others = commands.filter((item) => !item.favorite)
-  return [...attentionItems(session), ...favorites, ...others, ...navigationItems(session)]
+  return [...attentionItems(session), ...favorites, ...others, ...closedTabItems(session), ...navigationItems(session)]
 }
 

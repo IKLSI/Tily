@@ -94,8 +94,8 @@ export const duplicateTabKeepingLayout = (tabId: string): void => {
   }
 }
 
-export const restoreClosedTab = (): void => {
-  const restored = useSessionStore.getState().restoreTab()
+const reopenClosedTab = (position?: number): void => {
+  const restored = useSessionStore.getState().restoreTab(position)
   if (!restored) {
     useHostStore.getState().setStatus('Aucun onglet fermé à rouvrir.')
     return
@@ -105,3 +105,7 @@ export const restoreClosedTab = (): void => {
   }
   useHostStore.getState().setStatus(`Onglet « ${restored.tab.name} » rouvert avec de nouveaux terminaux.`)
 }
+
+export const restoreClosedTab = (): void => reopenClosedTab()
+
+export const restoreClosedTabAt = (position: number): void => reopenClosedTab(position)

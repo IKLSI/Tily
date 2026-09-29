@@ -143,6 +143,8 @@ Le déplacement conserve le shell, le dossier, l’historique, les processus act
 
 **Convention proposée.** Un clic droit sur un onglet de la barre ouvre son menu : Renommer, Dupliquer l’onglet (même disposition, mêmes dossiers et shells, terminaux neufs, aucune commande rejouée), Déplacer à gauche ou à droite, Fermer l’onglet et Fermer les autres onglets. Ce dernier ne demande qu’une seule confirmation si des programmes tournent ; les cinq derniers onglets fermés restent restaurables.
 
+**Convention proposée.** La palette propose une entrée « Rouvrir l’onglet fermé · nom » par onglet encore restaurable, de la plus récente à la plus ancienne, avec le workspace d’origine en indice : on peut rouvrir n’importe lequel des cinq, pas seulement le dernier. L’onglet reprend sa place dans son workspace, recréé s’il n’existe plus ; Ctrl + Maj + Z et l’état vide rouvrent toujours le dernier fermé.
+
 ## 7. Panes et splits
 
 | ID | Exigence retenue |

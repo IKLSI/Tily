@@ -61,7 +61,7 @@ interface SessionState {
   duplicateTab: (tabId: string) => void
   selectAdjacentTab: (offset: number) => void
   closeTab: (tabId: string) => void
-  restoreTab: () => { tab: Tab; paneIds: Record<string, string> } | null
+  restoreTab: (position?: number) => { tab: Tab; paneIds: Record<string, string> } | null
   splitPane: (axis: SplitAxis) => void
   setSplitRatio: (tabId: string, path: SplitPath, ratio: number) => void
   closePane: (paneId: string) => void
@@ -354,15 +354,17 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
       }),
     })),
 
-  restoreTab: () => {
-    const entry = get().session?.closed.at(-1)
+  restoreTab: (position) => {
+    const closed = get().session?.closed ?? []
+    const index = position ?? closed.length - 1
+    const entry = closed[index]
     if (!entry) {
       return null
     }
     const { tab, paneIds } = cloneTabWithNewIds(entry.tab)
     set((state) => ({
       session: mutateSession(state.session, (draft) => {
-        draft.closed = draft.closed.slice(0, -1)
+        draft.closed = draft.closed.filter((_, candidate) => candidate !== index)
         let workspace = findWorkspace(draft, entry.workspaceId)
         if (!workspace) {
           workspace = { id: entry.workspaceId, name: entry.workspaceName, tabs: [], active: tab.id, expanded: true }
