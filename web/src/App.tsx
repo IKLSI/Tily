@@ -62,7 +62,7 @@ export default function App() {
       bridge.on('dialog.picked', (message) => setPickedPath({ field: message.field, path: message.path })),
       bridge.on('settings.exported', (message) => setStatus(`Préférences exportées dans ${message.path}.`)),
       bridge.on('settings.imported', (message) => {
-        setImportedPreferences({ settings: message.settings, path: message.path })
+        setImportedPreferences({ settings: message.settings, path: message.path, warnings: message.warnings })
         setStatus(`Préférences lues depuis ${message.path} : Enregistrer remplace la configuration actuelle.`)
       }),
       bridge.on('app.closing', (message) => receiveApplicationClosing(message.activity)),

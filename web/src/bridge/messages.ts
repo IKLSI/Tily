@@ -82,6 +82,7 @@ interface ShellSetting {
 export interface ImportedPreferences {
   settings: Settings
   path: string
+  warnings: string[]
 }
 
 interface AgentHooksInfo {

@@ -177,6 +177,47 @@ public sealed class SettingsServiceTests : IDisposable
     }
 
     [Fact]
+    public void Import_WhenPersistenceOutOfRange_ThenClampsValues()
+    {
+        var service = new SettingsService(_directory);
+        var path = Path.Combine(_directory, "prefs.json");
+        File.WriteAllText(path, "{ \"version\": 1, \"shells\": {}, \"editor\": \"code.cmd\", \"persistence\": { \"textIntervalSeconds\": 3000, \"linesPerPane\": 100, \"maxTextMebibytes\": 64 }, \"projectsRoot\": \"C:\\\\Projets\" }");
+
+        var result = service.Import(path);
+
+        Assert.Equal(new PersistenceSettingsModel(600, 500, 64), result.Settings!.Persistence);
+    }
+
+    [Fact]
+    public void Import_WhenPersistenceOutOfRange_ThenWarnsForEachClampedValue()
+    {
+        var service = new SettingsService(_directory);
+        var path = Path.Combine(_directory, "prefs.json");
+        File.WriteAllText(path, "{ \"version\": 1, \"shells\": {}, \"editor\": \"code.cmd\", \"persistence\": { \"textIntervalSeconds\": 3000, \"linesPerPane\": 100, \"maxTextMebibytes\": 64 }, \"projectsRoot\": \"C:\\\\Projets\" }");
+
+        var result = service.Import(path);
+
+        Assert.Equal(
+            [
+                "Sauvegarde du texte (secondes) : 3000 ramené à 600 (entre 5 et 600).",
+                "Lignes conservées par pane : 100 ramené à 500 (entre 500 et 100000)."
+            ],
+            result.Warnings);
+    }
+
+    [Fact]
+    public void Import_WhenPersistenceWithinBounds_ThenReportsNoWarning()
+    {
+        var service = new SettingsService(_directory);
+        var path = Path.Combine(_directory, "prefs.json");
+        File.WriteAllText(path, "{ \"version\": 1, \"shells\": {}, \"editor\": \"code.cmd\", \"persistence\": { \"textIntervalSeconds\": 30, \"linesPerPane\": 1000, \"maxTextMebibytes\": 32 }, \"projectsRoot\": \"C:\\\\Projets\" }");
+
+        var result = service.Import(path);
+
+        Assert.Empty(result.Warnings);
+    }
+
+    [Fact]
     public void Import_WhenJsonInvalid_ThenRefuses()
     {
         var service = new SettingsService(_directory);

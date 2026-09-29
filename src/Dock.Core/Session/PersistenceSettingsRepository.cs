@@ -21,6 +21,17 @@ public sealed record PersistenceSettingsModel(int TextIntervalSeconds, int Lines
         Math.Clamp(TextIntervalSeconds, MinTextIntervalSeconds, MaxTextIntervalSeconds),
         Math.Clamp(LinesPerPane, MinLinesPerPane, MaxLinesPerPane),
         Math.Clamp(MaxTextMebibytes, MinTextMebibytes, MaxTextMebibytesLimit));
+
+    public IReadOnlyList<string> OutOfRangeWarnings() =>
+        new[]
+        {
+            OutOfRange("Sauvegarde du texte (secondes)", TextIntervalSeconds, MinTextIntervalSeconds, MaxTextIntervalSeconds),
+            OutOfRange("Lignes conservées par pane", LinesPerPane, MinLinesPerPane, MaxLinesPerPane),
+            OutOfRange("Historique global maximal (Mio)", MaxTextMebibytes, MinTextMebibytes, MaxTextMebibytesLimit)
+        }.OfType<string>().ToList();
+
+    private static string? OutOfRange(string label, int value, int min, int max) =>
+        value < min || value > max ? $"{label} : {value} ramené à {Math.Clamp(value, min, max)} (entre {min} et {max})." : null;
 }
 
 public sealed class PersistenceSettingsRepository

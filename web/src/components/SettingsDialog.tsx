@@ -74,12 +74,14 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
   const [seenPick, setSeenPick] = useState<PickedPath | null>(pickedPath)
   const [seenImport, setSeenImport] = useState<ImportedPreferences | null>(imported)
   const [importSource, setImportSource] = useState<string | null>(null)
+  const [importWarnings, setImportWarnings] = useState<string[]>([])
   const [numberTexts, setNumberTexts] = useState<NumberTexts>({})
   const dialogRef = useRef<HTMLDivElement>(null)
   if (snapshot !== seenSnapshot) {
     setSeenSnapshot(snapshot)
     setDraft(snapshot ? structuredClone(snapshot.settings) : null)
     setImportSource(null)
+    setImportWarnings([])
     setNumberTexts({})
   }
   if (imported !== seenImport) {
@@ -87,6 +89,7 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
     if (imported && snapshot) {
       setDraft(structuredClone(imported.settings))
       setImportSource(imported.path)
+      setImportWarnings(imported.warnings)
       setNumberTexts({})
     }
   }
@@ -170,6 +173,13 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
   const renderBody = (settings: Settings, current: SettingsSnapshot) => (
     <>
       {importSource && <p className="rounded border border-dock-green/50 bg-dock-paper px-3 py-2 text-[12px] text-dock-green">Préférences lues depuis {importSource}. Rien n’est écrit tant que vous n’enregistrez pas ; Enregistrer remplace la configuration actuelle.</p>}
+      {importWarnings.length > 0 && (
+        <ul className="rounded border border-dock-warning/50 bg-dock-paper px-3 py-2 text-[12px] text-dock-warning">
+          {importWarnings.map((warning) => (
+            <li key={warning}>{warning}</li>
+          ))}
+        </ul>
+      )}
       {current.warnings.length > 0 && (
         <ul className="rounded border border-dock-warning/50 bg-dock-paper px-3 py-2 text-[12px] text-dock-warning">
           {current.warnings.map((warning) => (

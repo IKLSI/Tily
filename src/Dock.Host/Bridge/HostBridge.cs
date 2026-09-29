@@ -505,7 +505,7 @@ public sealed class HostBridge : IDisposable
                 return;
             }
 
-            PostNow(new { type = "settings.imported", settings = result.Settings, path });
+            PostNow(new { type = "settings.imported", settings = result.Settings, path, warnings = result.Warnings });
         }
         catch (Exception exception)
         {

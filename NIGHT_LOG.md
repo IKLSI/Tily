@@ -287,9 +287,20 @@ Un sous-agent a relu tout le diff de la nuit (`main..night-session`) sans rien m
 
 ### 40. La barre d'outils Git tient sur une ligne
 
-- **Quoi** : la barre Fetch / Pull / Push / Annuler / Actualiser de l'en-tête Git s'étend de 4 px de chaque côté dans la marge du panneau. Elle gagne 8 px et ses icônes s'alignent sur le nom du dépôt au-dessus. Les boutons eux-mêmes, partagés par 13 barres, ne changent pas.
+- **Quoi** : la barre Fetch / Pull / Push / Annuler / Actualiser de l'en-tête Git s'étend de 4 px de chaque côté dans la marge du panneau. Elle gagne 8 px et ses icônes s'alignent sur le nom du dépôt au-dessus. Les boutons eux-mêmes, utilisés à 13 endroits, ne changent pas.
 - **Pourquoi** : à la largeur par défaut du panneau (280 px), il manquait 4 px (264 px de boutons pour 260 px de ligne). Le bouton « Actualiser » passait donc seul sur une deuxième ligne, ce qui ressemblait à une erreur de mise en page et faisait descendre tout le panneau d'une ligne.
 - **Vérifié** : dans l'instance de test, la barre fait 268 px sur une seule ligne de 24 px, avec les cinq boutons sur la même ligne, et l'icône « Fetch » est alignée sur le nom du dépôt (capture).
+
+### 41. L'import de préférences signale les valeurs ramenées dans leurs bornes
+
+- **Quoi** :
+  - `PersistenceSettingsModel.OutOfRangeWarnings` décrit chaque valeur de persistance hors bornes, par exemple « Sauvegarde du texte (secondes) : 3000 ramené à 600 (entre 5 et 600). » ;
+  - `SettingsService.Import` renvoie ces avertissements avec les réglages (`PreferencesImportResultModel.Warnings`, `Failed` pour les refus), et l'hôte les ajoute à `settings.imported` ;
+  - Paramètres les affiche sous l'avis d'import, en couleur d'avertissement, avant tout enregistrement.
+- **Pourquoi** : c'était dans le reste à faire. Un fichier de préférences avec 3 000 secondes était importé en 600 sans aucun signal. Le formulaire, qui ne montre que des valeurs valides, rendait la correction invisible jusqu'à l'enregistrement.
+- **Vérifié** :
+  - trois tests xUnit : valeurs ramenées, un avertissement par valeur corrigée, aucun avertissement si tout est dans les bornes ; 190 tests au vert ;
+  - dans l'instance de test, un `settings.imported` simulé par le protocole de débogage affiche les deux avertissements sous l'avis d'import (capture). Le parcours avec la vraie boîte de dialogue de fichiers n'a pas été automatisé : la partie hôte se limite à transmettre la liste.
 
 ## Reste à faire et idées
 
@@ -297,7 +308,6 @@ Un sous-agent a relu tout le diff de la nuit (`main..night-session`) sans rien m
 - **Graphe Git dans une fenêtre très étroite** : depuis l'itération 39, Auteur et Date s'effacent, puis la colonne des branches rétrécit jusqu'à 88 px et celle du graphe jusqu'à la largeur de ses voies. En dessous d'environ 400 px pour la table (fenêtre de 900 px avec les trois panneaux ouverts), le message reste coupé : replier le panneau des références ou celui des workspaces reste nécessaire.
 - **Message de pane pendant une saisie** : un message qui apparaît sur le pane où l'on tape prend le focus, et la frappe suivante peut le déclencher. Pour un dossier disparu, le bouton par défaut est donc « Ignorer », sans effet sur le shell, mais le signalement peut alors disparaître sans avoir été lu. Le cas est rare : il faut que le dossier du pane actif disparaisse pendant la saisie.
 - **Glisser-déposer depuis l'Explorateur** : depuis l'itération 32, il est vérifié avec un vrai glisser OLE de fichier, le même mécanisme que l'Explorateur. Un essai à la main depuis l'Explorateur, avec une image dans Claude Code par exemple, reste conseillé.
-- **Bornes des réglages de persistance** : l'hôte ramène encore sans le dire une valeur hors bornes dans sa plage, par exemple à l'import d'un fichier de préférences. Le formulaire ne peut plus en envoyer, mais un avertissement dans `settings.result` serait plus clair qu'une correction muette.
 - **Tests web** : il n'y en a toujours aucun (décision du 21 septembre). Les fonctions pures ajoutées cette nuit (`fitGraphColumns`, `menuPlaceOf`, `selectAdjacentTab`…) s'y prêteraient bien si tu changes d'avis.
 - **Effacer un terminal** : non ajouté au menu contextuel. Sous Windows 10, ConPTY ne permet pas de vider son propre tampon, et un effacement côté xterm.js pourrait réapparaître au premier redimensionnement.
 

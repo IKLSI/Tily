@@ -45,4 +45,7 @@ public sealed class PreferencesDocumentModel
     }
 }
 
-public sealed record PreferencesImportResultModel(SettingsModel? Settings, string? Error);
+public sealed record PreferencesImportResultModel(SettingsModel? Settings, string? Error, IReadOnlyList<string> Warnings)
+{
+    public static PreferencesImportResultModel Failed(string error) => new(null, error, []);
+}
