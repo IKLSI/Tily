@@ -1,4 +1,4 @@
-import { memo, useEffect, useState } from 'react'
+import { memo, useCallback, useEffect, useState } from 'react'
 import { OpenTarget, type ShellProfile } from '../bridge/messages'
 import { SplitAxis, type Pane } from '../model/session'
 import { useAgentStore } from '../store/agentStore'
@@ -95,10 +95,10 @@ export const PaneView = memo(function PaneView({ pane, active, onFocus, onClose,
   const handleSplitTopBottom = () => onSplit(pane.id, SplitAxis.Vertical)
   const handleClose = () => onClose(pane.id)
   const handleContextMenu = (x: number, y: number) => setMenu({ x, y })
-  const handleDismissMenu = () => {
+  const handleDismissMenu = useCallback(() => {
     setMenu(null)
     focusPaneTerminal(pane.id)
-  }
+  }, [pane.id])
   const menuActions: TerminalMenuActions = {
     copy: () => copyPaneSelection(pane.id),
     paste: () => pasteIntoPane(pane.id),

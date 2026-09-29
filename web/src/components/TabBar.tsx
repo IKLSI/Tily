@@ -67,6 +67,7 @@ export function TabBar({ workspace, shells, renamingTabId, panelOpen, onTogglePa
   const stripRef = useRef<HTMLDivElement>(null)
   const { draggingTabId, tabDropTarget } = useUiStore(useShallow((state) => ({ draggingTabId: state.draggingTabId, tabDropTarget: state.tabDropTarget })))
   const agents = useAgentStore((state) => state.agents)
+  const activeIndex = workspace.tabs.findIndex((tab) => tab.id === workspace.active)
 
   const updateFade = (strip: HTMLElement) => {
     const next = fadeOf(strip)
@@ -85,7 +86,7 @@ export function TabBar({ workspace, shells, renamingTabId, panelOpen, onTogglePa
     const observer = new ResizeObserver(revealActiveTab)
     observer.observe(strip)
     return () => observer.disconnect()
-  }, [workspace.active, workspace.tabs.length])
+  }, [workspace.active, workspace.tabs.length, activeIndex])
 
   const handleNewDefault = () => onNew(DEFAULT_SHELL)
   const handleContextMenu = (event: MouseEvent) => {
@@ -108,14 +109,14 @@ export function TabBar({ workspace, shells, renamingTabId, panelOpen, onTogglePa
   }
   const tabMenuPosition = tabMenu ? workspace.tabs.findIndex((tab) => tab.id === tabMenu.tabId) : -1
   const tabMenuActions: TabMenuActions = { rename: onStartRename, shift: onShift, duplicate: onDuplicate, close: onClose, closeOthers: onCloseOthers }
-  const handleRunTabMenu = () => setTabMenu(null)
-  const handleDismissTabMenu = () => {
+  const handleRunTabMenu = useCallback(() => setTabMenu(null), [])
+  const handleDismissTabMenu = useCallback(() => {
     const returnFocus = tabMenu?.returnFocus
     setTabMenu(null)
     if (returnFocus?.isConnected) {
       returnFocus.focus()
     }
-  }
+  }, [tabMenu])
   const handleStripScroll = () => {
     if (stripRef.current) {
       updateFade(stripRef.current)
