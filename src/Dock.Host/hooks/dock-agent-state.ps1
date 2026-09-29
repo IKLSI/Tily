@@ -1,7 +1,7 @@
 ﻿$paneId = $env:DOCK_PANE_ID
 if ([string]::IsNullOrWhiteSpace($paneId)) { exit 0 }
 
-$raw = [Console]::In.ReadToEnd()
+$raw = [System.IO.StreamReader]::new([Console]::OpenStandardInput(), [System.Text.UTF8Encoding]::new($false)).ReadToEnd()
 try { $hook = $raw | ConvertFrom-Json } catch { exit 0 }
 
 $dataDirectory = if ([string]::IsNullOrWhiteSpace($env:DOCK_DATA_DIR)) { Join-Path $env:LOCALAPPDATA 'Dock' } else { $env:DOCK_DATA_DIR }
@@ -14,17 +14,28 @@ if ($eventName -eq 'SessionEnd') {
     exit 0
 }
 
+function Get-ToolDetail($toolInput) {
+    if ($null -eq $toolInput) { return $null }
+    if ($toolInput.questions) { return [string]@($toolInput.questions)[0].question }
+    foreach ($name in 'command', 'file_path', 'notebook_path', 'url', 'query', 'pattern', 'description') {
+        $property = $toolInput.PSObject.Properties[$name]
+        if ($property -and -not [string]::IsNullOrWhiteSpace([string]$property.Value)) { return [string]$property.Value }
+    }
+    return $toolInput | ConvertTo-Json -Compress -Depth 4
+}
+
 $waitingNotifications = @('permission_prompt', 'elicitation_dialog', 'agent_needs_input')
 $state = $null
 $message = $null
+$detail = $null
 switch ($eventName) {
     'SessionStart' { $state = 'unknown' }
     'UserPromptSubmit' { $state = 'working' }
-    'PreToolUse' { if ($hook.tool_name -eq 'AskUserQuestion') { $state = 'waiting'; $message = 'Question posée.' } }
+    'PreToolUse' { if ($hook.tool_name -eq 'AskUserQuestion') { $state = 'waiting'; $message = 'Question posée.'; $detail = Get-ToolDetail $hook.tool_input } }
     'PostToolUse' { $state = 'working' }
     'Stop' { $state = 'done' }
     'StopFailure' { $state = 'error'; $message = 'Erreur signalée par Claude Code.' }
-    'PermissionRequest' { $state = 'waiting'; $message = "Autorisation demandée : $($hook.tool_name)" }
+    'PermissionRequest' { $state = 'waiting'; $message = "Autorisation demandée : $($hook.tool_name)"; $detail = Get-ToolDetail $hook.tool_input }
     'Notification' {
         if ($hook.notification_type -in $waitingNotifications) {
             if (Test-Path -LiteralPath $file) {
@@ -38,5 +49,5 @@ switch ($eventName) {
 if (-not $state) { exit 0 }
 
 New-Item -ItemType Directory -Path $directory -Force | Out-Null
-$json = @{ agent = 'claude'; state = $state; message = $message } | ConvertTo-Json -Compress
+$json = @{ agent = 'claude'; state = $state; message = $message; detail = $detail } | ConvertTo-Json -Compress
 [System.IO.File]::WriteAllText($file, $json, [System.Text.UTF8Encoding]::new($false))
