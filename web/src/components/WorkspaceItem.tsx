@@ -11,7 +11,7 @@ import { beginWorkspaceDrag } from './workspaceDrag'
 import { TruncatedName } from './TruncatedName'
 import { WorkspaceStatus } from './WorkspaceStatus'
 import { WorkspaceTabRow } from './WorkspaceTabRow'
-import { isMenuKey, menuRequestFor, MOVE_KEYS, PANEL_CLOSE_BUTTON, PANEL_DROP_LINE, type PanelMenuRequest, type WorkspacePanelActions } from './workspacePanel'
+import { COLLAPSE_KEY, EXPAND_KEY, isMenuKey, menuRequestFor, MOVE_KEYS, PANEL_CLOSE_BUTTON, PANEL_DROP_LINE, type PanelMenuRequest, type WorkspacePanelActions } from './workspacePanel'
 
 interface WorkspaceItemProps {
   workspace: Workspace
@@ -80,6 +80,9 @@ export const WorkspaceItem = memo(function WorkspaceItem({ workspace, workspaceN
     } else if (event.altKey && event.key in MOVE_KEYS) {
       event.preventDefault()
       actions.moveWorkspace(id, MOVE_KEYS[event.key])
+    } else if (!event.altKey && ((event.key === EXPAND_KEY && !expanded) || (event.key === COLLAPSE_KEY && expanded))) {
+      event.preventDefault()
+      actions.toggleWorkspace(id)
     }
   }
   const stopPropagation = (event: MouseEvent) => event.stopPropagation()
@@ -114,6 +117,7 @@ export const WorkspaceItem = memo(function WorkspaceItem({ workspace, workspaceN
         ) : (
           <button
             type="button"
+            data-panel-row=""
             data-tip={`${name} · Double-clic pour renommer`}
             className={`flex h-full min-w-0 flex-1 cursor-pointer items-center text-left text-[13px] font-semibold ${here ? 'text-dock-green-deep' : 'text-dock-ink'}`}
             onClick={handleNameClick}

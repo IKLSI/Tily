@@ -8,7 +8,7 @@ import { IconName } from './iconName'
 import { WorkspaceContextMenu } from './WorkspaceContextMenu'
 import { WorkspaceItem } from './WorkspaceItem'
 import { isWorkspaceDropTarget } from './workspaceDrag'
-import { menuPlaceOf, PANEL_DROP_LINE, type PanelMenuRequest, type WorkspacePanelActions } from './workspacePanel'
+import { handlePanelRowKeys, menuPlaceOf, PANEL_DROP_LINE, type PanelMenuRequest, type WorkspacePanelActions } from './workspacePanel'
 
 interface WorkspaceTreeProps {
   session: Session
@@ -56,7 +56,7 @@ export function WorkspaceTree({ session, renamingWorkspaceId, renamingTabId, act
           <Icon name={IconName.Plus} />
         </button>
       </div>
-      <nav className="min-h-0 flex-1 overflow-auto px-[8px] pb-[8px]" data-workspace-list="">
+      <nav className="min-h-0 flex-1 overflow-auto px-[8px] pb-[8px]" data-workspace-list="" onKeyDown={handlePanelRowKeys}>
         {session.workspaces.map((workspace) => (
           <WorkspaceItem
             key={workspace.id}

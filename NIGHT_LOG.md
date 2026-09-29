@@ -351,6 +351,15 @@ Les constats restants (glisser des workspaces, piège de Tab et zones défilante
 
 Les douze constats de la relecture sont traités (itérations 44 à 46).
 
+### 47. Navigation par flèches dans le panneau des workspaces
+
+- **Quoi** : dans le panneau des workspaces, ↑ / ↓ / Début / Fin passent d'une ligne visible à l'autre, noms de workspaces et d'onglets confondus. → déplie un workspace replié, ← le replie ; depuis un onglet, ← remonte à son workspace. Tab parcourt toujours chaque bouton, comme avant. Les lignes portent `data-panel-row` et la liste délègue les flèches à `handlePanelRowKeys`.
+- **Pourquoi** : au clavier, atteindre un onglet du panneau obligeait à traverser par Tab le chevron, le nom, les états et la croix de chaque ligne au-dessus, soit plusieurs dizaines de Tab avec une vingtaine d'onglets. Les flèches sont le geste attendu dans une arborescence, et Alt + ↑ / ↓ reste réservé au déplacement.
+- **Vérifié** : dans l'instance de test, depuis le premier workspace :
+  - ↓ ↓ passent à ses deux onglets, ← remonte au workspace ;
+  - ← replie le workspace (de 23 à 21 lignes visibles), → le déplie ;
+  - Fin va au dernier workspace, Début revient au premier.
+
 ## Reste à faire et idées
 
 - **Taille de police et zoom du terminal** : police fixe à 14 px. La spécification classe ce point « À décider » (section 4), je n'y ai donc pas touché ; c'est à trancher.
