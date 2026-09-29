@@ -67,6 +67,7 @@ Aucun droit administrateur n’est nécessaire. Pour mettre à jour, fermer Dock
 | G | Ctrl + Maj + G | Vue Git |
 | B | Ctrl + Maj + B | Afficher / masquer les workspaces |
 | Z | Ctrl + Maj + Z | Rouvrir le dernier onglet fermé |
+| A | Ctrl + Maj + A | Rejoindre l’agent en attente suivant (Claude Code, Codex CLI) |
 | , | — | Paramètres |
 | Flèche | Alt + flèche | Passer d’un terminal à l’autre |
 | Pg préc. / Pg suiv. | Ctrl + Maj + Pg préc. / Pg suiv. | Déplacer l’onglet vers la gauche / la droite |

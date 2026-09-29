@@ -1,3 +1,5 @@
+import { nextPaneInState } from '../agents/agentSummary'
+import { AgentState } from '../bridge/messages'
 import { activeTab, activeWorkspace, RightPanelView } from '../model/session'
 import { useAgentStore } from '../store/agentStore'
 import { useGitStore } from '../store/gitStore'
@@ -88,4 +90,21 @@ export const joinPane = (paneId: string): void => {
     useGitStore.getState().setGraphOpen(false)
   }
   focusPane(paneId)
+}
+
+const NO_WAITING_AGENT_STATUS = 'Aucun agent en attente.'
+
+export const joinNextWaitingPane = (): void => {
+  const { session } = useSessionStore.getState()
+  if (!session) {
+    return
+  }
+  const workspace = activeWorkspace(session)
+  const tabs = session.workspaces.flatMap((candidate) => candidate.tabs)
+  const paneId = nextPaneInState(tabs, useAgentStore.getState().agents, AgentState.Waiting, workspace ? activeTab(workspace).active : undefined)
+  if (paneId) {
+    joinPane(paneId)
+  } else {
+    useHostStore.getState().setStatus(NO_WAITING_AGENT_STATUS)
+  }
 }

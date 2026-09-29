@@ -529,6 +529,20 @@ C'était un point du « Reste à faire ». Quand un message apparaît sur le pan
   - avec 1,2 s d'écart, l'Entrée arrive à 1 349 ms et relance normalement.
 - Le point est retiré du « Reste à faire ». La spec (section 8, convention des messages de pane) et l'architecture front décrivent ce délai.
 
+### 63. Rejoindre l'agent en attente suivant au clavier
+
+Dock sert d'abord à suivre plusieurs agents Claude Code ou Codex CLI répartis dans les workspaces. Rejoindre une attente passait par la souris (carte, pastille, notification) ou par la palette, entrée par entrée. Aucun geste ne permettait d'enchaîner les attentes.
+
+- Leader puis A, Ctrl + Maj + A ou « Rejoindre l'agent en attente suivant » dans la palette rejoint le pane en attente qui suit le pane actif. L'ordre est celui du panneau (workspaces, onglets, panes), tous workspaces confondus et en boucle : répéter le raccourci passe d'une attente à l'autre. Sans attente, la barre de statut affiche « Aucun agent en attente. ».
+- Le déplacement passe par `joinPane`, comme les cartes d'attention : acquittement, sélection du workspace, de l'onglet et du pane, graphe Git masqué s'il recouvre les terminaux, focus. `joinNextWaitingPane` réutilise `nextPaneInState`, déjà employé par les pastilles.
+- Les indications du Leader affichent « A agent en attente ». À 1 300 px, les 18 indications tiennent toujours sur deux lignes.
+- Vérifié dans l'instance de dev avec deux agents simulés en attente (`ping` et fichier d'état), l'un dans le workspace Dock, l'autre dans LZGChallenge :
+  - depuis un troisième pane, trois Ctrl + Maj + A donnent Dock, LZGChallenge, puis Dock ;
+  - Leader puis A passe au suivant ;
+  - après suppression des fichiers d'état, le raccourci annonce « Aucun agent en attente. » ;
+  - l'entrée de palette apparaît en tapant « agent ».
+- Nouveau raccourci, donc **convention proposée** (section 12 de la spec) ; il rejoint la liste des raccourcis à valider. README mis à jour.
+
 ## Reste à faire et idées
 
 - **Taille de police et zoom du terminal** : police fixe à 14 px. La spécification classe ce point « À décider » (section 4), je n'y ai donc pas touché ; c'est à trancher.

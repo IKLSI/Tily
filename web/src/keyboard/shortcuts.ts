@@ -5,7 +5,7 @@ import { Direction, paneInDirection } from '../components/paneNavigation'
 import { useSessionStore } from '../store/sessionStore'
 import { requestApplicationClose } from '../terminal/closeGuard'
 import { closePaneKeepingText, restoreClosedTab } from '../terminal/tabLifecycle'
-import { focusPane } from '../terminal/terminalActions'
+import { focusPane, joinNextWaitingPane } from '../terminal/terminalActions'
 import { endPaneZoom, togglePaneZoom } from '../terminal/paneZoom'
 import { togglePanelView } from '../panel/rightPanel'
 import { RenameOrigin, useUiStore } from '../store/uiStore'
@@ -34,6 +34,7 @@ export const LEADER_HINTS: LeaderHint[] = [
   { keys: 'X', label: 'fermer le pane' },
   { keys: 'M', label: 'agrandir / réduire le pane' },
   { keys: 'Z', label: 'rouvrir' },
+  { keys: 'A', label: 'agent en attente' },
   { keys: 'P', label: 'palette' },
   { keys: ',', label: 'paramètres' },
   { keys: '← ↑ → ↓', label: 'pane voisin' },
@@ -64,6 +65,7 @@ export enum Command {
   ToggleGit = 'toggleGit',
   ToggleSidebar = 'toggleSidebar',
   TogglePaneZoom = 'togglePaneZoom',
+  JoinWaitingAgent = 'joinWaitingAgent',
 }
 
 const LEADER_KEYS: Record<string, Command> = {
@@ -80,6 +82,7 @@ const LEADER_KEYS: Record<string, Command> = {
   x: Command.ClosePane,
   m: Command.TogglePaneZoom,
   z: Command.RestoreTab,
+  a: Command.JoinWaitingAgent,
   ArrowRight: Command.FocusPaneRight,
   ArrowDown: Command.FocusPaneDown,
   ArrowLeft: Command.FocusPaneLeft,
@@ -105,6 +108,7 @@ const DIRECT_LETTER_KEYS: Record<string, Command> = {
   e: Command.ToggleExplorer,
   g: Command.ToggleGit,
   b: Command.ToggleSidebar,
+  a: Command.JoinWaitingAgent,
 }
 
 const DIRECT_ARROW_KEYS: Record<string, Command> = {
@@ -291,6 +295,9 @@ export const runCommand = (command: Command): void => {
       break
     case Command.TogglePaneZoom:
       togglePaneZoom()
+      break
+    case Command.JoinWaitingAgent:
+      joinNextWaitingPane()
       break
   }
 }
