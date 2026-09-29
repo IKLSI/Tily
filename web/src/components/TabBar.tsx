@@ -100,6 +100,11 @@ export function TabBar({ workspace, shells, renamingTabId, panelOpen, onTogglePa
   }, [workspace.active, workspace.tabs.length, activeIndex])
 
   const handleNewDefault = () => onNew(DEFAULT_SHELL)
+  const handleEmptyDoubleClick = (event: MouseEvent<HTMLDivElement>) => {
+    if (event.target === event.currentTarget || event.target === stripRef.current) {
+      handleNewDefault()
+    }
+  }
   const handleContextMenu = (event: MouseEvent) => {
     event.preventDefault()
     setMenuOpen(true)
@@ -141,7 +146,7 @@ export function TabBar({ workspace, shells, renamingTabId, panelOpen, onTogglePa
   const dropLine = (targeted: boolean) => `h-6 w-0.5 shrink-0 rounded ${targeted ? 'bg-dock-focus' : 'bg-transparent'}`
 
   return (
-    <div data-drop-workspace={workspace.id} className="flex shrink-0 items-center gap-0.5 px-2 pt-1 select-none">
+    <div data-drop-workspace={workspace.id} className="flex shrink-0 items-center gap-0.5 px-2 pt-1 select-none" onDoubleClick={handleEmptyDoubleClick}>
       <div ref={stripRef} role="tablist" className="flex min-w-0 items-center gap-0.5 overflow-x-auto [scrollbar-width:none]" style={{ maskImage: maskOf(fade) }} onWheel={handleWheel} onScroll={handleStripScroll}>
         {workspace.tabs.map((tab) => {
           const active = tab.id === workspace.active
@@ -223,7 +228,7 @@ export function TabBar({ workspace, shells, renamingTabId, panelOpen, onTogglePa
           aria-haspopup="menu"
           aria-expanded={menuOpen}
           className="cursor-pointer rounded px-2 py-1 text-base hover:bg-dock-green-hover"
-          data-tip="Nouvel onglet PowerShell (clic droit : choisir le shell)"
+          data-tip="Nouvel onglet PowerShell (clic droit : choisir le shell ; double-clic dans l’espace vide de la barre : nouvel onglet)"
           onClick={handleNewDefault}
           onContextMenu={handleContextMenu}
           onKeyDown={handleAddKeyDown}

@@ -286,6 +286,15 @@ Suite de l'itération 16 : les deux copies de chemin n'étaient accessibles qu'a
 - Vérifié dans l'instance de dev (presse-papiers intercepté dans la page) sur `README.md` : chemin complet, puis `README.md` avec « Chemin copié : README.md ».
 - Convention de la section 4 complétée.
 
+### 28. Nouvel onglet par double-clic dans la barre vide
+
+Geste attendu des navigateurs et de Windows Terminal : double-cliquer dans l'espace vide de la barre d'onglets n'avait aucun effet.
+
+- Un double-clic dans l'espace vide de la barre (hors onglets et boutons) ouvre un nouvel onglet, comme « + ». Le double-clic sur un onglet renomme toujours l'onglet. L'infobulle de « + » le mentionne.
+- Vérifié dans l'instance de dev : un double-clic sur la barre, puis sur l'espace vide après les onglets, ouvre à chaque fois un onglet (1 → 2 → 3).
+- Une troisième relecture indépendante (itérations 20 à 27) tourne en parallèle ; ses constats seront traités à l'itération suivante.
+- **Convention proposée** en section 6 de la spec.
+
 ## Reste à faire et idées
 
 ### À décider par toi

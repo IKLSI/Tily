@@ -149,6 +149,8 @@ La commande « Renommer le workspace » dans la palette active le même éditeur
 | TAB-08 | Fermer un onglet et pouvoir rouvrir un onglet fermé accidentellement. |
 | TAB-09 | La barre d’onglets et l’arborescence reflètent la même sélection, le même ordre et les mêmes noms. |
 
+**Convention proposée.** Un double-clic dans l’espace vide de la barre d’onglets (hors onglets et boutons) ouvre un nouvel onglet, comme le bouton « + », à la manière des navigateurs et de Windows Terminal.
+
 ### Menu des shells
 
 Le menu accepte ↑ / ↓, Entrée et Échap. Un clic à l’extérieur le ferme. Maj + F10 ou la touche de menu contextuel sur le « + » offre un accès clavier. L’action reste accessible via la palette. Le menu ne remplace pas le clic gauche direct.
