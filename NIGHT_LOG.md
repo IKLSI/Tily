@@ -245,7 +245,7 @@ Avec Alt + PgUp / PgDn, `shortcuts.ts` était repassé à 427 lignes, au-dessus 
 ### À décider par toi
 
 - **Raccourcis** (point 15 de la section 18 de la spec) : Alt + PgUp / PgDn sort de la règle « Ctrl + Maj + lettre ou Alt + flèche ». Leader puis `=`, `!` et Maj + flèche n'ont pas de raccourci direct.
-- **`CLAUDE.md`** dit que deux tests lancent un vrai PowerShell 5.1 : ils sont maintenant 14 (`PowerShellIntegrationTests` en plus). Je n'ai pas touché ton `CLAUDE.md`.
+- **`CLAUDE.md`** dit que deux tests lancent un vrai PowerShell 5.1 : ils sont maintenant 15 (les 13 de `PowerShellIntegrationTests` en plus). Je n'ai pas touché ton `CLAUDE.md`.
 - **Le wrapper de prompt en fait plus** : il enveloppe `PSConsoleHostReadLine` de PSReadLine (comme VS Code) et annonce durée, succès et texte de chaque commande. PSReadLine est resté intact dans mes essais (coloration, continuation, historique). Si un module de ton profil redéfinit aussi `PSConsoleHostReadLine`, à surveiller.
 
 ### Limites connues
