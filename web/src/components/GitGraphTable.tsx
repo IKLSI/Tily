@@ -49,9 +49,10 @@ export function GitGraphTable({ state, layout }: GitGraphTableProps) {
   const { history, historyError, commit, reveal } = useGitStore(useShallow((store) => ({ history: store.history, historyError: store.historyError, commit: store.commit, reveal: store.reveal })))
   const containerRef = useRef<HTMLDivElement>(null)
   const [width, setWidth] = useState(0)
-  const { authorShown, dateShown } = fitGraphColumns(layout, width)
-  const shownLayout = useMemo(() => ({ ...layout, authorShown, dateShown }), [layout, authorShown, dateShown])
   const commits = useMemo(() => history?.commits ?? [], [history])
+  const lanes = useMemo(() => commits.reduce((widest, entry) => Math.max(widest, entry.graph.width), history?.workingTree.width ?? SINGLE_NODE.width), [commits, history])
+  const { authorShown, dateShown, labelsWidth, graphWidth } = fitGraphColumns(layout, width, lanes)
+  const shownLayout = useMemo(() => ({ ...layout, authorShown, dateShown, labelsWidth, graphWidth }), [layout, authorShown, dateShown, labelsWidth, graphWidth])
   const hasMore = Boolean(history?.hasMore)
   const rowCount = 1 + commits.length + (hasMore ? 1 : 0)
   const { range, handleScroll } = useVirtualRows(containerRef, rowCount, GRAPH_ROW_HEIGHT)
@@ -102,7 +103,7 @@ export function GitGraphTable({ state, layout }: GitGraphTableProps) {
   const openMenuAtActive = () => {
     const key = activeIndex === 0 ? WORKING_TREE_KEY : commits[activeIndex - 1]?.sha
     const rect = key ? document.getElementById(graphRowId(key))?.getBoundingClientRect() : undefined
-    const x = (rect?.left ?? 0) + layout.labelsWidth + layout.graphWidth
+    const x = (rect?.left ?? 0) + shownLayout.labelsWidth + shownLayout.graphWidth
     const y = rect?.bottom ?? 0
     if (activeIndex === 0) {
       openWorkingTreeMenu(x, y)

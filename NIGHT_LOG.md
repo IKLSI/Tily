@@ -276,10 +276,19 @@ Un sous-agent a relu tout le diff de la nuit (`main..night-session`) sans rien m
   - la branche `feature/une-branche-au-nom-vraiment-tres-long` prend 67 px contre 33 pour le dépôt, avec son infobulle, et la ligne ne déborde pas (260 px de contenu pour 260 px de ligne) ;
   - à 430 px, tout est entier et « Graphe » est calé à droite.
 
+### 39. Le message des commits garde de la place dans un graphe Git étroit
+
+- **Quoi** : quand le message aurait moins de 200 px, une fois Auteur et Date masqués, `fitGraphColumns` resserre d'abord la colonne Branche / Tag, jusqu'à 88 px, assez pour une étiquette comme `main`. Il resserre ensuite la colonne Graphe jusqu'à la largeur utile des voies chargées : 20 px par voie plus une marge, 48 px au moins. Aucune colonne n'est élargie et le réglage enregistré ne change pas ; la largeur de voie est désormais une constante partagée (`GRAPH_LANE_WIDTH`).
+- **Pourquoi** : c'était dans le reste à faire. Dans une fenêtre de 1 100 px avec les trois panneaux ouverts, la table ne faisait que 293 px et le message n'avait plus que 53 px : « Premier com… ». La colonne Graphe gardait 100 px pour deux voies seulement.
+- **Vérifié** : dans l'instance de test, sur un dépôt de test :
+  - à 1 300 px, rien ne change (140, 100 et 253 px) ;
+  - à 1 100 px, Branche / Tag passe à 88 px, `main` restant entier, Graphe à 48 px et le message à 157 px : « Premier commit de test » est entier ;
+  - avec trois branches divergentes, Graphe passe à 68 px et les trois voies restent entières (capture).
+
 ## Reste à faire et idées
 
 - **Taille de police et zoom du terminal** : police fixe à 14 px. La spécification classe ce point « À décider » (section 4), je n'y ai donc pas touché ; c'est à trancher.
-- **Colonne des branches du graphe Git** : Auteur et Date s'effacent quand la place manque, mais la colonne des branches (200 px) ne se replie pas d'elle-même dans une fenêtre très étroite.
+- **Graphe Git dans une fenêtre très étroite** : depuis l'itération 39, Auteur et Date s'effacent, puis la colonne des branches rétrécit jusqu'à 88 px et celle du graphe jusqu'à la largeur de ses voies. En dessous d'environ 400 px pour la table (fenêtre de 900 px avec les trois panneaux ouverts), le message reste coupé : replier le panneau des références ou celui des workspaces reste nécessaire.
 - **Message de pane pendant une saisie** : un message qui apparaît sur le pane où l'on tape prend le focus, et la frappe suivante peut le déclencher. Pour un dossier disparu, le bouton par défaut est donc « Ignorer », sans effet sur le shell, mais le signalement peut alors disparaître sans avoir été lu. Le cas est rare : il faut que le dossier du pane actif disparaisse pendant la saisie.
 - **Glisser-déposer depuis l'Explorateur** : depuis l'itération 32, il est vérifié avec un vrai glisser OLE de fichier, le même mécanisme que l'Explorateur. Un essai à la main depuis l'Explorateur, avec une image dans Claude Code par exemple, reste conseillé.
 - **Bornes des réglages de persistance** : l'hôte ramène encore sans le dire une valeur hors bornes dans sa plage, par exemple à l'import d'un fichier de préférences. Le formulaire ne peut plus en envoyer, mais un avertissement dans `settings.result` serait plus clair qu'une correction muette.

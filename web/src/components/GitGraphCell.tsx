@@ -1,5 +1,5 @@
 import { GitSegmentKind, type GitGraphRow, type GitGraphSegment } from '../bridge/gitMessages'
-import { GitNodeKind, GRAPH_ROW_HEIGHT, laneFill, laneStroke } from './gitGraphStyles'
+import { GitNodeKind, GRAPH_LANE_WIDTH, GRAPH_ROW_HEIGHT, laneFill, laneStroke } from './gitGraphStyles'
 
 interface GitGraphCellProps {
   graph: GitGraphRow
@@ -9,14 +9,13 @@ interface GitGraphCellProps {
   labelled: boolean
 }
 
-const LANE_WIDTH = 20
 const NODE_RADIUS = 9
 const MERGE_RADIUS = 4
 const STASH_SIZE = 14
 const DASH = '3 3'
 const MIDDLE = GRAPH_ROW_HEIGHT / 2
 
-const laneX = (lane: number): number => lane * LANE_WIDTH + LANE_WIDTH / 2
+const laneX = (lane: number): number => lane * GRAPH_LANE_WIDTH + GRAPH_LANE_WIDTH / 2
 
 const segmentPath = ({ from, to, kind }: GitGraphSegment): string => {
   const [start, end] = [laneX(from), laneX(to)]
