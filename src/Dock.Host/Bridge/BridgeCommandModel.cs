@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Dock.Core.Git;
 
 namespace Dock.Host.Bridge;
 
@@ -34,6 +35,7 @@ public sealed class BridgeCommandModel
     public string? Branch { get; init; }
     public string? Base { get; init; }
     public string? Command { get; init; }
+    public string? Fingerprint { get; init; }
     public string[]? Panes { get; init; }
     public string[]? Keep { get; init; }
     public string[]? Paths { get; init; }
@@ -42,6 +44,7 @@ public sealed class BridgeCommandModel
     public string[]? RemoteBranches { get; init; }
     public string[]? Tags { get; init; }
     public string[]? Stashes { get; init; }
+    public GitHunkSelectionModel[]? Selection { get; init; }
     public int Cols { get; init; }
     public int Rows { get; init; }
     public int Chars { get; init; }

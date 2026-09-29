@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json.Serialization;
 
@@ -20,7 +21,7 @@ public static class GitDiffReader
 
     private const int BinaryProbeBytes = 8000;
     private const char Separator = '\u001f';
-    private static readonly string[] DiffOptions = ["--no-ext-diff", "--no-color", "-U3", "-M"];
+    private static readonly string[] DiffOptions = ["--no-ext-diff", "--no-color", "--src-prefix=a/", "--dst-prefix=b/", "-U3", "-M"];
 
     public static GitDiffModel Read(GitRepository repository, GitDiffRequestModel request)
     {
@@ -32,14 +33,50 @@ public static class GitDiffReader
         }
 
         string[] paths = oldPath is null ? [path] : [oldPath, path];
-        string[] arguments = request.Source switch
-        {
-            GitDiffSource.Staged => ["diff", "--cached", .. DiffOptions, "--", .. paths],
-            GitDiffSource.Unstaged => ["diff", .. DiffOptions, "--", .. paths],
-            _ => CommitArguments(repository, request.Commit, paths)
-        };
-        return GitDiffParser.Parse(path, oldPath, repository.Read(new GitRunOptionsModel(LiteralPaths: true), arguments));
+        var arguments = request.Source == GitDiffSource.Commit ? CommitArguments(repository, request.Commit, paths) : WorkingArguments(request.Source, paths);
+        var raw = repository.Read(new GitRunOptionsModel(LiteralPaths: true), arguments);
+        var diff = GitDiffParser.Parse(path, oldPath, raw);
+        return request.Source == GitDiffSource.Commit || oldPath is not null ? diff : Selectable(diff, raw);
     }
+
+    public static string? ReadRaw(GitRepository repository, GitDiffSource source, string path, bool untracked)
+    {
+        if (!untracked)
+        {
+            return repository.Read(new GitRunOptionsModel(LiteralPaths: true), WorkingArguments(source, [path]));
+        }
+
+        var info = UntrackedFile(repository, path);
+        var bytes = info.Length > MaxUntrackedBytes ? null : File.ReadAllBytes(info.FullName);
+        return bytes is null || IsBinary(bytes) ? null : UntrackedDiff(path, Encoding.UTF8.GetString(bytes));
+    }
+
+    public static string Fingerprint(string diff) => Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(diff)));
+
+    public static string UntrackedDiff(string path, string content)
+    {
+        var body = content.EndsWith('\n') ? content[..^1] : content;
+        var lines = body.Length == 0 ? [] : body.Split('\n');
+        var tab = path.Contains(' ') ? "\t" : string.Empty;
+        var builder = new StringBuilder($"diff --git a/{path} b/{path}\nnew file mode 100644\n--- /dev/null\n+++ b/{path}{tab}\n@@ -0,0 +1,{lines.Length} @@\n");
+        foreach (var line in lines)
+        {
+            builder.Append('+').Append(line).Append('\n');
+        }
+
+        if (lines.Length > 0 && !content.EndsWith('\n'))
+        {
+            builder.Append("\\ No newline at end of file\n");
+        }
+
+        return builder.ToString();
+    }
+
+    private static string[] WorkingArguments(GitDiffSource source, string[] paths) =>
+        source == GitDiffSource.Staged ? ["diff", "--cached", .. DiffOptions, "--", .. paths] : ["diff", .. DiffOptions, "--", .. paths];
+
+    private static GitDiffModel Selectable(GitDiffModel diff, string raw) =>
+        diff.Binary || diff.Hunks.Count == 0 ? diff : diff with { Fingerprint = Fingerprint(raw) };
 
     public static GitCommitDetailsModel ReadCommit(GitRepository repository, string? commit)
     {
@@ -106,14 +143,17 @@ public static class GitDiffReader
             : ["diff-tree", "-p", "-r", .. DiffOptions, parents[0], sha, "--", .. paths];
     }
 
-    private static GitDiffModel ReadUntracked(GitRepository repository, string path)
+    private static FileInfo UntrackedFile(GitRepository repository, string path)
     {
         var info = new FileInfo(repository.FullPath(path));
-        if (!info.Exists)
-        {
-            throw new GitCommandException($"Le fichier n’existe plus : {path}", string.Empty);
-        }
+        return info.Exists ? info : throw new GitCommandException($"Le fichier n’existe plus : {path}", string.Empty);
+    }
 
+    private static bool IsBinary(byte[] bytes) => bytes.AsSpan(0, Math.Min(bytes.Length, BinaryProbeBytes)).Contains((byte)0);
+
+    private static GitDiffModel ReadUntracked(GitRepository repository, string path)
+    {
+        var info = UntrackedFile(repository, path);
         const string untracked = "Nouveau fichier non suivi";
         if (info.Length > MaxUntrackedBytes)
         {
@@ -121,16 +161,17 @@ public static class GitDiffReader
         }
 
         var bytes = File.ReadAllBytes(info.FullName);
-        if (bytes.AsSpan(0, Math.Min(bytes.Length, BinaryProbeBytes)).Contains((byte)0))
+        if (IsBinary(bytes))
         {
             return new GitDiffModel(path, null, true, false, [untracked, "Fichier binaire : contenu non affiché"], []);
         }
 
-        var text = Encoding.UTF8.GetString(bytes).Replace("\r\n", "\n");
+        var raw = Encoding.UTF8.GetString(bytes);
+        var text = raw.Replace("\r\n", "\n");
         var content = text.EndsWith('\n') ? text[..^1] : text;
         var lines = content.Length == 0 ? [] : content.Split('\n');
         var shown = lines.Take(GitDiffParser.MaxLines).Select((line, index) => new GitDiffLineModel(GitDiffLineKind.Added, null, index + 1, line)).ToList();
         var hunks = shown.Count == 0 ? [] : new List<GitDiffHunkModel> { new($"@@ -0,0 +1,{lines.Length} @@", shown) };
-        return new GitDiffModel(path, null, false, lines.Length > shown.Count, [untracked], hunks);
+        return new GitDiffModel(path, null, false, lines.Length > shown.Count, [untracked], hunks, hunks.Count == 0 ? null : Fingerprint(UntrackedDiff(path, raw)));
     }
 }

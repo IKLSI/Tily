@@ -1,6 +1,7 @@
 import type { KeyboardEvent } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { GitChangeKind, GitDiffSource, type GitFileChange } from '../bridge/gitMessages'
+import { isDiffSelectable } from '../git/gitDiffActions'
 import { focusGitPanel } from '../git/gitFocus'
 import { shortSha } from '../git/gitLabels'
 import { closeDrawer, discardChanges, openInEditor, stageChanges, unstageChanges } from '../git/gitRequests'
@@ -69,7 +70,7 @@ export function GitDiffDrawer() {
           <Icon name={IconName.Close} />
         </button>
       </header>
-      <GitDiffView key={`${file.source}\n${file.path}\n${file.commit ?? ''}`} diff={diff} error={diffError} placeholder="Chargement du diff…" />
+      <GitDiffView key={`${file.source}\n${file.path}\n${file.commit ?? ''}`} diff={diff} error={diffError} placeholder="Chargement du diff…" selectable={isDiffSelectable(diff, file) ? file.source : null} />
     </aside>
   )
 }

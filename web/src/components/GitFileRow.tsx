@@ -4,7 +4,7 @@ import { CHANGE_CLASSES, CHANGE_LABELS, CHANGE_LETTERS, CONFLICT_LABELS, fileFol
 import { GitRowGroup, selectModeOf, type GitChangeRow, type GitRowHandlers } from '../git/gitRows'
 import { Icon } from './Icon'
 import { IconName } from './iconName'
-import { ROW_ACTION } from './rightPanelStyles'
+import { ROW_ACTION, ROW_STAGE_BUTTON, ROW_UNSTAGE_BUTTON } from './rightPanelStyles'
 
 interface GitFileRowProps {
   row: GitChangeRow
@@ -79,7 +79,7 @@ export const GitFileRow = memo(function GitFileRow({ row, selected, focusable, h
           </button>
         )}
         {group === GitRowGroup.Staged && (
-          <button type="button" tabIndex={-1} className={ROW_ACTION} aria-label="Unstage" data-tip="Unstage (Espace)" onClick={handleUnstage}>
+          <button type="button" tabIndex={-1} className={ROW_UNSTAGE_BUTTON} aria-label="Unstage" data-tip="Unstage (Espace)" onClick={handleUnstage}>
             <Icon name={IconName.Minus} />
           </button>
         )}
@@ -88,7 +88,7 @@ export const GitFileRow = memo(function GitFileRow({ row, selected, focusable, h
             <button type="button" tabIndex={-1} className={`${ROW_ACTION} hover:text-dock-error`} aria-label="Abandonner les modifications" data-tip="Abandonner les modifications (Suppr)" onClick={handleDiscard}>
               <Icon name={IconName.Discard} />
             </button>
-            <button type="button" tabIndex={-1} className={ROW_ACTION} aria-label="Stage" data-tip="Stage (Espace)" onClick={handleStage}>
+            <button type="button" tabIndex={-1} className={ROW_STAGE_BUTTON} aria-label="Stage" data-tip="Stage (Espace)" onClick={handleStage}>
               <Icon name={IconName.Plus} />
             </button>
           </>

@@ -152,12 +152,14 @@ const handleConfirmGit = (): void => {
   const { confirmation, confirm } = useGitStore.getState()
   confirm(null)
   confirmation?.run()
-  requestAnimationFrame(focusGitPanel)
+  requestAnimationFrame(confirmation?.restoreFocus ?? focusGitPanel)
 }
 
 const handleCancelGit = (): void => {
-  useGitStore.getState().confirm(null)
-  focusGitPanel()
+  const { confirmation, confirm } = useGitStore.getState()
+  const restoreFocus = confirmation?.restoreFocus ?? focusGitPanel
+  confirm(null)
+  restoreFocus()
 }
 
 const modalOpen = (): boolean => {
