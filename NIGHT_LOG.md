@@ -394,6 +394,16 @@ Les douze constats de la relecture sont traités (itérations 44 à 46).
   - **Suivi des agents** : j'ai simulé un Claude Code en attente dans un onglet d'arrière-plan, avec un processus dans le pane et un fichier `agents\<pane>.json` comme l'écrivent les hooks. La carte d'attention, l'icône de l'onglet, la pastille du workspace et « Rejoindre le terminal » fonctionnent : le terminal visé prend le focus et la carte disparaît.
   - **Test instable** : six exécutions consécutives sont vertes, sans reproduction.
 
+### 52. Le zoom d'un pane s'annonce dans la barre de statut
+
+- **Quoi** : à l'agrandissement d'un pane, la barre de statut indique « Pane agrandi, les autres tournent toujours : Ctrl + Maj + M ou « Réduire » dans son en-tête pour les revoir. » ; à la réduction, « Tous les panes de l'onglet sont de nouveau affichés. ». Quand le zoom prend fin de lui-même (split, autre pane, autre onglet), `endPaneZoom` remplace l'annonce si elle est encore affichée, pour qu'elle ne reste pas périmée.
+- **Pourquoi** : en relisant la fonction de l'itération 49, un pane agrandi ne se signalait que par une petite icône dans son en-tête. On pouvait croire les autres panes fermés.
+- **Vérifié** : dans l'instance de test :
+  - le zoom affiche l'annonce, puis la réduction le message de retour ;
+  - un split pendant le zoom fait disparaître l'annonce devenue fausse ;
+  - un onglet d'un seul pane garde « rien à agrandir ».
+- **Aussi exploré** : erreurs JavaScript. J'ai posé une écoute de `console.error`, `console.warn`, des exceptions et des promesses rejetées, puis parcouru l'application au clavier : palette, paramètres, explorateur, vue Git, nouvel onglet, split, zoom, fermetures, Ctrl + Tab, panneau masqué puis réaffiché, onglet rouvert. Aucune erreur n'a été relevée.
+
 ## Reste à faire et idées
 
 - **Taille de police et zoom du terminal** : police fixe à 14 px. La spécification classe ce point « À décider » (section 4), je n'y ai donc pas touché ; c'est à trancher.

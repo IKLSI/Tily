@@ -19,7 +19,7 @@ import { useGitStore } from '../store/gitStore'
 import { changePaneShell, dismissPaneState, restartPane, restartPaneIn } from '../terminal/paneLifecycle'
 import { closeOtherTabsKeepingText, closePaneKeepingText, closeTabKeepingText, closeWorkspaceKeepingText, duplicateTabKeepingLayout, restoreClosedTab } from '../terminal/tabLifecycle'
 import { focusPane, joinPane } from '../terminal/terminalActions'
-import { togglePaneZoom, zoomedPaneOf } from '../terminal/paneZoom'
+import { endPaneZoom, togglePaneZoom, zoomedPaneOf } from '../terminal/paneZoom'
 import { AttentionToasts } from './AttentionToasts'
 import { CloseConfirmDialog } from './CloseConfirmDialog'
 import { CommandPalette } from './CommandPalette'
@@ -229,7 +229,7 @@ export function AppShell({ session }: AppShellProps) {
 
   useEffect(() => {
     if (zoomedPaneId !== null && zoomedPaneId !== activePaneId) {
-      useUiStore.getState().clearPaneZoom()
+      endPaneZoom()
     }
   }, [zoomedPaneId, activePaneId, tabId])
   const availableShells = useMemo(() => shells.filter((shell) => shell.available), [shells])
