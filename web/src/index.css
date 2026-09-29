@@ -104,3 +104,7 @@ html[data-git-dragging] * {
   outline: 2px solid var(--color-dock-focus);
   outline-offset: -2px;
 }
+
+[aria-invalid='true']:focus-visible {
+  outline-color: var(--color-dock-error);
+}

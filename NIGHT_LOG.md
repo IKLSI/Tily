@@ -250,12 +250,22 @@ Un sous-agent a relu tout le diff de la nuit (`main..night-session`) sans rien m
   - confirmation de fermeture avec un `ping` actif : Tab et Maj + Tab alternent entre « Annuler » et « Arrêter et fermer » ;
   - Échap ferme chaque fenêtre et rend le focus au terminal.
 
+### 36. Champs numériques des paramètres qu'on peut vider et corriger
+
+- **Quoi** : dans Paramètres, les trois champs de persistance (sauvegarde du texte, lignes par pane, historique global) gardent le texte saisi, même vide. Un champ vide ou hors bornes passe en erreur : bordure, contour de focus et indication « Entre x et y » en rouge, avec `aria-invalid`. Enregistrer ou Ctrl + Entrée ramène alors le focus sur ce champ sans rien envoyer, et l'infobulle d'Enregistrer indique les bornes attendues. Une règle CSS globale colore le contour de focus de tout champ `aria-invalid`.
+- **Pourquoi** : effacer un champ remettait aussitôt l'ancienne valeur. Pour passer de 30 à 60 secondes, Ctrl + A, Retour arrière puis « 60 » donnait « 3060 ». L'hôte ramenait ensuite en silence la valeur à 600 et annonçait « Réglages enregistrés » : le réglage obtenu n'était pas celui voulu, sans aucun signal.
+- **Vérifié** : dans l'instance de test,
+  - Ctrl + A puis Retour arrière laisse le champ vide et en erreur (contour et texte rouges, capture) ;
+  - Ctrl + Entrée n'enregistre pas et garde le focus sur le champ ;
+  - saisir 45 puis Ctrl + Entrée enregistre : `persistence.json` contient 45.
+
 ## Reste à faire et idées
 
 - **Taille de police et zoom du terminal** : police fixe à 14 px. La spécification classe ce point « À décider » (section 4), je n'y ai donc pas touché ; c'est à trancher.
 - **Colonne des branches du graphe Git** : Auteur et Date s'effacent quand la place manque, mais la colonne des branches (200 px) ne se replie pas d'elle-même dans une fenêtre très étroite.
 - **Message de pane pendant une saisie** : un message qui apparaît sur le pane où l'on tape prend le focus, et la frappe suivante peut le déclencher. Pour un dossier disparu, le bouton par défaut est donc « Ignorer », sans effet sur le shell, mais le signalement peut alors disparaître sans avoir été lu. Le cas est rare : il faut que le dossier du pane actif disparaisse pendant la saisie.
 - **Glisser-déposer depuis l'Explorateur** : depuis l'itération 32, il est vérifié avec un vrai glisser OLE de fichier, le même mécanisme que l'Explorateur. Un essai à la main depuis l'Explorateur, avec une image dans Claude Code par exemple, reste conseillé.
+- **Bornes des réglages de persistance** : l'hôte ramène encore sans le dire une valeur hors bornes dans sa plage, par exemple à l'import d'un fichier de préférences. Le formulaire ne peut plus en envoyer, mais un avertissement dans `settings.result` serait plus clair qu'une correction muette.
 - **Tests web** : il n'y en a toujours aucun (décision du 21 septembre). Les fonctions pures ajoutées cette nuit (`fitGraphColumns`, `menuPlaceOf`, `selectAdjacentTab`…) s'y prêteraient bien si tu changes d'avis.
 - **Effacer un terminal** : non ajouté au menu contextuel. Sous Windows 10, ConPTY ne permet pas de vider son propre tampon, et un effacement côté xterm.js pourrait réapparaître au premier redimensionnement.
 

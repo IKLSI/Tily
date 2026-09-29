@@ -32,6 +32,15 @@ interface NumberField {
   max: number
 }
 
+type NumberTexts = Partial<Record<keyof PersistenceSettings, string>>
+
+const INTEGER_PATTERN = /^\d+$/
+
+const valueWithin = (text: string, field: NumberField): number | null => {
+  const value = INTEGER_PATTERN.test(text) ? Number.parseInt(text, 10) : Number.NaN
+  return value >= field.min && value <= field.max ? value : null
+}
+
 const NUMBER_FIELDS: NumberField[] = [
   { key: 'textIntervalSeconds', label: 'Sauvegarde du texte (secondes)', hint: 'Intervalle entre deux écritures du texte des terminaux.', min: 5, max: 600 },
   { key: 'linesPerPane', label: 'Lignes conservées par pane', hint: 'Historique xterm.js ; s’applique aux terminaux lancés après l’enregistrement.', min: 500, max: 100000 },
@@ -50,7 +59,10 @@ const SOUND_LABELS: Record<NotificationSound, string> = {
 const SECTION = 'text-[11px] font-semibold tracking-wide text-dock-muted uppercase'
 const LABEL = 'text-[12px] text-dock-ink'
 const HINT = 'text-[11px] text-dock-muted'
-const INPUT = 'w-full rounded border border-dock-line bg-dock-paper px-2 py-1.5 font-mono text-[12px] text-dock-ink outline-none placeholder:text-dock-muted focus:border-dock-focus'
+const INPUT_BASE = 'w-full rounded border bg-dock-paper px-2 py-1.5 font-mono text-[12px] text-dock-ink outline-none placeholder:text-dock-muted'
+const INPUT = `${INPUT_BASE} border-dock-line focus:border-dock-focus`
+const INVALID_INPUT = `${INPUT_BASE} border-dock-error focus:border-dock-error`
+const INVALID_HINT = 'text-[11px] text-dock-error'
 const BUTTON = 'cursor-pointer rounded border px-3 py-1.5 text-[12px]'
 const PRIMARY = `${BUTTON} border-dock-green text-dock-green-deep hover:bg-dock-green-soft`
 const SECONDARY = `${BUTTON} border-dock-line text-dock-ink hover:bg-dock-green-hover`
@@ -62,17 +74,20 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
   const [seenPick, setSeenPick] = useState<PickedPath | null>(pickedPath)
   const [seenImport, setSeenImport] = useState<ImportedPreferences | null>(imported)
   const [importSource, setImportSource] = useState<string | null>(null)
+  const [numberTexts, setNumberTexts] = useState<NumberTexts>({})
   const dialogRef = useRef<HTMLDivElement>(null)
   if (snapshot !== seenSnapshot) {
     setSeenSnapshot(snapshot)
     setDraft(snapshot ? structuredClone(snapshot.settings) : null)
     setImportSource(null)
+    setNumberTexts({})
   }
   if (imported !== seenImport) {
     setSeenImport(imported)
     if (imported && snapshot) {
       setDraft(structuredClone(imported.settings))
       setImportSource(imported.path)
+      setNumberTexts({})
     }
   }
 
@@ -99,8 +114,12 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
       onClose()
     }
   }
+  const numberTextOf = (settings: Settings, field: NumberField): string => numberTexts[field.key] ?? String(settings.persistence[field.key])
+  const invalidNumber = draft ? NUMBER_FIELDS.find((field) => valueWithin(numberTextOf(draft, field), field) === null) : undefined
   const handleSave = () => {
-    if (draft) {
+    if (invalidNumber) {
+      dialogRef.current?.querySelector<HTMLInputElement>(`[data-number-field="${invalidNumber.key}"]`)?.focus()
+    } else if (draft) {
       onSave(draft)
     }
   }
@@ -193,15 +212,21 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
       <section className="flex flex-col gap-2">
         <h3 className={SECTION}>Persistance</h3>
         {NUMBER_FIELDS.map((field) => {
+          const text = numberTextOf(settings, field)
+          const invalid = valueWithin(text, field) === null
           const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-            const value = Number.parseInt(event.target.value, 10)
-            updateDraft({ persistence: { ...settings.persistence, [field.key]: Number.isNaN(value) ? settings.persistence[field.key] : value } })
+            const next = event.target.value
+            setNumberTexts((current) => ({ ...current, [field.key]: next }))
+            const value = valueWithin(next, field)
+            if (value !== null) {
+              updateDraft({ persistence: { ...settings.persistence, [field.key]: value } })
+            }
           }
           return (
             <label key={field.key} className="flex flex-col gap-1">
               <span className={LABEL}>{field.label}</span>
-              <input type="number" className={INPUT} value={settings.persistence[field.key]} min={field.min} max={field.max} onChange={handleChange} />
-              <span className={HINT}>{`${field.hint} Entre ${field.min} et ${field.max}.`}</span>
+              <input type="number" className={invalid ? INVALID_INPUT : INPUT} value={text} min={field.min} max={field.max} aria-invalid={invalid} data-number-field={field.key} onChange={handleChange} />
+              <span className={invalid ? INVALID_HINT : HINT}>{`${field.hint} Entre ${field.min} et ${field.max}.`}</span>
             </label>
           )
         })}
@@ -297,7 +322,7 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
           <button type="button" className={`${SECONDARY} ml-auto`} onClick={onClose}>
             Annuler
           </button>
-          <button type="button" className={PRIMARY} aria-disabled={!draft} data-tip="Écrit les quatre fichiers et applique immédiatement" onClick={handleSave}>
+          <button type="button" className={PRIMARY} aria-disabled={!draft || invalidNumber !== undefined} data-tip={invalidNumber ? `${invalidNumber.label} : entre ${invalidNumber.min} et ${invalidNumber.max}` : 'Écrit les quatre fichiers et applique immédiatement'} onClick={handleSave}>
             Enregistrer
           </button>
         </div>
