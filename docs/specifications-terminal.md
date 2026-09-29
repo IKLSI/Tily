@@ -299,7 +299,7 @@ La gestion actuelle des worktrees reste celle des fonctions wtr et rmwt du profi
 
 **Conventions proposées.** Agréger le nombre d’attentes par workspace, éviter les notifications répétées pour le même événement et offrir l’accès au pane sans prise de focus forcée. Si plusieurs panes attendent, permettre de choisir la destination.
 
-**Convention proposée.** Dans la palette, chaque entrée « Rejoindre » indique depuis combien de temps l’agent attend (« depuis 3 min »), mesuré depuis que Dock a reçu cet état, et les entrées vont de l’attente la plus ancienne à la plus récente.
+**Convention proposée.** Dans la palette, chaque entrée « Rejoindre » indique depuis combien de temps l’agent attend (« depuis 3 min »), mesuré depuis que Dock a reçu cet état, et les entrées vont de l’attente la plus ancienne à la plus récente. Les cartes d’attention affichent la même durée, mise à jour toutes les 30 secondes, et suivent le même ordre.
 
 **Convention proposée.** Leader puis A, Ctrl + Maj + A ou « Rejoindre l’agent en attente suivant » dans la palette rejoint le pane en attente qui suit le pane actif dans l’ordre de la palette, de l’attente la plus ancienne à la plus récente (ordre du panneau à égalité), tous workspaces confondus et en boucle ; répété, il passe d’une attente à l’autre. Sans agent en attente, la barre de statut l’indique.
 

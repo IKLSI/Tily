@@ -666,6 +666,17 @@ Depuis l'itération 71, la palette classe les attentes de la plus ancienne à la
   - depuis un pane de GameSolver, trois Ctrl + Maj + A donnent A, puis B, puis de nouveau A.
 - Convention de la section 12 de la spec et architecture front mises à jour.
 
+### 73. Les cartes d'attention montrent aussi depuis quand l'agent attend
+
+Suite des itérations 71 et 72. Les cartes d'attention, en bas à gauche, restent affichées jusqu'à ce qu'on rejoigne ou ignore l'attente. En revenant devant l'écran, rien n'indiquait depuis combien de temps elles attendaient, ni laquelle traiter d'abord.
+
+- Chaque carte affiche la durée à droite de « workspace › onglet » : « depuis moins d'une minute », « depuis 3 min »… Les cartes suivent l'ordre de la palette, de l'attente la plus ancienne à la plus récente.
+- Un petit hook, `useClock`, rafraîchit l'heure toutes les 30 s, et seulement tant qu'une carte est affichée. La durée est masquée aux lecteurs d'écran : la zone des cartes est annoncée (`aria-live`), et chaque rafraîchissement aurait été relu.
+- Vérifié dans l'instance de dev, avec un agent simulé en attente :
+  - la carte indique d'abord « depuis moins d'une minute » ;
+  - un peu plus d'une minute après, elle indique « depuis 1 min », sans autre action.
+- Convention de la section 12 de la spec et architecture front complétées.
+
 ## Reste à faire et idées
 
 - **Alt + flèche sur un onglet ou une ligne du panneau** : quand un onglet de la barre ou une ligne du panneau des workspaces a le focus, Alt + flèche déplace cet élément (itérations 14, 47 et 58) au lieu de changer de pane, comme le prévoit le tableau retenu de la section 9. C'est une dérogation à confirmer ou à retirer ; la spec la signale comme « exception à confirmer ».

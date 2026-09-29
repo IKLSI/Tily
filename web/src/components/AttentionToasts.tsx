@@ -1,6 +1,10 @@
 import { AgentState } from '../bridge/messages'
-import type { WaitingPane } from '../agents/agentSummary'
+import { longestWaitingFirst, waitedFor, type WaitingPane } from '../agents/agentSummary'
+import { useAgentStore } from '../store/agentStore'
 import { AgentStateIcon } from './AgentStateIcon'
+import { useClock } from './useClock'
+
+const CLOCK_INTERVAL_MS = 30_000
 
 interface AttentionToastsProps {
   waiting: WaitingPane[]
@@ -9,13 +13,15 @@ interface AttentionToastsProps {
 }
 
 export function AttentionToasts({ waiting, onJoin, onDismiss }: AttentionToastsProps) {
+  const since = useAgentStore((state) => state.since)
+  const now = useClock(waiting.length > 0, CLOCK_INTERVAL_MS)
   if (waiting.length === 0) {
     return null
   }
 
   return (
     <div role="region" aria-live="polite" aria-label="Terminaux en attente" className="pointer-events-none absolute bottom-8 left-3 z-20 flex w-[380px] max-w-[calc(100vw-24px)] flex-col gap-2">
-      {waiting.map((pane) => {
+      {longestWaitingFirst(waiting, since, now).map((pane) => {
         const handleJoin = () => onJoin(pane.paneId)
         const handleDismiss = () => onDismiss(pane.paneId)
         return (
@@ -23,6 +29,9 @@ export function AttentionToasts({ waiting, onJoin, onDismiss }: AttentionToastsP
             <div className="flex items-center gap-2">
               <AgentStateIcon state={AgentState.Waiting} tip="Une réponse est attendue" />
               <span className="min-w-0 flex-1 truncate font-semibold text-dock-ink" data-tip={pane.label}>{`${pane.workspaceName} › ${pane.tabName}`}</span>
+              <span aria-hidden="true" className="shrink-0 text-[11px] text-dock-muted">
+                {waitedFor(now - (since[pane.paneId] ?? now))}
+              </span>
               <button type="button" className="shrink-0 cursor-pointer rounded px-1.5 text-[13px] leading-none text-dock-muted hover:bg-dock-green-hover hover:text-dock-ink" aria-label="Ignorer cette notification" data-tip="Ignorer jusqu’au prochain changement d’état" onClick={handleDismiss}>
                 ×
               </button>
