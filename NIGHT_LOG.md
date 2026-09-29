@@ -297,6 +297,5 @@ Idée laissée en suspens à l'itération 8 : ramener un terminal dans un autre 
 
 ### Idées
 
-
 - Fin d'une commande longue : faire clignoter la barre des tâches quand Dock n'a pas le focus, avec un réglage, comme pour les agents.
 - Tests web : aucun encore (décision du 21 septembre). Plusieurs fonctions pures ajoutées cette nuit s'y prêteraient : `findFileLinks`, `equalizeNode`, `swapPanes`, `folderMarksOf`, `relativeEntryPath`, `formatCommandDuration`.
