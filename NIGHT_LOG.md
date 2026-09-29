@@ -385,6 +385,15 @@ Les douze constats de la relecture sont traités (itérations 44 à 46).
 - **Pourquoi** : près de cinquante entrées détaillées sont longues à relire au réveil. Tes consignes demandent un fichier HTML pour tout récapitulatif à relire.
 - **Vérifié** : HTML bien formé (analyse automatique des balises) et rendu contrôlé avec Edge en mode headless, dans un profil temporaire isolé.
 
+### 51. Toutes les indications du Leader restent visibles
+
+- **Quoi** : la barre des indications affichée pendant le Leader passe sur deux lignes, dans les 42 px de l'en-tête. Toutes les séquences tiennent dès 1 100 px de large ; au-delà d'une troisième ligne, la fin serait rognée plutôt que de déborder.
+- **Pourquoi** : sur une seule ligne, 13 des 17 indications seulement étaient visibles à 1 300 px, et celles de la fin étaient masquées : pane voisin, déplacer l'onglet, « Échap annuler », « Ctrl + Espace envoyer au terminal ». Ce sont justement celles qu'on cherche quand on ne sait plus comment sortir du Leader. Le défaut existait avant l'ajout de « M » à l'itération 49, qui l'aggravait.
+- **Vérifié** : dans l'instance de test, 17 indications sur 17 visibles à 1 300 et à 1 100 px (capture).
+- **Aussi exploré** :
+  - **Suivi des agents** : j'ai simulé un Claude Code en attente dans un onglet d'arrière-plan, avec un processus dans le pane et un fichier `agents\<pane>.json` comme l'écrivent les hooks. La carte d'attention, l'icône de l'onglet, la pastille du workspace et « Rejoindre le terminal » fonctionnent : le terminal visé prend le focus et la carte disparaît.
+  - **Test instable** : six exécutions consécutives sont vertes, sans reproduction.
+
 ## Reste à faire et idées
 
 - **Taille de police et zoom du terminal** : police fixe à 14 px. La spécification classe ce point « À décider » (section 4), je n'y ai donc pas touché ; c'est à trancher.
