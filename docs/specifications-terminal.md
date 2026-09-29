@@ -84,6 +84,12 @@ Ces valeurs sont des références de réalisation, pas des contraintes de taille
 
 **Convention proposée.** Au renommage d’un fichier, seul son nom avant la dernière extension est sélectionné, comme dans l’Explorateur Windows : taper un nouveau nom garde l’extension. Un dossier ou un nom qui commence par un point est sélectionné en entier.
 
+### Journal de la barre de statut
+
+**Retenu (29 septembre 2026, issue #87).** Chaque message affiché dans la barre de statut est gardé dans un journal, enregistré sur disque et retrouvé après un redémarrage. Le journal s’ouvre dans un tiroir déplié au-dessus de la barre de statut, par un clic sur la barre, par la palette et par la touche Leader ou un raccourci direct.
+
+**Convention proposée.** Leader puis L, Ctrl + Maj + L, la palette (« Afficher / masquer le journal des messages ») ou un clic sur la barre de statut ouvrent le tiroir avec le focus dans la liste, ou le ferment ; Échap le ferme et rend le focus au terminal. Chaque ligne donne l’heure (précédée du jour s’il ne s’agit pas d’aujourd’hui, date complète en infobulle), le niveau (Info, Avertissement, Erreur) et le texte complet, jamais tronqué. Messages du plus ancien au plus récent, la liste suit le dernier tant qu’on n’a pas remonté. « Copier » place tout le journal dans le presse-papiers, « Effacer » le vide sans confirmation. L’hôte horodate chaque message et garde les 500 derniers, 2 000 caractères au plus chacun, dans `status-log.json` du dossier de données ; un fichier illisible est mis de côté et signalé au démarrage. Le libellé d’une opération Git en cours n’est pas journalisé : seul son résultat l’est.
+
 ## 5. Workspaces et panneau en arborescence
 
 | ID | Exigence retenue |
@@ -246,6 +252,8 @@ Les séquences Leader sont consommées par l’application uniquement lorsqu’e
 
 **Convention proposée.** Leader puis O, ou Ctrl + Maj + O, ouvre ou ferme la vue Notes du panneau de droite (section 5, « Notes du workspace »).
 
+**Convention proposée.** Leader puis L, ou Ctrl + Maj + L, ouvre ou ferme le journal de la barre de statut (section 4, « Journal de la barre de statut »).
+
 **Convention proposée.** Ctrl + Tab et Ctrl + Maj + Tab passent à l’onglet suivant ou précédent du workspace actif, en boucle, comme dans Windows Terminal. Ces combinaisons n’envoient au shell que Tab ou Maj + Tab, qui restent disponibles sans Ctrl.
 
 **Convention proposée.** Leader puis B, ou Ctrl + Maj + B, masque ou affiche le panneau des workspaces (WS-08), en rendant le focus au terminal s’il était dans le panneau ; quand il l’affiche, le focus va à l’onglet actif dans le panneau. « Aller au panneau des workspaces », dans la palette, y amène le focus sans le masquer.
@@ -340,6 +348,7 @@ Les actions utilisent le **dossier du pane actif**, jamais un hypothétique doss
 
 - Workspaces et onglets, noms et ordre.
 - Note de chaque workspace.
+- Journal des messages de la barre de statut.
 - Dispositions de splits, orientations, proportions et panes actifs.
 - Dossiers courants et shells utilisés.
 - Texte des anciennes sessions avec distinction visuelle à la réouverture.
@@ -486,6 +495,7 @@ Ces scénarios définissent les vérifications à effectuer sur l’application 
 | R35 | Écrire une note sur plusieurs lignes dans la vue Notes d’un workspace (Ctrl + Maj + O), passer à un autre workspace, fermer puis rouvrir Dock ; fermer ensuite tous les onglets de ce workspace et rouvrir le dernier par Ctrl + Maj + Z. | Chaque workspace garde sa propre note ; l’icône de note et sa première ligne en infobulle apparaissent dans le panneau des workspaces ; la note est retrouvée après redémarrage et après la réouverture de l’onglet ; Échap rend le focus au terminal. |
 | R36 | Dans un dépôt de test dont le dépôt distant a reçu un commit d’un autre clone, ouvrir la vue Git, la fermer et la rouvrir aussitôt, passer à un pane d’un autre dépôt, puis décocher le fetch automatique dans les Paramètres et recommencer après 5 minutes, enfin couper le réseau. | Le commit distant apparaît dans le graphe sans clic sur Fetch ; la réouverture immédiate ne relance pas de fetch ; l’autre dépôt a le sien ; réglage décoché : aucun fetch ; hors ligne : aucun message d’erreur. |
 | R37 | Sur un Dock installé dans une version antérieure à la dernière release, attendre la vérification ou lancer « Rechercher maintenant », ouvrir le bouton « Mise à jour » puis « Installer et redémarrer » avec un programme actif dans un terminal ; recommencer en annulant le téléchargement. | Nouveautés affichées, progression visible, confirmation « Arrêter et installer » ; Dock se ferme, s’installe et redémarre dans la nouvelle version avec sa session ; l’annulation laisse Dock inchangé et ne garde aucun fichier partiel. |
+| R38 | Provoquer plusieurs messages (fermer un onglet, copier un chemin, une erreur Git), ouvrir le journal par un clic sur la barre de statut, par Ctrl + Maj + L, par Leader puis L et par la palette ; fermer puis rouvrir Dock ; « Copier », puis « Effacer ». | Chaque message apparaît avec son heure et son niveau, dans l’ordre ; Échap ferme le tiroir et rend le focus au terminal ; le journal est retrouvé après redémarrage ; la copie contient toutes les lignes ; après « Effacer », le journal reste vide au redémarrage suivant. |
 
 ## 18. Décisions restantes avant développement
 
