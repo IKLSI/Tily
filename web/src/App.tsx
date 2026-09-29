@@ -17,6 +17,8 @@ import { insertIntoPane, joinPane } from './terminal/terminalActions'
 import { receiveWorktreeCreated, receiveWorktreeDone, receiveWorktreeFailed, receiveWorktreePlan, receiveWorktreeProgress } from './worktree/worktreeReceivers'
 import { terminalRegistry } from './terminal/terminalRegistry'
 import { receiveUpdateRestart, receiveUpdateState } from './update/updateActions'
+import { receiveStatusLogCleared, receiveStatusLogEntry, startStatusLog } from './statusLog/statusLogActions'
+import { useStatusLogStore } from './store/statusLogStore'
 import { forgetRemovedText, markTextSaveFailed, primeSessionText, startTextAutosave } from './terminal/textPersistence'
 
 const SAVE_DEBOUNCE_MS = 500
@@ -32,10 +34,12 @@ export default function App() {
     let stopAutosave: (() => void) | undefined
     const stopNotifier = startAttentionNotifier()
     const stopExternalDrops = startExternalDrops()
+    const stopStatusLog = startStatusLog()
     const { markFailed, markExited, markPathMissing, markAlive } = usePaneStore.getState()
     const subscriptions = [
       bridge.on('app.hello', (message) => {
         setHello(message.version, message.shells, message.home, message.persistence)
+        useStatusLogStore.getState().load(message.statusLog)
         terminalRegistry.configure(message.persistence.linesPerPane)
         primeSessionText(message.session, message.text)
         void document.fonts.load('14px "Symbols Nerd Font Mono"').then(() => {
@@ -108,6 +112,8 @@ export default function App() {
       bridge.on('worktrees.failed', (message) => receiveWorktreeFailed(message.operation, message.message, message.output, message.lockedBy)),
       bridge.on('update.state', (message) => receiveUpdateState(message)),
       bridge.on('update.restart', receiveUpdateRestart),
+      bridge.on('statusLog.added', (message) => receiveStatusLogEntry(message.entry)),
+      bridge.on('statusLog.cleared', receiveStatusLogCleared),
       bridge.on('terminal.exit', (message) => {
         terminalRegistry.markExited(message.pane, message.code)
         markExited(message.pane, message.code)
@@ -127,6 +133,7 @@ export default function App() {
     return () => {
       stopNotifier()
       stopExternalDrops()
+      stopStatusLog()
       stopAutosave?.()
       subscriptions.forEach((unsubscribe) => unsubscribe())
     }

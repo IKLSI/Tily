@@ -13,6 +13,7 @@ export const LEADER_HINTS: LeaderHint[] = [
   { keys: 'E', label: 'fichiers' },
   { keys: 'G', label: 'git' },
   { keys: 'O', label: 'notes' },
+  { keys: 'L', label: 'journal' },
   { keys: 'B', label: 'workspaces' },
   { keys: 'X', label: 'fermer le pane' },
   { keys: 'M', label: 'agrandir / réduire le pane' },

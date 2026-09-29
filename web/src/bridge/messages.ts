@@ -1,5 +1,6 @@
 import type { Session } from '../model/session'
 import type { GitHostMessage, GitSettings, GitWebMessage } from './gitMessages'
+import type { StatusLogEntry, StatusLogHostMessage, StatusLogWebMessage } from './statusLogMessages'
 import type { UpdateHostMessage, UpdateSettings, UpdateWebMessage } from './updateMessages'
 import type { WorktreeHostMessage, WorktreeSettings, WorktreeWebMessage } from './worktreeMessages'
 
@@ -147,7 +148,7 @@ export interface PaneAgent {
 }
 
 export type HostToWebMessage =
-  | { type: 'app.hello'; version: string; session: Session; shells: ShellProfile[]; home: string; text: Record<string, string>; persistence: PersistenceSettings; recovery?: string }
+  | { type: 'app.hello'; version: string; session: Session; shells: ShellProfile[]; home: string; text: Record<string, string>; persistence: PersistenceSettings; statusLog: StatusLogEntry[]; recovery?: string }
   | { type: 'app.closing'; activity: PaneActivity[] }
   | { type: 'session.saved' }
   | { type: 'session.saveFailed'; message: string }
@@ -173,6 +174,7 @@ export type HostToWebMessage =
   | GitHostMessage
   | WorktreeHostMessage
   | UpdateHostMessage
+  | StatusLogHostMessage
 
 export type WebToHostMessage =
   | { type: 'app.ready' }
@@ -212,6 +214,7 @@ export type WebToHostMessage =
   | GitWebMessage
   | WorktreeWebMessage
   | UpdateWebMessage
+  | StatusLogWebMessage
 
 export type HostMessageType = HostToWebMessage['type']
 export type HostMessageOf<T extends HostMessageType> = Extract<HostToWebMessage, { type: T }>
