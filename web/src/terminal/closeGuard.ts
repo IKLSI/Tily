@@ -9,6 +9,7 @@ interface PendingClose {
   title: string
   paneIds: Set<string>
   proceed: () => void
+  confirmLabel?: string
 }
 
 const APPLICATION_TITLE = 'Quitter Dock ?'
@@ -30,17 +31,17 @@ const describePane = (session: Session | null, paneId: string): string => {
 
 const toView = (activity: PaneActivity): PaneActivityView => ({ ...activity, label: describePane(useSessionStore.getState().session, activity.paneId) })
 
-const showCloseConfirmation = (title: string, activity: PaneActivity[], proceed: () => void): void => {
+const showCloseConfirmation = (title: string, activity: PaneActivity[], proceed: () => void, confirmLabel?: string): void => {
   confirmed = proceed
-  useUiStore.getState().showCloseConfirmation({ title, panes: activity.map(toView) })
+  useUiStore.getState().showCloseConfirmation({ title, panes: activity.map(toView), confirmLabel })
 }
 
-export const requestClose = (title: string, paneIds: string[], proceed: () => void): void => {
+export const requestClose = (title: string, paneIds: string[], proceed: () => void, confirmLabel?: string): void => {
   if (paneIds.length === 0 || !bridge.available) {
     proceed()
     return
   }
-  pending = { title, paneIds: new Set(paneIds), proceed }
+  pending = { title, paneIds: new Set(paneIds), proceed, confirmLabel }
   bridge.send({ type: 'terminal.activity', panes: paneIds })
 }
 
@@ -55,7 +56,7 @@ export const receiveActivity = (panes: PaneActivity[]): void => {
     current.proceed()
     return
   }
-  showCloseConfirmation(current.title, relevant, current.proceed)
+  showCloseConfirmation(current.title, relevant, current.proceed, current.confirmLabel)
 }
 
 export const requestApplicationClose = (): void => {

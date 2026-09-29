@@ -3,6 +3,7 @@ using Dock.Core.Context;
 using Dock.Core.Git;
 using Dock.Core.Projects;
 using Dock.Core.Session;
+using Dock.Core.Updates;
 using Dock.Core.Worktrees;
 
 namespace Dock.Core.Settings;
@@ -16,6 +17,7 @@ public sealed class SettingsModel
     public NotificationSettingsModel Notifications { get; set; } = NotificationSettingsModel.Default;
     public WorktreeSettingsModel Worktrees { get; set; } = WorktreeSettingsModel.Default;
     public GitSettingsModel Git { get; set; } = GitSettingsModel.Default;
+    public UpdateSettingsModel Updates { get; set; } = UpdateSettingsModel.Default;
 }
 
 public sealed record ShellSettingModel(string Id, string Name, string DefaultExecutable, string Configured, bool Available);

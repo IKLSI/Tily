@@ -27,7 +27,7 @@ ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 MinVersion=10.0.17763
 PrivilegesRequired=lowest
-PrivilegesRequiredOverridesAllowed=dialog
+PrivilegesRequiredOverridesAllowed=commandline dialog
 CloseApplications=yes
 RestartApplications=no
 WizardStyle=modern
@@ -51,11 +51,49 @@ Root: HKCU; Subkey: "Software\Classes\AppUserModelId\MaximeRazafinjato.Dock"; Fl
 
 [Run]
 Filename: "{tmp}\MicrosoftEdgeWebview2Setup.exe"; Parameters: "/silent /install"; StatusMsg: "Installation du runtime WebView2 Evergreen…"; Check: not IsWebView2Installed; Flags: waituntilterminated
+Filename: "{app}\{#AppExe}"; Flags: nowait runasoriginaluser; Check: ShouldRelaunch
 
 [UninstallRun]
 Filename: "{app}\{#AppExe}"; Parameters: "--remove-claude-hooks"; RunOnceId: "RemoveClaudeHooks"; Flags: waituntilterminated skipifdoesntexist
 
 [Code]
+const
+  Synchronize = $00100000;
+  DockExitTimeout = 30000;
+
+function OpenProcess(DesiredAccess: Cardinal; InheritHandle: Boolean; ProcessId: Cardinal): THandle;
+  external 'OpenProcess@kernel32.dll stdcall';
+function WaitForSingleObject(Handle: THandle; Milliseconds: Cardinal): Cardinal;
+  external 'WaitForSingleObject@kernel32.dll stdcall';
+function CloseHandle(Handle: THandle): Boolean;
+  external 'CloseHandle@kernel32.dll stdcall';
+
+procedure WaitForDockExit;
+var
+  ProcessId: Integer;
+  Handle: THandle;
+begin
+  ProcessId := StrToIntDef(ExpandConstant('{param:waitpid|0}'), 0);
+  if ProcessId <= 0 then
+    exit;
+  Handle := OpenProcess(Synchronize, False, ProcessId);
+  if Handle = 0 then
+    exit;
+  WaitForSingleObject(Handle, DockExitTimeout);
+  CloseHandle(Handle);
+end;
+
+function InitializeSetup: Boolean;
+begin
+  WaitForDockExit;
+  Result := True;
+end;
+
+function ShouldRelaunch: Boolean;
+begin
+  Result := ExpandConstant('{param:relaunch|0}') = '1';
+end;
+
 function HasWebView2Value(Root: Integer; const SubKey: string): Boolean;
 var
   Version: string;

@@ -5,6 +5,7 @@ using Dock.Core.Git;
 using Dock.Core.Projects;
 using Dock.Core.Session;
 using Dock.Core.Shell;
+using Dock.Core.Updates;
 using Dock.Core.Worktrees;
 
 namespace Dock.Core.Settings;
@@ -17,6 +18,7 @@ public sealed class SettingsService
     private readonly ProjectsSettingsRepository _projects;
     private readonly NotificationSettingsRepository _notifications;
     private readonly GitSettingsRepository _git;
+    private readonly UpdateSettingsRepository _updates;
 
     public SettingsService(string directory)
     {
@@ -26,6 +28,7 @@ public sealed class SettingsService
         _projects = new ProjectsSettingsRepository(directory);
         _notifications = new NotificationSettingsRepository(directory);
         _git = new GitSettingsRepository(directory);
+        _updates = new UpdateSettingsRepository(directory);
     }
 
     public SettingsModel Load()
@@ -39,7 +42,8 @@ public sealed class SettingsService
             ProjectsRoot = projects.Root,
             Notifications = _notifications.Load(),
             Worktrees = projects.Worktrees ?? WorktreeSettingsModel.Default,
-            Git = _git.Load()
+            Git = _git.Load(),
+            Updates = _updates.Load()
         };
     }
 
@@ -87,12 +91,14 @@ public sealed class SettingsService
         settings.Notifications = settings.Notifications.Normalized();
         settings.Worktrees = (settings.Worktrees ?? WorktreeSettingsModel.Default).Normalized();
         settings.Git ??= GitSettingsModel.Default;
+        settings.Updates ??= UpdateSettingsModel.Default;
         _shells.Save(settings.Shells);
         _editor.Save(new EditorSettingsModel(settings.Editor));
         _persistence.Save(settings.Persistence);
         _projects.Save(new ProjectsSettingsModel(settings.ProjectsRoot, settings.Worktrees));
         _notifications.Save(settings.Notifications);
         _git.Save(settings.Git);
+        _updates.Save(settings.Updates);
         return result;
     }
 
@@ -140,7 +146,8 @@ public sealed class SettingsService
             ProjectsRoot = document.ProjectsRoot!,
             Notifications = (document.Notifications ?? NotificationSettingsModel.Default).Normalized(),
             Worktrees = (document.Worktrees ?? WorktreeSettingsModel.Default).Normalized(),
-            Git = document.Git ?? GitSettingsModel.Default
+            Git = document.Git ?? GitSettingsModel.Default,
+            Updates = document.Updates ?? UpdateSettingsModel.Default
         };
         var validation = Validate(settings);
         return validation.IsValid
@@ -189,7 +196,8 @@ public sealed class SettingsService
             ["persistence"] = _persistence.FilePath,
             ["projects"] = _projects.FilePath,
             ["notifications"] = _notifications.FilePath,
-            ["git"] = _git.FilePath
+            ["git"] = _git.FilePath,
+            ["updates"] = _updates.FilePath
         };
         return new SettingsSnapshotModel(settings, shells, files, warnings);
     }

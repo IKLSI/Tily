@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import { EditableName } from './EditableName'
 import { InlineNameEditor } from './InlineNameEditor'
 import { LeaderHints } from './LeaderHints'
+import { UpdateButton } from './UpdateButton'
 
 interface HeaderProps {
   workspaceName: string | null
@@ -40,15 +41,18 @@ export function Header({ workspaceName, renaming, sidebarCollapsed, leaderActive
       </div>
       {navigation && <div className={leaderActive ? 'hidden' : 'contents'}>{navigation}</div>}
       {leaderActive && <LeaderHints />}
-      <button
-        type="button"
-        className="ml-auto flex cursor-pointer items-center gap-1.5 rounded border border-dock-line px-2 text-dock-muted hover:bg-dock-green-hover hover:text-dock-ink"
-        data-tip="Paramètres (Leader puis ,)"
-        onClick={onOpenSettings}
-      >
-        <span className="text-lg leading-tight">⚙</span>
-        <span className="text-xs">Paramètres</span>
-      </button>
+      <div className="ml-auto flex shrink-0 items-center gap-2">
+        <UpdateButton />
+        <button
+          type="button"
+          className="flex cursor-pointer items-center gap-1.5 rounded border border-dock-line px-2 text-dock-muted hover:bg-dock-green-hover hover:text-dock-ink"
+          data-tip="Paramètres (Leader puis ,)"
+          onClick={onOpenSettings}
+        >
+          <span className="text-lg leading-tight">⚙</span>
+          <span className="text-xs">Paramètres</span>
+        </button>
+      </div>
     </header>
   )
 }
