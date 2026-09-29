@@ -82,7 +82,7 @@ Ces valeurs sont des références de réalisation, pas des contraintes de taille
 
 **Convention proposée.** Aperçu limité aux 2 premiers Mo du fichier, avec un avertissement ; fichier binaire refusé avec un message ; Échap ferme l’aperçu et rend le focus à l’arbre.
 
-**Convention proposée.** Les images courantes (`.png`, `.jpg`, `.gif`, `.webp`, `.svg`, `.bmp`, `.ico`, `.avif`) s’ouvrent aussi dans l’aperçu par un simple clic ou Entrée, ajustées à la place disponible, avec leurs dimensions en pixels à côté du badge « Image » ; elles sont servies par l’hôte comme les images d’un Markdown et rechargées quand le fichier change. « Ouvrir dans l’éditeur » reste disponible.
+**Convention proposée.** Les images courantes (`.png`, `.jpg`, `.gif`, `.webp`, `.svg`, `.bmp`, `.ico`, `.avif`) s’ouvrent aussi dans l’aperçu par un simple clic ou Entrée, ajustées à la place disponible, avec leurs dimensions en pixels à côté du badge « Image » ; un clic sur l’image bascule entre la taille ajustée et la taille réelle, avec défilement ; elles sont servies par l’hôte comme les images d’un Markdown et rechargées quand le fichier change. « Ouvrir dans l’éditeur » reste disponible.
 
 **Convention proposée.** Dans l’arbre des fichiers, taper les premières lettres d’un nom sélectionne l’élément visible suivant qui commence ainsi, sans tenir compte de la casse ni des accents, comme dans l’Explorateur Windows ; répéter la même lettre passe d’un élément à l’autre, et la saisie repart de zéro après 0,7 seconde sans frappe.
 

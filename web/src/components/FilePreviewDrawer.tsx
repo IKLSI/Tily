@@ -55,8 +55,12 @@ export function FilePreviewDrawer() {
   const { path, preview, anchor, anchorRequest } = usePreviewStore(useShallow((store) => ({ path: store.path, preview: store.preview, anchor: store.anchor, anchorRequest: store.anchorRequest })))
   const bodyRef = useRef<HTMLDivElement>(null)
   const html = useMemo(() => renderedHtml(preview), [preview])
-  const [imageSize, setImageSize] = useState<string | null>(null)
-  const handleImageLoad = (event: SyntheticEvent<HTMLImageElement>) => setImageSize(`${event.currentTarget.naturalWidth} × ${event.currentTarget.naturalHeight}`)
+  const [image, setImage] = useState<{ src: string; size: string } | null>(null)
+  const [actualSize, setActualSize] = useState(false)
+  const handleImageLoad = (event: SyntheticEvent<HTMLImageElement>) =>
+    setImage({ src: event.currentTarget.getAttribute('src') ?? '', size: `${event.currentTarget.naturalWidth} × ${event.currentTarget.naturalHeight}` })
+  const handleToggleActualSize = () => setActualSize(!actualSize)
+  const imageSize = image && image.src === preview?.content ? image.size : null
 
   useEffect(() => {
     const body = bodyRef.current
@@ -95,7 +99,14 @@ export function FilePreviewDrawer() {
         ) : preview.error ? (
           <p className="text-[12px] text-dock-error">{preview.error}</p>
         ) : preview.kind === PreviewKind.Image ? (
-          <img src={preview.content} alt={name} className="mx-auto block max-h-full max-w-full object-contain" onLoad={handleImageLoad} />
+          <img
+            src={preview.content}
+            alt={name}
+            data-tip={actualSize ? 'Clic : ajuster à la place disponible' : 'Clic : taille réelle'}
+            className={`mx-auto block object-contain ${actualSize ? 'max-w-none cursor-zoom-out' : 'max-h-full max-w-full cursor-zoom-in'}`}
+            onLoad={handleImageLoad}
+            onClick={handleToggleActualSize}
+          />
         ) : preview.kind === PreviewKind.Markdown && html !== null ? (
           <div className="dock-markdown text-dock-ink" dangerouslySetInnerHTML={{ __html: html }} />
         ) : html !== null ? (

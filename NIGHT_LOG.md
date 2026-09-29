@@ -258,6 +258,17 @@ J'ai revu l'interface à 900 px de large (palette, paramètres, graphe Git) : ri
 - Quand un onglet a plusieurs panes, chaque entrée « Pane » porte sa position dans l'ordre de la disposition : « · 1/4 », « · 2/4 »…
 - Vérifié dans l'instance de dev : taper « pane » affiche « … (powershell) · 1/4 » à « · 4/4 », puis le pane seul de « Workspace 2 » sans numéro.
 
+### 25. Aperçu d'image : taille réelle et dimensions justes
+
+Suite de l'itération 18.
+
+- Un clic sur l'image bascule entre la taille ajustée et la taille réelle, avec défilement. Le curseur loupe et l'infobulle l'indiquent.
+- Les dimensions du badge correspondent toujours à l'image affichée : celles de l'image précédente ne restent plus visibles le temps du chargement suivant.
+- Vérifié dans l'instance de dev : `files.png` passe de 871 px (ajustée) à 1 586 px (taille réelle, zone défilante de 1 634 px) après un clic, puis `git.png` annonce ses propres dimensions.
+- Convention de la section 4 complétée.
+
+Bilan HTML de la nuit généré sur ton Bureau (lien en tête de ce journal), à partir de ce fichier.
+
 ## Reste à faire et idées
 
 ### À décider par toi
