@@ -42,12 +42,12 @@ export function Header({ workspaceName, renaming, sidebarCollapsed, leaderActive
       {leaderActive && <LeaderHints />}
       <button
         type="button"
-        className="ml-auto cursor-pointer rounded border border-dock-line px-2 text-lg leading-tight text-dock-muted hover:bg-dock-green-hover hover:text-dock-ink"
-        aria-label="Paramètres"
+        className="ml-auto flex cursor-pointer items-center gap-1.5 rounded border border-dock-line px-2 text-dock-muted hover:bg-dock-green-hover hover:text-dock-ink"
         data-tip="Paramètres (Leader puis ,)"
         onClick={onOpenSettings}
       >
-        ⚙
+        <span className="text-lg leading-tight">⚙</span>
+        <span className="text-xs">Paramètres</span>
       </button>
     </header>
   )
