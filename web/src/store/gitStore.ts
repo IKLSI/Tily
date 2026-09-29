@@ -34,6 +34,7 @@ export interface GitConfirmation {
   detail?: string
   confirmLabel: string
   run: () => void
+  restoreFocus?: () => void
 }
 
 export interface GitPrompt {
@@ -70,6 +71,12 @@ interface GitSelection {
   anchor: string | null
 }
 
+export interface GitDiffSelection {
+  rows: ReadonlySet<number>
+  anchor: number | null
+  cursor: number | null
+}
+
 export const HISTORY_PAGE = 200
 export const HISTORY_MAX = 10000
 
@@ -89,6 +96,7 @@ interface GitViewState {
   diffRequest: number
   diff: GitDiff | null
   diffError: string | null
+  diffSelection: GitDiffSelection
   detailsRequest: number
   details: GitCommitDetails | null
   detailsError: string | null
@@ -128,9 +136,11 @@ interface GitViewState {
   openMenu: (menu: GitMenuRequest | null) => void
   setChangeSelection: (changeSelection: GitSelection) => void
   setRefSelection: (refSelection: GitSelection) => void
+  setDiffSelection: (diffSelection: GitDiffSelection) => void
 }
 
-const closedDrawer = { file: null, diff: null, diffError: null }
+const emptyDiffSelection: GitDiffSelection = { rows: new Set(), anchor: null, cursor: null }
+const closedDrawer = { file: null, diff: null, diffError: null, diffSelection: emptyDiffSelection }
 const noSelection = { ...closedDrawer, commit: null, details: null, detailsError: null }
 const emptySelection: GitSelection = { keys: new Set(), anchor: null }
 
@@ -178,13 +188,20 @@ export const useGitStore = create<GitViewState>()((set) => ({
   showFile: (file, diffRequest) =>
     set((current) => {
       const same = current.file?.path === file.path && current.file.source === file.source && current.file.commit === file.commit
-      return { file, diffRequest, diff: same ? current.diff : null, diffError: null, commit: file.commit ? current.commit : null }
+      return { file, diffRequest, diff: same ? current.diff : null, diffError: null, diffSelection: same ? current.diffSelection : emptyDiffSelection, commit: file.commit ? current.commit : null }
     }),
   showCommit: (commit, detailsRequest) => set({ ...noSelection, commit, detailsRequest }),
   selectWorkingTree: () => set((current) => (current.commit === null ? current : noSelection)),
   clearSelection: () => set(noSelection),
   closeDrawer: () => set(closedDrawer),
-  receiveDiff: (request, diff, diffError) => set((current) => (current.diffRequest === request ? { diff, diffError } : current)),
+  receiveDiff: (request, diff, diffError) =>
+    set((current) => {
+      if (current.diffRequest !== request) {
+        return current
+      }
+      const kept = diff?.fingerprint !== undefined && diff.fingerprint === current.diff?.fingerprint
+      return { diff, diffError, diffSelection: kept ? current.diffSelection : { ...emptyDiffSelection, cursor: current.diffSelection.cursor } }
+    }),
   receiveDetails: (request, details, detailsError) => set((current) => (current.detailsRequest === request ? { details, detailsError } : current)),
   setBusy: (busy, busyRefs = []) => set({ busy, busyRefs }),
   setFailure: (failure) => set({ failure }),
@@ -197,4 +214,5 @@ export const useGitStore = create<GitViewState>()((set) => ({
   openMenu: (menu) => set({ menu }),
   setChangeSelection: (changeSelection) => set({ changeSelection }),
   setRefSelection: (refSelection) => set({ refSelection }),
+  setDiffSelection: (diffSelection) => set({ diffSelection }),
 }))

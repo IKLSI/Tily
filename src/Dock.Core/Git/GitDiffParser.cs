@@ -16,7 +16,7 @@ public sealed record GitDiffLineModel(GitDiffLineKind Kind, int? Old, int? New, 
 
 public sealed record GitDiffHunkModel(string Header, IReadOnlyList<GitDiffLineModel> Lines);
 
-public sealed record GitDiffModel(string Path, string? OldPath, bool Binary, bool Truncated, IReadOnlyList<string> Notes, IReadOnlyList<GitDiffHunkModel> Hunks);
+public sealed record GitDiffModel(string Path, string? OldPath, bool Binary, bool Truncated, IReadOnlyList<string> Notes, IReadOnlyList<GitDiffHunkModel> Hunks, string? Fingerprint = null);
 
 public static partial class GitDiffParser
 {

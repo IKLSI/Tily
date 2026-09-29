@@ -220,6 +220,11 @@ interface GitDiffHunk {
   lines: GitDiffLine[]
 }
 
+export interface GitHunkSelection {
+  hunk: number
+  lines: number[]
+}
+
 export interface GitDiff {
   path: string
   oldPath?: string
@@ -227,6 +232,7 @@ export interface GitDiff {
   truncated: boolean
   notes: string[]
   hunks: GitDiffHunk[]
+  fingerprint?: string
 }
 
 export interface GitSettings {
@@ -253,6 +259,7 @@ export type GitWebMessage =
   | { type: 'git.details'; path: string; request: number; commit: string }
   | { type: 'git.stage' | 'git.unstage' | 'git.ignore'; path: string; files: string[] }
   | { type: 'git.discard'; path: string; files: string[]; confirmed: boolean }
+  | { type: 'git.stageLines' | 'git.unstageLines' | 'git.discardLines'; path: string; file: string; untracked: boolean; fingerprint: string; selection: GitHunkSelection[]; confirmed: boolean }
   | { type: 'git.commit'; path: string; message: string; amend: boolean; push: boolean }
   | { type: 'git.push'; path: string; force: boolean; confirmed: boolean }
   | { type: 'git.pull' | 'git.fetch' | 'git.continue' | 'git.undo'; path: string }

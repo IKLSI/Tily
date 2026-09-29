@@ -3,6 +3,7 @@ const GRAPH_LIST_SELECTOR = '[data-git-graph-list]'
 const ROW_SELECTOR = '[data-git-row]'
 const BUTTON_SELECTOR = 'button:not([aria-disabled="true"])'
 const PANE_SELECTOR = '[data-pane-id]'
+const DIFF_SELECTOR = '[data-git-diff]'
 
 let graphFocusPending = false
 
@@ -14,6 +15,15 @@ export const focusGitPanel = (): void => {
   const panel = gitPanel()
   const target = panel?.querySelector<HTMLElement>(`${ROW_SELECTOR}[tabindex="0"]`) ?? panel?.querySelector<HTMLElement>(BUTTON_SELECTOR) ?? panel
   target?.focus()
+}
+
+export const focusGitDiff = (): void => {
+  const diff = document.querySelector<HTMLElement>(DIFF_SELECTOR)
+  if (diff) {
+    diff.focus()
+  } else {
+    focusGitPanel()
+  }
 }
 
 export const focusGitGraph = (): boolean => {

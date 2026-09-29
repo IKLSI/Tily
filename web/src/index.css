@@ -34,6 +34,8 @@
   --color-dock-diff-added-ink: #a8d8b3;
   --color-dock-diff-removed: #3a2427;
   --color-dock-diff-removed-ink: #e8aaa3;
+  --color-dock-diff-added-selected: #2b4a37;
+  --color-dock-diff-removed-selected: #573238;
   --color-dock-lane-0: #7a9f8b;
   --color-dock-lane-1: #7f9fc9;
   --color-dock-lane-2: #c9a65f;

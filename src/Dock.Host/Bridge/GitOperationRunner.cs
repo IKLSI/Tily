@@ -32,6 +32,9 @@ public sealed class GitOperationRunner
             "git.stage" => repository => GitChangeCommands.Stage(repository, files),
             "git.unstage" => repository => GitChangeCommands.Unstage(repository, files),
             "git.discard" => repository => GitChangeCommands.Discard(repository, files, command.Confirmed),
+            "git.stageLines" => repository => GitLineCommands.Apply(repository, GitLineAction.Stage, LineRequest(command), false),
+            "git.unstageLines" => repository => GitLineCommands.Apply(repository, GitLineAction.Unstage, LineRequest(command), false),
+            "git.discardLines" => repository => GitLineCommands.Apply(repository, GitLineAction.Discard, LineRequest(command), command.Confirmed),
             "git.commit" => repository => CommitThenPush(repository, command),
             "git.push" => repository => Push(repository, command.Force, command.Confirmed),
             "git.pull" => GitSyncCommands.Pull,
@@ -159,4 +162,6 @@ public sealed class GitOperationRunner
     }
 
     private static string ForceKey(string root, string branch) => $"{root}\n{branch}";
+
+    private static GitLineRequestModel LineRequest(BridgeCommandModel command) => new(command.File, command.Untracked, command.Fingerprint, command.Selection ?? []);
 }
