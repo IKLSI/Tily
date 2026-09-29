@@ -1,9 +1,10 @@
 import { longestWaitingFirst, waitedFor, waitingPanes } from '../agents/agentSummary'
 import { bridge } from '../bridge/bridge'
-import type { ShellProfile } from '../bridge/messages'
+import type { GitContext, ShellProfile } from '../bridge/messages'
 import { Command, revealWorkspacePanel, runCommand } from '../keyboard/shortcuts'
-import { activeTab, activeWorkspace, FAVORITES_MAX, folderName, panesOf, type Session } from '../model/session'
+import { activeTab, activeWorkspace, FAVORITES_MAX, folderName, panesOf, type Pane, type Session } from '../model/session'
 import { useAgentStore } from '../store/agentStore'
+import { useHostStore } from '../store/hostStore'
 import { useSessionStore } from '../store/sessionStore'
 import { RenameOrigin, useUiStore } from '../store/uiStore'
 import { closeOtherTabsKeepingText, closeTabKeepingText, closeWorkspaceKeepingText, duplicateTabKeepingLayout, restoreClosedTab, restoreClosedTabAt } from '../terminal/tabLifecycle'
@@ -119,8 +120,14 @@ const closedTabItems = (session: Session): PaletteItem[] =>
     }))
     .reverse()
 
+const paneHint = (pane: Pane, contexts: Record<string, GitContext>): string => {
+  const branch = contexts[pane.id]?.branch
+  return branch ? `${branch}${SEPARATOR}${pane.path}` : pane.path
+}
+
 const navigationItems = (session: Session): PaletteItem[] => {
   const { selectWorkspace, selectTab, selectPane } = useSessionStore.getState()
+  const { contexts } = useHostStore.getState()
   return session.workspaces.flatMap((workspace) => [
     { id: `ws-${workspace.id}`, kind: PaletteKind.Workspace, label: `Workspace${SEPARATOR}${workspace.name}`, run: () => selectWorkspace(workspace.id) },
     ...workspace.tabs.flatMap((tab) => [
@@ -137,7 +144,7 @@ const navigationItems = (session: Session): PaletteItem[] => {
         id: `pane-${pane.id}`,
         kind: PaletteKind.Pane,
         label: `Pane${SEPARATOR}${workspace.name} / ${tab.name} / ${folderName(pane.path)} (${pane.shell})`,
-        hint: pane.path,
+        hint: paneHint(pane, contexts),
         run: () => selectPane(pane.id),
       })),
     ]),

@@ -743,6 +743,17 @@ Avec les worktrees (`wtr`) et plusieurs agents en parallèle, chaque pane peut �
 - Une capture a montré par erreur ta fenêtre Dock, restée au premier plan, au lieu de l'instance de dev. Seule une capture a été faite, aucune touche ni aucun clic. Je l'ai supprimée.
 - **Convention proposée** en section 11 de la spec ; architecture front et README mis à jour.
 
+### 78. Retrouver un pane par sa branche dans la palette
+
+Suite de l'itération 77. Avec plusieurs worktrees, on pense souvent « le terminal de la branche feature-x » plutôt que « l'onglet web du workspace Dock ».
+
+- Dans la palette, l'indice de chaque entrée « Pane » commence par la branche Git du pane quand elle est connue, puis donne son chemin : « night-session · D:\Projects\… ». Taper le début du nom d'une branche retrouve donc ses terminaux.
+- La branche vient du contexte déjà relu à chaque invite (`hostStore.contexts`). Un pane dont le shell n'a pas encore signalé son dossier garde seulement son chemin en indice.
+- Vérifié dans l'instance de dev : taper « night » dans la palette propose « Pane · Dock / web / web (powershell) », avec en indice `night-session · D:\Projects\Perso\Projet T\dock…`.
+- Spec (convention de la section 11) et architecture front complétées.
+
+Dernière itération de la nuit : tu t'es réveillé et m'as demandé d'arrêter après celle-ci.
+
 ## Reste à faire et idées
 
 - **Alt + flèche sur un onglet ou une ligne du panneau** : quand un onglet de la barre ou une ligne du panneau des workspaces a le focus, Alt + flèche déplace cet élément (itérations 14, 47 et 58) au lieu de changer de pane, comme le prévoit le tableau retenu de la section 9. C'est une dérogation à confirmer ou à retirer ; la spec la signale comme « exception à confirmer ».
