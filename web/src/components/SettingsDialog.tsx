@@ -267,7 +267,7 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
           <input type="checkbox" checked={settings.notifications.windowsToast} disabled={!current.notifications.toastAvailable} onChange={handleToastChange} />
           <span className={LABEL}>Notification Windows (cliquer rejoint le terminal)</span>
         </label>
-        {!current.notifications.toastAvailable && <p className="text-[11px] text-dock-warning">{`Notification Windows indisponible dans cette version du Windows App SDK (bug connu des applications autonomes). Le son et le clignotement restent actifs. ${current.notifications.toastError ?? ''}`}</p>}
+        {!current.notifications.toastAvailable && <p className="text-[11px] text-dock-warning">{`Notification Windows indisponible. Le son et le clignotement restent actifs. ${current.notifications.toastError ?? ''}`}</p>}
         <label className="flex items-center gap-2">
           <input type="checkbox" checked={settings.notifications.taskbarFlash} onChange={handleFlashChange} />
           <span className={LABEL}>Faire clignoter Dock dans la barre des tâches</span>
