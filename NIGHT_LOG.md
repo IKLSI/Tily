@@ -137,6 +137,14 @@ Les erreurs de compilation, de tests ou de lint affichent `src/app.ts:12:5` ou `
 - **Limites** : un chemin qui contient des espaces n'est pas lié. Un lien sur deux lignes repliées non plus.
 - **Convention proposée** en section 9 de la spec. Architectures mises à jour.
 
+### 13. Charger l'aperçu des fichiers à la demande
+
+Tout le code web tenait dans un seul fichier JavaScript de 1,3 Mo, lu et compilé à chaque démarrage de Dock, y compris marked, highlight.js et DOMPurify, qui ne servent qu'à l'aperçu Markdown et texte.
+
+- Le tiroir d'aperçu est chargé par `React.lazy` à sa première ouverture (`LazyFilePreview`) : le fichier principal passe de 1 304 à 1 057 Ko, l'aperçu part dans un fichier de 248 Ko.
+- Vérifié dans l'instance de dev : au démarrage, aucun fichier d'aperçu n'est demandé ; au clic sur `notes.md`, `FilePreviewDrawer-*.js` est servi par l'hôte comme les autres fichiers de `wwwroot`, le titre et la coloration du bloc de code sont identiques. La publication de l'installeur copie tout `dist`, le fichier supplémentaire compris.
+- Architecture front mise à jour.
+
 ## Reste à faire et idées
 
 - Déplacer un pane vers un onglet d'un autre workspace (l'itération 8 se limite au workspace du pane).
