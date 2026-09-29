@@ -43,7 +43,14 @@ export const movePaneToNewTab = (paneId: string): void => {
 
 export const movePaneToTab = (paneId: string, targetTabId: string): void => {
   const target = tabOf(targetTabId)
-  if (!target) {
+  const sourceWorkspace = useSessionStore
+    .getState()
+    .session?.workspaces.find((workspace) => workspace.tabs.some((tab) => panesOf(tab.tree).some((pane) => pane.id === paneId)))
+  if (!target || !sourceWorkspace) {
+    return
+  }
+  if (sourceWorkspace.tabs.length === 1 && panesOf(sourceWorkspace.tabs[0].tree).length === 1) {
+    useHostStore.getState().setStatus(`Ce pane est le dernier du workspace « ${sourceWorkspace.name} » : il ne peut pas le quitter sans le fermer.`)
     return
   }
   if (useUiStore.getState().zoomedPaneId === paneId) {

@@ -118,6 +118,11 @@ const commandItems = (session: Session, shells: ShellProfile[]): PaletteItem[] =
     for (const target of workspace?.tabs.filter((candidate) => candidate.id !== tab.id) ?? []) {
       items.push(command(`${JOIN_TAB_PREFIX}${target.id}`, `Déplacer le pane actif vers l’onglet${SEPARATOR}${target.name}`, () => movePaneToTab(paneId, target.id)))
     }
+    for (const other of session.workspaces.filter((candidate) => candidate.id !== workspace?.id)) {
+      for (const target of other.tabs) {
+        items.push(command(`${JOIN_TAB_PREFIX}${target.id}`, `Déplacer le pane actif vers l’onglet${SEPARATOR}${other.name} / ${target.name}`, () => movePaneToTab(paneId, target.id)))
+      }
+    }
     for (const target of session.workspaces.filter((candidate) => candidate.id !== workspace?.id)) {
       items.push(command(`${MOVE_TAB_PREFIX}${target.id}`, `Déplacer l’onglet vers${SEPARATOR}${target.name}`, () => store.moveTab(tab.id, target.id)))
     }

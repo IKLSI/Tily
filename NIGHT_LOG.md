@@ -269,6 +269,15 @@ Suite de l'itération 18.
 
 Bilan HTML de la nuit généré sur ton Bureau (lien en tête de ce journal), à partir de ce fichier.
 
+### 26. Déplacer un pane vers un onglet d'un autre workspace
+
+Idée laissée en suspens à l'itération 8 : ramener un terminal dans un autre workspace, par exemple un serveur lancé au mauvais endroit.
+
+- La palette propose aussi « Déplacer le pane actif vers l'onglet · <workspace> / <onglet> » pour chaque onglet des autres workspaces. Le pane arrive à droite du pane actif de cet onglet, et ce workspace devient actif. Si l'onglet d'origine se vide, il disparaît et son workspace se replace sur l'onglet voisin.
+- **Garde-fou** : le dernier pane d'un workspace ne peut pas le quitter. Sinon le workspace disparaîtrait, avec sa note, sans confirmation. La barre de statut l'explique.
+- Vérifié dans l'instance de dev : le pane seul d'un onglet de « Workspace 2 » rejoint « Général / repo » (5 panes), « Workspace 2 » garde son autre onglet ; le dernier pane de « Workspace 2 » est ensuite refusé avec le message.
+- Convention de la section 7 complétée.
+
 ## Reste à faire et idées
 
 ### À décider par toi
@@ -288,6 +297,6 @@ Bilan HTML de la nuit généré sur ton Bureau (lien en tête de ce journal), à
 
 ### Idées
 
-- Déplacer un pane vers un onglet d'un autre workspace (l'itération 8 se limite au workspace du pane).
+
 - Fin d'une commande longue : faire clignoter la barre des tâches quand Dock n'a pas le focus, avec un réglage, comme pour les agents.
 - Tests web : aucun encore (décision du 21 septembre). Plusieurs fonctions pures ajoutées cette nuit s'y prêteraient : `findFileLinks`, `equalizeNode`, `swapPanes`, `folderMarksOf`, `relativeEntryPath`, `formatCommandDuration`.

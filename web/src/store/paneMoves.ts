@@ -28,18 +28,23 @@ export const movePaneOut = (draft: Session, paneId: string): void => {
 
 export const movePaneInto = (draft: Session, paneId: string, targetTabId: string): void => {
   const workspace = draft.workspaces.find((candidate) => candidate.tabs.some((tab) => tab.id === targetTabId))
-  const source = workspace?.tabs.find((tab) => panesOf(tab.tree).some((pane) => pane.id === paneId))
+  const sourceWorkspace = draft.workspaces.find((candidate) => candidate.tabs.some((tab) => panesOf(tab.tree).some((pane) => pane.id === paneId)))
+  const source = sourceWorkspace?.tabs.find((tab) => panesOf(tab.tree).some((pane) => pane.id === paneId))
   const target = workspace?.tabs.find((tab) => tab.id === targetTabId)
   const pane = source ? panesOf(source.tree).find((candidate) => candidate.id === paneId) : undefined
-  if (!workspace || !source || !target || !pane || source.id === target.id) {
+  const remaining = source ? pruneNode(source.tree, paneId) : null
+  if (!workspace || !sourceWorkspace || !source || !target || !pane || source.id === target.id || (!remaining && sourceWorkspace.tabs.length === 1)) {
     return
   }
   const moved = current(pane)
-  const remaining = pruneNode(source.tree, paneId)
   if (remaining) {
     keepRemaining(source, paneId, remaining)
   } else {
-    workspace.tabs = workspace.tabs.filter((tab) => tab.id !== source.id)
+    const index = sourceWorkspace.tabs.findIndex((tab) => tab.id === source.id)
+    sourceWorkspace.tabs = sourceWorkspace.tabs.filter((tab) => tab.id !== source.id)
+    if (sourceWorkspace.active === source.id) {
+      sourceWorkspace.active = sourceWorkspace.tabs[Math.min(index, sourceWorkspace.tabs.length - 1)].id
+    }
   }
   target.tree = splitLeaf(target.tree, target.active, SplitAxis.Horizontal, moved)
   target.active = moved.id
