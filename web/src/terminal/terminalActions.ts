@@ -4,6 +4,7 @@ import { useAgentStore } from '../store/agentStore'
 import { useGitStore } from '../store/gitStore'
 import { StatusLevel, useHostStore } from '../store/hostStore'
 import { useSessionStore } from '../store/sessionStore'
+import { lastCommandOutput, OutputFailure } from './commandOutput'
 import { terminalRegistry } from './terminalRegistry'
 
 const COPY_FAILED = 'Copie dans le presse-papiers impossible.'
@@ -15,8 +16,36 @@ const UNTABBABLE = -1
 const VIEWPORT_SELECTOR = '.xterm-viewport'
 const TAB_INDEX_ATTRIBUTE = 'tabindex'
 const AGENT_LINE_BREAK = '\x1b\r'
+const LINE_BREAK = '\n'
 
 const reportFailure = (message: string) => (): void => useHostStore.getState().setStatus(message, StatusLevel.Error)
+
+const OUTPUT_FAILURES: Record<OutputFailure, string> = {
+  [OutputFailure.NoCommand]: 'Aucune commande terminée dans ce terminal depuis son ouverture (Windows PowerShell et PowerShell 7 uniquement).',
+  [OutputFailure.Trimmed]: 'La sortie de la dernière commande n’est plus dans l’historique du terminal.',
+  [OutputFailure.Empty]: 'La dernière commande n’a rien affiché.',
+}
+
+const lineCountLabel = (text: string): string => {
+  const count = text.split(LINE_BREAK).length
+  return count === 1 ? '1 ligne' : `${count} lignes`
+}
+
+export const copyLastCommandOutput = (paneId: string): void => {
+  const terminal = terminalRegistry.get(paneId)?.terminal
+  if (!terminal) {
+    return
+  }
+  const output = lastCommandOutput(terminal)
+  if ('failure' in output) {
+    useHostStore.getState().setStatus(OUTPUT_FAILURES[output.failure])
+    return
+  }
+  void navigator.clipboard
+    .writeText(output.text)
+    .then(() => useHostStore.getState().setStatus(`Sortie de la dernière commande copiée (${lineCountLabel(output.text)}).`))
+    .catch(reportFailure(COPY_FAILED))
+}
 
 export const hasPaneSelection = (paneId: string): boolean => terminalRegistry.get(paneId)?.terminal.hasSelection() ?? false
 

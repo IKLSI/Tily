@@ -5,7 +5,7 @@ import { useAgentStore } from '../store/agentStore'
 import { useHostStore } from '../store/hostStore'
 import { usePaneStore } from '../store/paneStore'
 import { copyPaneBranch, copyPanePath, gitSummary, openPaneFolder, queryContext } from '../terminal/contextActions'
-import { copyPaneSelection, focusPane, hasPaneSelection, pasteIntoPane, selectAllInPane, setPaneTerminalTabbable } from '../terminal/terminalActions'
+import { copyLastCommandOutput, copyPaneSelection, focusPane, hasPaneSelection, pasteIntoPane, selectAllInPane, setPaneTerminalTabbable } from '../terminal/terminalActions'
 import { movePaneToNewTab } from '../terminal/tabLifecycle'
 import { TerminalPane } from '../terminal/TerminalPane'
 import { AgentBadge } from './AgentBadge'
@@ -135,6 +135,7 @@ export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZ
   }, [pane.id])
   const menuActions: TerminalMenuActions = {
     copy: () => copyPaneSelection(pane.id),
+    copyLastOutput: () => copyLastCommandOutput(pane.id),
     paste: () => pasteIntoPane(pane.id),
     selectAll: () => selectAllInPane(pane.id),
     splitSideBySide: handleSplitSideBySide,

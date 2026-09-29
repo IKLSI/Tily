@@ -8,7 +8,7 @@ import { useHostStore } from '../store/hostStore'
 import { useSessionStore } from '../store/sessionStore'
 import { RenameOrigin, useUiStore } from '../store/uiStore'
 import { closeOtherTabsKeepingText, closeTabKeepingText, closeWorkspaceKeepingText, duplicateTabKeepingLayout, restoreClosedTab, restoreClosedTabAt } from '../terminal/tabLifecycle'
-import { joinPane } from '../terminal/terminalActions'
+import { copyLastCommandOutput, joinPane } from '../terminal/terminalActions'
 import { OpenTarget } from '../bridge/messages'
 import { copyPaneBranch, copyPanePath, openPaneFolder } from '../terminal/contextActions'
 import { WorktreePickerKind } from '../store/worktreeStore'
@@ -84,6 +84,7 @@ const commandItems = (session: Session, shells: ShellProfile[]): PaletteItem[] =
     const paneId = tab.active
     items.push(
       command('copy-path', 'Copier le chemin du pane actif', () => copyPanePath(paneId)),
+      command('copy-last-output', 'Copier la sortie de la dernière commande du pane actif', () => copyLastCommandOutput(paneId)),
       command('open-editor', 'Ouvrir le dossier du pane actif dans l’éditeur', () => openPaneFolder(paneId, OpenTarget.Editor)),
       command('open-explorer', 'Ouvrir le dossier du pane actif dans l’explorateur', () => openPaneFolder(paneId, OpenTarget.Explorer)),
       command('copy-branch', 'Copier la branche Git du pane actif', () => copyPaneBranch(paneId)),

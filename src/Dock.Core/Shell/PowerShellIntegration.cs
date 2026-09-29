@@ -23,7 +23,15 @@ public static class PowerShellIntegration
                 }
             } catch {}
             if (-not $dockSucceeded) { Write-Error '' -ErrorAction Ignore }
-            if ($global:__DockOriginalPrompt) { & $global:__DockOriginalPrompt } else { "PS $($PWD.Path)> " }
+            $dockPrompt = if ($global:__DockOriginalPrompt) { & $global:__DockOriginalPrompt } else { "PS $($PWD.Path)> " }
+            try {
+                $dockWidth = [Math]::Max(1, $Host.UI.RawUI.BufferSize.Width)
+                $dockVisible = ($dockPrompt -join '') -replace "$dockEsc\[[0-9;?]*[ -/]*[@-~]", '' -replace "$dockEsc\][^$([char]7)$dockEsc]*($([char]7)|$dockEsc\\)", ''
+                $dockRows = 0
+                foreach ($dockLine in ($dockVisible -split "`n")) { $dockRows += [Math]::Max(1, [Math]::Ceiling($dockLine.TrimEnd("`r").Length / $dockWidth)) }
+                [Console]::Write("$dockEsc]6973;prompt;$dockRows$dockEsc\")
+            } catch {}
+            $dockPrompt
         }
         """;
 

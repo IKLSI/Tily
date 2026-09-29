@@ -9,6 +9,7 @@ export interface TerminalMenuRequest {
 
 export interface TerminalMenuActions {
   copy: () => void
+  copyLastOutput: () => void
   paste: () => void
   selectAll: () => void
   splitSideBySide: () => void
@@ -28,6 +29,7 @@ interface TerminalContextMenuProps {
 
 const itemsFor = (canCopy: boolean, zoomed: boolean, actions: TerminalMenuActions): ActionMenuItem[] => [
   { id: 'copy', label: 'Copier', detail: <MenuShortcut keys="Ctrl + Maj + C" />, disabled: !canCopy, run: actions.copy },
+  { id: 'copy-last-output', label: 'Copier la sortie de la dernière commande', run: actions.copyLastOutput },
   { id: 'paste', label: 'Coller', detail: <MenuShortcut keys="Ctrl + Maj + V" />, run: actions.paste },
   { id: 'select-all', label: 'Tout sélectionner', run: actions.selectAll },
   { id: 'split-x', label: 'Split côte à côte', detail: <MenuShortcut keys="Ctrl + Maj + D" />, run: actions.splitSideBySide },

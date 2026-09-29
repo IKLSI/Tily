@@ -24,7 +24,7 @@ public sealed class PowerShellIntegrationTests
         return string.Concat(output.Result.Where(character => character != '\x1b')).Trim();
     }
 
-    private static List<string> CommandNotices(string output) => Regex.Matches(output, @"\]6973;[0-9a-z;]*").Select(match => match.Value).ToList();
+    private static List<string> CommandNotices(string output) => Regex.Matches(output, @"]6973;done;[0-9;]*").Select(match => match.Value).ToList();
 
     [Fact]
     public void Prompt_WhenLastCommandFailed_ThenOriginalPromptSeesFailure()
@@ -73,6 +73,30 @@ public sealed class PowerShellIntegrationTests
         var output = RunWithWrapper("prompt");
 
         Assert.Empty(CommandNotices(output));
+    }
+
+    [Fact]
+    public void Prompt_WhenOriginalPromptHasTwoLines_ThenAnnouncesTwoRows()
+    {
+        var output = RunWithWrapper("$global:__DockOriginalPrompt = { \"dépôt main`nPS> \" }", "prompt");
+
+        Assert.Contains("]6973;prompt;2", output);
+    }
+
+    [Fact]
+    public void Prompt_WhenOriginalPromptIsColored_ThenIgnoresEscapeSequences()
+    {
+        var output = RunWithWrapper("$global:__DockOriginalPrompt = { \"$([char]27)[32m$([char]27)]8;;https://dock.local$([char]27)\\PS$([char]27)]8;;$([char]27)\\$([char]27)[0m> \" }", "prompt");
+
+        Assert.Contains("]6973;prompt;1", output);
+    }
+
+    [Fact]
+    public void Prompt_WhenOriginalPromptIsWiderThanBuffer_ThenCountsWrappedRows()
+    {
+        var output = RunWithWrapper("$global:__DockOriginalPrompt = { ('x' * ($Host.UI.RawUI.BufferSize.Width + 5)) + '> ' }", "prompt");
+
+        Assert.Contains("]6973;prompt;2", output);
     }
 
     [Fact]
