@@ -1,6 +1,7 @@
 using Dock.Core.Agents;
 using Dock.Core.Session;
 using Dock.Core.Settings;
+using Dock.Core.Worktrees;
 using Xunit;
 
 namespace Dock.Core.Tests.Settings;
@@ -250,6 +251,42 @@ public sealed class SettingsServiceTests : IDisposable
 
         Assert.Null(result.Settings);
         Assert.StartsWith("Le fichier de préférences est illisible", result.Error);
+    }
+
+    [Fact]
+    public void Import_WhenWorktreesMissing_ThenUsesDefaults()
+    {
+        var service = new SettingsService(_directory);
+        var path = Path.Combine(_directory, "prefs.json");
+        File.WriteAllText(path, "{ \"version\": 1, \"shells\": {}, \"editor\": \"code.cmd\", \"persistence\": { \"textIntervalSeconds\": 30, \"linesPerPane\": 1000, \"maxTextMebibytes\": 32 }, \"projectsRoot\": \"C:\\\\Projets\" }");
+
+        var result = service.Import(path);
+
+        Assert.Equal(WorktreeSettingsModel.Default, result.Settings!.Worktrees);
+    }
+
+    [Fact]
+    public void Save_ThenLoad_KeepsWorktreeSettingsInProjectsFile()
+    {
+        var service = new SettingsService(_directory);
+        var settings = service.Load();
+        settings.Worktrees = new WorktreeSettingsModel(@" E:\wt ", " main ");
+
+        service.Save(settings);
+
+        Assert.Equal(new WorktreeSettingsModel(@"E:\wt", "main"), service.Load().Worktrees);
+    }
+
+    [Fact]
+    public void Save_WhenWorktreeFolderRelative_ThenRefuses()
+    {
+        var service = new SettingsService(_directory);
+        var settings = service.Load();
+        settings.Worktrees = new WorktreeSettingsModel("relatif", "develop");
+
+        var result = service.Save(settings);
+
+        Assert.Equal("Le dossier des worktrees doit être un chemin absolu : relatif", result.Error);
     }
 
     public void Dispose()

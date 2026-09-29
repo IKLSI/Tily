@@ -113,6 +113,8 @@ public sealed class GitFeed : IDisposable
         Refresh(true, false);
     }
 
+    public void RefreshSoon() => ScheduleRefresh();
+
     private void ScheduleRefresh()
     {
         if (Interlocked.Exchange(ref _refreshQueued, 1) == 0)

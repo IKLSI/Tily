@@ -1,5 +1,8 @@
 import { GitRefKind, GitResetMode, type GitBranch, type GitCommit, type GitRefLabel, type GitRemoteBranch, type GitState, type GitStash, type GitTag } from '../bridge/gitMessages'
+import { WorktreeBranchMode, type Worktree } from '../bridge/worktreeMessages'
 import type { ActionMenuItem } from '../components/ActionMenu'
+import { revealInExplorer } from '../explorer/fileExplorerActions'
+import { openWorktree, openWorktreeDialog, requestWorktreeRemoval } from '../worktree/worktreeActions'
 import type { GitGraphLayout } from '../model/session'
 import type { GitRefHandle } from '../store/gitStore'
 import { currentName, shortSha } from './gitLabels'
@@ -26,6 +29,24 @@ import { copyToClipboard, revealCommit, stageChanges } from './gitRequests'
 
 const copyName = (name: string): ActionMenuItem => ({ id: 'copy', label: 'Copier le nom', run: () => copyToClipboard(name, `Nom copié : ${name}`) })
 
+const WORKTREE_FROM_BRANCH = 'Créer un worktree depuis cette branche…'
+
+export const worktreeOfBranch = (name: string, state: GitState): Worktree | undefined => state.worktrees.find((worktree) => worktree.branch === name)
+
+const worktreeFromBranch = (branch: GitBranch, state: GitState): ActionMenuItem => ({
+  id: 'worktree',
+  label: WORKTREE_FROM_BRANCH,
+  run: () =>
+    openWorktreeDialog(state.root, worktreeOfBranch(branch.name, state) ? { mode: WorktreeBranchMode.New, base: branch.name } : { mode: WorktreeBranchMode.Local, branch: branch.name }),
+})
+
+export const worktreeMenu = (worktree: Worktree): ActionMenuItem[] => [
+  { id: 'open', label: 'Ouvrir', run: () => openWorktree(worktree.path) },
+  { id: 'reveal', label: 'Afficher dans l’Explorateur Windows', run: () => revealInExplorer(worktree.path) },
+  { id: 'copy', label: 'Copier le chemin', run: () => copyToClipboard(worktree.path, `Chemin copié : ${worktree.path}`) },
+  { id: 'remove', label: 'Supprimer le worktree…', disabled: worktree.isMain, run: () => requestWorktreeRemoval(worktree.path, worktree.branch) },
+]
+
 export const branchMenu = (branch: GitBranch, state: GitState): ActionMenuItem[] => {
   const current = currentName(state.head)
   const blocked = Boolean(state.operation)
@@ -36,6 +57,7 @@ export const branchMenu = (branch: GitBranch, state: GitState): ActionMenuItem[]
     { id: 'show', label: 'Aller au commit', run: () => revealCommit(branch.sha) },
     { id: 'branch', label: 'Créer une branche ici…', run: () => promptNewBranch(branch.name, branch.name) },
     { id: 'tag', label: 'Créer un tag ici…', run: () => promptNewTag(branch.sha, `« ${branch.name} »`) },
+    worktreeFromBranch(branch, state),
     { id: 'rename', label: 'Renommer…', run: () => promptRenameBranch(branch) },
     { id: 'delete', label: branch.merged ? 'Supprimer' : 'Supprimer (sans merge)…', disabled: branch.current, run: () => deleteBranch(branch) },
     copyName(branch.name),
@@ -51,6 +73,7 @@ export const remoteBranchMenu = (branch: GitRemoteBranch, state: GitState): Acti
     { id: 'rebase', label: `Rebase de « ${current} » sur cette branche`, disabled: blocked || state.head.detached, run: () => rebaseCurrentOnto(branch.name) },
     { id: 'show', label: 'Aller au commit', run: () => revealCommit(branch.sha) },
     { id: 'branch', label: 'Créer une branche ici…', run: () => promptNewBranch(branch.name, branch.name) },
+    { id: 'worktree', label: WORKTREE_FROM_BRANCH, run: () => openWorktreeDialog(state.root, { mode: WorktreeBranchMode.Remote, branch: branch.name }) },
     { id: 'delete', label: 'Supprimer la branche distante…', run: () => deleteRemoteBranch(branch) },
     copyName(branch.name),
   ]

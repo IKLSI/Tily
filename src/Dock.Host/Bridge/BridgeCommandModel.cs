@@ -28,6 +28,10 @@ public sealed class BridgeCommandModel
     public string? Mode { get; init; }
     public string? Scope { get; init; }
     public string? Source { get; init; }
+    public string? Repository { get; init; }
+    public string? Branch { get; init; }
+    public string? Base { get; init; }
+    public string? Command { get; init; }
     public string[]? Panes { get; init; }
     public string[]? Keep { get; init; }
     public string[]? Paths { get; init; }
@@ -49,6 +53,10 @@ public sealed class BridgeCommandModel
     public bool Checkout { get; init; }
     public bool Untracked { get; init; }
     public bool Confirmed { get; init; }
+    public bool Install { get; init; }
+    public bool Database { get; init; }
+    public bool KeepBranch { get; init; }
+    public bool DropDatabase { get; init; }
     public JsonElement? Session { get; init; }
     public JsonElement? Text { get; init; }
     public JsonElement? Settings { get; init; }

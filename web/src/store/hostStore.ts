@@ -61,7 +61,7 @@ export const useHostStore = create<HostState>()((set) => ({
   setContext: (paneId, context) =>
     set((state) => {
       const known = state.contexts[paneId]
-      const unchanged = known?.isRepository === context.isRepository && known.branch === context.branch && known.detachedHead === context.detachedHead
+      const unchanged = known?.isRepository === context.isRepository && known.branch === context.branch && known.detachedHead === context.detachedHead && known.worktreeRoot === context.worktreeRoot
       return unchanged ? state : { contexts: { ...state.contexts, [paneId]: context } }
     }),
 }))

@@ -5,6 +5,7 @@ public sealed record ShellProfileModel(string Id, string Name, string Executable
 public static class ShellCatalog
 {
     public const string DefaultShellId = "powershell";
+    public const string PowerShellCoreId = "pwsh";
 
     private static readonly string System32 = Environment.GetFolderPath(Environment.SpecialFolder.System);
     private static readonly string ProgramFiles = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
@@ -42,6 +43,8 @@ public static class ShellCatalog
 
         return profile;
     }
+
+    public static bool ReportsCurrentDirectory(string shellId) => shellId is DefaultShellId or PowerShellCoreId;
 
     public static string CommandLine(ShellProfileModel profile) =>
         string.IsNullOrEmpty(profile.Arguments) ? $"\"{profile.Executable}\"" : $"\"{profile.Executable}\" {profile.Arguments}";

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ChangeEvent, type KeyboardEvent, type PointerEvent } from 'react'
 import { AttentionKind, PickTarget, type ImportedPreferences, type NotificationSettings, type PersistenceSettings, type PickedPath, type Settings, type SettingsSnapshot } from '../bridge/messages'
+import type { WorktreeSettings } from '../bridge/worktreeMessages'
 import { useHostStore } from '../store/hostStore'
 import { keepTabInside } from './focusTrap'
 import { SETTINGS_BROWSE, SETTINGS_BUTTON, SETTINGS_HINT, SETTINGS_INPUT, SETTINGS_INPUT_BASE, SETTINGS_LABEL } from './settingsStyles'
@@ -22,8 +23,10 @@ interface SettingsDialogProps {
 const SHELL_FIELD_PREFIX = 'shell:'
 const EDITOR_FIELD = 'editor'
 const PROJECTS_ROOT_FIELD = 'projectsRoot'
+const WORKTREE_FOLDER_FIELD = 'worktreeFolder'
 const SOUND_FIELD = 'notificationSound'
 const DONE_SOUND_FIELD = 'notificationDoneSound'
+const PATH_SEPARATOR = '\\'
 
 interface NumberField {
   key: keyof PersistenceSettings
@@ -129,6 +132,7 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
     }
   }
   const updateDraft = (patch: Partial<Settings>) => setDraft((current) => (current ? { ...current, ...patch } : current))
+  const updateWorktrees = (patch: Partial<WorktreeSettings>) => setDraft((current) => (current ? { ...current, worktrees: { ...current.worktrees, ...patch } } : current))
   if (pickedPath !== seenPick) {
     setSeenPick(pickedPath)
     if (pickedPath && draft) {
@@ -136,6 +140,8 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
         updateDraft({ editor: pickedPath.path })
       } else if (pickedPath.field === PROJECTS_ROOT_FIELD) {
         updateDraft({ projectsRoot: pickedPath.path })
+      } else if (pickedPath.field === WORKTREE_FOLDER_FIELD) {
+        updateWorktrees({ folder: pickedPath.path })
       } else if (pickedPath.field === SOUND_FIELD) {
         updateDraft({ notifications: { ...draft.notifications, sound: pickedPath.path } })
       } else if (pickedPath.field === DONE_SOUND_FIELD) {
@@ -147,6 +153,7 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
   }
   const handlePickEditor = () => onPick(EDITOR_FIELD, PickTarget.File)
   const handlePickProjectsRoot = () => onPick(PROJECTS_ROOT_FIELD, PickTarget.Folder)
+  const handlePickWorktreeFolder = () => onPick(WORKTREE_FOLDER_FIELD, PickTarget.Folder)
   const renderBrowse = (onClick: () => void, tip: string) => (
     <button type="button" className={BROWSE} aria-label={tip} data-tip={tip} onClick={onClick}>
       …
@@ -154,6 +161,8 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
   )
   const handleEditorChange = (event: ChangeEvent<HTMLInputElement>) => updateDraft({ editor: event.target.value })
   const handleProjectsRootChange = (event: ChangeEvent<HTMLInputElement>) => updateDraft({ projectsRoot: event.target.value })
+  const handleWorktreeFolderChange = (event: ChangeEvent<HTMLInputElement>) => updateWorktrees({ folder: event.target.value })
+  const handleDefaultBaseChange = (event: ChangeEvent<HTMLInputElement>) => updateWorktrees({ defaultBase: event.target.value })
   const updateNotifications = (patch: Partial<NotificationSettings>) => setDraft((current) => (current ? { ...current, notifications: { ...current.notifications, ...patch } } : current))
   const handleToastChange = (event: ChangeEvent<HTMLInputElement>) => updateNotifications({ windowsToast: event.target.checked })
   const handleFlashChange = (event: ChangeEvent<HTMLInputElement>) => updateNotifications({ taskbarFlash: event.target.checked })
@@ -254,6 +263,19 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
             {renderBrowse(handlePickProjectsRoot, 'Choisir le dossier des projets')}
           </span>
           <span className={HINT}>Dossiers de premier niveau listés par le sélecteur de projets, hors « worktrees » et dossiers cachés.</span>
+        </label>
+        <label className="flex flex-col gap-1">
+          <span className={LABEL}>Dossier des worktrees</span>
+          <span className="flex gap-1">
+            <input type="text" className={INPUT} value={settings.worktrees.folder} placeholder={`${settings.projectsRoot}${PATH_SEPARATOR}worktrees`} spellCheck={false} onChange={handleWorktreeFolderChange} />
+            {renderBrowse(handlePickWorktreeFolder, 'Choisir le dossier des worktrees')}
+          </span>
+          <span className={HINT}>Vide : sous-dossier « worktrees » du dossier des projets, comme wtr. Chaque worktree y est créé sous le nom « projet-branche ».</span>
+        </label>
+        <label className="flex flex-col gap-1">
+          <span className={LABEL}>Base par défaut des nouvelles branches</span>
+          <input type="text" className={INPUT} value={settings.worktrees.defaultBase} spellCheck={false} onChange={handleDefaultBaseChange} />
+          <span className={HINT}>Branche de départ proposée à la création d’un worktree, récupérée par un fetch sur origin juste avant.</span>
         </label>
         <p className={`${HINT} font-mono`}>{current.files.projects}</p>
       </section>

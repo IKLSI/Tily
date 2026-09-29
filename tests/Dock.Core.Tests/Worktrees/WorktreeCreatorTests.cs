@@ -1,0 +1,119 @@
+using Dock.Core.Git;
+using Dock.Core.Tests.Git;
+using Dock.Core.Worktrees;
+using Xunit;
+
+namespace Dock.Core.Tests.Worktrees;
+
+public sealed class WorktreeCreatorTests : IDisposable
+{
+    private readonly GitSandbox _sandbox = new();
+    private readonly WorktreeSettingsModel _settings;
+
+    public WorktreeCreatorTests()
+    {
+        _sandbox.Commit("Base", ("a.txt", "a\n"));
+        _sandbox.Git("branch", "develop");
+        _sandbox.CreateRemote();
+        _sandbox.Git("push", "-q", "origin", "main", "develop");
+        _settings = new WorktreeSettingsModel(Path.Combine(_sandbox.Root, "worktrees"), "develop");
+    }
+
+    [Fact]
+    public void Create_WhenNewBranchFromDefaultBase_ThenChecksItOutWithoutUpstream()
+    {
+        var creation = Create(new WorktreeRequestModel(_sandbox.Work, "feat/vue", WorktreeBranchMode.New, null));
+
+        Assert.Equal(Path.Combine(_settings.Folder, "dépôt avec espaces-vue"), creation.Path);
+        Assert.Equal("feat/vue", _sandbox.GitIn(creation.Path, "symbolic-ref", "--short", "HEAD").Trim());
+        Assert.Null(GitRepository.ValueOf(_sandbox.Runner.Run(creation.Path, ["config", "--get", "branch.feat/vue.merge"])));
+    }
+
+    [Fact]
+    public void Create_WhenExistingLocalBranch_ThenChecksItOut()
+    {
+        _sandbox.Git("branch", "correctif");
+
+        var creation = Create(new WorktreeRequestModel(_sandbox.Work, "correctif", WorktreeBranchMode.Local, null));
+
+        Assert.Equal("correctif", _sandbox.GitIn(creation.Path, "symbolic-ref", "--short", "HEAD").Trim());
+    }
+
+    [Fact]
+    public void Create_WhenRemoteBranch_ThenCreatesTrackingBranch()
+    {
+        _sandbox.Git("push", "-q", "origin", "main:distante");
+        _sandbox.Git("fetch", "-q", "origin");
+
+        var creation = Create(new WorktreeRequestModel(_sandbox.Work, "origin/distante", WorktreeBranchMode.Remote, null));
+
+        Assert.Equal("origin/distante", _sandbox.GitIn(creation.Path, "rev-parse", "--abbrev-ref", "distante@{upstream}").Trim());
+    }
+
+    [Fact]
+    public void Plan_WhenNewBranchAlreadyExists_ThenExplainsInFrench()
+    {
+        var plan = Plan(new WorktreeRequestModel(_sandbox.Work, "develop", WorktreeBranchMode.New, null));
+
+        Assert.Equal("La branche « develop » existe déjà : choisissez « Branche existante ».", plan.Error);
+    }
+
+    [Fact]
+    public void Plan_WhenBranchUsedByAnotherWorktree_ThenRefuses()
+    {
+        var plan = Plan(new WorktreeRequestModel(_sandbox.Work, "main", WorktreeBranchMode.Local, null));
+
+        Assert.Equal($"La branche « main » est déjà utilisée par le worktree {_sandbox.Work}.", plan.Error);
+    }
+
+    [Fact]
+    public void Plan_WhenNameInvalid_ThenRefuses()
+    {
+        var plan = Plan(new WorktreeRequestModel(_sandbox.Work, "mauvais..nom", WorktreeBranchMode.New, null));
+
+        Assert.Equal("Nom de branche invalide : « mauvais..nom ».", plan.Error);
+    }
+
+    [Fact]
+    public void Plan_WhenFolderAlreadyExists_ThenRefuses()
+    {
+        var existing = Path.Combine(_settings.Folder, "dépôt avec espaces-vue");
+        Directory.CreateDirectory(existing);
+
+        var plan = Plan(new WorktreeRequestModel(_sandbox.Work, "feat/vue", WorktreeBranchMode.New, null));
+
+        Assert.Equal($"Le dossier existe déjà : {existing}", plan.Error);
+    }
+
+    [Fact]
+    public void Plan_WhenValid_ThenGivesPathAndRemoteDefaultBase()
+    {
+        var plan = Plan(new WorktreeRequestModel(_sandbox.Work, "feat/vue", WorktreeBranchMode.New, null));
+
+        Assert.Equal((Path.Combine(_settings.Folder, "dépôt avec espaces-vue"), "origin/develop", null), (plan.Path, plan.DefaultBase, plan.Error));
+    }
+
+    [Fact]
+    public void Create_WhenBaseUnknownOnRemote_ThenFailsOnFetch()
+    {
+        var failure = Assert.Throws<WorktreeException>(() => Create(new WorktreeRequestModel(_sandbox.Work, "feat/vue", WorktreeBranchMode.New, "origin/inconnue")));
+
+        Assert.Equal(("Échec du fetch de origin/inconnue.", WorktreeSteps.Fetch), (failure.Message, failure.Step));
+    }
+
+    [Fact]
+    public void InstallCommandFor_WhenPackageJsonPresent_ThenPnpmInstall()
+    {
+        _sandbox.Write("package.json", "{}");
+
+        var command = WorktreeCreator.InstallCommandFor(_sandbox.Work, true);
+
+        Assert.Equal("pnpm install", command);
+    }
+
+    private WorktreeCreationModel Create(WorktreeRequestModel request) => WorktreeCreator.Create(_sandbox.Runner, request, _settings, _sandbox.Root, _ => { });
+
+    private WorktreePlanModel Plan(WorktreeRequestModel request) => WorktreeCreator.Plan(_sandbox.Runner, request, _settings, _sandbox.Root);
+
+    public void Dispose() => _sandbox.Dispose();
+}

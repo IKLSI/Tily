@@ -4,6 +4,7 @@ using Dock.Core.Context;
 using Dock.Core.Projects;
 using Dock.Core.Session;
 using Dock.Core.Shell;
+using Dock.Core.Worktrees;
 
 namespace Dock.Core.Settings;
 
@@ -24,14 +25,19 @@ public sealed class SettingsService
         _notifications = new NotificationSettingsRepository(directory);
     }
 
-    public SettingsModel Load() => new()
+    public SettingsModel Load()
     {
-        Shells = _shells.Load().Executables.ToDictionary(pair => pair.Key, pair => pair.Value),
-        Editor = _editor.Load().Command,
-        Persistence = _persistence.Load(),
-        ProjectsRoot = _projects.Load().Root,
-        Notifications = _notifications.Load()
-    };
+        var projects = _projects.Load();
+        return new SettingsModel
+        {
+            Shells = _shells.Load().Executables.ToDictionary(pair => pair.Key, pair => pair.Value),
+            Editor = _editor.Load().Command,
+            Persistence = _persistence.Load(),
+            ProjectsRoot = projects.Root,
+            Notifications = _notifications.Load(),
+            Worktrees = projects.Worktrees ?? WorktreeSettingsModel.Default
+        };
+    }
 
     public ValidationResultModel Validate(SettingsModel settings)
     {
@@ -57,7 +63,9 @@ public sealed class SettingsService
             return ValidationResultModel.Fail($"Le dossier des projets doit être un chemin absolu : {settings.ProjectsRoot}");
         }
 
-        return ValidationResultModel.Ok();
+        return (settings.Worktrees ?? WorktreeSettingsModel.Default).Error() is { } worktreeError
+            ? ValidationResultModel.Fail(worktreeError)
+            : ValidationResultModel.Ok();
     }
 
     public ValidationResultModel Save(SettingsModel settings)
@@ -73,10 +81,11 @@ public sealed class SettingsService
         settings.Persistence = settings.Persistence.Clamped();
         settings.ProjectsRoot = settings.ProjectsRoot.Trim();
         settings.Notifications = settings.Notifications.Normalized();
+        settings.Worktrees = (settings.Worktrees ?? WorktreeSettingsModel.Default).Normalized();
         _shells.Save(settings.Shells);
         _editor.Save(new EditorSettingsModel(settings.Editor));
         _persistence.Save(settings.Persistence);
-        _projects.Save(new ProjectsSettingsModel(settings.ProjectsRoot));
+        _projects.Save(new ProjectsSettingsModel(settings.ProjectsRoot, settings.Worktrees));
         _notifications.Save(settings.Notifications);
         return result;
     }
@@ -123,7 +132,8 @@ public sealed class SettingsService
             Editor = document.Editor!,
             Persistence = document.Persistence!.Clamped(),
             ProjectsRoot = document.ProjectsRoot!,
-            Notifications = (document.Notifications ?? NotificationSettingsModel.Default).Normalized()
+            Notifications = (document.Notifications ?? NotificationSettingsModel.Default).Normalized(),
+            Worktrees = (document.Worktrees ?? WorktreeSettingsModel.Default).Normalized()
         };
         var validation = Validate(settings);
         return validation.IsValid
@@ -157,6 +167,12 @@ public sealed class SettingsService
         if (!Directory.Exists(settings.ProjectsRoot))
         {
             warnings.Add($"Le dossier des projets est introuvable : {settings.ProjectsRoot}");
+        }
+
+        var worktreeFolder = settings.Worktrees.FolderFor(settings.ProjectsRoot);
+        if (!string.IsNullOrWhiteSpace(settings.Worktrees.Folder) && !Directory.Exists(worktreeFolder))
+        {
+            warnings.Add($"Le dossier des worktrees est introuvable : {worktreeFolder}");
         }
 
         var files = new Dictionary<string, string>

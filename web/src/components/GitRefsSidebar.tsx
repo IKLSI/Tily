@@ -1,8 +1,12 @@
 import { useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react'
 import { GitRefKind, type GitBranch, type GitRemoteBranch, type GitState, type GitStash, type GitTag } from '../bridge/gitMessages'
+import type { Worktree } from '../bridge/worktreeMessages'
 import { branchTree, visibleBranches, type GitBranchFolder } from '../git/gitBranchTree'
 import { shortSha } from '../git/gitLabels'
-import { branchMenu, remoteBranchMenu, stashMenu, tagMenu } from '../git/gitMenus'
+import { branchMenu, remoteBranchMenu, stashMenu, tagMenu, worktreeMenu, worktreeOfBranch } from '../git/gitMenus'
+import { folderName } from '../model/session'
+import { openWorktree, openWorktreeDialog, requestWorktreeRemoval } from '../worktree/worktreeActions'
+import { sameFolder } from '../worktree/worktreePaths'
 import { promptNewBranch, promptNewTag, promptStash, switchToBranch, switchToRemote } from '../git/gitRefActions'
 import { applyRefSelection, deleteSelectedRefs, GitRefScope, refKey, refMenu, selectAllRefs } from '../git/gitRefSelection'
 import { openGitMenu, revealCommit } from '../git/gitRequests'
@@ -26,12 +30,14 @@ const LOCAL = GitRefScope.Local
 const REMOTE = GitRefScope.Remote
 const TAGS = GitRefScope.Tags
 const STASHES = GitRefScope.Stashes
+const WORKTREES = GitRefScope.Worktrees
 const ROW_SELECTOR = '[data-git-row]'
 
 const localKey = (branch: GitBranch) => refKey(LOCAL, branch.name)
 const remoteKey = (branch: GitRemoteBranch) => refKey(REMOTE, branch.name)
 const tagKey = (tag: GitTag) => refKey(TAGS, tag.name)
 const stashKey = (stash: GitStash) => refKey(STASHES, stash.sha)
+const worktreeKey = (worktree: Worktree) => refKey(WORKTREES, worktree.path)
 const groupKey = (remote: string) => `${REMOTE}:${remote}`
 const folderKey = (scope: string, path: string) => `${scope}/${path}`
 
@@ -49,6 +55,11 @@ const branchTip = (branch: GitBranch): string => {
   const tracking = branch.upstream ? `suit ${branch.upstream}` : 'aucune branche distante suivie'
   return `${branch.name} · ${tracking} · clic : aller au commit · double-clic : checkout · glisser sur la branche courante : merge ou rebase`
 }
+
+const worktreeMeta = (worktree: Worktree): string => [worktree.branch ?? 'détachée', worktree.locked && 'verrouillé', worktree.prunable && 'prunable'].filter(Boolean).join(' · ')
+
+const worktreeTip = (worktree: Worktree): string =>
+  [worktree.isMain ? 'Dépôt principal' : 'Worktree', worktree.path, worktree.branch ? `branche ${worktree.branch}` : 'HEAD détachée', 'double-clic : ouvrir (rejoint un pane déjà dans ce worktree, sinon nouveau workspace)'].join(' · ')
 
 export function GitRefsSidebar({ state, width }: GitRefsSidebarProps) {
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({})
@@ -70,6 +81,7 @@ export function GitRefsSidebar({ state, width }: GitRefsSidebarProps) {
     ...(collapsed[REMOTE] ? [] : groups.flatMap((group) => (collapsed[groupKey(group.remote)] ? [] : visibleBranches(group.tree, isCollapsed(groupKey(group.remote))).map(remoteKey)))),
     ...(collapsed[TAGS] ? [] : state.tags.map(tagKey)),
     ...(collapsed[STASHES] ? [] : state.stashes.map(stashKey)),
+    ...(collapsed[WORKTREES] ? [] : state.worktrees.map(worktreeKey)),
   ]
   const focusable = keys.find((key) => key === focusKey) ?? keys[0]
   const clean = state.stagedTotal + state.unstagedTotal === 0
@@ -78,9 +90,9 @@ export function GitRefsSidebar({ state, width }: GitRefsSidebarProps) {
   const toggle = (section: string) => () => setCollapsed((current) => ({ ...current, [section]: !current[section] }))
   const openMenu = (key: string, label: string, items: ActionMenuItem[]) => (x: number, y: number) =>
     openGitMenu({ x, y, ...refMenu(key, { label, items }), restoreFocus: () => rows().find((row) => row.dataset.gitRow === key)?.focus() })
-  const pick = (key: string, sha: string) => (mode: GitSelectMode) => {
+  const pick = (key: string, sha: string | undefined) => (mode: GitSelectMode) => {
     applyRefSelection(keys, key, mode)
-    if (mode === GitSelectMode.Replace) {
+    if (mode === GitSelectMode.Replace && sha) {
       revealCommit(sha)
     }
   }
@@ -103,6 +115,11 @@ export function GitRefsSidebar({ state, width }: GitRefsSidebarProps) {
     }
     if (event.ctrlKey && !event.shiftKey && event.key.toLowerCase() === 'a') {
       selectAllRefs(keys, current)
+    } else if (event.key === 'Delete' && current.startsWith(refKey(WORKTREES, ''))) {
+      const worktree = state.worktrees.find((candidate) => worktreeKey(candidate) === current)
+      if (worktree && !worktree.isMain) {
+        requestWorktreeRemoval(worktree.path, worktree.branch)
+      }
     } else if (event.key === 'Delete') {
       deleteSelectedRefs(current)
     } else if (event.key in moves) {
@@ -115,9 +132,12 @@ export function GitRefsSidebar({ state, width }: GitRefsSidebarProps) {
   }
   const handleNewBranch = () => promptNewBranch()
   const handleNewTag = () => promptNewTag()
+  const handleNewWorktree = () => openWorktreeDialog(state.root)
 
   const renderBranch = (branch: GitBranch, label: string, depth: number) => {
     const key = localKey(branch)
+    const worktree = worktreeOfBranch(branch.name, state)
+    const linked = worktree && !branch.current ? worktree : undefined
     const handleActivate = () => {
       if (!branch.current) {
         switchToBranch(branch)
@@ -130,8 +150,8 @@ export function GitRefsSidebar({ state, width }: GitRefsSidebarProps) {
         icon={IconName.Local}
         name={label}
         depth={depth}
-        meta={branchMeta(branch)}
-        metaTip={branch.upstream ? `↑ à push, ↓ à pull depuis ${branch.upstream}` : undefined}
+        meta={linked ? <span className="flex items-center gap-[4px]"><Icon name={IconName.Worktree} />{branchMeta(branch)}</span> : branchMeta(branch)}
+        metaTip={linked ? `Checkout dans le worktree ${linked.path}` : branch.upstream ? `↑ à push, ↓ à pull depuis ${branch.upstream}` : undefined}
         tip={branchTip(branch)}
         current={branch.current}
         selected={selection.has(key)}
@@ -222,6 +242,29 @@ export function GitRefsSidebar({ state, width }: GitRefsSidebarProps) {
     )
   }
 
+  const renderWorktree = (worktree: Worktree) => {
+    const key = worktreeKey(worktree)
+    const name = folderName(worktree.path)
+    const handleOpen = () => openWorktree(worktree.path)
+    return (
+      <GitRefRow
+        key={key}
+        rowKey={key}
+        icon={IconName.Worktree}
+        name={name}
+        meta={worktreeMeta(worktree)}
+        tip={worktreeTip(worktree)}
+        current={sameFolder(state.root, worktree.path)}
+        selected={selection.has(key)}
+        focusable={key === focusable}
+        onFocus={setFocusKey}
+        onSelect={pick(key, worktree.head)}
+        onActivate={handleOpen}
+        onMenu={openMenu(key, `Actions du worktree ${name}`, worktreeMenu(worktree))}
+      />
+    )
+  }
+
   const headerButton = (icon: IconName, label: string, onClick: () => void, disabled = false) => {
     const handleClick = () => {
       if (!disabled) {
@@ -252,6 +295,9 @@ export function GitRefsSidebar({ state, width }: GitRefsSidebarProps) {
       </GitSection>
       <GitSection title="Stash" count={state.stashes.length} expanded={!collapsed[STASHES]} empty="Aucun stash." onToggle={toggle(STASHES)} actions={headerButton(IconName.Stash, clean ? 'Aucune modification à stash' : 'Stash des modifications', promptStash, clean)}>
         {state.stashes.map(renderStash)}
+      </GitSection>
+      <GitSection title="Worktrees" count={state.worktrees.length} expanded={!collapsed[WORKTREES]} empty="Aucun worktree." onToggle={toggle(WORKTREES)} actions={headerButton(IconName.Plus, 'Créer un worktree (Leader puis N)', handleNewWorktree)}>
+        {state.worktrees.map(renderWorktree)}
       </GitSection>
     </div>
   )

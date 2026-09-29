@@ -1,3 +1,5 @@
+import type { WorktreeTarget } from '../worktree/worktreePaths'
+import { requestWorktreeRemoval } from '../worktree/worktreeActions'
 import type { ActionMenuItem } from './ActionMenu'
 import { FloatingMenu } from './FloatingMenu'
 import { MenuShortcut } from './MenuShortcut'
@@ -7,6 +9,7 @@ interface WorkspaceContextMenuProps {
   request: PanelMenuRequest
   place: MenuPlace
   actions: WorkspacePanelActions
+  worktrees: WorktreeTarget[]
   onRun: () => void
   onDismiss: () => void
 }
@@ -15,6 +18,9 @@ const moveItems = ({ position, count }: MenuPlace, move: (offset: number) => voi
   { id: 'move-up', label: 'Monter', detail: <MenuShortcut keys="Alt + ↑" />, disabled: position <= 0, run: () => move(-1) },
   { id: 'move-down', label: 'Descendre', detail: <MenuShortcut keys="Alt + ↓" />, disabled: position < 0 || position >= count - 1, run: () => move(1) },
 ]
+
+const worktreeItems = (worktrees: WorktreeTarget[]): ActionMenuItem[] =>
+  worktrees.map(({ path, name, branch }) => ({ id: `remove-worktree-${path}`, label: `Supprimer le worktree « ${name} »…`, run: () => requestWorktreeRemoval(path, branch) }))
 
 const itemsFor = ({ workspaceId, tabId }: PanelMenuRequest, place: MenuPlace, actions: WorkspacePanelActions): ActionMenuItem[] =>
   tabId
@@ -32,7 +38,7 @@ const itemsFor = ({ workspaceId, tabId }: PanelMenuRequest, place: MenuPlace, ac
         { id: 'close-workspace', label: 'Fermer le workspace', run: () => actions.closeWorkspace(workspaceId) },
       ]
 
-export function WorkspaceContextMenu({ request, place, actions, onRun, onDismiss }: WorkspaceContextMenuProps) {
+export function WorkspaceContextMenu({ request, place, actions, worktrees, onRun, onDismiss }: WorkspaceContextMenuProps) {
   const { x, y, tabId } = request
 
   const closingFirst = (item: ActionMenuItem): ActionMenuItem => ({
@@ -43,5 +49,5 @@ export function WorkspaceContextMenu({ request, place, actions, onRun, onDismiss
     },
   })
 
-  return <FloatingMenu x={x} y={y} label={tabId ? 'Actions de l’onglet' : 'Actions du workspace'} items={itemsFor(request, place, actions).map(closingFirst)} onClose={onDismiss} />
+  return <FloatingMenu x={x} y={y} label={tabId ? 'Actions de l’onglet' : 'Actions du workspace'} items={[...itemsFor(request, place, actions), ...worktreeItems(worktrees)].map(closingFirst)} onClose={onDismiss} />
 }

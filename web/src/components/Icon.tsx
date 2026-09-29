@@ -125,6 +125,12 @@ const SHAPES: Record<IconName, ReactNode> = {
     </>
   ),
   [IconName.Undo]: <path d="M4 2.4 1.8 4.6 4 6.8M2 4.6h5.2a2.8 2.8 0 0 1 0 5.6H4.6" />,
+  [IconName.Worktree]: (
+    <>
+      <path d="M6 1.3 3.2 5.2h1.6L2.6 8.4h6.8L7.2 5.2h1.6Z" />
+      <path d="M6 8.4v2.4" />
+    </>
+  ),
 }
 
 export function Icon({ name, size = DEFAULT_SIZE, className }: IconProps) {

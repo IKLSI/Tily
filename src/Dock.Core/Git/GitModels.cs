@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Dock.Core.Worktrees;
 
 namespace Dock.Core.Git;
 
@@ -100,7 +101,8 @@ public sealed record GitStateModel(
     IReadOnlyList<string> Remotes,
     string? LastMessage,
     GitUndoInfoModel? Undo,
-    bool ForcePushAllowed);
+    bool ForcePushAllowed,
+    IReadOnlyList<WorktreeModel> Worktrees);
 
 public sealed record GitRefLabelModel(string Name, GitRefKind Kind, bool Current, IReadOnlyList<string> Remotes);
 

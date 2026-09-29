@@ -37,6 +37,7 @@ public sealed class HostBridge : IDisposable
     private readonly AttentionNotifier _notifier;
     private readonly FileExplorerFeed _files;
     private readonly GitFeed _git;
+    private readonly WorktreeFeed _worktrees;
     private SettingsModel _settings;
     private ShellPathsModel _shellPaths = ShellPathsModel.Empty;
     private PersistenceSettingsModel _persistence = PersistenceSettingsModel.Default;
@@ -68,6 +69,7 @@ public sealed class HostBridge : IDisposable
         _notifier.Register();
         _files = new FileExplorerFeed(windowHandle, () => _settings.Editor, Post, PostBackgroundError);
         _git = new GitFeed(Post, PostBackgroundError);
+        _worktrees = new WorktreeFeed(Post, () => _settings, _git.RefreshSoon, PostBackgroundError);
         ApplySettings(_settings);
         _terminals.OutputReceived += HandleOutput;
         _terminals.CurrentDirectoryChanged += HandleCurrentDirectoryChanged;
@@ -269,7 +271,7 @@ public sealed class HostBridge : IDisposable
                 Post(new { type = "terminal.activityResult", panes = _terminals.Activity(command.Panes ?? []) });
                 break;
             case "projects.list":
-                ListProjects(_settings.ProjectsRoot);
+                ListProjects(_settings.ProjectsRoot, _settings.Worktrees.FolderFor(_settings.ProjectsRoot));
                 break;
             case "context.query":
                 QueryContext(RequirePane(command), RequirePath(command));
@@ -282,6 +284,9 @@ public sealed class HostBridge : IDisposable
                 break;
             case var type when type.StartsWith("git.", StringComparison.Ordinal):
                 _git.Handle(command);
+                break;
+            case var type when type.StartsWith("worktrees.", StringComparison.Ordinal):
+                _worktrees.Handle(command);
                 break;
             case "link.open":
                 LocalActions.OpenLink(command.Url ?? throw new InvalidOperationException("Lien manquant."));
@@ -424,10 +429,10 @@ public sealed class HostBridge : IDisposable
         });
     }
 
-    private void ListProjects(string root) =>
+    private void ListProjects(string root, string worktreeFolder) =>
         _queries.Enqueue(() =>
         {
-            var projects = ProjectCatalog.List(root);
+            var projects = ProjectCatalog.List(root, worktreeFolder);
             Post(new { type = "projects.listed", root = projects.Root, projects = projects.Projects, error = projects.Error });
         });
 
@@ -464,7 +469,7 @@ public sealed class HostBridge : IDisposable
         CloseTerminal(paneId);
         _buffers[paneId] = new PaneOutputBuffer(paneId);
         var cwd = command.Cwd ?? string.Empty;
-        _terminals.Start(paneId, command.Shell ?? ShellCatalog.DefaultShellId, cwd, command.Cols, command.Rows);
+        _terminals.Start(paneId, command.Shell ?? ShellCatalog.DefaultShellId, cwd, command.Cols, command.Rows, command.Command);
         if (cwd.Length > 0 && !Directory.Exists(cwd))
         {
             Post(new { type = "terminal.pathMissing", pane = paneId, path = cwd, fallback = PathFallback.NearestExisting(cwd) });

@@ -2,6 +2,10 @@ import { useCallback, useMemo, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import type { Session } from '../model/session'
 import { useAgentStore } from '../store/agentStore'
+import { useHostStore } from '../store/hostStore'
+import { WorktreePickerKind } from '../store/worktreeStore'
+import { openWorktreePicker } from '../worktree/worktreeActions'
+import { worktreesOfTabs } from '../worktree/worktreePaths'
 import { useUiStore } from '../store/uiStore'
 import { Icon } from './Icon'
 import { IconName } from './iconName'
@@ -19,6 +23,8 @@ interface WorkspaceTreeProps {
 
 const NAME_SEPARATOR = '\n'
 const HEADER_BUTTON = 'flex size-[24px] cursor-pointer items-center justify-center rounded-md text-dock-muted hover:bg-dock-green-hover hover:text-dock-ink'
+
+const handleCreateWorktree = (): void => openWorktreePicker(WorktreePickerKind.Source)
 
 export function WorkspaceTree({ session, renamingWorkspaceId, renamingTabId, actions }: WorkspaceTreeProps) {
   const { draggingTabId, tabDropTarget, springWorkspaceIds, draggingWorkspaceId, workspaceDropTarget } = useUiStore(
@@ -52,6 +58,9 @@ export function WorkspaceTree({ session, renamingWorkspaceId, renamingTabId, act
         <button type="button" className={HEADER_BUTTON} aria-label="Ouvrir un projet" data-tip="Ouvrir un projet (Leader puis F)" onClick={actions.openProjects}>
           <Icon name={IconName.Project} />
         </button>
+        <button type="button" className={HEADER_BUTTON} aria-label="Créer un worktree" data-tip="Créer un worktree depuis un projet (Leader puis N)" onClick={handleCreateWorktree}>
+          <Icon name={IconName.Worktree} />
+        </button>
         <button type="button" className={HEADER_BUTTON} aria-label="Nouveau workspace" data-tip="Nouveau workspace (Ctrl + Maj + W)" onClick={actions.newWorkspace}>
           <Icon name={IconName.Plus} />
         </button>
@@ -81,7 +90,16 @@ export function WorkspaceTree({ session, renamingWorkspaceId, renamingTabId, act
           </div>
         )}
       </nav>
-      {menu && <WorkspaceContextMenu request={menu} place={menuPlaceOf(session, menu)} actions={actions} onRun={handleRunMenu} onDismiss={handleDismissMenu} />}
+      {menu && (
+        <WorkspaceContextMenu
+          request={menu}
+          place={menuPlaceOf(session, menu)}
+          actions={actions}
+          worktrees={worktreesOfTabs(session, menu.workspaceId, menu.tabId, useHostStore.getState().contexts)}
+          onRun={handleRunMenu}
+          onDismiss={handleDismissMenu}
+        />
+      )}
     </aside>
   )
 }

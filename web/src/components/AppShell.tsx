@@ -16,6 +16,7 @@ import { useExplorerStore } from '../store/explorerStore'
 import { focusGitPanel, takeFocusFromCoveredTerminals } from '../git/gitFocus'
 import { toggleRightPanel } from '../panel/rightPanel'
 import { useGitStore } from '../store/gitStore'
+import { worktreeModalOpen } from '../store/worktreeStore'
 import { changePaneShell, dismissPaneState, restartPane, restartPaneIn } from '../terminal/paneLifecycle'
 import { closeOtherTabsKeepingText, closePaneKeepingText, closeTabKeepingText, closeWorkspaceKeepingText, duplicateTabKeepingLayout, restoreClosedTab } from '../terminal/tabLifecycle'
 import { focusPane, joinPane } from '../terminal/terminalActions'
@@ -43,6 +44,7 @@ import { useWindowTitle } from './useWindowTitle'
 import type { WorkspacePanelActions } from './workspacePanel'
 import type { HeaderWorkspaceActions } from './workspaceStrip'
 import { WorkspaceTree } from './WorkspaceTree'
+import { WorktreeDialogs } from './WorktreeDialogs'
 
 interface AppShellProps {
   session: Session
@@ -159,7 +161,7 @@ const handleCancelGit = (): void => {
 
 const modalOpen = (): boolean => {
   const { settingsOpen, closeConfirmation, paletteOpen, projectPickerOpen } = useUiStore.getState()
-  return settingsOpen || paletteOpen || projectPickerOpen || closeConfirmation !== null || useExplorerStore.getState().deleteRequest !== null || useGitStore.getState().confirmation !== null
+  return settingsOpen || paletteOpen || projectPickerOpen || closeConfirmation !== null || useExplorerStore.getState().deleteRequest !== null || useGitStore.getState().confirmation !== null || worktreeModalOpen()
 }
 
 const panelActions: WorkspacePanelActions = {
@@ -386,6 +388,7 @@ export function AppShell({ session }: AppShellProps) {
       {settingsOpen && <SettingsDialog snapshot={settingsSnapshot} pickedPath={pickedPath} imported={importedPreferences} onClose={handleCloseSettings} onSave={handleSaveSettings} onPick={handlePickPath} onExport={handleExportPreferences} onImport={handleImportPreferences} onInstallHooks={handleInstallHooks} onRemoveHooks={handleRemoveHooks} onTestNotification={handleTestNotification} />}
       {paletteOpen && <CommandPalette session={session} shells={availableShells} onClose={handleClosePalette} onRun={handleRunPaletteItem} onToggleFavorite={toggleFavoriteCommand} />}
       {deleteRequest && <DeleteConfirmDialog request={deleteRequest} onConfirm={confirmDelete} onCancel={handleCancelDelete} />}
+      <WorktreeDialogs />
       {gitConfirmation && <GitConfirmDialog confirmation={gitConfirmation} onConfirm={handleConfirmGit} onCancel={handleCancelGit} />}
       {closeConfirmation && <CloseConfirmDialog confirmation={closeConfirmation} onConfirm={confirmClose} onCancel={handleCancelClose} />}
       <Tooltip />

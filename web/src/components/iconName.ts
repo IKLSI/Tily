@@ -27,4 +27,5 @@ export enum IconName {
   Switch = 'switch',
   Tag = 'tag',
   Undo = 'undo',
+  Worktree = 'worktree',
 }

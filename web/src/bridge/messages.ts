@@ -1,5 +1,6 @@
 import type { Session } from '../model/session'
 import type { GitHostMessage, GitWebMessage } from './gitMessages'
+import type { WorktreeHostMessage, WorktreeSettings, WorktreeWebMessage } from './worktreeMessages'
 
 export interface ShellProfile {
   id: string
@@ -40,6 +41,7 @@ export interface GitContext {
   isRepository: boolean
   branch: string | null
   detachedHead: boolean
+  worktreeRoot?: string
 }
 
 export interface PersistenceSettings {
@@ -76,6 +78,7 @@ export interface Settings {
   persistence: PersistenceSettings
   projectsRoot: string
   notifications: NotificationSettings
+  worktrees: WorktreeSettings
 }
 
 interface ShellSetting {
@@ -165,6 +168,7 @@ export type HostToWebMessage =
   | { type: 'files.deleted'; path: string }
   | { type: 'error'; pane?: string; message: string }
   | GitHostMessage
+  | WorktreeHostMessage
 
 export type WebToHostMessage =
   | { type: 'app.ready' }
@@ -179,7 +183,7 @@ export type WebToHostMessage =
   | { type: 'agents.installHooks' }
   | { type: 'agents.removeHooks' }
   | { type: 'dialog.pick'; field: string; target: PickTarget }
-  | { type: 'terminal.create'; pane: string; shell: string; cwd: string; cols: number; rows: number }
+  | { type: 'terminal.create'; pane: string; shell: string; cwd: string; cols: number; rows: number; command?: string }
   | { type: 'terminal.input'; pane: string; data: string }
   | { type: 'terminal.resize'; pane: string; cols: number; rows: number }
   | { type: 'terminal.ack'; pane: string; chars: number }
@@ -202,6 +206,7 @@ export type WebToHostMessage =
   | { type: 'window.closeCancel' }
   | { type: 'window.title'; title: string }
   | GitWebMessage
+  | WorktreeWebMessage
 
 export type HostMessageType = HostToWebMessage['type']
 export type HostMessageOf<T extends HostMessageType> = Extract<HostToWebMessage, { type: T }>
