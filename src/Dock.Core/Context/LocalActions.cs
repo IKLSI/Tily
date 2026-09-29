@@ -1,11 +1,11 @@
 using System.Diagnostics;
+using Dock.Core.Native;
 
 namespace Dock.Core.Context;
 
 public static class LocalActions
 {
     public const string ExplorerExecutable = "explorer.exe";
-    public const string SelectSwitch = "/select,";
 
     public static void OpenInExplorer(string path)
     {
@@ -20,16 +20,25 @@ public static class LocalActions
             throw new InvalidOperationException($"L’élément n’existe plus : {path}");
         }
 
-        var startInfo = new ProcessStartInfo(ExplorerExecutable) { UseShellExecute = false };
-        foreach (var argument in RevealArguments(path))
+        var item = ShellFileApi.ILCreateFromPath(Path.GetFullPath(path));
+        if (item == 0)
         {
-            startInfo.ArgumentList.Add(argument);
+            throw new InvalidOperationException($"Impossible d’afficher l’élément dans l’explorateur : {path}");
         }
 
-        Process.Start(startInfo);
+        try
+        {
+            var code = ShellFileApi.SHOpenFolderAndSelectItems(item, 0, null, 0);
+            if (code != 0)
+            {
+                throw new InvalidOperationException($"L’explorateur n’a pas pu afficher l’élément (code 0x{code:X8}) : {path}");
+            }
+        }
+        finally
+        {
+            ShellFileApi.ILFree(item);
+        }
     }
-
-    public static IReadOnlyList<string> RevealArguments(string path) => [SelectSwitch, Path.GetFullPath(path)];
 
     public static void OpenInEditor(string path, string editorCommand)
     {

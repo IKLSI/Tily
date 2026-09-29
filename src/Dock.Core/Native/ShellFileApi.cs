@@ -27,4 +27,13 @@ public static class ShellFileApi
 
     [DllImport("shell32.dll", CharSet = CharSet.Unicode, EntryPoint = "SHFileOperationW")]
     public static extern int SHFileOperation(ref FileOperation operation);
+
+    [DllImport("shell32.dll", CharSet = CharSet.Unicode, EntryPoint = "ILCreateFromPathW")]
+    public static extern nint ILCreateFromPath(string path);
+
+    [DllImport("shell32.dll", EntryPoint = "ILFree")]
+    public static extern void ILFree(nint itemIdList);
+
+    [DllImport("shell32.dll", EntryPoint = "SHOpenFolderAndSelectItems")]
+    public static extern int SHOpenFolderAndSelectItems(nint folder, uint count, nint[]? items, uint flags);
 }

@@ -180,6 +180,16 @@ Travail autonome sur la branche `night-session`. Chaque itération apporte une a
 - **Pourquoi** : depuis l'itération 18, les raccourcis directs marchent partout, mais le Leader, présenté comme le moyen de tout faire au clavier, ne répondait que dans un terminal.
 - **Vérifié** : depuis une ligne du panneau, Ctrl + Espace affiche le rappel du Leader. T crée un onglet et le focus passe au nouveau terminal ; Ctrl + Espace puis Échap annule et le focus reste sur la ligne.
 
+### 29. Corrections issues d'une relecture indépendante
+
+Un sous-agent a relu tout le diff de la nuit (`main..night-session`) sans rien modifier. J'ai vérifié chacun de ses constats avant de le corriger.
+
+- **Focus sous le graphe (gravité moyenne)** : depuis l'itération 18, un raccourci de pane lancé depuis le graphe Git (Ctrl + Maj + D / H / X, Alt + flèche) activait un pane caché sous le graphe et lui donnait le focus. La frappe suivante, par exemple ↑ puis Entrée, pouvait relancer une commande de l'historique sans qu'on la voie. `AppShell` reprend maintenant le focus pour le graphe à chaque changement de pane actif, ainsi qu'à la fermeture de la palette (défaut antérieur à la nuit). Vérifié : après Ctrl + Maj + D puis Alt + ← depuis le graphe, le focus reste sur le graphe.
+- **Menus ouverts au clavier** : dans les menus des onglets et des terminaux, le focus revenait sur la première entrée à chaque rendu. Il suffisait d'un changement d'état d'agent pour qu'Entrée lance la mauvaise action, « Coller » par exemple. Les deux gestionnaires de fermeture sont stabilisés par `useCallback`, comme dans les autres menus. Vérifié : le focus reste sur « Fermer l'onglet » pendant qu'un agent change d'état.
+- **Chemins déposés avec apostrophe typographique** (« Lettre d’information.pdf ») : PowerShell traite ’ comme une apostrophe, et la commande était cassée (confirmé dans PowerShell 5.1). Les apostrophes typographiques sont maintenant doublées, les guillemets typographiques et les blancs Unicode (espaces insécables) déclenchent la mise entre guillemets, et deux tests ont été ajoutés. L'appel à `postMessageWithAdditionalObjects` est aussi protégé pour un runtime WebView2 trop ancien.
+- **Onglet actif après un déplacement** : Ctrl + Maj + PageDown ou « Déplacer à droite » pouvaient le pousser hors de la bande visible. Il est maintenant ramené en vue.
+- **Explorateur et virgules** : `explorer /select,` ouvrait « Ce PC » pour un chemin contenant une virgule sans espace (`a,b.txt`, confirmé). `RevealInExplorer` utilise désormais l'API `SHOpenFolderAndSelectItems`, sans ligne de commande. Vérifié : `f.txt` est bien sélectionné dans `a,b`, et le fichier avec espaces fonctionne toujours.
+
 ## Reste à faire et idées
 
 - **Taille de police et zoom du terminal** : police fixe à 14 px. La spécification classe ce point « À décider » (section 4), je n'y ai donc pas touché ; c'est à trancher.
