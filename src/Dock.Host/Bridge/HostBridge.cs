@@ -24,6 +24,7 @@ public sealed class HostBridge : IDisposable
 
     private readonly DispatcherQueue _dispatcher;
     private readonly Action _closeWindow;
+    private readonly Action<string> _setTitle;
     private readonly nint _windowHandle;
     private readonly string _dataDirectory;
     private readonly SessionRepository _sessions;
@@ -45,11 +46,12 @@ public sealed class HostBridge : IDisposable
     private bool _closing;
     private DispatcherQueueTimer? _closeTimer;
 
-    public HostBridge(DispatcherQueue dispatcher, string dataDirectory, nint windowHandle, Action closeWindow)
+    public HostBridge(DispatcherQueue dispatcher, string dataDirectory, nint windowHandle, Action closeWindow, Action<string> setTitle)
     {
         _dispatcher = dispatcher;
         _windowHandle = windowHandle;
         _closeWindow = closeWindow;
+        _setTitle = setTitle;
         _dataDirectory = dataDirectory;
         _sessions = new SessionRepository(dataDirectory);
         _settingsService = new SettingsService(dataDirectory);
@@ -261,6 +263,9 @@ public sealed class HostBridge : IDisposable
                 break;
             case "window.closeCancel":
                 CancelClose();
+                break;
+            case "window.title":
+                _setTitle(WindowTitle.For(command.Title));
                 break;
             default:
                 Post(new { type = "error", pane = FailedTerminalPane(command), message = $"Commande inconnue : {command.Type}" });

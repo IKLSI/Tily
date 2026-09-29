@@ -404,6 +404,14 @@ Les douze constats de la relecture sont traités (itérations 44 à 46).
   - un onglet d'un seul pane garde « rien à agrandir ».
 - **Aussi exploré** : erreurs JavaScript. J'ai posé une écoute de `console.error`, `console.warn`, des exceptions et des promesses rejetées, puis parcouru l'application au clavier : palette, paramètres, explorateur, vue Git, nouvel onglet, split, zoom, fermetures, Ctrl + Tab, panneau masqué puis réaffiché, onglet rouvert. Aucune erreur n'a été relevée.
 
+### 53. Le titre de la fenêtre suit le workspace et l'onglet actifs
+
+- **Quoi** : le titre de la fenêtre, donc de la barre des tâches et d'Alt + Tab, devient « workspace › onglet - Dock », ou « Dock » sans workspace, comme Windows Terminal qui reprend l'onglet actif. `AppShell` envoie le contexte à chaque changement par une nouvelle commande `window.title`. Dans l'hôte, `WindowTitle.For` retire les caractères de contrôle, raccourcit au-delà de 160 caractères et ajoute « - Dock », puis `MainWindow` l'applique. L'ajout est noté « Convention proposée » en section 4 de la spécification.
+- **Pourquoi** : le titre restait « Dock » quel que soit le travail en cours. Dans Alt + Tab ou la barre des tâches, rien n'indiquait le projet ouvert.
+- **Vérifié** :
+  - quatre tests xUnit (contexte vide, contexte normal, caractères de contrôle, contexte trop long) ; 194 tests au vert ;
+  - dans l'instance de test, titre lu par le système : « LZGChallenge › LZGChallenge2 - Dock », puis « … › LZGChallenge - Dock » après Ctrl + Tab, et « GameSolver › GameSolver - Dock » après un changement de workspace.
+
 ## Reste à faire et idées
 
 - **Taille de police et zoom du terminal** : police fixe à 14 px. La spécification classe ce point « À décider » (section 4), je n'y ai donc pas touché ; c'est à trancher.

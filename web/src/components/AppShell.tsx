@@ -47,6 +47,8 @@ interface AppShellProps {
   session: Session
 }
 
+const TITLE_SEPARATOR = ' › '
+
 const currentWorkspace = (): Workspace | undefined => {
   const { session } = useSessionStore.getState()
   return session ? activeWorkspace(session) : undefined
@@ -226,6 +228,11 @@ export function AppShell({ session }: AppShellProps) {
   const graphShown = gitShown && gitGraphReady
   const tabId = tab?.id
   const activePaneId = tab?.active
+  const titleContext = workspace && tab ? `${workspace.name}${TITLE_SEPARATOR}${tab.name}` : ''
+
+  useEffect(() => {
+    bridge.send({ type: 'window.title', title: titleContext })
+  }, [titleContext])
 
   useEffect(() => {
     if (zoomedPaneId !== null && zoomedPaneId !== activePaneId) {

@@ -30,7 +30,7 @@ public sealed partial class MainWindow : Window
 
         AppWindow.SetIcon(Path.Combine(AppContext.BaseDirectory, "Assets", "Dock.ico"));
         ApplyDarkTitleBar();
-        _bridge = new HostBridge(DispatcherQueue, App.DataDirectory, WinRT.Interop.WindowNative.GetWindowHandle(this), ForceClose);
+        _bridge = new HostBridge(DispatcherQueue, App.DataDirectory, WinRT.Interop.WindowNative.GetWindowHandle(this), ForceClose, SetTitle);
         View.AllowDrop = true;
         Closed += HandleClosed;
         Activated += HandleActivated;
@@ -56,6 +56,8 @@ public sealed partial class MainWindow : Window
         core.Navigate(_startUrl);
         View.Focus(FocusState.Programmatic);
     }
+
+    private void SetTitle(string title) => Title = title;
 
     private void ApplyDarkTitleBar()
     {

@@ -55,6 +55,8 @@ Exemple : « Perso » peut contenir un terminal dans Documents, un autre dans un
 | En-tête d’un pane | Shell, dossier courant et action de fermeture ; chemin tronqué si nécessaire et consultable intégralement. |
 | Panneau gauche | Workspaces, chevrons de dépliage, onglets enfants, accès aux projets et indications d’attention. |
 
+**Convention proposée.** Le titre de la fenêtre, visible dans la barre des tâches et Alt + Tab, reprend le workspace et l’onglet actifs : « workspace › onglet - Dock », ou « Dock » sans workspace.
+
 ### Règles de présentation
 
 - Pas de bordure ou barre colorée pour signaler un onglet sélectionné, un workspace sélectionné ou un résultat de palette sélectionné. Utiliser un fond discret.

@@ -191,6 +191,7 @@ export type WebToHostMessage =
   | { type: 'files.delete'; path: string; parent: string }
   | { type: 'window.close' }
   | { type: 'window.closeCancel' }
+  | { type: 'window.title'; title: string }
   | GitWebMessage
 
 export type HostMessageType = HostToWebMessage['type']
