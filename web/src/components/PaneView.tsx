@@ -28,6 +28,7 @@ interface PaneViewProps {
 
 const HEADER_BUTTON = 'flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded hover:bg-dock-green-hover hover:text-dock-ink'
 const BUTTON_SELECTOR = 'button'
+const SINGLE_CLICK = 1
 const MUTED_BUTTON = 'opacity-40 hover:bg-transparent hover:text-dock-muted'
 const ICON_SIZE = 12
 const ICON_PROPS = { width: ICON_SIZE, height: ICON_SIZE, viewBox: '0 0 12 12', fill: 'none', stroke: 'currentColor', strokeWidth: 1.2, strokeLinecap: 'round', strokeLinejoin: 'round' } as const
@@ -119,6 +120,11 @@ export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZ
   const handleSplitSideBySide = () => onSplit(pane.id, SplitAxis.Horizontal)
   const handleSplitTopBottom = () => onSplit(pane.id, SplitAxis.Vertical)
   const handleClose = () => onClose(pane.id)
+  const ignoringRepeatedClicks = (action: () => void) => (event: MouseEvent) => {
+    if (event.detail <= SINGLE_CLICK) {
+      action()
+    }
+  }
   const handleContextMenu = (x: number, y: number) => setMenu({ x, y })
   const handleDismissMenu = useCallback(() => {
     setMenu(null)
@@ -163,10 +169,10 @@ export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZ
           <BranchIcon />
         </button>
         <span className="mx-1 h-3 w-px bg-dock-line" aria-hidden="true" />
-        <button type="button" className={HEADER_BUTTON} data-tip="Split côte à côte" aria-label="Split côte à côte" onClick={handleSplitSideBySide}>
+        <button type="button" className={HEADER_BUTTON} data-tip="Split côte à côte" aria-label="Split côte à côte" onClick={ignoringRepeatedClicks(handleSplitSideBySide)}>
           <SplitIcon horizontal />
         </button>
-        <button type="button" className={HEADER_BUTTON} data-tip="Split haut / bas" aria-label="Split haut / bas" onClick={handleSplitTopBottom}>
+        <button type="button" className={HEADER_BUTTON} data-tip="Split haut / bas" aria-label="Split haut / bas" onClick={ignoringRepeatedClicks(handleSplitTopBottom)}>
           <SplitIcon horizontal={false} />
         </button>
         {zoomed && (
@@ -174,13 +180,13 @@ export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZ
             <UnzoomIcon />
           </button>
         )}
-        <button type="button" className={`${HEADER_BUTTON} hover:text-dock-error`} data-tip="Fermer le pane" aria-label="Fermer le pane" onClick={handleClose}>
+        <button type="button" className={`${HEADER_BUTTON} hover:text-dock-error`} data-tip="Fermer le pane" aria-label="Fermer le pane" onClick={ignoringRepeatedClicks(handleClose)}>
           <CloseIcon />
         </button>
       </header>
       <div className="relative min-h-0">
         <TerminalPane pane={pane} active={active} onFocus={onFocus} onContextMenu={handleContextMenu} />
-        {paneState && <PaneOverlay state={paneState} shells={shells} onRestart={handleRestart} onRestartIn={handleRestartIn} onChangeShell={handleChangeShell} onDismiss={handleDismissState} onClose={handleClose} />}
+        {paneState && <PaneOverlay state={paneState} active={active} shells={shells} onRestart={handleRestart} onRestartIn={handleRestartIn} onChangeShell={handleChangeShell} onDismiss={handleDismissState} onClose={handleClose} />}
       </div>
       {menu && <TerminalContextMenu request={menu} canCopy={hasPaneSelection(pane.id)} actions={menuActions} onDismiss={handleDismissMenu} />}
     </section>

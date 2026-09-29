@@ -6,7 +6,7 @@ namespace Dock.Core.Tests.Session;
 public sealed class WindowTitleTests
 {
     [Fact]
-    public void For_WhenContextEmpty_ThenReturnsApplicationName()
+    public void For_WhenContextBlank_ThenReturnsApplicationName()
     {
         var title = WindowTitle.For("   ");
 
@@ -27,6 +27,16 @@ public sealed class WindowTitleTests
         var title = WindowTitle.For("Projet\n› web\u0007");
 
         Assert.Equal("Projet› web - Dock", title);
+    }
+
+    [Fact]
+    public void For_WhenCutFallsInsideSurrogatePair_ThenKeepsThePairOut()
+    {
+        var context = new string('a', WindowTitle.MaxContextLength - 1) + "😀suite";
+
+        var title = WindowTitle.For(context);
+
+        Assert.Equal(new string('a', WindowTitle.MaxContextLength - 1) + "… - Dock", title);
     }
 
     [Fact]

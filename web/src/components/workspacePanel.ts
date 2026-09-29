@@ -51,18 +51,18 @@ export const COLLAPSE_KEY = 'ArrowLeft'
 
 const PANEL_ROW_SELECTOR = '[data-panel-row]'
 const WORKSPACE_SLOT_SELECTOR = '[data-workspace-slot]'
-const PANEL_ROW_KEYS = new Set(['ArrowDown', 'ArrowUp', 'Home', 'End'])
-
 export const handlePanelRowKeys = (event: KeyboardEvent<HTMLElement>): void => {
   const target = event.target
-  if (!PANEL_ROW_KEYS.has(event.key) || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || !(target instanceof HTMLElement) || !target.matches(PANEL_ROW_SELECTOR)) {
+  if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || !(target instanceof HTMLElement) || !target.matches(PANEL_ROW_SELECTOR)) {
     return
   }
   const rows = Array.from(event.currentTarget.querySelectorAll<HTMLElement>(PANEL_ROW_SELECTOR))
   const index = rows.indexOf(target)
   const destinations: Record<string, number> = { ArrowDown: index + 1, ArrowUp: index - 1, Home: 0, End: rows.length - 1 }
-  event.preventDefault()
-  rows[destinations[event.key]]?.focus()
+  if (event.key in destinations) {
+    event.preventDefault()
+    rows[destinations[event.key]]?.focus()
+  }
 }
 
 export const focusOwnWorkspaceRow = (element: HTMLElement): void => element.closest(WORKSPACE_SLOT_SELECTOR)?.querySelector<HTMLElement>(PANEL_ROW_SELECTOR)?.focus()

@@ -19,7 +19,7 @@ import { useGitStore } from '../store/gitStore'
 import { changePaneShell, dismissPaneState, restartPane, restartPaneIn } from '../terminal/paneLifecycle'
 import { closeOtherTabsKeepingText, closePaneKeepingText, closeTabKeepingText, closeWorkspaceKeepingText, duplicateTabKeepingLayout, restoreClosedTab } from '../terminal/tabLifecycle'
 import { focusPane, joinPane } from '../terminal/terminalActions'
-import { endPaneZoom, togglePaneZoom, zoomedPaneOf } from '../terminal/paneZoom'
+import { togglePaneZoom, useEndZoomWhenPaneChanges, zoomedPaneOf } from '../terminal/paneZoom'
 import { AttentionToasts } from './AttentionToasts'
 import { CloseConfirmDialog } from './CloseConfirmDialog'
 import { CommandPalette } from './CommandPalette'
@@ -39,6 +39,7 @@ import { SplitView } from './SplitView'
 import { StatusBar } from './StatusBar'
 import { TabBar } from './TabBar'
 import { Tooltip } from './Tooltip'
+import { useWindowTitle } from './useWindowTitle'
 import type { WorkspacePanelActions } from './workspacePanel'
 import type { HeaderWorkspaceActions } from './workspaceStrip'
 import { WorkspaceTree } from './WorkspaceTree'
@@ -46,8 +47,6 @@ import { WorkspaceTree } from './WorkspaceTree'
 interface AppShellProps {
   session: Session
 }
-
-const TITLE_SEPARATOR = ' › '
 
 const currentWorkspace = (): Workspace | undefined => {
   const { session } = useSessionStore.getState()
@@ -228,17 +227,9 @@ export function AppShell({ session }: AppShellProps) {
   const graphShown = gitShown && gitGraphReady
   const tabId = tab?.id
   const activePaneId = tab?.active
-  const titleContext = workspace && tab ? `${workspace.name}${TITLE_SEPARATOR}${tab.name}` : ''
 
-  useEffect(() => {
-    bridge.send({ type: 'window.title', title: titleContext })
-  }, [titleContext])
-
-  useEffect(() => {
-    if (zoomedPaneId !== null && zoomedPaneId !== activePaneId) {
-      endPaneZoom()
-    }
-  }, [zoomedPaneId, activePaneId, tabId])
+  useWindowTitle(workspace, tab)
+  useEndZoomWhenPaneChanges(zoomedPaneId, tab)
   const availableShells = useMemo(() => shells.filter((shell) => shell.available), [shells])
 
   useEffect(() => {

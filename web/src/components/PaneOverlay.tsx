@@ -5,6 +5,7 @@ import { ShellMenu } from './ShellMenu'
 
 interface PaneOverlayProps {
   state: PaneState
+  active: boolean
   shells: ShellProfile[]
   onRestart: () => void
   onRestartIn: (path: string) => void
@@ -26,7 +27,7 @@ const PRIMARY = `${BUTTON} border-dock-green text-dock-green-deep hover:bg-dock-
 const SECONDARY = `${BUTTON} border-dock-line text-dock-ink hover:bg-dock-green-hover`
 const DANGER = `${BUTTON} border-dock-line text-dock-muted hover:text-dock-error`
 
-export function PaneOverlay({ state, shells, onRestart, onRestartIn, onChangeShell, onDismiss, onClose }: PaneOverlayProps) {
+export function PaneOverlay({ state, active, shells, onRestart, onRestartIn, onChangeShell, onDismiss, onClose }: PaneOverlayProps) {
   const [menuOpen, setMenuOpen] = useState(false)
   const overlayRef = useRef<HTMLDivElement>(null)
   const defaultRef = useRef<HTMLButtonElement>(null)
@@ -36,10 +37,10 @@ export function PaneOverlay({ state, shells, onRestart, onRestartIn, onChangeShe
   useEffect(() => {
     const focused = document.activeElement
     const pane = overlayRef.current?.closest(PANE_SELECTOR)
-    if (focused === document.body || (focused && pane?.contains(focused))) {
+    if ((active && focused === document.body) || (focused && pane?.contains(focused))) {
       defaultRef.current?.focus()
     }
-  }, [pathMissing])
+  }, [pathMissing, active])
 
   const handleOpenMenu = () => setMenuOpen(true)
   const handleCloseMenu = useCallback(() => {

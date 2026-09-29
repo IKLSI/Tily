@@ -422,6 +422,23 @@ Les douze constats de la relecture sont traités (itérations 44 à 46).
 - **Pourquoi** : ces deux fonctions sont la seule barrière entre les données reçues du web et la ligne de commande de `git`. Une révision qui commence par « - » serait lue comme une option, et un chemin avec « .. » sortirait du dépôt. Aucun test ne les visait directement.
 - **Vérifié** : 214 tests au vert. Pendant ce temps, une troisième relecture indépendante des itérations 47 à 53 tourne en arrière-plan ; le bilan HTML a été mis à jour (itérations 51 à 53, nouveaux chiffres).
 
+### 55. Troisième relecture indépendante : corrections du zoom et des derniers ajouts
+
+Un sous-agent a relu les itérations 47 à 53 (`6e125b7..HEAD`) sans rien modifier. Il a trouvé 1 point important et 6 mineurs ; je les ai tous traités.
+
+- **Important, fin de zoom** : à la réduction d'un pane agrandi, les panes cachés réapparaissent pendant que le focus est sur `body`. Un autre pane affichant un message (shell terminé, dossier disparu) prenait alors le focus et devenait actif : l'Entrée suivante relançait son shell. Au montage, `PaneOverlay` ne prend plus le focus depuis `body` que si son pane est actif. Vérifié : A terminé, B actif, zoom puis réduction ; B reste actif, le focus est dans son terminal. Avant la correction, A devenait actif avec le focus sur « Relancer ».
+- **Alt + flèche pendant un zoom** : ne faisait rien. Le zoom est maintenant réduit et le pane voisin rejoint à l'image suivante. Vérifié : Alt + ← réduit et passe au pane de gauche.
+- **Double-clic sur « Réduire »** : le second clic tombait sur « Split haut / bas », revenu au même endroit, et créait un split. Les boutons de split et de fermeture de l'en-tête ignorent désormais les clics répétés d'un double-clic. Vérifié : deux panes après le double-clic, pas trois.
+- **Indications du Leader** : au-delà de deux lignes, le centrage coupait la première ligne. Elles sont maintenant alignées en haut. Vérifié à 850 px : première ligne entière, 13 indications sur 17.
+- **Accessibilité** : le nom d'un workspace, que → et ← déplient ou replient, expose `aria-expanded`.
+- **Titre de fenêtre** : `WindowTitle.For` ne coupe plus une paire de substitution (émoji) en deux ; nouveau test, et le test du contexte blanc est renommé.
+- **Détails** :
+  - `AppShell` repasse sous les 400 lignes, avec les hooks `useWindowTitle` et `useEndZoomWhenPaneChanges` ;
+  - quand on quitte l'onglet d'un pane agrandi, l'annonce du zoom est effacée au lieu de dire que les panes sont réaffichés ;
+  - l'indication du Leader dit « agrandir / réduire le pane » ;
+  - la liste des touches du panneau n'est plus écrite deux fois.
+- **Vérifié** : lint, builds et 215 tests au vert ; chaque correction a été rejouée dans l'instance de test, graphe Git fermé.
+
 ## Reste à faire et idées
 
 - **Taille de police et zoom du terminal** : police fixe à 14 px. La spécification classe ce point « À décider » (section 4), je n'y ai donc pas touché ; c'est à trancher.

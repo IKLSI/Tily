@@ -15,7 +15,12 @@ public static class WindowTitle
             return ApplicationName;
         }
 
-        var shortened = cleaned.Length > MaxContextLength ? cleaned[..MaxContextLength].TrimEnd() + Ellipsis : cleaned;
-        return shortened + Separator + ApplicationName;
+        if (cleaned.Length <= MaxContextLength)
+        {
+            return cleaned + Separator + ApplicationName;
+        }
+
+        var end = char.IsHighSurrogate(cleaned[MaxContextLength - 1]) ? MaxContextLength - 1 : MaxContextLength;
+        return cleaned[..end].TrimEnd() + Ellipsis + Separator + ApplicationName;
     }
 }

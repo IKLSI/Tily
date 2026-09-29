@@ -6,7 +6,7 @@ import { useSessionStore } from '../store/sessionStore'
 import { requestApplicationClose } from '../terminal/closeGuard'
 import { closePaneKeepingText, restoreClosedTab } from '../terminal/tabLifecycle'
 import { focusPane } from '../terminal/terminalActions'
-import { togglePaneZoom } from '../terminal/paneZoom'
+import { endPaneZoom, togglePaneZoom } from '../terminal/paneZoom'
 import { togglePanelView } from '../panel/rightPanel'
 import { RenameOrigin, useUiStore } from '../store/uiStore'
 
@@ -32,7 +32,7 @@ export const LEADER_HINTS: LeaderHint[] = [
   { keys: 'G', label: 'git' },
   { keys: 'B', label: 'workspaces' },
   { keys: 'X', label: 'fermer le pane' },
-  { keys: 'M', label: 'agrandir le pane' },
+  { keys: 'M', label: 'agrandir / réduire le pane' },
   { keys: 'Z', label: 'rouvrir' },
   { keys: 'P', label: 'palette' },
   { keys: ',', label: 'paramètres' },
@@ -212,6 +212,11 @@ const toggleSidebar = (): void => {
 }
 
 const focusPaneToward = (direction: Direction): void => {
+  if (useUiStore.getState().zoomedPaneId !== null) {
+    endPaneZoom(true)
+    requestAnimationFrame(() => focusPaneToward(direction))
+    return
+  }
   const target = paneInDirection(currentPaneId(), direction)
   if (target) {
     useSessionStore.getState().selectPane(target)

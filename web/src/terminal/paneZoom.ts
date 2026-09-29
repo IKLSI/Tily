@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { activeTab, activeWorkspace, panesOf, type Tab } from '../model/session'
 import { useHostStore } from '../store/hostStore'
 import { useSessionStore } from '../store/sessionStore'
@@ -17,12 +18,24 @@ const currentTab = (): Tab | undefined => {
 export const zoomedPaneOf = (tab: Tab, zoomedPaneId: string | null) =>
   zoomedPaneId === tab.active && panesOf(tab.tree).length >= MIN_PANES_TO_ZOOM ? panesOf(tab.tree).find((pane) => pane.id === zoomedPaneId) : undefined
 
-export const endPaneZoom = (): void => {
+const NO_STATUS = ''
+
+export const endPaneZoom = (sameTab: boolean): void => {
   useUiStore.getState().clearPaneZoom()
   const { status, setStatus } = useHostStore.getState()
   if (status.text === ZOOMED_STATUS) {
-    setStatus(UNZOOMED_STATUS)
+    setStatus(sameTab ? UNZOOMED_STATUS : NO_STATUS)
   }
+}
+
+export const useEndZoomWhenPaneChanges = (zoomedPaneId: string | null, tab: Tab | undefined): void => {
+  const activePaneId = tab?.active
+  const zoomedInTab = Boolean(tab && zoomedPaneId && panesOf(tab.tree).some((pane) => pane.id === zoomedPaneId))
+  useEffect(() => {
+    if (zoomedPaneId !== null && zoomedPaneId !== activePaneId) {
+      endPaneZoom(zoomedInTab)
+    }
+  }, [zoomedPaneId, activePaneId, zoomedInTab])
 }
 
 export const togglePaneZoom = (paneId?: string): void => {

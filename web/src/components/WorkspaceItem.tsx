@@ -118,6 +118,7 @@ export const WorkspaceItem = memo(function WorkspaceItem({ workspace, workspaceN
           <button
             type="button"
             data-panel-row=""
+            aria-expanded={expanded}
             data-tip={`${name} · Double-clic pour renommer`}
             className={`flex h-full min-w-0 flex-1 cursor-pointer items-center text-left text-[13px] font-semibold ${here ? 'text-dock-green-deep' : 'text-dock-ink'}`}
             onClick={handleNameClick}
