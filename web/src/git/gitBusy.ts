@@ -7,6 +7,7 @@ const quoted = (ref: string | null): string => (ref && SHA_PATTERN.test(ref) ? s
 
 const BUSY_LABELS: Record<string, (ref: string | null, count: number) => string> = {
   'git.fetch': () => 'Fetch en cours…',
+  'git.autoFetch': () => 'Fetch en cours…',
   'git.pull': () => 'Pull en cours…',
   'git.push': () => 'Push en cours…',
   'git.commit': () => 'Commit en cours…',

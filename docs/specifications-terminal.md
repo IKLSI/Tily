@@ -303,6 +303,8 @@ Les actions utilisent le **dossier du pane actif**, jamais un hypothétique doss
 
 **Retenu (25 septembre 2026).** Les libellés et les messages de la vue Git gardent les termes Git anglais, invariables : Push, Pull, Fetch, Stash, Stage et Unstage (fichiers Staged et Unstaged), Merge, Rebase, Amend, Checkout et Cherry-pick. Les phrases restent en français et emploient ces termes comme des noms, par exemple « Push vers origin/main terminé. », « 3 commits à push » ou « Faites un pull pour les intégrer ».
 
+**Retenu (29 septembre 2026, issue #100).** Ouvrir la vue Git lance un fetch de toutes les branches distantes (`git fetch --all`), y compris au démarrage de Dock si elle était ouverte, puis chaque fois que le pane actif passe à un autre dépôt, au plus une fois toutes les 5 minutes par dépôt (un fetch manuel compte). Ce fetch est discret : la barre de progression s’affiche, mais ni message de réussite ni erreur (hors ligne, authentification) ; un dépôt sans dépôt distant est ignoré. Il se désactive dans les Paramètres (« Fetch automatique à l’ouverture de la vue Git », activé par défaut).
+
 **Convention proposée.** Quand la place manque dans le graphe, Date puis Auteur sont masqués à l’affichage pour laisser au moins 200 px au message, sans changer le réglage mémorisé ; ils réapparaissent dès que la place revient.
 
 ## 12. Attention, agents et notifications
@@ -476,6 +478,7 @@ Ces scénarios définissent les vérifications à effectuer sur l’application 
 | R33 | Supprimer ce worktree avec un pane ouvert dedans, d’abord sans fermer le pane, puis en le fermant. | Premier essai refusé, worktree intact et « Réessayer » ; second essai : pane fermé, dossier, base répliquée et branche supprimés, sauf la branche si « Garder la branche » est cochée. |
 | R34 | Dans un pane, lancer Claude Code puis Codex CLI et saisir un prompt sur plusieurs lignes avec Maj + Entrée et Ctrl + Entrée, puis faire Maj + Entrée dans PowerShell. | Chaque combinaison ajoute une ligne au prompt de l’agent sans l’envoyer ; dans PowerShell, Maj + Entrée exécute la commande comme Entrée. |
 | R35 | Écrire une note sur plusieurs lignes dans la vue Notes d’un workspace (Ctrl + Maj + O), passer à un autre workspace, fermer puis rouvrir Dock ; fermer ensuite tous les onglets de ce workspace et rouvrir le dernier par Ctrl + Maj + Z. | Chaque workspace garde sa propre note ; l’icône de note et sa première ligne en infobulle apparaissent dans le panneau des workspaces ; la note est retrouvée après redémarrage et après la réouverture de l’onglet ; Échap rend le focus au terminal. |
+| R36 | Dans un dépôt de test dont le dépôt distant a reçu un commit d’un autre clone, ouvrir la vue Git, la fermer et la rouvrir aussitôt, passer à un pane d’un autre dépôt, puis décocher le fetch automatique dans les Paramètres et recommencer après 5 minutes, enfin couper le réseau. | Le commit distant apparaît dans le graphe sans clic sur Fetch ; la réouverture immédiate ne relance pas de fetch ; l’autre dépôt a le sien ; réglage décoché : aucun fetch ; hors ligne : aucun message d’erreur. |
 
 ## 18. Décisions restantes avant développement
 

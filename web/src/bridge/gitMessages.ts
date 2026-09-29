@@ -229,6 +229,10 @@ export interface GitDiff {
   hunks: GitDiffHunk[]
 }
 
+export interface GitSettings {
+  autoFetch: boolean
+}
+
 export type GitHostMessage =
   | { type: 'git.state'; path: string; state?: GitState; error?: string }
   | { type: 'git.changed'; path: string }
@@ -238,6 +242,8 @@ export type GitHostMessage =
   | { type: 'git.done'; operation: string; message: string; warning: boolean }
   | { type: 'git.failed'; operation: string; message: string; output?: string; code?: GitFailureCode }
   | { type: 'git.pushRejected'; operation: string; branch: string; message: string; output: string }
+  | { type: 'git.autoFetchStarted'; path: string }
+  | { type: 'git.autoFetchEnded'; path: string }
 
 export type GitWebMessage =
   | { type: 'git.watch'; path: string }

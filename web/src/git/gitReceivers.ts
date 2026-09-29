@@ -6,6 +6,7 @@ import { clearRefSelection } from './gitRefSelection'
 import { closeDrawer, loadUntilRevealed, reloadDiff, retryFailedDetails, selectWorkingTree, takeRetry } from './gitRequests'
 
 const COMMIT_OPERATION = 'git.commit'
+const AUTO_FETCH_OPERATION = 'git.autoFetch'
 
 const followShownFile = (state: GitState, file: GitFileTarget): void => {
   const inStaged = state.staged.some((change) => change.path === file.path)
@@ -57,6 +58,15 @@ export const receiveGitDiff = (request: number, diff: GitDiff | undefined, error
 
 export const receiveGitDetails = (request: number, details: GitCommitDetails | undefined, error: string | undefined): void =>
   useGitStore.getState().receiveDetails(request, details ?? null, error ?? null)
+
+export const receiveGitAutoFetchStarted = (path: string): void => {
+  const store = useGitStore.getState()
+  if (store.busy === null && store.state?.root === path) {
+    store.setBusy(AUTO_FETCH_OPERATION)
+  }
+}
+
+export const receiveGitAutoFetchEnded = (): void => finishBusy(AUTO_FETCH_OPERATION)
 
 export const receiveGitDone = (operation: string, message: string, warning: boolean): void => {
   finishBusy(operation)

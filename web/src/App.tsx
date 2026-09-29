@@ -12,7 +12,7 @@ import { receiveActivity, receiveApplicationClosing } from './terminal/closeGuar
 import { queryContext, receiveContext } from './terminal/contextActions'
 import { startExternalDrops } from './terminal/externalDrop'
 import { receiveCreated, receiveDeleted, receiveListing, receiveRenamed } from './explorer/fileExplorerActions'
-import { receiveGitChanged, receiveGitDetails, receiveGitDiff, receiveGitDone, receiveGitFailed, receiveGitHistory, receiveGitPushRejected, receiveGitState } from './git/gitReceivers'
+import { receiveGitAutoFetchEnded, receiveGitAutoFetchStarted, receiveGitChanged, receiveGitDetails, receiveGitDiff, receiveGitDone, receiveGitFailed, receiveGitHistory, receiveGitPushRejected, receiveGitState } from './git/gitReceivers'
 import { insertIntoPane, joinPane } from './terminal/terminalActions'
 import { receiveWorktreeCreated, receiveWorktreeDone, receiveWorktreeFailed, receiveWorktreePlan, receiveWorktreeProgress } from './worktree/worktreeReceivers'
 import { terminalRegistry } from './terminal/terminalRegistry'
@@ -98,6 +98,8 @@ export default function App() {
       bridge.on('git.done', (message) => receiveGitDone(message.operation, message.message, message.warning)),
       bridge.on('git.failed', (message) => receiveGitFailed(message.operation, message.message, message.output, message.code)),
       bridge.on('git.pushRejected', (message) => receiveGitPushRejected(message.operation, message.branch, message.message, message.output)),
+      bridge.on('git.autoFetchStarted', (message) => receiveGitAutoFetchStarted(message.path)),
+      bridge.on('git.autoFetchEnded', receiveGitAutoFetchEnded),
       bridge.on('worktrees.planned', (message) => receiveWorktreePlan(message.request, message.plan)),
       bridge.on('worktrees.progress', (message) => receiveWorktreeProgress(message.operation, message.message)),
       bridge.on('worktrees.created', (message) => receiveWorktreeCreated(message.path, message.name, message.install)),
