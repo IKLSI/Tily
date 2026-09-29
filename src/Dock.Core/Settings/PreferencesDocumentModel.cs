@@ -1,4 +1,5 @@
 using Dock.Core.Agents;
+using Dock.Core.Git;
 using Dock.Core.Session;
 using Dock.Core.Updates;
 using Dock.Core.Worktrees;
@@ -16,6 +17,7 @@ public sealed class PreferencesDocumentModel
     public string? ProjectsRoot { get; set; }
     public NotificationSettingsModel? Notifications { get; set; }
     public WorktreeSettingsModel? Worktrees { get; set; }
+    public GitSettingsModel? Git { get; set; }
     public UpdateSettingsModel? Updates { get; set; }
 
     public static PreferencesDocumentModel From(SettingsModel settings) => new()
@@ -27,6 +29,7 @@ public sealed class PreferencesDocumentModel
         ProjectsRoot = settings.ProjectsRoot,
         Notifications = settings.Notifications,
         Worktrees = settings.Worktrees,
+        Git = settings.Git,
         Updates = settings.Updates
     };
 

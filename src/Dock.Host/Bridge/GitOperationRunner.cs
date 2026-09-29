@@ -10,6 +10,7 @@ public sealed class GitOperationRunner
     private readonly Action _completed;
     private readonly BackgroundQueue _queue;
     private readonly ConcurrentDictionary<string, byte> _forceAllowed = new(StringComparer.OrdinalIgnoreCase);
+    private readonly GitAutoFetchSchedule _autoFetches = new();
 
     public GitOperationRunner(Func<string?, GitRepository> open, Action<object> post, Action completed, Action<Exception> onError)
     {
@@ -34,7 +35,7 @@ public sealed class GitOperationRunner
             "git.commit" => repository => CommitThenPush(repository, command),
             "git.push" => repository => Push(repository, command.Force, command.Confirmed),
             "git.pull" => GitSyncCommands.Pull,
-            "git.fetch" => GitSyncCommands.Fetch,
+            "git.fetch" => Fetch,
             "git.merge" => repository => GitHistoryCommands.Merge(repository, command.Reference),
             "git.rebase" => repository => GitHistoryCommands.Rebase(repository, command.Reference),
             "git.cherryPick" => repository => GitHistoryCommands.CherryPick(repository, command.Commit),
@@ -94,6 +95,47 @@ public sealed class GitOperationRunner
         {
             _completed();
         }
+    }
+
+    public void AutoFetch(string root)
+    {
+        if (_autoFetches.TryStart(root, DateTimeOffset.UtcNow))
+        {
+            _queue.Enqueue(() => RunAutoFetch(root));
+        }
+    }
+
+    private void RunAutoFetch(string root)
+    {
+        try
+        {
+            var repository = _open(root);
+            if (repository.Remotes().Count == 0)
+            {
+                return;
+            }
+
+            _post(new { type = "git.autoFetchStarted", path = repository.Root });
+            try
+            {
+                GitSyncCommands.Fetch(repository);
+            }
+            finally
+            {
+                _post(new { type = "git.autoFetchEnded", path = repository.Root });
+                _completed();
+            }
+        }
+        catch (Exception exception) when (exception is GitCommandException or IOException or UnauthorizedAccessException)
+        {
+        }
+    }
+
+    private GitOutcomeModel Fetch(GitRepository repository)
+    {
+        var outcome = GitSyncCommands.Fetch(repository);
+        _autoFetches.Record(repository.Root, DateTimeOffset.UtcNow);
+        return outcome;
     }
 
     private GitOutcomeModel CommitThenPush(GitRepository repository, BridgeCommandModel command)

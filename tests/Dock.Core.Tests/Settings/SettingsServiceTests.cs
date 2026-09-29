@@ -1,4 +1,5 @@
 using Dock.Core.Agents;
+using Dock.Core.Git;
 using Dock.Core.Session;
 using Dock.Core.Settings;
 using Dock.Core.Updates;
@@ -22,7 +23,8 @@ public sealed class SettingsServiceTests : IDisposable
         Assert.Equal(PersistenceSettingsModel.Default, settings.Persistence);
         Assert.Equal(@"C:\Files\Projects", settings.ProjectsRoot);
         Assert.Equal(NotificationSettingsModel.Default, settings.Notifications);
-        Assert.Equal(6, Directory.GetFiles(_directory, "*.json").Length);
+        Assert.Equal(GitSettingsModel.Default, settings.Git);
+        Assert.Equal(7, Directory.GetFiles(_directory, "*.json").Length);
     }
 
     [Fact]
@@ -134,7 +136,7 @@ public sealed class SettingsServiceTests : IDisposable
         Assert.False(snapshot.Shells.Single(shell => shell.Id == "gitbash").Available);
         Assert.Contains(snapshot.Warnings, warning => warning.Contains(@"C:\introuvable\bash.exe"));
         Assert.Contains(snapshot.Warnings, warning => warning.Contains(@"C:\introuvable\projets"));
-        Assert.Equal(6, snapshot.Files.Count);
+        Assert.Equal(7, snapshot.Files.Count);
     }
 
     [Fact]
@@ -288,6 +290,54 @@ public sealed class SettingsServiceTests : IDisposable
         var result = service.Save(settings);
 
         Assert.Equal("Le dossier des worktrees doit être un chemin absolu : relatif", result.Error);
+    }
+
+    [Fact]
+    public void Save_ThenLoad_KeepsGitSettingsInGitFile()
+    {
+        var service = new SettingsService(_directory);
+        var settings = service.Load();
+        settings.Git = new GitSettingsModel(false);
+
+        service.Save(settings);
+
+        Assert.Equal(new GitSettingsModel(false), service.Load().Git);
+    }
+
+    [Fact]
+    public void Load_WhenGitFileHasNoAutoFetch_ThenEnablesAutoFetch()
+    {
+        var service = new SettingsService(_directory);
+        File.WriteAllText(Path.Combine(_directory, GitSettingsRepository.FileName), "{}");
+
+        var settings = service.Load();
+
+        Assert.True(settings.Git.AutoFetch, "Le fetch automatique est activé par défaut.");
+    }
+
+    [Fact]
+    public void Import_WhenGitMissing_ThenUsesDefaults()
+    {
+        var service = new SettingsService(_directory);
+        var path = Path.Combine(_directory, "prefs.json");
+        File.WriteAllText(path, "{ \"version\": 1, \"shells\": {}, \"editor\": \"code.cmd\", \"persistence\": { \"textIntervalSeconds\": 30, \"linesPerPane\": 1000, \"maxTextMebibytes\": 32 }, \"projectsRoot\": \"C:\\\\Projets\" }");
+
+        var result = service.Import(path);
+
+        Assert.Equal(GitSettingsModel.Default, result.Settings!.Git);
+    }
+
+    [Fact]
+    public void Export_ThenImport_KeepsGitSettings()
+    {
+        var service = new SettingsService(_directory);
+        var settings = new SettingsModel { ProjectsRoot = _directory, Git = new GitSettingsModel(false) };
+        var exportPath = Path.Combine(_directory, "prefs.json");
+
+        service.Export(settings, exportPath);
+        var result = service.Import(exportPath);
+
+        Assert.Equal(new GitSettingsModel(false), result.Settings!.Git);
     }
 
     [Fact]

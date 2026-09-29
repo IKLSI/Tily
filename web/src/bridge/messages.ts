@@ -1,5 +1,5 @@
 import type { Session } from '../model/session'
-import type { GitHostMessage, GitWebMessage } from './gitMessages'
+import type { GitHostMessage, GitSettings, GitWebMessage } from './gitMessages'
 import type { UpdateHostMessage, UpdateSettings, UpdateWebMessage } from './updateMessages'
 import type { WorktreeHostMessage, WorktreeSettings, WorktreeWebMessage } from './worktreeMessages'
 
@@ -80,6 +80,7 @@ export interface Settings {
   projectsRoot: string
   notifications: NotificationSettings
   worktrees: WorktreeSettings
+  git: GitSettings
   updates: UpdateSettings
 }
 

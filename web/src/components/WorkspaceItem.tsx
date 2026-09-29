@@ -1,7 +1,7 @@
 import { memo, type KeyboardEvent, type MouseEvent, type PointerEvent } from 'react'
 import type { AgentState } from '../bridge/messages'
 import { nextPaneInState, workspaceStateCounts, type AgentMap } from '../agents/agentSummary'
-import { activeTab, type Workspace } from '../model/session'
+import { activeTab, notePreview, type Workspace } from '../model/session'
 import type { TabDropTarget } from '../store/uiStore'
 import { Icon } from './Icon'
 import { IconName } from './iconName'
@@ -11,7 +11,7 @@ import { beginWorkspaceDrag } from './workspaceDrag'
 import { TruncatedName } from './TruncatedName'
 import { WorkspaceStatus } from './WorkspaceStatus'
 import { WorkspaceTabRow } from './WorkspaceTabRow'
-import { COLLAPSE_KEY, EXPAND_KEY, isMenuKey, menuRequestFor, MOVE_KEYS, PANEL_CLOSE_BUTTON, PANEL_DROP_LINE, type PanelMenuRequest, type WorkspacePanelActions } from './workspacePanel'
+import { COLLAPSE_KEY, EXPAND_KEY, isMenuKey, menuRequestFor, MOVE_KEYS, PANEL_CLOSE_BUTTON, PANEL_DROP_LINE, PANEL_NOTE_BUTTON, type PanelMenuRequest, type WorkspacePanelActions } from './workspacePanel'
 
 interface WorkspaceItemProps {
   workspace: Workspace
@@ -45,6 +45,7 @@ export const WorkspaceItem = memo(function WorkspaceItem({ workspace, workspaceN
   const tabsId = `workspace-tabs-${id}`
   const currentPaneId = selected ? activeTab(workspace).active : undefined
   const tabNames = tabs.map((tab) => tab.name)
+  const preview = notePreview(workspace.note)
 
   const handleSelect = () => actions.selectWorkspace(id)
   const handleNameClick = (event: MouseEvent) => {
@@ -59,6 +60,10 @@ export const WorkspaceItem = memo(function WorkspaceItem({ workspace, workspaceN
   const handleClose = (event: MouseEvent) => {
     event.stopPropagation()
     actions.closeWorkspace(id)
+  }
+  const handleOpenNotes = (event: MouseEvent) => {
+    event.stopPropagation()
+    actions.openNotes(id)
   }
   const handleJoin = (state: AgentState) => {
     const paneId = nextPaneInState(tabs, agents, state, currentPaneId)
@@ -127,6 +132,11 @@ export const WorkspaceItem = memo(function WorkspaceItem({ workspace, workspaceN
             onKeyDown={handleNameKeyDown}
           >
             <TruncatedName name={name} siblings={workspaceNames} className="flex-1" />
+          </button>
+        )}
+        {preview && (
+          <button type="button" className={PANEL_NOTE_BUTTON} data-tip={`${preview} · Afficher les notes`} aria-label={`Afficher les notes de ${name}`} onClick={handleOpenNotes}>
+            <Icon name={IconName.Note} size={11} />
           </button>
         )}
         <WorkspaceStatus counts={workspaceStateCounts(workspace, agents)} onJoin={handleJoin} />

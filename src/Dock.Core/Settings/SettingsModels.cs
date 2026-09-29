@@ -1,5 +1,6 @@
 using Dock.Core.Agents;
 using Dock.Core.Context;
+using Dock.Core.Git;
 using Dock.Core.Projects;
 using Dock.Core.Session;
 using Dock.Core.Updates;
@@ -15,6 +16,7 @@ public sealed class SettingsModel
     public string ProjectsRoot { get; set; } = ProjectCatalog.DefaultRoot;
     public NotificationSettingsModel Notifications { get; set; } = NotificationSettingsModel.Default;
     public WorktreeSettingsModel Worktrees { get; set; } = WorktreeSettingsModel.Default;
+    public GitSettingsModel Git { get; set; } = GitSettingsModel.Default;
     public UpdateSettingsModel Updates { get; set; } = UpdateSettingsModel.Default;
 }
 

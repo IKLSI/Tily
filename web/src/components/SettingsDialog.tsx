@@ -164,6 +164,7 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
   const handleProjectsRootChange = (event: ChangeEvent<HTMLInputElement>) => updateDraft({ projectsRoot: event.target.value })
   const handleWorktreeFolderChange = (event: ChangeEvent<HTMLInputElement>) => updateWorktrees({ folder: event.target.value })
   const handleDefaultBaseChange = (event: ChangeEvent<HTMLInputElement>) => updateWorktrees({ defaultBase: event.target.value })
+  const handleAutoFetchChange = (event: ChangeEvent<HTMLInputElement>) => updateDraft({ git: { autoFetch: event.target.checked } })
   const updateNotifications = (patch: Partial<NotificationSettings>) => setDraft((current) => (current ? { ...current, notifications: { ...current.notifications, ...patch } } : current))
   const handleToastChange = (event: ChangeEvent<HTMLInputElement>) => updateNotifications({ windowsToast: event.target.checked })
   const handleFlashChange = (event: ChangeEvent<HTMLInputElement>) => updateNotifications({ taskbarFlash: event.target.checked })
@@ -280,6 +281,15 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
           <span className={HINT}>Branche de départ proposée à la création d’un worktree, récupérée par un fetch sur origin juste avant.</span>
         </label>
         <p className={`${HINT} font-mono`}>{current.files.projects}</p>
+      </section>
+      <section className="flex flex-col gap-2">
+        <h3 className={SECTION}>Git</h3>
+        <label className="flex items-center gap-2">
+          <input type="checkbox" checked={settings.git.autoFetch} onChange={handleAutoFetchChange} />
+          <span className={LABEL}>Fetch automatique à l’ouverture de la vue Git</span>
+        </label>
+        <span className={HINT}>Lance git fetch --all à l’ouverture de la vue Git et quand le pane actif passe à un autre dépôt, au plus une fois toutes les 5 minutes par dépôt. Un échec (hors ligne, authentification) reste silencieux.</span>
+        <p className={`${HINT} font-mono`}>{current.files.git}</p>
       </section>
       <section className="flex flex-col gap-2">
         <h3 className={SECTION}>Notifications</h3>

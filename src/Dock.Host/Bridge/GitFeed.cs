@@ -12,6 +12,7 @@ public sealed class GitFeed : IDisposable
     private readonly GitRunner _runner = new();
     private readonly BackgroundQueue _reads;
     private readonly GitOperationRunner _operations;
+    private readonly Func<bool> _autoFetch;
     private readonly object _sync = new();
     private string _path = string.Empty;
     private GitLocationModel? _location;
@@ -22,9 +23,10 @@ public sealed class GitFeed : IDisposable
     private string? _lastSignature;
     private int _refreshQueued;
 
-    public GitFeed(Action<object> post, Action<Exception> onError)
+    public GitFeed(Action<object> post, Func<bool> autoFetch, Action<Exception> onError)
     {
         _post = post;
+        _autoFetch = autoFetch;
         _reads = new BackgroundQueue(onError);
         _operations = new GitOperationRunner(Open, post, ScheduleRefresh, onError);
     }
@@ -81,6 +83,7 @@ public sealed class GitFeed : IDisposable
             return;
         }
 
+        bool followed;
         lock (_sync)
         {
             if (_path != path)
@@ -88,7 +91,8 @@ public sealed class GitFeed : IDisposable
                 return;
             }
 
-            if (location?.Root != _location?.Root)
+            followed = location?.Root != _location?.Root;
+            if (followed)
             {
                 _watcher?.Dispose();
                 _watcher = location is null ? null : new GitWatcher(location, ScheduleRefresh);
@@ -111,6 +115,10 @@ public sealed class GitFeed : IDisposable
         }
 
         Refresh(true, false);
+        if (followed && _autoFetch())
+        {
+            _operations.AutoFetch(location.Root);
+        }
     }
 
     public void RefreshSoon() => ScheduleRefresh();

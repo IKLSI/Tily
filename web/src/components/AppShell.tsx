@@ -14,7 +14,7 @@ import { cancelClose, confirmClose } from '../terminal/closeGuard'
 import { confirmDelete, focusFileTree } from '../explorer/fileExplorerActions'
 import { useExplorerStore } from '../store/explorerStore'
 import { focusGitPanel, takeFocusFromCoveredTerminals } from '../git/gitFocus'
-import { toggleRightPanel } from '../panel/rightPanel'
+import { openWorkspaceNotes, toggleRightPanel } from '../panel/rightPanel'
 import { useGitStore } from '../store/gitStore'
 import { worktreeModalOpen } from '../store/worktreeStore'
 import { changePaneShell, dismissPaneState, restartPane, restartPaneIn } from '../terminal/paneLifecycle'
@@ -171,6 +171,7 @@ const panelActions: WorkspacePanelActions = {
   commitRenameWorkspace: handleCommitRename,
   cancelRenameWorkspace: finishRename,
   closeWorkspace: closeWorkspaceKeepingText,
+  openNotes: openWorkspaceNotes,
   newTabIn: handleNewTabIn,
   collapseOthers: (workspaceId) => useSessionStore.getState().collapseOtherWorkspaces(workspaceId),
   moveWorkspace: (workspaceId, offset) => useSessionStore.getState().moveWorkspace(workspaceId, offset),

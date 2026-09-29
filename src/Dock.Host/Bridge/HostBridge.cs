@@ -69,7 +69,7 @@ public sealed class HostBridge : IDisposable
         _notifier = new AttentionNotifier(dispatcher, windowHandle, paneId => PostNow(new { type = "agent.join", pane = paneId }));
         _notifier.Register();
         _files = new FileExplorerFeed(windowHandle, () => _settings.Editor, Post, PostBackgroundError);
-        _git = new GitFeed(Post, PostBackgroundError);
+        _git = new GitFeed(Post, () => _settings.Git.AutoFetch, PostBackgroundError);
         _worktrees = new WorktreeFeed(Post, () => _settings, _git.RefreshSoon, PostBackgroundError);
         _updates = new UpdateFeed(Post, ApplicationVersion, dataDirectory);
         ApplySettings(_settings);
