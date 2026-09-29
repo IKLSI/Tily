@@ -267,6 +267,15 @@ Un sous-agent a relu tout le diff de la nuit (`main..night-session`) sans rien m
   - F2 sur `sub` sélectionne « sub » ; sur `.gitignore`, « .gitignore » ; sur `alpha.txt`, « alpha » ;
   - taper « omega » puis Entrée renomme le fichier en `omega.txt`, qui reste sélectionné dans l'arbre.
 
+### 38. La branche courante reste lisible dans l'en-tête Git
+
+- **Quoi** : dans l'en-tête du panneau Git, le nom du dépôt et la branche se partagent la place libre de la ligne : une part pour le dépôt, deux pour la branche, chacun plafonné à sa largeur utile. Un nom court comme `main` n'est donc jamais tronqué, un nom long l'est avec une infobulle qui le donne en entier, et le bouton « Graphe » reste toujours visible à droite.
+- **Pourquoi** : dans le panneau à sa largeur par défaut (280 px), `main` s'affichait « ma… », rogné au même rythme que le nom du dépôt alors que c'est l'information la plus utile. La branche tronquée n'avait pas d'infobulle. Un premier essai, qui empêchait la branche de rétrécir, faisait déborder la ligne avec une branche longue et coupait « Graphe » ; il a été remplacé par ce partage.
+- **Vérifié** : dans l'instance de test, sur un dépôt de test :
+  - à 280 px, `main` est entier (44 px) et le dépôt tronqué (« explorer… », infobulle du chemin) ;
+  - la branche `feature/une-branche-au-nom-vraiment-tres-long` prend 67 px contre 33 pour le dépôt, avec son infobulle, et la ligne ne déborde pas (260 px de contenu pour 260 px de ligne) ;
+  - à 430 px, tout est entier et « Graphe » est calé à droite.
+
 ## Reste à faire et idées
 
 - **Taille de police et zoom du terminal** : police fixe à 14 px. La spécification classe ce point « À décider » (section 4), je n'y ai donc pas touché ; c'est à trancher.

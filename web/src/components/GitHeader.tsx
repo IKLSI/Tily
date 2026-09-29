@@ -37,10 +37,10 @@ export function GitHeader({ state, busy }: GitHeaderProps) {
   return (
     <div className="flex shrink-0 flex-col gap-[4px] px-[10px] pb-[6px]">
       <div className="flex min-w-0 items-center gap-[8px] pl-[2px] text-[12px]">
-        <span className="min-w-0 shrink truncate font-semibold text-dock-ink" data-tip={state.root}>
+        <span className="max-w-max min-w-0 flex-1 truncate font-semibold text-dock-ink" data-tip={state.root}>
           {state.name}
         </span>
-        <span className="flex min-w-0 items-center gap-[4px] font-mono text-dock-green-deep">
+        <span className="flex max-w-max min-w-0 flex-2 items-center gap-[4px] font-mono text-dock-green-deep" data-tip={headSummary(head)}>
           <Icon name={IconName.Branch} className="shrink-0" />
           <span className="truncate">{headSummary(head)}</span>
         </span>
@@ -52,7 +52,7 @@ export function GitHeader({ state, busy }: GitHeaderProps) {
             non publiée
           </span>
         )}
-        <span className="flex-1" />
+        <span className="ml-auto" />
         <GitToolButton icon={IconName.Graph} label="Graphe" tip={graphOpen ? 'Masquer le graphe et revenir aux terminaux' : 'Afficher le graphe des branches et des commits à la place des terminaux'} pressed={graphOpen} onClick={toggleGitGraph} />
       </div>
       <div className="flex flex-wrap items-center gap-[2px]">
