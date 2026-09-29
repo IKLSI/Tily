@@ -82,6 +82,7 @@ Aucun droit administrateur n’est nécessaire. Dock vérifie ensuite lui-même 
 | A | Ctrl + Maj + A | Rejoindre l’agent Claude Code en attente depuis le plus longtemps |
 | , | — | Paramètres |
 | Flèche | Alt + flèche | Passer d’un terminal à l’autre |
+| — | Alt + PgUp / PgDn | Remonter ou descendre d’une commande dans l’historique du terminal (PowerShell) |
 | Pg préc. / Pg suiv. | Ctrl + Maj + Pg préc. / Pg suiv. | Déplacer l’onglet vers la gauche / la droite |
 | — | Ctrl + Tab / Ctrl + Maj + Tab | Onglet suivant / précédent |
 

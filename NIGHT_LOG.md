@@ -208,6 +208,21 @@ Un sous-agent a relu le diff des itérations 11 à 17 sans rien modifier, en rep
 - Vérifié dans l'instance de dev : Ctrl + clic sur le dernier caractère de `✅ b/src/Dock.Core/Git/GitRunner.cs:7:2` ouvre `…\repo\src\Dock.Core\Git\GitRunner.cs:7:2`, arguments entre guillemets. Un décalage d'une cellule aurait raté le lien. 427 tests au vert.
 - Spec (conventions des liens de fichiers) mise à jour.
 
+### 20. Naviguer de commande en commande, et copie de sortie plus fiable
+
+Dans un terminal qui a beaucoup défilé (plusieurs builds ou tests à la suite), retrouver le début d'une commande obligeait à faire défiler à la main.
+
+- Alt + PgUp / Alt + PgDn font défiler le terminal actif jusqu'à la commande précédente ou suivante, avec une ligne de contexte au-dessus. Au-delà de la dernière, il revient en bas. Deux entrées de palette font de même. Ce raccourci direct sort de la règle « Ctrl + Maj + lettre ou Alt + flèche » : c'est à confirmer.
+- **En testant, j'ai trouvé deux défauts de l'itération 6 (copie de la sortie), corrigés :**
+  - l'annonce `exec` peut arriver après la première ligne de sortie déjà dessinée, et cette ligne (`COMMANDE-3`) disparaissait de la copie. Le début repose maintenant sur l'Entrée tapée (la dernière avant l'exécution, pour une saisie sur plusieurs lignes). `exec` la confirme, et sa position ne sert plus que pour une commande envoyée par Dock ;
+  - quand la sortie fait défiler l'écran, ConPTY sous Windows 10 redessine parfois la zone visible au lieu de la faire défiler, et le contenu glisse d'une ligne par rapport aux repères xterm.js. Le wrapper transmet donc le texte de la commande dans l'annonce `exec` (base64 UTF-8). La première ligne de sortie et le repère de navigation sont recalés sur la ligne, à ±3 près, dont la fin (avec les deux précédentes, espaces ignorés, pour une commande repliée) correspond à ce texte.
+- 1 test PowerShell de plus (annonce `exec` avec le texte de la commande).
+- Vérifié dans l'instance de dev, avec une instrumentation temporaire retirée ensuite :
+  - quatre commandes de 41 lignes : chaque copie commence bien par `LONGUE-n` ;
+  - le bloc `if` multiligne donne `dans le bloc` ;
+  - Alt + PgUp affiche la ligne de contexte puis l'invite de la commande précédente, et un second appui celle d'avant.
+- **Conventions proposées** en section 8 de la spec. README et architecture back mis à jour.
+
 ## Reste à faire et idées
 
 - Déplacer un pane vers un onglet d'un autre workspace (l'itération 8 se limite au workspace du pane).

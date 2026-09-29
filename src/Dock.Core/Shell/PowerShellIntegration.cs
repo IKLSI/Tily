@@ -27,7 +27,7 @@ public static class PowerShellIntegration
                     $global:__DockOriginalReadLine = $function:PSConsoleHostReadLine
                     function global:PSConsoleHostReadLine {
                         $dockCommandLine = $global:__DockOriginalReadLine.Invoke()
-                        [Console]::Write("$([char]27)]6973;exec$([char]27)\")
+                        [Console]::Write("$([char]27)]6973;exec;$([Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes([string]$dockCommandLine)))$([char]27)\")
                         $dockCommandLine
                     }
                 }

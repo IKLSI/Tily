@@ -1,4 +1,4 @@
-import type { IMarker, Terminal } from '@xterm/xterm'
+import type { IBuffer, IMarker, Terminal } from '@xterm/xterm'
 import { COMMAND_DONE_OSC } from './commandNotices'
 
 const CWD_OSC = 7
@@ -9,10 +9,21 @@ const PROMPT_KIND = 'prompt'
 const SEPARATOR = ';'
 const NEXT_ROW = 1
 const SAME_ROW = 0
+const MAX_COMMAND_MARKS = 500
+const CONTEXT_ROWS = 2
+const COMMAND_TAIL_CHARS = 24
+const ROW_SEARCH_OFFSETS = [0, -1, 1, -2, 2, -3, 3]
+const LINE_BREAK = /\r?\n/
+
+export enum CommandDirection {
+  Previous = 'previous',
+  Next = 'next',
+}
 
 interface OutputStart {
   marker: IMarker
   offset: number
+  command: string
 }
 
 interface OutputRange {
@@ -24,10 +35,13 @@ interface OutputRange {
 interface CommandTrack {
   announcesExecution: boolean
   prompted: boolean
+  running: boolean
+  typedStart: IMarker | null
   outputStart: OutputStart | null
   candidate: OutputRange | null
   settling: OutputRange | null
   last: OutputRange | null
+  commands: OutputStart[]
 }
 
 export enum OutputFailure {
@@ -43,21 +57,76 @@ const release = (range: OutputRange | null): void => {
   range?.end?.dispose()
 }
 
-const startOutput = (track: CommandTrack, terminal: Terminal, offset: number): void => {
+const startOutput = (track: CommandTrack, marker: IMarker | undefined, offset: number, command = ''): void => {
   release(track.candidate)
   track.candidate = null
   track.outputStart?.marker.dispose()
-  const marker = terminal.registerMarker(0)
-  track.outputStart = marker ? { marker, offset } : null
+  track.outputStart = marker ? { marker, offset, command } : null
+}
+
+const decodeCommand = (value: string | undefined): string => {
+  try {
+    return value ? new TextDecoder().decode(Uint8Array.from(atob(value), (character) => character.charCodeAt(0))) : ''
+  } catch {
+    return ''
+  }
+}
+
+const withoutSpaces = (text: string): string => text.replace(/\s+/g, '')
+
+const firstOutputRow =(buffer: IBuffer, start: OutputStart): number => {
+  const expected = start.marker.line + start.offset
+  const tail = withoutSpaces(start.command.split(LINE_BREAK).at(-1) ?? '').slice(-COMMAND_TAIL_CHARS)
+  if (tail.length === 0) {
+    return expected
+  }
+  const rowText = (row: number): string => buffer.getLine(row)?.translateToString(true) ?? ''
+  const endsCommand = (row: number): boolean => rowText(row).trim().length > 0 && withoutSpaces(rowText(row - 2) + rowText(row - 1) + rowText(row)).endsWith(tail)
+  const commandRow = ROW_SEARCH_OFFSETS.map((delta) => expected - 1 + delta).find(endsCommand)
+  return commandRow === undefined ? expected : commandRow + 1
+}
+
+const rememberCommand = (track: CommandTrack, terminal: Terminal, start: OutputStart): void => {
+  const buffer = terminal.buffer.active
+  const marker = terminal.registerMarker(start.marker.line - (buffer.baseY + buffer.cursorY))
+  if (marker) {
+    track.commands = [...track.commands.filter((command) => !command.marker.isDisposed), { ...start, marker }]
+  }
+  if (track.commands.length > MAX_COMMAND_MARKS) {
+    track.commands.shift()?.marker.dispose()
+  }
+}
+
+export const scrollToCommand = (terminal: Terminal, direction: CommandDirection): boolean => {
+  const buffer = terminal.buffer.active
+  const top = buffer.viewportY
+  const tops = (tracks.get(terminal)?.commands ?? [])
+    .filter((command) => !command.marker.isDisposed && command.marker.line >= 0)
+    .map((command) => Math.max(0, firstOutputRow(buffer, command) - 1 - CONTEXT_ROWS))
+  const target = direction === CommandDirection.Previous ? tops.filter((line) => line < top).at(-1) : tops.find((line) => line > top)
+  if (target === undefined) {
+    if (direction === CommandDirection.Next) {
+      terminal.scrollToBottom()
+    }
+    return false
+  }
+  terminal.scrollToLine(target)
+  return true
 }
 
 export const trackCommandOutput = (terminal: Terminal): void => {
-  const track: CommandTrack = { announcesExecution: false, prompted: false, outputStart: null, candidate: null, settling: null, last: null }
+  const track: CommandTrack = { announcesExecution: false, prompted: false, running: false, typedStart: null, outputStart: null, candidate: null, settling: null, last: null, commands: [] }
   tracks.set(terminal, track)
   terminal.onData((data) => {
     track.settling = null
-    if (!track.announcesExecution && track.prompted && !track.outputStart && data.includes(ENTER)) {
-      startOutput(track, terminal, NEXT_ROW)
+    if (!track.prompted || track.running || !data.includes(ENTER)) {
+      return
+    }
+    if (track.announcesExecution) {
+      track.typedStart?.dispose()
+      track.typedStart = terminal.registerMarker(0) ?? null
+    } else if (!track.outputStart) {
+      startOutput(track, terminal.registerMarker(0), NEXT_ROW)
     }
   })
   terminal.onWriteParsed(() => {
@@ -73,6 +142,7 @@ export const trackCommandOutput = (terminal: Terminal): void => {
       track.outputStart = null
     }
     track.prompted = true
+    track.running = false
     return false
   })
   terminal.parser.registerOscHandler(COMMAND_DONE_OSC, (data) => {
@@ -80,13 +150,21 @@ export const trackCommandOutput = (terminal: Terminal): void => {
     const rows = Number(value)
     if (kind === EXEC_KIND) {
       track.announcesExecution = true
+      track.running = true
       track.settling = null
-      startOutput(track, terminal, terminal.buffer.active.cursorX === 0 ? SAME_ROW : NEXT_ROW)
+      const command = decodeCommand(value)
+      if (track.typedStart) {
+        startOutput(track, track.typedStart, NEXT_ROW, command)
+        track.typedStart = null
+      } else {
+        startOutput(track, terminal.registerMarker(0), terminal.buffer.active.cursorX === 0 ? SAME_ROW : NEXT_ROW, command)
+      }
     }
     if (kind === PROMPT_KIND && track.settling && Number.isInteger(rows) && rows > 0) {
       track.settling.promptRows = rows
     }
     if (kind === DONE_KIND && track.candidate) {
+      rememberCommand(track, terminal, track.candidate.start)
       release(track.last)
       track.last = track.candidate
       track.candidate = null
@@ -107,12 +185,12 @@ export const lastCommandOutput = (terminal: Terminal): CommandOutput => {
     return { failure: OutputFailure.Trimmed }
   }
   const buffer = terminal.buffer.normal
-  const firstRow = start.line + last.start.offset
+  const firstRow = firstOutputRow(buffer, last.start)
   const promptStart = Math.max(firstRow, last.end.line - (last.promptRows - 1))
   const lines: string[] = []
   for (let row = firstRow; row < promptStart; row++) {
     const line = buffer.getLine(row)
-    const text = line?.translateToString(true) ?? ''
+    const text = (line?.translateToString(true) ?? '').trimEnd()
     if (line?.isWrapped && lines.length > 0) {
       lines[lines.length - 1] += text
     } else {

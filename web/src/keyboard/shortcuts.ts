@@ -7,7 +7,8 @@ import { focusWorkspacePanel } from '../components/workspacePanel'
 import { useSessionStore } from '../store/sessionStore'
 import { requestApplicationClose } from '../terminal/closeGuard'
 import { closePaneKeepingText, movePaneToNewTab, restoreClosedTab } from '../terminal/tabLifecycle'
-import { focusPane, joinNextWaitingPane } from '../terminal/terminalActions'
+import { focusPane, joinNextWaitingPane, scrollPaneToCommand } from '../terminal/terminalActions'
+import { CommandDirection } from '../terminal/commandOutput'
 import { togglePaneZoom } from '../terminal/paneZoom'
 import { togglePanelView } from '../panel/rightPanel'
 import { RenameOrigin, useUiStore } from '../store/uiStore'
@@ -35,6 +36,8 @@ export enum Command {
   FocusPaneRight = 'focusPaneRight',
   FocusPaneUp = 'focusPaneUp',
   FocusPaneDown = 'focusPaneDown',
+  PreviousCommand = 'previousCommand',
+  NextCommand = 'nextCommand',
   SwapPaneLeft = 'swapPaneLeft',
   SwapPaneRight = 'swapPaneRight',
   SwapPaneUp = 'swapPaneUp',
@@ -118,6 +121,8 @@ const DIRECT_ARROW_KEYS: Record<string, Command> = {
   ArrowDown: Command.FocusPaneDown,
   ArrowLeft: Command.FocusPaneLeft,
   ArrowUp: Command.FocusPaneUp,
+  PageUp: Command.PreviousCommand,
+  PageDown: Command.NextCommand,
 }
 
 let leaderTimer: ReturnType<typeof setTimeout> | undefined
@@ -316,6 +321,12 @@ export const runCommand = (command: Command): void => {
       break
     case Command.TogglePaneZoom:
       togglePaneZoom()
+      break
+    case Command.PreviousCommand:
+      scrollPaneToCommand(currentPaneId(), CommandDirection.Previous)
+      break
+    case Command.NextCommand:
+      scrollPaneToCommand(currentPaneId(), CommandDirection.Next)
       break
     case Command.EqualizePanes:
       equalizeActiveTab()

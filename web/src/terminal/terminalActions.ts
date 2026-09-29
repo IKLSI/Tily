@@ -4,7 +4,7 @@ import { useAgentStore } from '../store/agentStore'
 import { useGitStore } from '../store/gitStore'
 import { StatusLevel, useHostStore } from '../store/hostStore'
 import { useSessionStore } from '../store/sessionStore'
-import { lastCommandOutput, OutputFailure } from './commandOutput'
+import { CommandDirection, lastCommandOutput, OutputFailure, scrollToCommand } from './commandOutput'
 import { terminalRegistry } from './terminalRegistry'
 
 const COPY_FAILED = 'Copie dans le presse-papiers impossible.'
@@ -45,6 +45,15 @@ export const copyLastCommandOutput = (paneId: string): void => {
     .writeText(output.text)
     .then(() => useHostStore.getState().setStatus(`Sortie de la dernière commande copiée (${lineCountLabel(output.text)}).`))
     .catch(reportFailure(COPY_FAILED))
+}
+
+const NO_COMMAND_ABOVE = 'Aucune commande plus haut dans ce terminal (Windows PowerShell et PowerShell 7 uniquement).'
+
+export const scrollPaneToCommand = (paneId: string, direction: CommandDirection): void => {
+  const terminal = terminalRegistry.get(paneId)?.terminal
+  if (terminal && !scrollToCommand(terminal, direction) && direction === CommandDirection.Previous) {
+    useHostStore.getState().setStatus(NO_COMMAND_ABOVE)
+  }
 }
 
 export const hasPaneSelection = (paneId: string): boolean => terminalRegistry.get(paneId)?.terminal.hasSelection() ?? false

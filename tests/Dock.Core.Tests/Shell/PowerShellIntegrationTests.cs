@@ -90,6 +90,14 @@ public sealed class PowerShellIntegrationTests
     }
 
     [Fact]
+    public void ReadLine_WhenWrappedByPrompt_ThenAnnouncesExecutionWithCommandText()
+    {
+        var output = RunWithWrapper("function global:PSConsoleHostReadLine { 'git status -s' }", "prompt | Out-Null", "PSConsoleHostReadLine");
+
+        Assert.Contains($"]6973;exec;{Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes("git status -s"))}", output);
+    }
+
+    [Fact]
     public void Prompt_WhenNoHistory_ThenAnnouncesNoCommand()
     {
         var output = RunWithWrapper("prompt");
