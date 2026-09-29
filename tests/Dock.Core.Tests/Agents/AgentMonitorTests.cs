@@ -28,6 +28,28 @@ public sealed class AgentMonitorTests : IDisposable
     }
 
     [Fact]
+    public void Resolve_WhenClaudeReportsMultilineDetail_ThenDetailIsSingleLine()
+    {
+        var started = DateTime.UtcNow.AddMinutes(-1);
+        File.WriteAllText(_states.FilePathFor("pane-a"), "{ \"agent\": \"claude\", \"state\": \"waiting\", \"message\": \"Autorisation demandée : Bash\", \"detail\": \"git add .\\n  git push   --force\" }");
+
+        var agents = _monitor.Resolve([new PaneProbeModel("pane-a", started, ["node"])]);
+
+        Assert.Equal(new PaneAgentModel("pane-a", "claude", AgentState.Waiting, "Autorisation demandée : Bash", "git add . git push --force"), agents.Single());
+    }
+
+    [Fact]
+    public void Resolve_WhenDetailTooLong_ThenDetailIsTruncatedWithEllipsis()
+    {
+        var started = DateTime.UtcNow.AddMinutes(-1);
+        File.WriteAllText(_states.FilePathFor("pane-a"), $"{{ \"agent\": \"claude\", \"state\": \"waiting\", \"detail\": \"{new string('x', 500)}\" }}");
+
+        var detail = _monitor.Resolve([new PaneProbeModel("pane-a", started, ["node"])]).Single().Detail;
+
+        Assert.Equal(new string('x', AgentStateRepository.MaxDetailLength - 1) + "…", detail);
+    }
+
+    [Fact]
     public void Resolve_WhenOnlyProcessPresent_ThenStateIsUnknown()
     {
         var agents = _monitor.Resolve([

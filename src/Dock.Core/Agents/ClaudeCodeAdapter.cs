@@ -8,7 +8,7 @@ public sealed class ClaudeCodeAdapter : IAgentAdapter
     {
         if (reported is not null && reported.Agent == Id)
         {
-            return new PaneAgentModel(probe.PaneId, Id, reported.State, reported.Message);
+            return new PaneAgentModel(probe.PaneId, Id, reported.State, reported.Message, reported.Detail);
         }
 
         return probe.Processes.Contains(Id, StringComparer.OrdinalIgnoreCase)

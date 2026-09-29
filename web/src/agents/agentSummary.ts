@@ -18,7 +18,14 @@ export interface WaitingPane {
   workspaceName: string
   tabName: string
   label: string
+  folder: string
   detail: string
+}
+
+export interface AttentionNotice {
+  title: string
+  body: string
+  location: string
 }
 
 export type AgentMap = Record<string, PaneAgent>
@@ -27,8 +34,14 @@ export const agentLabel = (agent: PaneAgent): string => AGENT_LABELS[agent.agent
 
 export const describeAgent = (agent: PaneAgent): string => {
   const base = `${agentLabel(agent)} : ${STATE_LABELS[agent.state]}`
-  return agent.message ? `${base} — ${agent.message}` : base
+  return [base, agent.message, agent.detail].filter(Boolean).join(' — ')
 }
+
+export const attentionNotice = (pane: WaitingPane, agent: PaneAgent, branch: string | null | undefined): AttentionNotice => ({
+  title: agent.message ?? `${agentLabel(agent)} : ${STATE_LABELS[agent.state]}`,
+  body: agent.detail ?? agentLabel(agent),
+  location: [`${pane.workspaceName} › ${pane.tabName}`, pane.folder, branch].filter(Boolean).join(' · '),
+})
 
 const isWaiting = (agent: PaneAgent | undefined): boolean => agent?.state === AgentState.Waiting
 
@@ -139,6 +152,7 @@ export const waitingPanes = (session: Session, agents: AgentMap): WaitingPane[] 
           workspaceName: workspace.name,
           tabName: tab.name,
           label: `${workspace.name} › ${tab.name} › ${folderName(pane.path)}`,
+          folder: folderName(pane.path),
           detail: describeAgent(agents[pane.id]),
         })),
     ),

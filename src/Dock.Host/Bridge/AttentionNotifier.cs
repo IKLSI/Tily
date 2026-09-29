@@ -50,7 +50,7 @@ public sealed class AttentionNotifier : IDisposable
         }
     }
 
-    public void Notify(string paneId, string title, string body, NotificationSettingsModel settings, bool force)
+    public void Notify(string paneId, IEnumerable<string?> lines, NotificationSettingsModel settings, bool force)
     {
         if (WindowActive && !force)
         {
@@ -76,13 +76,13 @@ public sealed class AttentionNotifier : IDisposable
         }
 
         var muted = settings.Sound == NotificationSettingsModel.NoSound || settings.UsesFile;
-        var toast = new ToastNotification(BuildContent(title, body, muted ? null : settings.Sound)) { Tag = ToastTag(paneId), Group = ToastGroup };
+        var toast = new ToastNotification(BuildContent(lines.Where(line => !string.IsNullOrWhiteSpace(line)).Cast<string>(), muted ? null : settings.Sound)) { Tag = ToastTag(paneId), Group = ToastGroup };
         toast.Activated += (_, _) => HandleActivated(paneId);
         _shown[paneId] = toast;
         _toastNotifier.Show(toast);
     }
 
-    private static XmlDocument BuildContent(string title, string body, string? sound)
+    private static XmlDocument BuildContent(IEnumerable<string> lines, string? sound)
     {
         var document = new XmlDocument();
         var toast = document.CreateElement("toast");
@@ -90,7 +90,7 @@ public sealed class AttentionNotifier : IDisposable
 
         var binding = document.CreateElement("binding");
         binding.SetAttribute("template", "ToastGeneric");
-        foreach (var line in new[] { title, body })
+        foreach (var line in lines)
         {
             var text = document.CreateElement("text");
             text.InnerText = line;

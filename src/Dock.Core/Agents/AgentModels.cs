@@ -12,7 +12,7 @@ public enum AgentState
     [JsonStringEnumMemberName("unknown")] Unknown
 }
 
-public sealed record PaneAgentModel(string PaneId, string Agent, AgentState State, string? Message);
+public sealed record PaneAgentModel(string PaneId, string Agent, AgentState State, string? Message, string? Detail = null);
 
 public sealed record PaneProbeModel(string PaneId, DateTime StartedAtUtc, IReadOnlyList<string> Processes);
 
@@ -21,6 +21,7 @@ public sealed class AgentStateFileModel
     public string? Agent { get; set; }
     public string? State { get; set; }
     public string? Message { get; set; }
+    public string? Detail { get; set; }
 }
 
-public sealed record AgentStateModel(string Agent, AgentState State, string? Message);
+public sealed record AgentStateModel(string Agent, AgentState State, string? Message, string? Detail = null);

@@ -1,7 +1,8 @@
 import { bridge } from '../bridge/bridge'
 import { agentKey, useAgentStore } from '../store/agentStore'
+import { useHostStore } from '../store/hostStore'
 import { useSessionStore } from '../store/sessionStore'
-import { waitingPanes } from './agentSummary'
+import { attentionNotice, waitingPanes } from './agentSummary'
 
 const seen: Record<string, string> = {}
 
@@ -17,7 +18,9 @@ export const startAttentionNotifier = (): (() => void) =>
       seen[pane.paneId] = key
       return isNew
     })
+    const { contexts } = useHostStore.getState()
     for (const pane of fresh) {
-      bridge.send({ type: 'attention.raise', pane: pane.paneId, title: `${pane.workspaceName} › ${pane.tabName}`, body: pane.detail })
+      const notice = attentionNotice(pane, state.agents[pane.paneId], contexts[pane.paneId]?.branch)
+      bridge.send({ type: 'attention.raise', pane: pane.paneId, ...notice })
     }
   })

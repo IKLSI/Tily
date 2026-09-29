@@ -5,6 +5,8 @@ namespace Dock.Core.Agents;
 
 public sealed class AgentStateRepository
 {
+    public const int MaxDetailLength = 240;
+
     private static readonly Dictionary<string, AgentState> States = new(StringComparer.OrdinalIgnoreCase)
     {
         ["working"] = AgentState.Working,
@@ -47,7 +49,18 @@ public sealed class AgentStateRepository
         }
 
         var message = string.IsNullOrWhiteSpace(file.Message) ? null : file.Message.Trim();
-        return new AgentStateModel(file.Agent.Trim().ToLowerInvariant(), state, message);
+        return new AgentStateModel(file.Agent.Trim().ToLowerInvariant(), state, message, SingleLine(file.Detail));
+    }
+
+    private static string? SingleLine(string? detail)
+    {
+        if (string.IsNullOrWhiteSpace(detail))
+        {
+            return null;
+        }
+
+        var line = string.Join(' ', detail.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries));
+        return line.Length <= MaxDetailLength ? line : line[..(MaxDetailLength - 1)].TrimEnd() + "…";
     }
 
     public void Delete(string paneId)
