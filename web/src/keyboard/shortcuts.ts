@@ -1,13 +1,14 @@
 import { bridge } from '../bridge/bridge'
 import { useHostStore } from '../store/hostStore'
 import { activePane, activeTab, activeWorkspace, DEFAULT_SHELL, RightPanelView, SplitAxis, type Workspace } from '../model/session'
-import { Direction, paneInDirection } from '../components/paneNavigation'
+import { Direction } from '../components/paneNavigation'
+import { equalizeActiveTab, focusPaneToward, swapPaneToward } from './paneCommands'
 import { focusWorkspacePanel } from '../components/workspacePanel'
 import { useSessionStore } from '../store/sessionStore'
 import { requestApplicationClose } from '../terminal/closeGuard'
 import { closePaneKeepingText, movePaneToNewTab, restoreClosedTab } from '../terminal/tabLifecycle'
 import { focusPane, joinNextWaitingPane } from '../terminal/terminalActions'
-import { endPaneZoom, togglePaneZoom } from '../terminal/paneZoom'
+import { togglePaneZoom } from '../terminal/paneZoom'
 import { togglePanelView } from '../panel/rightPanel'
 import { RenameOrigin, useUiStore } from '../store/uiStore'
 import { startWorktreeCreation } from '../worktree/worktreeActions'
@@ -229,39 +230,31 @@ const toggleSidebar = (): void => {
   toggle()
 }
 
-const equalizeActiveTab = (): void => {
-  const workspace = currentWorkspace()
-  if (workspace) {
-    useSessionStore.getState().equalizeSplits(activeTab(workspace).id)
-  }
+const FOCUS_DIRECTIONS: Partial<Record<Command, Direction>> = {
+  [Command.FocusPaneLeft]: Direction.Left,
+  [Command.FocusPaneRight]: Direction.Right,
+  [Command.FocusPaneUp]: Direction.Up,
+  [Command.FocusPaneDown]: Direction.Down,
 }
 
-const swapPaneToward = (direction: Direction): void => {
-  if (useUiStore.getState().zoomedPaneId !== null) {
-    endPaneZoom(true)
-    requestAnimationFrame(() => swapPaneToward(direction))
-    return
-  }
-  const target = paneInDirection(currentPaneId(), direction)
-  if (target) {
-    useSessionStore.getState().swapActivePane(target)
-    requestAnimationFrame(() => focusPane(currentPaneId()))
-  }
-}
-
-const focusPaneToward = (direction: Direction): void => {
-  if (useUiStore.getState().zoomedPaneId !== null) {
-    endPaneZoom(true)
-    requestAnimationFrame(() => focusPaneToward(direction))
-    return
-  }
-  const target = paneInDirection(currentPaneId(), direction)
-  if (target) {
-    useSessionStore.getState().selectPane(target)
-  }
+const SWAP_DIRECTIONS: Partial<Record<Command, Direction>> = {
+  [Command.SwapPaneLeft]: Direction.Left,
+  [Command.SwapPaneRight]: Direction.Right,
+  [Command.SwapPaneUp]: Direction.Up,
+  [Command.SwapPaneDown]: Direction.Down,
 }
 
 export const runCommand = (command: Command): void => {
+  const focusDirection = FOCUS_DIRECTIONS[command]
+  const swapDirection = SWAP_DIRECTIONS[command]
+  if (focusDirection) {
+    focusPaneToward(focusDirection)
+    return
+  }
+  if (swapDirection) {
+    swapPaneToward(swapDirection)
+    return
+  }
   const sessionStore = useSessionStore.getState()
   const hostStore = useHostStore.getState()
   switch (command) {
@@ -290,30 +283,6 @@ export const runCommand = (command: Command): void => {
       break
     case Command.ClosePane:
       closePaneKeepingText(currentPaneId())
-      break
-    case Command.FocusPaneLeft:
-      focusPaneToward(Direction.Left)
-      break
-    case Command.FocusPaneRight:
-      focusPaneToward(Direction.Right)
-      break
-    case Command.FocusPaneUp:
-      focusPaneToward(Direction.Up)
-      break
-    case Command.FocusPaneDown:
-      focusPaneToward(Direction.Down)
-      break
-    case Command.SwapPaneLeft:
-      swapPaneToward(Direction.Left)
-      break
-    case Command.SwapPaneRight:
-      swapPaneToward(Direction.Right)
-      break
-    case Command.SwapPaneUp:
-      swapPaneToward(Direction.Up)
-      break
-    case Command.SwapPaneDown:
-      swapPaneToward(Direction.Down)
       break
     case Command.MoveTabLeft:
       sessionStore.moveActiveTab(-1)

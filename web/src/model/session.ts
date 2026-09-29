@@ -144,6 +144,8 @@ export const folderName = (path: string): string => {
 
 export const createPane = (path: string, shell: string): Pane => ({ id: newId(), path, shell })
 
+export const tabNameFor = (tab: Tab, paneId: string, path: string): string => (!tab.manual && tab.active === paneId ? folderName(path) || tab.name : tab.name)
+
 export const tabOfPane = (pane: Pane): Tab => ({ id: newId(), name: folderName(pane.path) || pane.shell, manual: false, active: pane.id, tree: { pane } })
 
 export const createTab = (path: string, shell: string): Tab => tabOfPane(createPane(path, shell))
