@@ -1,0 +1,101 @@
+import { useLayoutEffect, useRef, type KeyboardEvent } from 'react'
+import { StatusLevel } from '../store/hostStore'
+import { useStatusLogStore } from '../store/statusLogStore'
+import { clearStatusLog, closeStatusLog, copyStatusLog, entryFullDate, entryTime, levelLabel } from '../statusLog/statusLogActions'
+import { Icon } from './Icon'
+import { IconName } from './iconName'
+import { PANEL_HEADER_BUTTON, SECTION_TITLE } from './rightPanelStyles'
+
+export const STATUS_LOG_ID = 'status-log'
+
+const BOTTOM_TOLERANCE_PX = 8
+const TEXT_BUTTON = 'cursor-pointer rounded-md px-[8px] py-[3px] text-[11px] text-dock-muted hover:bg-dock-green-hover hover:text-dock-ink aria-disabled:cursor-default aria-disabled:opacity-40 aria-disabled:hover:bg-transparent aria-disabled:hover:text-dock-muted'
+
+const LEVEL_CLASSES: Record<StatusLevel, string> = {
+  [StatusLevel.Info]: 'text-dock-ink-soft',
+  [StatusLevel.Warning]: 'text-dock-warning',
+  [StatusLevel.Error]: 'text-dock-error',
+}
+
+const countLabel = (count: number): string => (count === 0 ? 'Aucun message' : count === 1 ? '1 message' : `${count} messages`)
+
+export function StatusLogDrawer() {
+  const entries = useStatusLogStore((state) => state.entries)
+  const listRef = useRef<HTMLDivElement>(null)
+  const pinnedToBottom = useRef(true)
+  const empty = entries.length === 0
+  const now = new Date()
+
+  useLayoutEffect(() => {
+    const list = listRef.current
+    if (list && pinnedToBottom.current) {
+      list.scrollTop = list.scrollHeight
+    }
+  }, [entries])
+
+  const handleScroll = () => {
+    const list = listRef.current
+    if (list) {
+      pinnedToBottom.current = list.scrollHeight - list.scrollTop - list.clientHeight <= BOTTOM_TOLERANCE_PX
+    }
+  }
+  const handleKeyDown = (event: KeyboardEvent<HTMLElement>) => {
+    if (event.key === 'Escape') {
+      event.preventDefault()
+      event.stopPropagation()
+      closeStatusLog()
+    }
+  }
+  const handleCopy = () => {
+    if (!empty) {
+      copyStatusLog()
+    }
+  }
+  const handleClear = () => {
+    if (!empty) {
+      clearStatusLog()
+    }
+  }
+
+  return (
+    <section
+      id={STATUS_LOG_ID}
+      data-status-log=""
+      aria-label="Journal de la barre de statut"
+      className="absolute right-0 bottom-[24px] left-0 z-20 flex h-[260px] max-h-[50vh] flex-col border-t border-dock-line bg-dock-paper shadow-[0_-8px_24px_rgba(0,0,0,0.35)]"
+      onKeyDown={handleKeyDown}
+    >
+      <div className="flex h-[32px] shrink-0 items-center gap-[6px] pr-[6px] pl-[12px]">
+        <span className={SECTION_TITLE}>Journal</span>
+        <span className="text-[11px] text-dock-muted">{countLabel(entries.length)}</span>
+        <span className="flex-1" />
+        <button type="button" className={TEXT_BUTTON} aria-disabled={empty} data-tip="Copier tout le journal dans le presse-papiers" onClick={handleCopy}>
+          Copier
+        </button>
+        <button type="button" className={TEXT_BUTTON} aria-disabled={empty} data-tip="Effacer tous les messages du journal" onClick={handleClear}>
+          Effacer
+        </button>
+        <button type="button" className={PANEL_HEADER_BUTTON} aria-label="Masquer le journal" data-tip="Masquer le journal (Échap, Ctrl + Maj + L)" onClick={closeStatusLog}>
+          <Icon name={IconName.Close} />
+        </button>
+      </div>
+      <div ref={listRef} role="log" data-status-log-list="" tabIndex={0} aria-label="Messages" className="min-h-0 flex-1 overflow-y-auto px-[12px] pb-[8px] font-mono text-[11px] leading-[1.6]" onScroll={handleScroll}>
+        {empty ? (
+          <p className="font-sans text-[12px] text-dock-muted">Aucun message : ceux de la barre de statut s’afficheront ici.</p>
+        ) : (
+          <ol>
+            {entries.map((entry, index) => (
+              <li key={`${entry.at}-${index}`} className="flex gap-[10px]">
+                <time dateTime={entry.at} data-tip={entryFullDate(entry)} className="shrink-0 text-dock-muted tabular-nums">
+                  {entryTime(entry, now)}
+                </time>
+                <span className={`w-[92px] shrink-0 ${LEVEL_CLASSES[entry.level]}`}>{levelLabel(entry.level)}</span>
+                <span className={`min-w-0 break-words whitespace-pre-wrap ${entry.level === StatusLevel.Info ? 'text-dock-ink' : LEVEL_CLASSES[entry.level]}`}>{entry.text}</span>
+              </li>
+            ))}
+          </ol>
+        )}
+      </div>
+    </section>
+  )
+}

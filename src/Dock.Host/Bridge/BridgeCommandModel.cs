@@ -22,6 +22,7 @@ public sealed class BridgeCommandModel
     public string? File { get; init; }
     public string? OldFile { get; init; }
     public string? Message { get; init; }
+    public string? Level { get; init; }
     public string? Commit { get; init; }
     public string? Reference { get; init; }
     public string? NewName { get; init; }
