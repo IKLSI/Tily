@@ -728,6 +728,21 @@ Un sous-agent a relu les itérations 62 à 71 (`bc8a377..53db6dc`) sans rien mod
 - **Non traité** : `sessionStore.ts` dépasse la limite de 400 lignes (468). Le dépassement existait avant cette nuit, qui n'y a ajouté que 8 lignes. Le découper serait une refonte, hors du cadre de la nuit.
 - **Au passage** : le commit de l'itération 75 portait le gitmoji ♿, qui ne fait pas partie de la liste autorisée. J'ai corrigé son message (`--amend`, devenu `627884f` avec ✨) et je l'ai repoussé avec `--force-with-lease`, sur `night-session` seulement. Ses 82 prédécesseurs de la nuit sont conformes.
 
+### 77. Chaque pane affiche sa branche Git dans son en-tête
+
+Avec les worktrees (`wtr`) et plusieurs agents en parallèle, chaque pane peut être sur une branche différente. La branche n'était pourtant visible que dans la vue Git, qui suit le seul pane actif, ou dans l'infobulle du bouton « Copier la branche ». La décision de la section 11 demande de montrer ce contexte (« Aucun dépôt Git », « HEAD détachée »…).
+
+- L'en-tête de chaque pane affiche, après le chemin, l'icône de branche et le nom de la branche, ou « HEAD détachée ». Hors d'un dépôt, rien ne s'affiche.
+- La branche est relue après chaque commande. Le prompt PowerShell de Dock signale son dossier à chaque invite (`terminal.cwd`), et Dock redemande alors le contexte Git. Côté hôte, cela coûte peu : `GitContext` lit `.git/HEAD` sans lancer `git`, dans la file de fond. Un `git switch` ou un `git checkout` apparaît donc dès l'invite suivante. `hostStore.setContext` ignore un contexte inchangé, pour ne pas redessiner le pane à chaque commande.
+- Sous 520 px de large (deux panes côte à côte), la branche est masquée par une requête de conteneur : au premier essai, elle réduisait le chemin à « D… ». Elle reste lisible dans l'infobulle du bouton de copie.
+- Vérifié dans l'instance de dev, sans toucher au vrai dépôt, grâce à un dépôt jetable du scratchpad :
+  - `night-session` s'affiche dans le dépôt réel, puis `depart` dans le dépôt jetable ;
+  - `git switch -c essai-branche` affiche `essai-branche` à l'invite suivante, `git checkout --detach` affiche « HEAD détachée » ;
+  - `Set-Location C:\Users` ne montre plus rien ;
+  - la branche disparaît dans deux panes de 341 px et réapparaît dans un pane de 691 px.
+- Une capture a montré par erreur ta fenêtre Dock, restée au premier plan, au lieu de l'instance de dev. Seule une capture a été faite, aucune touche ni aucun clic. Je l'ai supprimée.
+- **Convention proposée** en section 11 de la spec ; architecture front et README mis à jour.
+
 ## Reste à faire et idées
 
 - **Alt + flèche sur un onglet ou une ligne du panneau** : quand un onglet de la barre ou une ligne du panneau des workspaces a le focus, Alt + flèche déplace cet élément (itérations 14, 47 et 58) au lieu de changer de pane, comme le prévoit le tableau retenu de la section 9. C'est une dérogation à confirmer ou à retirer ; la spec la signale comme « exception à confirmer ».

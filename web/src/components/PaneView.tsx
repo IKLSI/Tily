@@ -53,6 +53,8 @@ const FolderIcon = () => (
   </svg>
 )
 
+const DETACHED_LABEL = 'HEAD détachée'
+
 const BranchIcon = () => (
   <svg {...ICON_PROPS} aria-hidden="true">
     <circle cx="3" cy="2.5" r="1.2" />
@@ -140,6 +142,7 @@ export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZ
     close: handleClose,
   }
   const branchTitle = context?.branch ? `Copier la branche « ${context.branch} »` : gitSummary(context)
+  const branchLabel = context?.branch ?? (context?.detachedHead ? DETACHED_LABEL : null)
 
   return (
     <section
@@ -148,7 +151,7 @@ export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZ
       onFocus={handleFocusWithin}
     >
       <header
-        className="flex items-center gap-1 bg-dock-panel px-2 text-[11px] text-dock-muted select-none"
+        className="@container flex items-center gap-1 bg-dock-panel px-2 text-[11px] text-dock-muted select-none"
         onMouseDown={handleHeaderMouseDown}
         onDoubleClick={handleHeaderDoubleClick}
       >
@@ -157,6 +160,12 @@ export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZ
         <span className="min-w-0 flex-1 truncate font-mono text-dock-green" data-tip={pane.path}>
           {pane.path}
         </span>
+        {branchLabel && (
+          <span className="flex max-w-[35%] min-w-0 shrink items-center gap-1 font-mono text-dock-muted @max-[520px]:hidden" data-tip={gitSummary(context)}>
+            <BranchIcon />
+            <span className="truncate">{branchLabel}</span>
+          </span>
+        )}
         <button type="button" className={HEADER_BUTTON} data-tip={`Copier le chemin ${pane.path}`} aria-label="Copier le chemin" onClick={handleCopyPath}>
           <CopyIcon />
         </button>

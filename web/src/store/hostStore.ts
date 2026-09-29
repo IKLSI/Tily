@@ -58,5 +58,10 @@ export const useHostStore = create<HostState>()((set) => ({
   setStatus: (text, level = StatusLevel.Info) => set({ status: { text, level } }),
   setLeaderActive: (leaderActive) => set({ leaderActive }),
   setProjects: (projectsRoot, projects, projectsError) => set({ projectsRoot, projects, projectsError }),
-  setContext: (paneId, context) => set((state) => ({ contexts: { ...state.contexts, [paneId]: context } })),
+  setContext: (paneId, context) =>
+    set((state) => {
+      const known = state.contexts[paneId]
+      const unchanged = known?.isRepository === context.isRepository && known.branch === context.branch && known.detachedHead === context.detachedHead
+      return unchanged ? state : { contexts: { ...state.contexts, [paneId]: context } }
+    }),
 }))

@@ -9,7 +9,7 @@ import { usePaneStore } from './store/paneStore'
 import { useSessionStore } from './store/sessionStore'
 import { useUiStore } from './store/uiStore'
 import { receiveActivity, receiveApplicationClosing } from './terminal/closeGuard'
-import { receiveContext } from './terminal/contextActions'
+import { queryContext, receiveContext } from './terminal/contextActions'
 import { startExternalDrops } from './terminal/externalDrop'
 import { receiveCreated, receiveDeleted, receiveListing, receiveRenamed } from './explorer/fileExplorerActions'
 import { receiveGitChanged, receiveGitDetails, receiveGitDiff, receiveGitDone, receiveGitFailed, receiveGitHistory, receiveGitPushRejected, receiveGitState } from './git/gitReceivers'
@@ -80,6 +80,7 @@ export default function App() {
       bridge.on('terminal.cwd', (message) => {
         setPanePath(message.pane, message.path)
         markAlive(message.pane)
+        queryContext(message.pane)
       }),
       bridge.on('terminal.pathMissing', (message) => markPathMissing(message.pane, message.path, message.fallback)),
       bridge.on('projects.listed', (message) => setProjects(message.root, message.projects, message.error ?? null)),
