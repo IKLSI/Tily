@@ -68,6 +68,28 @@ public sealed class PowerShellIntegrationTests
     }
 
     [Fact]
+    public void Prompt_WhenStrictModeIsOn_ThenStillAnnouncesCommand()
+    {
+        var output = RunWithWrapper(
+            "Set-StrictMode -Version Latest",
+            "$fin = Get-Date",
+            "Add-History -InputObject ([pscustomobject]@{ CommandLine = 'pnpm build'; ExecutionStatus = 'Completed'; StartExecutionTime = $fin.AddSeconds(-2); EndExecutionTime = $fin })",
+            "Get-Item 'C:\\' | Out-Null",
+            "prompt | Out-Null",
+            "\"erreurs=$($Error.Count)\"");
+
+        Assert.Equal(["]6973;done;2000;1"], CommandNotices(output));
+    }
+
+    [Fact]
+    public void Prompt_WhenInRegistryProvider_ThenLeavesNoError()
+    {
+        var output = RunWithWrapper("Set-StrictMode -Version Latest", @"Set-Location 'HKCU:\Software'", "prompt | Out-Null", "\"erreurs=$($Error.Count)\"");
+
+        Assert.EndsWith("erreurs=0", output);
+    }
+
+    [Fact]
     public void Prompt_WhenNoHistory_ThenAnnouncesNoCommand()
     {
         var output = RunWithWrapper("prompt");

@@ -53,6 +53,30 @@ public sealed class GitPathMarksTests
     }
 
     [Fact]
+    public void DisplayRoot_WhenFolderIsRepositoryRoot_ThenKeepsFolder()
+    {
+        var root = GitPathMarks.DisplayRoot(@"D:\lien\dépôt\", string.Empty, @"D:\réel\dépôt");
+
+        Assert.Equal(@"D:\lien\dépôt", root);
+    }
+
+    [Fact]
+    public void DisplayRoot_WhenFolderIsNested_ThenRemovesPrefixFromFolder()
+    {
+        var root = GitPathMarks.DisplayRoot(@"D:\lien\dépôt\web\src", "web/src/", @"D:\réel\dépôt");
+
+        Assert.Equal(@"D:\lien\dépôt", root);
+    }
+
+    [Fact]
+    public void DisplayRoot_WhenPrefixDoesNotMatchFolder_ThenFallsBack()
+    {
+        var root = GitPathMarks.DisplayRoot(@"D:\lien\autre", "web/", @"D:\réel\dépôt");
+
+        Assert.Equal(@"D:\réel\dépôt", root);
+    }
+
+    [Fact]
     public void From_WhenRepositoryStatus_ThenMarksModifiedAndUntrackedFiles()
     {
         using var sandbox = new GitSandbox();

@@ -223,7 +223,7 @@ export function FileTree({ root, rows, expanded, selectedPath, renamingPath, dra
                 focusable={row.entry.path === focusablePath}
                 expanded={Boolean(expanded[row.entry.path])}
                 renaming={row.entry.path === renamingPath}
-                mark={(row.entry.isDirectory ? gitFolderMarks : gitMarks).get(markKey(row.entry.path))}
+                mark={(row.entry.isDirectory ? gitFolderMarks.get(markKey(row.entry.path)) : undefined) ?? gitMarks.get(markKey(row.entry.path))}
                 handlers={handlers}
               />
             )

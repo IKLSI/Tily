@@ -25,6 +25,23 @@ public static class GitPathMarks
         return marks.Values.ToList();
     }
 
+    public static string DisplayRoot(string folder, string prefix, string fallback)
+    {
+        var root = Path.TrimEndingDirectorySeparator(Path.GetFullPath(folder));
+        foreach (var segment in prefix.Split('/', StringSplitOptions.RemoveEmptyEntries).Reverse())
+        {
+            var parent = Path.GetDirectoryName(root);
+            if (parent is null || !string.Equals(Path.GetFileName(root), segment, StringComparison.OrdinalIgnoreCase))
+            {
+                return fallback;
+            }
+
+            root = parent;
+        }
+
+        return root;
+    }
+
     private static int Precedence(GitChangeKind kind) => kind switch
     {
         GitChangeKind.Untracked or GitChangeKind.Deleted => 2,

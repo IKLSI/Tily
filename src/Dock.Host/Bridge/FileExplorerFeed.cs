@@ -24,7 +24,7 @@ public sealed class FileExplorerFeed : IDisposable
         _post = post;
         _queue = new BackgroundQueue(onError);
         _changeTimer = new Timer(_ => ListChanged());
-        _gitMarks = new ExplorerGitMarks(post, _queue);
+        _gitMarks = new ExplorerGitMarks(post, onError);
     }
 
     public void Handle(BridgeCommandModel command)
