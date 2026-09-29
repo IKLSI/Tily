@@ -16,6 +16,7 @@ import { receiveGitChanged, receiveGitDetails, receiveGitDiff, receiveGitDone, r
 import { insertIntoPane, joinPane } from './terminal/terminalActions'
 import { receiveWorktreeCreated, receiveWorktreeDone, receiveWorktreeFailed, receiveWorktreePlan, receiveWorktreeProgress } from './worktree/worktreeReceivers'
 import { terminalRegistry } from './terminal/terminalRegistry'
+import { receiveUpdateRestart, receiveUpdateState } from './update/updateActions'
 import { forgetRemovedText, markTextSaveFailed, primeSessionText, startTextAutosave } from './terminal/textPersistence'
 
 const SAVE_DEBOUNCE_MS = 500
@@ -103,6 +104,8 @@ export default function App() {
       bridge.on('worktrees.created', (message) => receiveWorktreeCreated(message.path, message.name, message.install)),
       bridge.on('worktrees.done', (message) => receiveWorktreeDone(message.operation, message.message, message.warnings)),
       bridge.on('worktrees.failed', (message) => receiveWorktreeFailed(message.operation, message.message, message.output, message.lockedBy)),
+      bridge.on('update.state', (message) => receiveUpdateState(message)),
+      bridge.on('update.restart', receiveUpdateRestart),
       bridge.on('terminal.exit', (message) => {
         terminalRegistry.markExited(message.pane, message.code)
         markExited(message.pane, message.code)

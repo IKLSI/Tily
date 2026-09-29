@@ -56,7 +56,7 @@ export function CloseConfirmDialog({ confirmation, onConfirm, onCancel }: CloseC
             Annuler
           </button>
           <button ref={confirmRef} type="button" className={DANGER} onClick={onConfirm}>
-            Arrêter et fermer
+            {confirmation.confirmLabel ?? 'Arrêter et fermer'}
           </button>
         </div>
       </div>

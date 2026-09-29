@@ -24,6 +24,7 @@ export interface PaneActivityView {
 export interface CloseConfirmation {
   title: string
   panes: PaneActivityView[]
+  confirmLabel?: string
 }
 
 interface UiState {

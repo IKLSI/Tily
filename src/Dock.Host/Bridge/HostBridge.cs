@@ -38,6 +38,7 @@ public sealed class HostBridge : IDisposable
     private readonly FileExplorerFeed _files;
     private readonly GitFeed _git;
     private readonly WorktreeFeed _worktrees;
+    private readonly UpdateFeed _updates;
     private SettingsModel _settings;
     private ShellPathsModel _shellPaths = ShellPathsModel.Empty;
     private PersistenceSettingsModel _persistence = PersistenceSettingsModel.Default;
@@ -70,6 +71,7 @@ public sealed class HostBridge : IDisposable
         _files = new FileExplorerFeed(windowHandle, () => _settings.Editor, Post, PostBackgroundError);
         _git = new GitFeed(Post, PostBackgroundError);
         _worktrees = new WorktreeFeed(Post, () => _settings, _git.RefreshSoon, PostBackgroundError);
+        _updates = new UpdateFeed(Post, ApplicationVersion, dataDirectory);
         ApplySettings(_settings);
         _terminals.OutputReceived += HandleOutput;
         _terminals.CurrentDirectoryChanged += HandleCurrentDirectoryChanged;
@@ -288,6 +290,9 @@ public sealed class HostBridge : IDisposable
             case var type when type.StartsWith("worktrees.", StringComparison.Ordinal):
                 _worktrees.Handle(command);
                 break;
+            case var type when type.StartsWith("update.", StringComparison.Ordinal):
+                _updates.Handle(command);
+                break;
             case "link.open":
                 LocalActions.OpenLink(command.Url ?? throw new InvalidOperationException("Lien manquant."));
                 break;
@@ -346,6 +351,7 @@ public sealed class HostBridge : IDisposable
         _persistence = settings.Persistence;
         _texts = new PaneTextRepository(_dataDirectory, _persistence.MaxTextBytes);
         _terminals.UpdatePaths(_shellPaths);
+        _updates.Configure(settings.Updates.AutoCheck);
     }
 
     private void PostSettings(bool saved)
@@ -397,6 +403,7 @@ public sealed class HostBridge : IDisposable
             persistence = _persistence,
             recovery = recovery.Length > 0 ? recovery : null
         });
+        _updates.PostState();
     }
 
     private void SaveSession(BridgeCommandModel command)
@@ -630,5 +637,7 @@ public sealed class HostBridge : IDisposable
         }
 
         _terminals.Dispose();
+        _updates.LaunchPendingInstaller();
+        _updates.Dispose();
     }
 }

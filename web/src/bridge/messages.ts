@@ -1,5 +1,6 @@
 import type { Session } from '../model/session'
 import type { GitHostMessage, GitWebMessage } from './gitMessages'
+import type { UpdateHostMessage, UpdateSettings, UpdateWebMessage } from './updateMessages'
 import type { WorktreeHostMessage, WorktreeSettings, WorktreeWebMessage } from './worktreeMessages'
 
 export interface ShellProfile {
@@ -79,6 +80,7 @@ export interface Settings {
   projectsRoot: string
   notifications: NotificationSettings
   worktrees: WorktreeSettings
+  updates: UpdateSettings
 }
 
 interface ShellSetting {
@@ -169,6 +171,7 @@ export type HostToWebMessage =
   | { type: 'error'; pane?: string; message: string }
   | GitHostMessage
   | WorktreeHostMessage
+  | UpdateHostMessage
 
 export type WebToHostMessage =
   | { type: 'app.ready' }
@@ -207,6 +210,7 @@ export type WebToHostMessage =
   | { type: 'window.title'; title: string }
   | GitWebMessage
   | WorktreeWebMessage
+  | UpdateWebMessage
 
 export type HostMessageType = HostToWebMessage['type']
 export type HostMessageOf<T extends HostMessageType> = Extract<HostToWebMessage, { type: T }>

@@ -5,6 +5,7 @@ import { useHostStore } from '../store/hostStore'
 import { keepTabInside } from './focusTrap'
 import { SETTINGS_BROWSE, SETTINGS_BUTTON, SETTINGS_HINT, SETTINGS_INPUT, SETTINGS_INPUT_BASE, SETTINGS_LABEL } from './settingsStyles'
 import { SoundSetting } from './SoundSetting'
+import { UpdateSettingsSection } from './UpdateSettingsSection'
 
 interface SettingsDialogProps {
   snapshot: SettingsSnapshot | null
@@ -178,6 +179,7 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
   }
   const handleTestNotification = () => testNotification(AttentionKind.Waiting)
   const handleTestDoneNotification = () => testNotification(AttentionKind.Done)
+  const handleAutoCheckChange = (autoCheck: boolean) => updateDraft({ updates: { autoCheck } })
 
   const renderBody = (settings: Settings, current: SettingsSnapshot) => (
     <>
@@ -317,6 +319,7 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
           )}
         </span>
       </section>
+      <UpdateSettingsSection sectionClassName={SECTION} autoCheck={settings.updates.autoCheck} file={current.files.updates} onAutoCheckChange={handleAutoCheckChange} />
     </>
   )
 
@@ -343,7 +346,7 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
           <button type="button" className={`${SECONDARY} ml-auto`} onClick={onClose}>
             Annuler
           </button>
-          <button type="button" className={PRIMARY} aria-disabled={!draft || invalidNumber !== undefined} data-tip={invalidNumber ? `${invalidNumber.label} : entre ${invalidNumber.min} et ${invalidNumber.max}` : 'Écrit les quatre fichiers et applique immédiatement'} onClick={handleSave}>
+          <button type="button" className={PRIMARY} aria-disabled={!draft || invalidNumber !== undefined} data-tip={invalidNumber ? `${invalidNumber.label} : entre ${invalidNumber.min} et ${invalidNumber.max}` : 'Écrit les fichiers de réglages et applique immédiatement'} onClick={handleSave}>
             Enregistrer
           </button>
         </div>
