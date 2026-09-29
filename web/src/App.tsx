@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { clearSeenCommandNotices } from './terminal/commandNotices'
 import { startAttentionNotifier } from './agents/attentionNotifier'
 import { bridge } from './bridge/bridge'
 import { AppShell } from './components/AppShell'
@@ -149,6 +150,7 @@ export default function App() {
         return
       }
       const removed = terminalRegistry.disposeMissing(new Set(allPanes(state.session).map((pane) => pane.id)))
+      clearSeenCommandNotices()
       clearTimeout(timer)
       timer = setTimeout(() => {
         bridge.send({ type: 'session.save', session: state.session! })

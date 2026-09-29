@@ -348,6 +348,8 @@ Les actions utilisent le **dossier du pane actif**, jamais un hypothétique doss
 - Ne pas considérer un processus existant comme une preuve de travail effectif ou d’attente utilisateur.
 - À la restauration d’une session, ne pas restaurer comme vivants les états des anciens processus.
 
+**Convention proposée.** Fin d’une commande longue dans Windows PowerShell ou PowerShell 7 : le wrapper de prompt de Dock (section 15) annonce à chaque nouvelle entrée de l’historique sa durée et son succès (`$?`) par une séquence OSC privée (6973), jamais affichée. Si la commande a duré au moins 10 secondes et que son onglet n’est pas celui affiché, l’onglet porte, dans la barre d’onglets et le panneau des workspaces, une coche (réussite) ou une croix rouge (échec) avec la durée en infobulle, sauf si un état d’agent occupe déjà cette place ; la barre de statut l’annonce (« Commande en échec après 1 min 05 s dans l’onglet « web ». »). Afficher l’onglet efface l’indication. Aucune notification Windows, aucun changement de focus. CMD et Git Bash n’ont pas ce wrapper et ne sont pas concernés.
+
 **Conventions proposées.** Agréger le nombre d’attentes par workspace, éviter les notifications répétées pour le même événement et offrir l’accès au pane sans prise de focus forcée. Si plusieurs panes attendent, permettre de choisir la destination.
 
 **Convention proposée.** Dans la palette, chaque entrée « Rejoindre » indique depuis combien de temps l’agent attend (« depuis 3 min »), mesuré depuis que Dock a reçu cet état, et les entrées vont de l’attente la plus ancienne à la plus récente. Les cartes d’attention affichent la même durée, mise à jour toutes les 30 secondes, et suivent le même ordre.

@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 using Dock.Core.Shell;
 using Xunit;
 
@@ -23,6 +24,8 @@ public sealed class PowerShellIntegrationTests
         return string.Concat(output.Result.Where(character => character != '\x1b')).Trim();
     }
 
+    private static List<string> CommandNotices(string output) => Regex.Matches(output, @"\]6973;[0-9a-z;]*").Select(match => match.Value).ToList();
+
     [Fact]
     public void Prompt_WhenLastCommandFailed_ThenOriginalPromptSeesFailure()
     {
@@ -37,6 +40,39 @@ public sealed class PowerShellIntegrationTests
         var output = RunWithWrapper(@"Get-Item 'C:\' | Out-Null", "prompt");
 
         Assert.EndsWith("statut=True", output);
+    }
+
+    [Fact]
+    public void Prompt_WhenNewHistoryEntry_ThenAnnouncesCommandDurationAndSuccess()
+    {
+        var output = RunWithWrapper(
+            "$fin = Get-Date",
+            "Add-History -InputObject ([pscustomobject]@{ CommandLine = 'pnpm build'; ExecutionStatus = 'Completed'; StartExecutionTime = $fin.AddSeconds(-12); EndExecutionTime = $fin })",
+            "Get-Item 'C:\\' | Out-Null",
+            "prompt",
+            "prompt");
+
+        Assert.Equal(["]6973;done;12000;1"], CommandNotices(output));
+    }
+
+    [Fact]
+    public void Prompt_WhenNewHistoryEntryFailed_ThenAnnouncesFailure()
+    {
+        var output = RunWithWrapper(
+            "$fin = Get-Date",
+            "Add-History -InputObject ([pscustomobject]@{ CommandLine = 'pnpm test'; ExecutionStatus = 'Failed'; StartExecutionTime = $fin.AddSeconds(-3); EndExecutionTime = $fin })",
+            "Get-Item 'C:\\dock-dossier-inexistant' -ErrorAction SilentlyContinue",
+            "prompt");
+
+        Assert.Equal(["]6973;done;3000;0"], CommandNotices(output));
+    }
+
+    [Fact]
+    public void Prompt_WhenNoHistory_ThenAnnouncesNoCommand()
+    {
+        var output = RunWithWrapper("prompt");
+
+        Assert.Empty(CommandNotices(output));
     }
 
     [Fact]

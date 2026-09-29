@@ -6,6 +6,9 @@ import { DEFAULT_SHELL, type Workspace } from '../model/session'
 import { useAgentStore } from '../store/agentStore'
 import { useUiStore } from '../store/uiStore'
 import { AgentStateIcon } from './AgentStateIcon'
+import { CommandNoticeIcon } from './CommandNoticeIcon'
+import { tabCommandNotice } from '../terminal/commandNotices'
+import { useCommandStore } from '../store/commandStore'
 import { Icon } from './Icon'
 import { IconName } from './iconName'
 import { InlineNameEditor } from './InlineNameEditor'
@@ -74,6 +77,7 @@ export function TabBar({ workspace, shells, renamingTabId, panelOpen, onTogglePa
   const stripRef = useRef<HTMLDivElement>(null)
   const { draggingTabId, tabDropTarget } = useUiStore(useShallow((state) => ({ draggingTabId: state.draggingTabId, tabDropTarget: state.tabDropTarget })))
   const agents = useAgentStore((state) => state.agents)
+  const commandNotices = useCommandStore((state) => state.notices)
   const activeIndex = workspace.tabs.findIndex((tab) => tab.id === workspace.active)
 
   const updateFade = (strip: HTMLElement) => {
@@ -143,6 +147,7 @@ export function TabBar({ workspace, shells, renamingTabId, panelOpen, onTogglePa
           const active = tab.id === workspace.active
           const targeted = isDropTarget(tabDropTarget, workspace.id, tab.id)
           const agentSummary = tabAgents(tab, agents)
+          const commandNotice = tabCommandNotice(tab, commandNotices)
           const handleSelect = () => onSelect(tab.id)
           const handleStartRename = () => onStartRename(tab.id)
           const handleClose = () => onClose(tab.id)
@@ -198,7 +203,7 @@ export function TabBar({ workspace, shells, renamingTabId, panelOpen, onTogglePa
                     onPointerDown={handlePointerDown}
                     onKeyDown={handleTabKeyDown}
                   >
-                    {agentSummary && <AgentStateIcon state={agentSummary.state} tip={agentSummary.tip} />}
+                    {agentSummary ? <AgentStateIcon state={agentSummary.state} tip={agentSummary.tip} /> : commandNotice && <CommandNoticeIcon notice={commandNotice} />}
                     <span className="min-w-0 truncate">{tab.name}</span>
                   </button>
                 )}

@@ -4,6 +4,9 @@ import { activePane, DEFAULT_SHELL, panesOf, type Tab } from '../model/session'
 import { useHostStore } from '../store/hostStore'
 import { openWorktreeDialog } from '../worktree/worktreeActions'
 import { AgentStateIcon } from './AgentStateIcon'
+import { CommandNoticeIcon } from './CommandNoticeIcon'
+import { useCommandStore } from '../store/commandStore'
+import { commandNoticeTip, tabCommandNotice } from '../terminal/commandNotices'
 import { Icon } from './Icon'
 import { IconName } from './iconName'
 import { InlineNameEditor } from './InlineNameEditor'
@@ -42,10 +45,11 @@ export function WorkspaceTabRow({ workspaceId, tab, siblings, active, renaming, 
   const pane = activePane(tab)
   const shell = pane.shell
   const inRepository = useHostStore((state) => state.contexts[pane.id]?.isRepository === true)
+  const commandNotice = useCommandStore((state) => tabCommandNotice(tab, state.notices))
   const customShell = shell === DEFAULT_SHELL ? null : shell
-  const tip = [tab.name, customShell && (SHELL_NAMES[customShell] ?? customShell), paneCountLabel(panesOf(tab.tree).length), summary?.tip].filter(Boolean).join(' · ')
+  const tip = [tab.name, customShell && (SHELL_NAMES[customShell] ?? customShell), paneCountLabel(panesOf(tab.tree).length), summary?.tip ?? (commandNotice && commandNoticeTip(commandNotice))].filter(Boolean).join(' · ')
   const rowState = active ? 'bg-dock-green-soft text-dock-green-deep' : 'text-dock-ink-soft hover:bg-dock-panel hover:text-dock-ink'
-  const lead = summary ? <AgentStateIcon state={summary.state} tip={summary.tip} /> : <TabLayoutGlyph tree={tab.tree} />
+  const lead = summary ? <AgentStateIcon state={summary.state} tip={summary.tip} /> : commandNotice ? <CommandNoticeIcon notice={commandNotice} /> : <TabLayoutGlyph tree={tab.tree} />
 
   const joinTargetOf = (event: MouseEvent): string | undefined =>
     summary && event.target instanceof Element && event.target.closest(JOIN_TARGET) ? nextPaneInState([tab], agents, summary.state, currentPaneId) : undefined

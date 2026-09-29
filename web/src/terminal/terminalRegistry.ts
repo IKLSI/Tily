@@ -8,6 +8,7 @@ import { SerializeAddon } from '@xterm/addon-serialize'
 import { WebLinksAddon } from '@xterm/addon-web-links'
 import { bridge } from '../bridge/bridge'
 import type { Pane } from '../model/session'
+import { COMMAND_DONE_OSC, receiveCommandDone } from './commandNotices'
 
 const ACK_THRESHOLD = 256 * 1024
 const MAX_WEBGL_CONTEXTS = 14
@@ -210,6 +211,10 @@ const createHandle = (pane: Pane): TerminalHandle => {
   terminal.unicode.activeVersion = '11'
   const handle: TerminalHandle = { paneId: pane.id, terminal, fit, serializer, renderer: Renderer.Dom, shownAt: 0, started: false, unackedChars: 0, dirty: true, chunks: [] }
   terminal.onData((data) => bridge.send({ type: 'terminal.input', pane: pane.id, data }))
+  terminal.parser.registerOscHandler(COMMAND_DONE_OSC, (data) => {
+    receiveCommandDone(pane.id, data)
+    return true
+  })
   terminal.buffer.onBufferChange(() => forgetChunks(handle))
   terminal.onResize(({ cols, rows }) => {
     forgetChunks(handle)
