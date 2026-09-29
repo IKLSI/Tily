@@ -16,6 +16,7 @@ import {
   EXPLORER_MIN,
   findWorkspace,
   folderName,
+  NOTE_MAX_CHARS,
   panesOf,
   pruneNode,
   setRatioAt,
@@ -50,6 +51,7 @@ interface SessionState {
   setGitGraphLayout: (change: Partial<GitGraphLayout>) => void
   newWorkspace: (name: string, path: string, shell: string) => string
   renameWorkspace: (workspaceId: string, name: string) => void
+  setWorkspaceNote: (workspaceId: string, note: string) => void
   moveWorkspace: (workspaceId: string, offset: number) => void
   moveWorkspaceBefore: (workspaceId: string, beforeWorkspaceId?: string) => void
   newTab: (shell: string) => void
@@ -203,6 +205,16 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
       }),
     })),
 
+  setWorkspaceNote: (workspaceId, note) =>
+    set((state) => ({
+      session: mutateSession(state.session, (draft) => {
+        const workspace = findWorkspace(draft, workspaceId)
+        if (workspace) {
+          workspace.note = note.slice(0, NOTE_MAX_CHARS) || undefined
+        }
+      }),
+    })),
+
   moveWorkspace: (workspaceId, offset) =>
     set((state) => ({
       session: mutateSession(state.session, (draft) => {
@@ -341,6 +353,9 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
         const index = workspace.tabs.findIndex((tab) => tab.id === tabId)
         const [tab] = workspace.tabs.splice(index, 1)
         const closed: ClosedTab = { workspaceId: workspace.id, workspaceName: workspace.name, index, tab }
+        if (workspace.tabs.length === 0 && workspace.note) {
+          closed.workspaceNote = workspace.note
+        }
         draft.closed = [...draft.closed, closed].slice(-CLOSED_TABS_MAX)
         if (workspace.tabs.length === 0) {
           draft.workspaces = draft.workspaces.filter((candidate) => candidate.id !== workspace.id)
@@ -370,6 +385,9 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
         if (!workspace) {
           workspace = { id: entry.workspaceId, name: entry.workspaceName, tabs: [], active: tab.id, expanded: true }
           draft.workspaces.push(workspace)
+        }
+        if (entry.workspaceNote && !workspace.note) {
+          workspace.note = entry.workspaceNote
         }
         workspace.tabs.splice(Math.min(entry.index, workspace.tabs.length), 0, tab)
         workspace.active = tab.id

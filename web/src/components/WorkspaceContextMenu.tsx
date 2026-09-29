@@ -33,6 +33,7 @@ const itemsFor = ({ workspaceId, tabId }: PanelMenuRequest, place: MenuPlace, ac
     : [
         { id: 'rename-workspace', label: 'Renommer', detail: <MenuShortcut keys="F2" />, run: () => actions.startRenameWorkspace(workspaceId) },
         { id: 'new-tab', label: 'Nouvel onglet PowerShell', run: () => actions.newTabIn(workspaceId) },
+        { id: 'open-notes', label: 'Notes du workspace', run: () => actions.openNotes(workspaceId) },
         ...moveItems(place, (offset) => actions.moveWorkspace(workspaceId, offset)),
         { id: 'collapse-others', label: 'Replier les autres', run: () => actions.collapseOthers(workspaceId) },
         { id: 'close-workspace', label: 'Fermer le workspace', run: () => actions.closeWorkspace(workspaceId) },

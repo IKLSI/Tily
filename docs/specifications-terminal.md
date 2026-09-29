@@ -98,6 +98,12 @@ Ces valeurs sont des références de réalisation, pas des contraintes de taille
 | WS-08 | Permettre de masquer entièrement le panneau et de le réafficher via le bouton toujours accessible dans l’en-tête ou la palette. |
 | WS-09 | Redimensionner le panneau en faisant glisser son séparateur ; conserver sa largeur après masquage. |
 
+### Notes du workspace
+
+**Retenu (29 septembre 2026, issue #85).** Chaque workspace porte une note en texte brut, partagée par tous ses onglets, affichée et modifiée dans une troisième vue « Notes » du panneau de droite, à côté de « Fichiers » et « Git ». La note est enregistrée avec la session, sans bouton d’enregistrement. Dans le panneau des workspaces, une petite icône suit le nom d’un workspace dont la note n’est pas vide ; son infobulle montre la première ligne de la note.
+
+**Convention proposée.** Leader puis O, Ctrl + Maj + O, la palette (« Afficher / masquer les notes du workspace ») ou l’onglet « Notes » du panneau ouvrent la vue avec le focus dans la note, ou la ferment ; Échap rend le focus au terminal. Un clic sur l’icône de note, ou « Notes du workspace » dans le menu contextuel du workspace, active ce workspace et ouvre la vue. Police mono, au plus 100 000 caractères. Fermer le dernier onglet d’un workspace garde sa note avec l’onglet fermé : le rouvrir recrée le workspace avec sa note (recette R35).
+
 ### Création et renommage
 
 Le « + » du panneau crée directement un workspace et permet de modifier son nom inline. Le clic sur le titre du workspace actif démarre le renommage. Entrée ou perte de focus enregistre ; Échap annule. Un nom vide ne remplace pas le nom existant.
@@ -238,6 +244,8 @@ Les séquences Leader sont consommées par l’application uniquement lorsqu’e
 
 **Convention proposée.** Leader puis N ouvre la création d’un worktree (section 11), comme le Leader + n de WezTerm ; aucun raccourci direct.
 
+**Convention proposée.** Leader puis O, ou Ctrl + Maj + O, ouvre ou ferme la vue Notes du panneau de droite (section 5, « Notes du workspace »).
+
 **Convention proposée.** Ctrl + Tab et Ctrl + Maj + Tab passent à l’onglet suivant ou précédent du workspace actif, en boucle, comme dans Windows Terminal. Ces combinaisons n’envoient au shell que Tab ou Maj + Tab, qui restent disponibles sans Ctrl.
 
 **Convention proposée.** Leader puis B, ou Ctrl + Maj + B, masque ou affiche le panneau des workspaces (WS-08), en rendant le focus au terminal s’il était dans le panneau ; quand il l’affiche, le focus va à l’onglet actif dans le panneau. « Aller au panneau des workspaces », dans la palette, y amène le focus sans le masquer.
@@ -329,6 +337,7 @@ Les actions utilisent le **dossier du pane actif**, jamais un hypothétique doss
 ### Données à retrouver
 
 - Workspaces et onglets, noms et ordre.
+- Note de chaque workspace.
 - Dispositions de splits, orientations, proportions et panes actifs.
 - Dossiers courants et shells utilisés.
 - Texte des anciennes sessions avec distinction visuelle à la réouverture.
@@ -466,6 +475,7 @@ Ces scénarios définissent les vérifications à effectuer sur l’application 
 | R32 | Créer un worktree par Leader puis N (nouvelle branche), par l’icône d’arbre (branche existante) et depuis le menu d’une branche distante, dans un projet qui a des ports, un `package.json` et une base de test. | Workspace ouvert dès la création, `pnpm install` lancé dans son terminal, ports remplacés, base répliquée et chaîne de connexion réécrite ; bilan et avertissements dans la barre de statut. |
 | R33 | Supprimer ce worktree avec un pane ouvert dedans, d’abord sans fermer le pane, puis en le fermant. | Premier essai refusé, worktree intact et « Réessayer » ; second essai : pane fermé, dossier, base répliquée et branche supprimés, sauf la branche si « Garder la branche » est cochée. |
 | R34 | Dans un pane, lancer Claude Code puis Codex CLI et saisir un prompt sur plusieurs lignes avec Maj + Entrée et Ctrl + Entrée, puis faire Maj + Entrée dans PowerShell. | Chaque combinaison ajoute une ligne au prompt de l’agent sans l’envoyer ; dans PowerShell, Maj + Entrée exécute la commande comme Entrée. |
+| R35 | Écrire une note sur plusieurs lignes dans la vue Notes d’un workspace (Ctrl + Maj + O), passer à un autre workspace, fermer puis rouvrir Dock ; fermer ensuite tous les onglets de ce workspace et rouvrir le dernier par Ctrl + Maj + Z. | Chaque workspace garde sa propre note ; l’icône de note et sa première ligne en infobulle apparaissent dans le panneau des workspaces ; la note est retrouvée après redémarrage et après la réouverture de l’onglet ; Échap rend le focus au terminal. |
 
 ## 18. Décisions restantes avant développement
 

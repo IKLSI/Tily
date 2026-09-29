@@ -57,6 +57,7 @@ const commandItems = (session: Session, shells: ShellProfile[]): PaletteItem[] =
     command('open-worktree', 'Ouvrir un worktree…', () => openWorktreePicker(WorktreePickerKind.Open)),
     command('toggle-explorer', 'Afficher / masquer les fichiers', () => runCommand(Command.ToggleExplorer), 'Ctrl + Maj + E'),
     command('toggle-git', 'Afficher / masquer Git', () => runCommand(Command.ToggleGit), 'Ctrl + Maj + G'),
+    command('toggle-notes', 'Afficher / masquer les notes du workspace', () => runCommand(Command.ToggleNotes), 'Ctrl + Maj + O'),
     command('settings', 'Paramètres', () => runCommand(Command.Settings), 'Leader puis ,'),
     command('settings-export', 'Exporter les préférences…', () => {
       runCommand(Command.Settings)
