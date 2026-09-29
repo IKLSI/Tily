@@ -40,6 +40,7 @@ public sealed class HostBridge : IDisposable
     private readonly GitFeed _git;
     private readonly WorktreeFeed _worktrees;
     private readonly UpdateFeed _updates;
+    private readonly StatusLogFeed _statusLog;
     private SettingsModel _settings;
     private ShellPathsModel _shellPaths = ShellPathsModel.Empty;
     private PersistenceSettingsModel _persistence = PersistenceSettingsModel.Default;
@@ -66,6 +67,7 @@ public sealed class HostBridge : IDisposable
         _terminals = new TerminalManager();
         _writes = new BackgroundQueue(PostBackgroundError);
         _queries = new BackgroundQueue(PostBackgroundError);
+        _statusLog = new StatusLogFeed(dataDirectory, _writes, Post);
         _agents = new AgentStateFeed(dataDirectory, _terminals, Post);
         _notifier = new AttentionNotifier(dispatcher, windowHandle, paneId => PostNow(new { type = "agent.join", pane = paneId }));
         _notifier.Register();
@@ -299,6 +301,9 @@ public sealed class HostBridge : IDisposable
             case var type when type.StartsWith("update.", StringComparison.Ordinal):
                 _updates.Handle(command);
                 break;
+            case var type when type.StartsWith("statusLog.", StringComparison.Ordinal):
+                _statusLog.Handle(command);
+                break;
             case "link.open":
                 LocalActions.OpenLink(command.Url ?? throw new InvalidOperationException("Lien manquant."));
                 break;
@@ -397,7 +402,7 @@ public sealed class HostBridge : IDisposable
         var session = loaded.Session ?? SessionFactory.Initial();
         _texts.MoveClosedTabText(session);
         var text = _texts.Load();
-        var recovery = string.Join(" ", new[] { loaded.Error, text.Error }.Where(error => error is not null));
+        var recovery = string.Join(" ", new[] { loaded.Error, text.Error, _statusLog.LoadError }.Where(error => error is not null));
         Post(new
         {
             type = "app.hello",
@@ -407,6 +412,7 @@ public sealed class HostBridge : IDisposable
             home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
             text = text.Text,
             persistence = _persistence,
+            statusLog = _statusLog.Entries(),
             recovery = recovery.Length > 0 ? recovery : null
         });
         _updates.PostState();
