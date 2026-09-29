@@ -102,7 +102,7 @@ Le « + » du panneau crée directement un workspace et permet de modifier son n
 
 La commande « Renommer le workspace » dans la palette active le même éditeur inline. Le panneau reflète immédiatement le nouveau nom.
 
-**Convention proposée.** Les workspaces se réordonnent par « Monter » et « Descendre » dans leur menu contextuel ou dans la palette (workspace actif), par Alt + ↑ / ↓ sur un workspace sélectionné au clavier dans le panneau, et par glisser-déposer de sa ligne, devant un autre workspace ou en fin de liste. Les onglets se déplacent de même d’un rang dans leur workspace (menu contextuel de l’onglet dans le panneau, Alt + ↑ / ↓ sur l’onglet sélectionné au clavier), en plus du glisser-déposer et de Ctrl + Maj + PageUp / PageDown. L’ordre est conservé dans la session.
+**Convention proposée.** Les workspaces se réordonnent par « Monter » et « Descendre » dans leur menu contextuel ou dans la palette (workspace actif), par Alt + ↑ / ↓ sur un workspace sélectionné au clavier dans le panneau, et par glisser-déposer de sa ligne, devant un autre workspace ou en fin de liste. Les onglets se déplacent de même d’un rang dans leur workspace (menu contextuel de l’onglet dans le panneau, Alt + ↑ / ↓ sur l’onglet sélectionné au clavier dans le panneau, Alt + ← / → sur un onglet de la barre qui a le focus), en plus du glisser-déposer et de Ctrl + Maj + PageUp / PageDown. L’ordre est conservé dans la session.
 
 **Convention proposée.** Au clavier, dans le panneau des workspaces, ↑ / ↓ / Début / Fin passent d’une ligne visible à l’autre, workspaces et onglets confondus ; → déplie un workspace replié, ← le replie ou, depuis un onglet, remonte à son workspace. Tab parcourt toujours chaque bouton.
 
@@ -142,6 +142,8 @@ Le déplacement conserve le shell, le dossier, l’historique, les processus act
 **Décision prise.** Rouvrir restaure noms, shells, chemins, splits et texte avec de nouveaux processus et un séparateur de restauration. Ne pas réexécuter les anciennes commandes. Conserver les cinq derniers onglets fermés, y compris après redémarrage.
 
 **Convention proposée.** Un clic droit sur un onglet de la barre ouvre son menu : Renommer, Dupliquer l’onglet (même disposition, mêmes dossiers et shells, terminaux neufs, aucune commande rejouée), Déplacer à gauche ou à droite, Fermer l’onglet et Fermer les autres onglets. Ce dernier ne demande qu’une seule confirmation si des programmes tournent ; les cinq derniers onglets fermés restent restaurables.
+
+**Convention proposée.** Au clavier, dans la barre d’onglets, ← / → passent le focus à l’onglet voisin sans l’afficher, Entrée l’affiche, F2 le renomme et Alt + ← / → le déplacent d’un rang, comme ↑ / ↓, F2 et Alt + ↑ / ↓ dans le panneau des workspaces.
 
 **Convention proposée.** La palette propose une entrée « Rouvrir l’onglet fermé · nom » par onglet encore restaurable, de la plus récente à la plus ancienne, avec le workspace d’origine en indice : on peut rouvrir n’importe lequel des cinq, pas seulement le dernier. L’onglet reprend sa place dans son workspace, recréé s’il n’existe plus ; Ctrl + Maj + Z et l’état vide rouvrent toujours le dernier fermé.
 

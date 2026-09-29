@@ -462,6 +462,22 @@ En relisant la palette pour l'itération 56, j'ai remarqué que les entrées « 
 - Les identifiants `attention-…` déjà enregistrés par ce bug restent dans les sessions existantes. Ils sont invisibles et comptent dans les 50 ; je ne les ai pas nettoyés pour ne pas toucher aux données sans nécessité.
 - Documenté comme **convention proposée** en section 9 de la spec.
 
+### 58. La barre d'onglets se pilote au clavier comme le panneau
+
+Dans le panneau des workspaces, un onglet qui a le focus se renomme avec F2 et se déplace avec Alt + ↑ / ↓ (itération 47). Dans la barre d'onglets, seule la touche Menu faisait quelque chose. Pour atteindre le cinquième onglet, il fallait enchaîner les Tab en passant par chaque bouton de fermeture.
+
+- Sur un onglet de la barre qui a le focus :
+  - ← / → donnent le focus à l'onglet voisin sans l'afficher, et Entrée l'affiche ;
+  - F2 ouvre le renommage, comme le double-clic ;
+  - Alt + ← / → déplacent l'onglet d'un rang, et le focus le suit.
+- Ailleurs, Alt + flèche change toujours de pane. Sur un onglet de la barre, la touche est interceptée avant les raccourcis du document, comme Alt + ↑ / ↓ dans le panneau.
+- Vérifié dans l'instance de dev, focus sur le premier onglet :
+  - → passe au deuxième sans changer l'onglet affiché, et ← revient ;
+  - ← au bord ne fait rien, et Alt + ← au bord ne déplace rien ni ne change de pane ;
+  - Alt + → échange les deux premiers onglets, focus conservé, et Alt + ← les remet dans l'ordre ;
+  - F2 ouvre l'éditeur avec tout le nom sélectionné, puis Échap l'annule et rend le focus au terminal, comme après un double-clic.
+- Documenté comme **convention proposée** en section 6 de la spec, et dans le README.
+
 ## Reste à faire et idées
 
 - **Taille de police et zoom du terminal** : police fixe à 14 px. La spécification classe ce point « À décider » (section 4), je n'y ai donc pas touché ; c'est à trancher.

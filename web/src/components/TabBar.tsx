@@ -32,6 +32,8 @@ interface TabBarProps {
 }
 
 const MIDDLE_BUTTON = 1
+const RENAME_KEY = 'F2'
+const NEIGHBOUR_KEYS: Record<string, number> = { ArrowLeft: -1, ArrowRight: 1 }
 
 const tabSelector = (tabId: string): string => `[data-drop-tab="${tabId}"]`
 const FADE_WIDTH = '24px'
@@ -58,6 +60,11 @@ const maskOf = ({ start, end }: StripFade): string | undefined => {
 }
 
 const isMenuKey = (event: KeyboardEvent): boolean => (event.shiftKey && event.key === 'F10') || event.key === 'ContextMenu'
+
+const focusNeighbourTab = (tabButton: HTMLElement, offset: number): void => {
+  const tabButtons = [...(tabButton.closest('[role="tablist"]')?.querySelectorAll<HTMLElement>('[role="tab"]') ?? [])]
+  tabButtons[tabButtons.indexOf(tabButton) + offset]?.focus()
+}
 
 export function TabBar({ workspace, shells, renamingTabId, panelOpen, onTogglePanel, onSelect, onStartRename, onCommitRename, onCancelRename, onClose, onCloseOthers, onShift, onDuplicate, onNew, onMove }: TabBarProps) {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -155,6 +162,16 @@ export function TabBar({ workspace, shells, renamingTabId, panelOpen, onTogglePa
               event.preventDefault()
               const { left, bottom } = event.currentTarget.getBoundingClientRect()
               setTabMenu({ tabId: tab.id, x: left, y: bottom, returnFocus: event.currentTarget })
+            } else if (event.key === RENAME_KEY) {
+              event.preventDefault()
+              onStartRename(tab.id)
+            } else if (event.key in NEIGHBOUR_KEYS && !event.ctrlKey && !event.shiftKey) {
+              event.preventDefault()
+              if (event.altKey) {
+                onShift(tab.id, NEIGHBOUR_KEYS[event.key])
+              } else {
+                focusNeighbourTab(event.currentTarget, NEIGHBOUR_KEYS[event.key])
+              }
             }
           }
           return (
