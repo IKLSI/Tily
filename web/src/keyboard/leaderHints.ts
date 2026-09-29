@@ -24,6 +24,7 @@ export const LEADER_HINTS: LeaderHint[] = [
   { keys: 'P', label: 'palette' },
   { keys: ',', label: 'paramètres' },
   { keys: '← ↑ → ↓', label: 'pane voisin' },
+  { keys: 'Maj + flèche', label: 'échanger avec le voisin' },
   { keys: 'PgUp / PgDn', label: 'déplacer l’onglet' },
   { keys: 'Échap', label: 'annuler' },
   { keys: 'Ctrl + Espace', label: 'envoyer au terminal' },

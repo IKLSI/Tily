@@ -67,9 +67,18 @@ Pour coller une erreur de build ou de tests dans Claude Code, il fallait sélect
 - Vérifié dans l'instance de dev, presse-papiers intercepté dans la page pour ne pas toucher au tien : `avant` + `apres` (400 ms d'écart) copiés, Entrée à vide qui garde la sortie précédente, `cd ..` annoncé « n'a rien affiché », une erreur PowerShell de 12 lignes copiée en entier.
 - **Conventions proposées** en sections 8 et 15 de la spec. Architectures et doc des tests mises à jour.
 
+### 7. Échanger un pane avec son voisin
+
+Après quelques splits, un terminal se retrouve souvent du mauvais côté (l'agent à gauche alors qu'on le veut à droite) ; il fallait tout refaire.
+
+- Leader puis Maj + flèche échange le pane actif avec son voisin dans cette direction, comme le `swap-pane` de tmux. Quatre entrées de palette font de même (seulement si l'onglet a plusieurs panes). Pas de raccourci direct : Alt + Maj + flèche sert à PSReadLine.
+- Le voisin est choisi comme pour la navigation (Alt + flèche). Les ratios ne changent pas, le pane actif reste actif et garde le focus à sa nouvelle place, les deux terminaux gardent processus et texte : `PaneView` rattache chaque terminal par identifiant de pane, les éléments xterm.js sont simplement déplacés dans le DOM. Un pane agrandi est d'abord réduit.
+- Vérifié dans l'instance de dev : après `echo PANE-UN` dans le pane de gauche, Leader puis Maj + → le place en haut à droite avec son texte, le focus le suit, l'ancien voisin passe à gauche.
+- **Convention proposée** en section 7 de la spec. README et architecture front mis à jour.
+
 ## Reste à faire et idées
 
-- Échanger deux panes, ou déplacer un pane vers un onglet existant.
+- Déplacer un pane vers un onglet existant (l'inverse de l'itération 2, `join-pane` de tmux).
 - Après un redimensionnement (sortie d'un pane, panneau masqué…), la ligne d'invite PowerShell repliée par ConPTY peut se redessiner de travers jusqu'à la commande suivante. C'est un comportement de ConPTY au redimensionnement, pas propre à ces actions.
 - Fins de commandes longues : CMD et Git Bash n'ont pas de wrapper de prompt, donc pas d'indication ; on pourrait aussi faire clignoter la barre des tâches quand la fenêtre de Dock n'a pas le focus, comme pour les agents.
 - Sortie de la dernière commande : sous Windows 10, une ligne longue repliée par ConPTY est copiée en plusieurs lignes (pas d'indicateur de repli). Une invite qui s'écrit elle-même par `Write-Host` au lieu de renvoyer son texte fausserait la hauteur annoncée.

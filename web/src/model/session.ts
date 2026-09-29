@@ -182,6 +182,23 @@ export const updatePane = (node: SplitNode, paneId: string, patch: Partial<Pane>
 export const splitLeaf = (node: SplitNode, paneId: string, axis: SplitAxis, pane: Pane): SplitNode =>
   replaceNode(node, paneId, (leaf): SplitNode => ({ axis, ratio: SPLIT_RATIO_DEFAULT, a: leaf, b: { pane } }))
 
+const swappedLeaf = (leaf: SplitLeaf, first: Pane, second: Pane): SplitLeaf => {
+  if (leaf.pane.id === first.id) {
+    return { pane: second }
+  }
+  return leaf.pane.id === second.id ? { pane: first } : leaf
+}
+
+const mapLeaves = (node: SplitNode, map: (leaf: SplitLeaf) => SplitLeaf): SplitNode =>
+  isLeaf(node) ? map(node) : { ...node, a: mapLeaves(node.a, map), b: mapLeaves(node.b, map) }
+
+export const swapPanes = (node: SplitNode, firstId: string, secondId: string): SplitNode => {
+  const panes = panesOf(node)
+  const first = panes.find((pane) => pane.id === firstId)
+  const second = panes.find((pane) => pane.id === secondId)
+  return first && second && first !== second ? mapLeaves(node, (leaf) => swappedLeaf(leaf, first, second)) : node
+}
+
 export const setRatioAt = (node: SplitNode, path: SplitPath, ratio: number): SplitNode => {
   if (isLeaf(node)) {
     return node

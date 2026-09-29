@@ -97,6 +97,10 @@ const commandItems = (session: Session, shells: ShellProfile[]): PaletteItem[] =
     if (!isLeaf(tab.tree)) {
       items.push(
         command('equalize-panes', 'Égaliser les panes de l’onglet', () => runCommand(Command.EqualizePanes), 'Leader puis ='),
+        command('swap-pane-left', 'Échanger le pane actif avec son voisin de gauche', () => runCommand(Command.SwapPaneLeft), 'Leader puis Maj + ←'),
+        command('swap-pane-right', 'Échanger le pane actif avec son voisin de droite', () => runCommand(Command.SwapPaneRight), 'Leader puis Maj + →'),
+        command('swap-pane-up', 'Échanger le pane actif avec son voisin du haut', () => runCommand(Command.SwapPaneUp), 'Leader puis Maj + ↑'),
+        command('swap-pane-down', 'Échanger le pane actif avec son voisin du bas', () => runCommand(Command.SwapPaneDown), 'Leader puis Maj + ↓'),
         command('move-pane-to-new-tab', 'Déplacer le pane actif dans un nouvel onglet', () => runCommand(Command.MovePaneToNewTab), 'Leader puis !'),
       )
     }

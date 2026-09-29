@@ -71,6 +71,7 @@ Aucun droit administrateur n’est nécessaire. Dock vérifie ensuite lui-même 
 | X | Ctrl + Maj + X | Fermer le terminal actif |
 | M | Ctrl + Maj + M | Agrandir / réduire le terminal actif (ou double-clic sur son en-tête) |
 | = | — | Donner la même place à chaque terminal de l’onglet actif (aussi dans la palette) |
+| Maj + flèche | — | Échanger le terminal actif avec son voisin (aussi dans la palette) |
 | ! | — | Déplacer le terminal actif dans un nouvel onglet, sans l’arrêter (aussi dans la palette et le menu du terminal) |
 | E | Ctrl + Maj + E | Explorateur de fichiers |
 | G | Ctrl + Maj + G | Vue Git |

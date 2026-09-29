@@ -34,6 +34,10 @@ export enum Command {
   FocusPaneRight = 'focusPaneRight',
   FocusPaneUp = 'focusPaneUp',
   FocusPaneDown = 'focusPaneDown',
+  SwapPaneLeft = 'swapPaneLeft',
+  SwapPaneRight = 'swapPaneRight',
+  SwapPaneUp = 'swapPaneUp',
+  SwapPaneDown = 'swapPaneDown',
   MoveTabLeft = 'moveTabLeft',
   MoveTabRight = 'moveTabRight',
   NextTab = 'nextTab',
@@ -77,6 +81,13 @@ const LEADER_KEYS: Record<string, Command> = {
   ArrowUp: Command.FocusPaneUp,
   PageUp: Command.MoveTabLeft,
   PageDown: Command.MoveTabRight,
+}
+
+const LEADER_SHIFT_ARROW_KEYS: Record<string, Command> = {
+  ArrowRight: Command.SwapPaneRight,
+  ArrowDown: Command.SwapPaneDown,
+  ArrowLeft: Command.SwapPaneLeft,
+  ArrowUp: Command.SwapPaneUp,
 }
 
 const DIRECT_PAGE_KEYS: Record<string, Command> = {
@@ -173,7 +184,7 @@ const decideInLeader = (event: KeyboardEvent): boolean => {
   if (event.key === CANCEL_KEY) {
     return false
   }
-  const command = LEADER_KEYS[leaderKeyOf(event)]
+  const command = (event.shiftKey ? LEADER_SHIFT_ARROW_KEYS[event.key] : undefined) ?? LEADER_KEYS[leaderKeyOf(event)]
   if (command) {
     runCommand(command)
     return false
@@ -222,6 +233,19 @@ const equalizeActiveTab = (): void => {
   const workspace = currentWorkspace()
   if (workspace) {
     useSessionStore.getState().equalizeSplits(activeTab(workspace).id)
+  }
+}
+
+const swapPaneToward = (direction: Direction): void => {
+  if (useUiStore.getState().zoomedPaneId !== null) {
+    endPaneZoom(true)
+    requestAnimationFrame(() => swapPaneToward(direction))
+    return
+  }
+  const target = paneInDirection(currentPaneId(), direction)
+  if (target) {
+    useSessionStore.getState().swapActivePane(target)
+    requestAnimationFrame(() => focusPane(currentPaneId()))
   }
 }
 
@@ -278,6 +302,18 @@ export const runCommand = (command: Command): void => {
       break
     case Command.FocusPaneDown:
       focusPaneToward(Direction.Down)
+      break
+    case Command.SwapPaneLeft:
+      swapPaneToward(Direction.Left)
+      break
+    case Command.SwapPaneRight:
+      swapPaneToward(Direction.Right)
+      break
+    case Command.SwapPaneUp:
+      swapPaneToward(Direction.Up)
+      break
+    case Command.SwapPaneDown:
+      swapPaneToward(Direction.Down)
       break
     case Command.MoveTabLeft:
       sessionStore.moveActiveTab(-1)

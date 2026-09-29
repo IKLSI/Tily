@@ -22,6 +22,7 @@ import {
   pruneNode,
   setRatioAt,
   equalizeNode,
+  swapPanes,
   splitLeaf,
   updatePane,
   RightPanelView,
@@ -69,6 +70,7 @@ interface SessionState {
   splitPane: (axis: SplitAxis) => void
   setSplitRatio: (tabId: string, path: SplitPath, ratio: number) => void
   equalizeSplits: (tabId: string) => void
+  swapActivePane: (targetPaneId: string) => void
   movePaneToNewTab: (paneId: string) => void
   closePane: (paneId: string) => void
   setPanePath: (paneId: string, path: string) => void
@@ -428,6 +430,13 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
         if (tab) {
           tab.tree = equalizeNode(tab.tree)
         }
+      }),
+    })),
+
+  swapActivePane: (targetPaneId) =>
+    set((state) => ({
+      session: mutateTab(state.session, (tab) => {
+        tab.tree = swapPanes(tab.tree, tab.active, targetPaneId)
       }),
     })),
 
