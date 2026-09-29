@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Text;
+using Dock.Core.Native;
 using Dock.Core.Shell;
 using Dock.Core.Terminal;
 using Xunit;
@@ -71,6 +72,23 @@ public sealed class TerminalManagerTests
     }
 
     [Fact]
+    public async Task Write_WhenHostIgnoresCtrlC_ThenCtrlCStillInterruptsProgram()
+    {
+        using var manager = new TerminalManager();
+        var directory = new TaskCompletionSource<string>();
+        manager.CurrentDirectoryChanged += (_, path) => directory.TrySetResult(path);
+        ProcessApi.SetConsoleCtrlHandler(IntPtr.Zero, true);
+        var session = manager.Start("pane-ctrl-c", ShellCatalog.DefaultShellId, Path.GetTempPath(), 100, 30);
+        await directory.Task.WaitAsync(Timeout);
+        session.Write(Encoding.UTF8.GetBytes("ping -t 127.0.0.1 > $null\r"));
+        await WaitForAsync(() => RunsPing(manager, "pane-ctrl-c"));
+
+        session.Write(Encoding.UTF8.GetBytes("\u0003"));
+
+        Assert.True(await EventuallyAsync(() => !RunsPing(manager, "pane-ctrl-c")), "Ctrl + C n’a pas interrompu le programme du pane.");
+    }
+
+    [Fact]
     public void Activity_WhenPaneUnknown_ThenReportsNothing()
     {
         using var manager = new TerminalManager();
@@ -103,6 +121,22 @@ public sealed class TerminalManagerTests
             await Task.Delay(100);
         }
     }
+
+    private static async Task<bool> EventuallyAsync(Func<bool> condition)
+    {
+        try
+        {
+            await WaitForAsync(condition);
+            return true;
+        }
+        catch (TimeoutException)
+        {
+            return false;
+        }
+    }
+
+    private static bool RunsPing(TerminalManager manager, string paneId) =>
+        manager.Activity(new[] { paneId }).Any(activity => activity.Processes.Contains("ping", StringComparer.OrdinalIgnoreCase));
 
     private static Process? OpenProcess(int processId)
     {

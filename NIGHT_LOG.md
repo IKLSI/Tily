@@ -591,6 +591,15 @@ Pendant l'itération 44, un `dotnet test` avait échoué une fois sur 190 sans q
   - aucun `ping` ne reste ensuite ;
   - `docs/TESTING.md` précise le suivi par handle.
 
+### 67. Ctrl + C interrompt toujours les programmes, quelle que soit la façon dont Dock est lancé
+
+À l'itération 65, Ctrl + C n'arrêtait pas un `ping` dans l'instance de dev. La cause était l'état « Ctrl + C ignoré » de Windows : il se transmet d'un processus à ses enfants, et ma chaîne de lancement (Bash, puis PowerShell `Start-Process`) l'avait posé. Dock le passait ensuite à chaque shell, puis à chaque programme. Le shell recevait bien `^C` à son invite, mais une commande en cours (`ping`, `pnpm dev`, `dotnet run`…) n'était plus interrompue. Lancé depuis le menu Démarrer, Dock n'est pas concerné. Il le serait depuis un script, un lanceur ou un outil qui ignore Ctrl + C.
+
+- Juste avant de créer chaque shell, `PtyProcess` appelle `SetConsoleCtrlHandler(NULL, FALSE)`. Dock, qui n'a pas de console, rétablit ainsi pour lui-même le traitement de Ctrl + C, et c'est cet état que le shell hérite.
+- Nouveau test d'intégration `Write_WhenHostIgnoresCtrlC_ThenCtrlCStillInterruptsProgram` : le processus de test ignore Ctrl + C, lance un pane, y démarre `ping -t`, envoie `\u0003`, et attend la fin du `ping`.
+  - Avant la correction, il échoue au bout de 30 s. Après, il passe, avec les autres tests du gestionnaire de terminaux, trois fois de suite. Le total passe à 216 tests.
+- Vérifié en réel : l'instance de dev relancée par l'ancienne chaîne, celle qui posait le problème, s'arrête maintenant au 4ᵉ paquet d'un `ping -n 30` sur Ctrl + C.
+
 ## Reste à faire et idées
 
 - **Alt + flèche sur un onglet ou une ligne du panneau** : quand un onglet de la barre ou une ligne du panneau des workspaces a le focus, Alt + flèche déplace cet élément (itérations 14, 47 et 58) au lieu de changer de pane, comme le prévoit le tableau retenu de la section 9. C'est une dérogation à confirmer ou à retirer ; la spec la signale comme « exception à confirmer ».
