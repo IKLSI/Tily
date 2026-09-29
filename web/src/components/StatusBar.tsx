@@ -23,7 +23,7 @@ export function StatusBar() {
       {spinning ? (
         <span className="flex min-w-0 items-center gap-[6px]">
           <Spinner size={10} className="text-dock-green" />
-          <span className="truncate">{busy ? busyLabel(busy, busyRefs) : status.text}</span>
+          <span className="truncate py-1 [text-box:trim-both_cap_alphabetic]">{busy ? busyLabel(busy, busyRefs) : status.text}</span>
         </span>
       ) : (
         <span className="truncate">{status.text}</span>
