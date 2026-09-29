@@ -11,6 +11,7 @@ interface HostState {
   connected: boolean
   shells: ShellProfile[]
   home: string
+  version: string
   status: { text: string; level: StatusLevel }
   leaderActive: boolean
   projects: Project[]
@@ -25,7 +26,7 @@ interface HostState {
   importedPreferences: ImportedPreferences | null
   setImportedPreferences: (imported: ImportedPreferences) => void
   applySettings: (snapshot: SettingsSnapshot, shells: ShellProfile[], persistence: PersistenceSettings) => void
-  setHello: (shells: ShellProfile[], home: string, persistence: PersistenceSettings) => void
+  setHello: (version: string, shells: ShellProfile[], home: string, persistence: PersistenceSettings) => void
   setUnsaved: (unsaved: boolean) => void
   setStatus: (text: string, level?: StatusLevel) => void
   setLeaderActive: (active: boolean) => void
@@ -37,6 +38,7 @@ export const useHostStore = create<HostState>()((set) => ({
   connected: false,
   shells: [],
   home: '',
+  version: '',
   status: { text: 'Connexion à l’hôte…', level: StatusLevel.Info },
   leaderActive: false,
   projects: [],
@@ -51,7 +53,7 @@ export const useHostStore = create<HostState>()((set) => ({
   importedPreferences: null,
   setImportedPreferences: (importedPreferences) => set({ importedPreferences }),
   applySettings: (settingsSnapshot, shells, persistence) => set({ settingsSnapshot, shells, persistence }),
-  setHello: (shells, home, persistence) => set({ connected: true, shells, home, persistence }),
+  setHello: (version, shells, home, persistence) => set({ connected: true, version, shells, home, persistence }),
   setUnsaved: (unsaved) => set({ unsaved }),
   setStatus: (text, level = StatusLevel.Info) => set({ status: { text, level } }),
   setLeaderActive: (leaderActive) => set({ leaderActive }),

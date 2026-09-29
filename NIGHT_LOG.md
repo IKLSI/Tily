@@ -625,6 +625,24 @@ Suite de l'itération 68. Le panneau des workspaces se parcourt aux flèches dep
   - arbre, après la mise en commun : P → `public` puis `package.json`, T → `tsconfig.app.json`, « vi » → `vite.config.ts`.
 - **Convention proposée** complétée en section 5 de la spec ; architecture front et README mis à jour.
 
+### 70. Parcours de contrôle sans erreur, et la version de Dock affichée dans les Paramètres
+
+Vingt itérations après le dernier contrôle global, j'ai refait un parcours complet au clavier dans l'instance de dev, en capturant toutes les erreurs JavaScript (`console.error`, `console.warn`, exceptions, promesses rejetées). Le parcours couvrait :
+- la palette ;
+- un split, son agrandissement puis sa réduction, Alt + flèches et la fermeture du pane ;
+- l'explorateur, avec une recherche par lettre ;
+- la vue Git ;
+- un nouvel onglet, Ctrl + Tab, sa fermeture et sa réouverture ;
+- le panneau des workspaces masqué puis réaffiché ;
+- le Leader, les Paramètres, Ctrl + Maj + A et le sélecteur de projets.
+
+Aucune erreur ni avertissement n'a été relevé.
+
+Au passage : la version de Dock n'apparaissait nulle part dans l'interface. Elle sert pourtant à la comparer aux releases GitHub ou à la citer dans un signalement.
+- L'hôte envoie la version de son assembly (`1.0.0`, issue de `<Version>` du projet) dans `app.hello`. `hostStore` la garde, et l'en-tête des Paramètres affiche « Dock 1.0.0 » en discret, à côté du titre.
+- Vérifié dans l'instance de dev : Leader puis « , » ouvre les Paramètres, dont l'en-tête indique « Paramètres Dock 1.0.0 ».
+- Contrat du pont (`app.hello {version, …}`), architecture front et **convention proposée** (spec, écran Paramètres) mis à jour.
+
 ## Reste à faire et idées
 
 - **Alt + flèche sur un onglet ou une ligne du panneau** : quand un onglet de la barre ou une ligne du panneau des workspaces a le focus, Alt + flèche déplace cet élément (itérations 14, 47 et 58) au lieu de changer de pane, comme le prévoit le tableau retenu de la section 9. C'est une dérogation à confirmer ou à retirer ; la spec la signale comme « exception à confirmer ».

@@ -33,7 +33,7 @@ export default function App() {
     const { markFailed, markExited, markPathMissing, markAlive } = usePaneStore.getState()
     const subscriptions = [
       bridge.on('app.hello', (message) => {
-        setHello(message.shells, message.home, message.persistence)
+        setHello(message.version, message.shells, message.home, message.persistence)
         terminalRegistry.configure(message.persistence.linesPerPane)
         primeSessionText(message.session, message.text)
         void document.fonts.load('14px "Symbols Nerd Font Mono"').then(() => {

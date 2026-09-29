@@ -344,6 +344,8 @@ L’export de préférences ne doit pas embarquer implicitement la sortie des te
 
 **Convention de fichiers.** Les préférences exportables, l’état de session et l’historique restent séparés, chacun avec une version de schéma. L’emplacement exact peut être choisi par l’implémentation dans les répertoires de données Windows appropriés ; il doit être documenté et stable. Une confirmation est requise avant un import qui remplace une configuration existante.
 
+**Convention proposée.** L’en-tête de l’écran Paramètres affiche la version de Dock (« Dock 1.0.0 »), pour la comparer aux versions publiées ou la citer dans un signalement.
+
 **Convention proposée.** À l’import, une valeur de persistance hors bornes (sauvegarde du texte, lignes par pane, historique global) est ramenée dans sa plage, et chaque correction est signalée dans l’écran Paramètres, sous l’avis d’import, avant tout enregistrement.
 
 ## 15. Architecture fonctionnelle et choix techniques

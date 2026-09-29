@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ChangeEvent, type KeyboardEvent, type PointerEvent } from 'react'
 import { NotificationSound, PickTarget, type ImportedPreferences, type NotificationSettings, type PersistenceSettings, type PickedPath, type Settings, type SettingsSnapshot } from '../bridge/messages'
+import { useHostStore } from '../store/hostStore'
 import { keepTabInside } from './focusTrap'
 
 interface SettingsDialogProps {
@@ -69,6 +70,7 @@ const SECONDARY = `${BUTTON} border-dock-line text-dock-ink hover:bg-dock-green-
 const BROWSE = 'shrink-0 rounded border border-dock-line px-2 text-[12px] text-dock-muted hover:bg-dock-green-hover hover:text-dock-ink'
 
 export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave, onPick, onExport, onImport, onInstallHooks, onRemoveHooks, onTestNotification }: SettingsDialogProps) {
+  const version = useHostStore((state) => state.version)
   const [draft, setDraft] = useState<Settings | null>(null)
   const [seenSnapshot, setSeenSnapshot] = useState<SettingsSnapshot | null>(null)
   const [seenPick, setSeenPick] = useState<PickedPath | null>(pickedPath)
@@ -320,7 +322,10 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
     <div className="absolute inset-0 z-30 flex items-start justify-center bg-dock-paper/60 pt-[6vh]" onPointerDown={handleBackdropPointerDown}>
       <div ref={dialogRef} role="dialog" aria-label="Paramètres" className="flex max-h-[86vh] w-[640px] max-w-[94vw] flex-col rounded-lg border border-dock-line bg-dock-panel shadow-xl" onKeyDown={handleKeyDown}>
         <div className="flex items-center justify-between border-b border-dock-line px-4 py-3">
-          <h2 className="text-[15px] font-semibold text-dock-ink">Paramètres</h2>
+          <h2 className="text-[15px] font-semibold text-dock-ink">
+            Paramètres
+            {version && <span className="ml-2 text-[12px] font-normal text-dock-muted">{`Dock ${version}`}</span>}
+          </h2>
           <span className={HINT}>Ctrl + Entrée enregistre · Échap ferme</span>
         </div>
         <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-4 py-4">

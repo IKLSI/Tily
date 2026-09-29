@@ -19,6 +19,7 @@ public sealed class HostBridge : IDisposable
     private const string TextSavePrefix = """{"type":"text.save",""";
     private const string DropPrefix = """{"type":"terminal.drop",""";
     private const string TerminalCommandPrefix = "terminal.";
+    private static readonly string ApplicationVersion = typeof(HostBridge).Assembly.GetName().Version?.ToString(3) ?? string.Empty;
     private static readonly TimeSpan WriteDrainTimeout = TimeSpan.FromSeconds(10);
     private static readonly JsonSerializerOptions JsonOptions = SessionRepository.JsonOptions;
 
@@ -349,6 +350,7 @@ public sealed class HostBridge : IDisposable
         Post(new
         {
             type = "app.hello",
+            version = ApplicationVersion,
             session,
             shells = ShellCatalog.Profiles(_shellPaths),
             home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
