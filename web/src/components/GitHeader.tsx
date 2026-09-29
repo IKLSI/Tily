@@ -1,6 +1,6 @@
 import type { GitState } from '../bridge/gitMessages'
 import { headSummary, plural } from '../git/gitLabels'
-import { fetchRemote, pullBranch, pushBranch, refreshRepository, undoLastOperation } from '../git/gitRequests'
+import { copyToClipboard, fetchRemote, pullBranch, pushBranch, refreshRepository, undoLastOperation } from '../git/gitRequests'
 import { toggleGitGraph } from '../panel/rightPanel'
 import { useGitStore } from '../store/gitStore'
 import { GitAheadBehind } from './GitAheadBehind'
@@ -13,7 +13,9 @@ interface GitHeaderProps {
   busy: string | null
 }
 
-const undoTip = ({ undo }: GitState): string => {
+const HEAD_LABEL = 'flex max-w-max min-w-0 flex-2 items-center gap-[4px] font-mono text-dock-green-deep'
+
+const undoTip =({ undo }: GitState): string => {
   if (!undo) {
     return 'Aucune opération faite depuis Dock à annuler'
   }
@@ -25,6 +27,18 @@ export function GitHeader({ state, busy }: GitHeaderProps) {
   const graphOpen = useGitStore((store) => store.graphOpen)
   const working = busy !== null
   const noRemote = remotes.length === 0
+  const copiedBranch = head.detached ? null : head.branch
+  const handleCopyBranch = () => {
+    if (copiedBranch) {
+      copyToClipboard(copiedBranch, `Branche « ${copiedBranch} » copiée.`)
+    }
+  }
+  const headLabel = (
+    <>
+      <Icon name={IconName.Branch} className="shrink-0" />
+      <span className="truncate">{headSummary(head)}</span>
+    </>
+  )
   const trackingTip = head.upstream ? `${plural(head.ahead, 'commit', 'commits')} à push, ${plural(head.behind, 'commit', 'commits')} à pull depuis ${head.upstream}` : ''
   const pushTip = head.detached
     ? 'HEAD détachée : faites le checkout d’une branche avant le push'
@@ -40,10 +54,15 @@ export function GitHeader({ state, busy }: GitHeaderProps) {
         <span className="max-w-max min-w-0 flex-1 truncate font-semibold text-dock-ink" data-tip={state.root}>
           {state.name}
         </span>
-        <span className="flex max-w-max min-w-0 flex-2 items-center gap-[4px] font-mono text-dock-green-deep" data-tip={headSummary(head)}>
-          <Icon name={IconName.Branch} className="shrink-0" />
-          <span className="truncate">{headSummary(head)}</span>
-        </span>
+        {copiedBranch ? (
+          <button type="button" className={`${HEAD_LABEL} cursor-pointer hover:underline`} data-tip={`Copier la branche « ${copiedBranch} »`} aria-label="Copier la branche Git" onClick={handleCopyBranch}>
+            {headLabel}
+          </button>
+        ) : (
+          <span className={HEAD_LABEL} data-tip={headSummary(head)}>
+            {headLabel}
+          </span>
+        )}
         {head.upstream && (head.ahead > 0 || head.behind > 0) && (
           <GitAheadBehind ahead={head.ahead} behind={head.behind} tip={trackingTip} />
         )}
