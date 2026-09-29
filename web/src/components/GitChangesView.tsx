@@ -12,7 +12,7 @@ import { GitFileRow } from './GitFileRow'
 import { GitGroupHeader } from './GitGroupHeader'
 import { Icon } from './Icon'
 import { IconName } from './iconName'
-import { ROW_ACTION } from './rightPanelStyles'
+import { ROW_ACTION, ROW_STAGE_BUTTON, ROW_UNSTAGE_BUTTON } from './rightPanelStyles'
 
 interface GitChangesViewProps {
   state: GitState
@@ -146,29 +146,29 @@ export function GitChangesView({ state, busy }: GitChangesViewProps) {
             {renderRows(GitRowGroup.Conflict)}
           </>
         )}
-        {state.stagedTotal > 0 && (
-          <>
-            <GitGroupHeader title="Staged" count={state.stagedTotal} tip={KEYBOARD_TIP}>
-              <button type="button" className={ROW_ACTION} aria-label="Unstage de tout" data-tip="Unstage de tout" onClick={handleUnstageAll}>
-                <Icon name={IconName.Minus} />
-              </button>
-            </GitGroupHeader>
-            {renderRows(GitRowGroup.Staged)}
-            {hiddenNote(state.staged.length, state.stagedTotal)}
-          </>
-        )}
         {state.unstagedTotal > 0 && (
           <>
             <GitGroupHeader title="Unstaged" count={state.unstagedTotal} tip={KEYBOARD_TIP}>
               <button type="button" className={`${ROW_ACTION} hover:text-dock-error`} aria-label="Tout abandonner" data-tip="Abandonner toutes les modifications unstaged" onClick={handleDiscardAll}>
                 <Icon name={IconName.Discard} />
               </button>
-              <button type="button" className={ROW_ACTION} aria-label="Stage de tout" data-tip="Stage de tout" onClick={handleStageAll}>
+              <button type="button" className={ROW_STAGE_BUTTON} aria-label="Stage de tout" data-tip="Stage de tout" onClick={handleStageAll}>
                 <Icon name={IconName.Plus} />
               </button>
             </GitGroupHeader>
             {renderRows(GitRowGroup.Unstaged)}
             {hiddenNote(state.unstaged.length, state.unstagedTotal)}
+          </>
+        )}
+        {state.stagedTotal > 0 && (
+          <>
+            <GitGroupHeader title="Staged" count={state.stagedTotal} tip={KEYBOARD_TIP}>
+              <button type="button" className={ROW_UNSTAGE_BUTTON} aria-label="Unstage de tout" data-tip="Unstage de tout" onClick={handleUnstageAll}>
+                <Icon name={IconName.Minus} />
+              </button>
+            </GitGroupHeader>
+            {renderRows(GitRowGroup.Staged)}
+            {hiddenNote(state.staged.length, state.stagedTotal)}
           </>
         )}
       </div>

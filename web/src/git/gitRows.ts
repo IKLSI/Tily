@@ -57,8 +57,8 @@ export const nextSelection = (order: string[], selection: ReadonlySet<string>, a
 
 export const changeRows = (conflicts: GitConflict[], staged: GitFileChange[], unstaged: GitFileChange[]): GitChangeRow[] => [
   ...conflicts.map((conflict) => ({ key: rowKey(GitRowGroup.Conflict, conflict.path), group: GitRowGroup.Conflict, conflict })),
-  ...staged.map((change) => ({ key: rowKey(GitRowGroup.Staged, change.path), group: GitRowGroup.Staged, change })),
   ...unstaged.map((change) => ({ key: rowKey(GitRowGroup.Unstaged, change.path), group: GitRowGroup.Unstaged, change })),
+  ...staged.map((change) => ({ key: rowKey(GitRowGroup.Staged, change.path), group: GitRowGroup.Staged, change })),
 ]
 
 export const openChangeRow = (row: GitChangeRow): void => {
