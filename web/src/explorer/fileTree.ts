@@ -64,6 +64,13 @@ export const buildFileTree = (root: string, listings: Record<string, DirectoryLi
 export const entryRows = (rows: TreeRow[]): TreeRow[] => rows.filter((row) => row.kind === RowKind.Entry)
 
 const EXTENSION_SEPARATOR = '.'
+const TRAILING_SEPARATORS = /[\\/]+$/
+const PATH_SEPARATOR = '\\'
+
+export const relativeEntryPath = (root: string, path: string): string => {
+  const prefix = `${root.replace(TRAILING_SEPARATORS, '')}${PATH_SEPARATOR}`
+  return path.toLowerCase().startsWith(prefix.toLowerCase()) ? path.slice(prefix.length) : path
+}
 
 export const renameSelectionEnd = (entry: FileEntry): number => {
   const separator = entry.name.lastIndexOf(EXTENSION_SEPARATOR)

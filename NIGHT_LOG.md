@@ -165,6 +165,14 @@ Remarque de l'itération 14 : à la largeur par défaut du panneau (280 px), ave
 - Sous 300 px de rangée, « Annuler » ne montre plus que son icône, par une requête de conteneur comme pour la branche dans l'en-tête des panes. L'infobulle et le libellé accessible restent.
 - Vérifié dans l'instance de dev : à 268 px, Fetch, « Pull 16 », Push, Annuler et Actualiser tiennent sur la même ligne.
 
+### 16. Copier le chemin relatif depuis l'arbre des fichiers
+
+Pour citer un fichier à Claude Code ou dans une commande, le chemin complet (`C:\Users\…\docs\TESTING.md`) est trop long : on veut celui depuis le dossier du terminal.
+
+- Le menu contextuel d'un fichier ou d'un dossier de l'arbre propose « Copier le chemin relatif », depuis la racine de l'arbre, qui est le dossier du pane actif.
+- Vérifié dans l'instance de dev : sur `docs\TESTING.md`, le presse-papiers (intercepté dans la page) reçoit `docs\TESTING.md` et la barre de statut l'annonce.
+- **Convention proposée** en section 4 de la spec.
+
 ## Reste à faire et idées
 
 - Déplacer un pane vers un onglet d'un autre workspace (l'itération 8 se limite au workspace du pane).

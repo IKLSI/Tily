@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent, type MouseEvent } from 'react'
 import { EntryKind, type FileEntry } from '../bridge/messages'
-import { entryRows, RowKind, type TreeRow } from '../explorer/fileTree'
+import { entryRows, relativeEntryPath, RowKind, type TreeRow } from '../explorer/fileTree'
 import {
   copyEntryPath,
   createEntry,
@@ -117,6 +117,7 @@ export function FileTree({ root, rows, expanded, selectedPath, renamingPath, dra
     rename: startRename,
     remove: requestDelete,
     copyPath: copyEntryPath,
+    copyRelativePath: (path) => copyEntryPath(relativeEntryPath(root, path)),
     insertPath: insertPathInActivePane,
     reveal: revealInExplorer,
     openFolder: openFolderInEditor,
