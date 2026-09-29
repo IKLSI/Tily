@@ -17,7 +17,7 @@
 
 ## Fonctionnalités
 
-- **Workspaces libres** : un panneau en arborescence, repliable et redimensionnable, regroupe les workspaces et leurs onglets. Tout se renomme directement sur place, les workspaces se réordonnent, les onglets se déplacent d’un workspace à l’autre et un onglet fermé par erreur se rouvre.
+- **Workspaces libres** : un panneau en arborescence, repliable et redimensionnable, regroupe les workspaces et leurs onglets. Tout se renomme directement sur place, les workspaces se réordonnent, les onglets se dupliquent et se déplacent d’un workspace à l’autre, et un onglet fermé par erreur se rouvre.
 - **Vrais terminaux** : Windows PowerShell par défaut avec votre profil habituel, ses alias et ses fonctions ; PowerShell 7, CMD et Git Bash au clic droit sur « + ».
 - **Splits** : plusieurs terminaux côte à côte ou l’un sous l’autre dans le même onglet, redimensionnables et navigables au clavier.
 - **Palette Ctrl + P** : retrouver une commande, un workspace, un onglet ou un terminal en quelques lettres.
@@ -65,7 +65,10 @@ Aucun droit administrateur n’est nécessaire. Pour mettre à jour, fermer Dock
 | E | Ctrl + Maj + E | Explorateur de fichiers |
 | G | Ctrl + Maj + G | Vue Git |
 | B | Ctrl + Maj + B | Afficher / masquer les workspaces |
+| Z | Ctrl + Maj + Z | Rouvrir le dernier onglet fermé |
+| , | — | Paramètres |
 | Flèche | Alt + flèche | Passer d’un terminal à l’autre |
+| Pg préc. / Pg suiv. | Ctrl + Maj + Pg préc. / Pg suiv. | Déplacer l’onglet vers la gauche / la droite |
 | — | Ctrl + Tab / Ctrl + Maj + Tab | Onglet suivant / précédent |
 
-Ctrl + Maj + C et Ctrl + Maj + V copient et collent.
+Ctrl + Maj + C et Ctrl + Maj + V copient et collent. Un clic droit, ou la touche Menu, ouvre le menu d’un terminal, d’un onglet, d’un workspace ou d’un fichier. Dans le panneau des workspaces, ↑ et ↓ passent d’une ligne à l’autre, → et ← déplient et replient, F2 renomme et Alt + ↑ / ↓ déplace la ligne.

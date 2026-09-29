@@ -360,6 +360,12 @@ Les douze constats de la relecture sont traités (itérations 44 à 46).
   - ← replie le workspace (de 23 à 21 lignes visibles), → le déplie ;
   - Fin va au dernier workspace, Début revient au premier.
 
+### 48. Le README suit les raccourcis et les gestes ajoutés
+
+- **Quoi** : le tableau des raccourcis du README gagne trois lignes, vérifiées dans `shortcuts.ts` : rouvrir le dernier onglet fermé (Leader puis Z, ou Ctrl + Maj + Z), Paramètres (Leader puis « , ») et déplacer l'onglet (Leader puis Pg préc. / Pg suiv., ou Ctrl + Maj + Pg préc. / Pg suiv.). Une phrase y signale les menus contextuels (clic droit ou touche Menu sur un terminal, un onglet, un workspace ou un fichier) et le clavier du panneau des workspaces. La liste des fonctionnalités mentionne la duplication d'onglet.
+- **Pourquoi** : ces raccourcis existaient, affichés dans les indications du Leader, mais le README ne les citait pas, pas plus que plusieurs gestes ajoutés cette nuit. C'est la première page qu'on lit.
+- **Vérifié** : chaque raccourci ajouté a été relu dans `LEADER_KEYS`, `DIRECT_LETTER_KEYS`, `DIRECT_PAGE_KEYS` et `LEADER_HINTS`. Plus tôt dans l'itération, l'exploration de la vue Git (checkout de `autre` par Entrée dans le panneau des références, bascule de Ctrl + Maj + G quatre fois de suite) n'a montré aucun défaut.
+
 ## Reste à faire et idées
 
 - **Taille de police et zoom du terminal** : police fixe à 14 px. La spécification classe ce point « À décider » (section 4), je n'y ai donc pas touché ; c'est à trancher.
