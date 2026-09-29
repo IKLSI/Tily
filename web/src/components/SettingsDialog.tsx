@@ -163,6 +163,7 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
   const handleProjectsRootChange = (event: ChangeEvent<HTMLInputElement>) => updateDraft({ projectsRoot: event.target.value })
   const handleWorktreeFolderChange = (event: ChangeEvent<HTMLInputElement>) => updateWorktrees({ folder: event.target.value })
   const handleDefaultBaseChange = (event: ChangeEvent<HTMLInputElement>) => updateWorktrees({ defaultBase: event.target.value })
+  const handleAutoFetchChange = (event: ChangeEvent<HTMLInputElement>) => updateDraft({ git: { autoFetch: event.target.checked } })
   const updateNotifications = (patch: Partial<NotificationSettings>) => setDraft((current) => (current ? { ...current, notifications: { ...current.notifications, ...patch } } : current))
   const handleToastChange = (event: ChangeEvent<HTMLInputElement>) => updateNotifications({ windowsToast: event.target.checked })
   const handleFlashChange = (event: ChangeEvent<HTMLInputElement>) => updateNotifications({ taskbarFlash: event.target.checked })
@@ -280,6 +281,15 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
         <p className={`${HINT} font-mono`}>{current.files.projects}</p>
       </section>
       <section className="flex flex-col gap-2">
+        <h3 className={SECTION}>Git</h3>
+        <label className="flex items-center gap-2">
+          <input type="checkbox" checked={settings.git.autoFetch} onChange={handleAutoFetchChange} />
+          <span className={LABEL}>Fetch automatique à l’ouverture de la vue Git</span>
+        </label>
+        <span className={HINT}>Lance git fetch --all à l’ouverture de la vue Git et quand le pane actif passe à un autre dépôt, au plus une fois toutes les 5 minutes par dépôt. Un échec (hors ligne, authentification) reste silencieux.</span>
+        <p className={`${HINT} font-mono`}>{current.files.git}</p>
+      </section>
+      <section className="flex flex-col gap-2">
         <h3 className={SECTION}>Notifications</h3>
         <p className={HINT}>Attente : quand un agent a besoin de vous et que Dock n’est pas la fenêtre active ; les cartes dans Dock restent toujours affichées. Fin : chaque fois qu’un agent termine, avec son dernier message.</p>
         <label className="flex items-center gap-2">
@@ -343,7 +353,7 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
           <button type="button" className={`${SECONDARY} ml-auto`} onClick={onClose}>
             Annuler
           </button>
-          <button type="button" className={PRIMARY} aria-disabled={!draft || invalidNumber !== undefined} data-tip={invalidNumber ? `${invalidNumber.label} : entre ${invalidNumber.min} et ${invalidNumber.max}` : 'Écrit les quatre fichiers et applique immédiatement'} onClick={handleSave}>
+          <button type="button" className={PRIMARY} aria-disabled={!draft || invalidNumber !== undefined} data-tip={invalidNumber ? `${invalidNumber.label} : entre ${invalidNumber.min} et ${invalidNumber.max}` : 'Écrit les fichiers de réglages et applique immédiatement'} onClick={handleSave}>
             Enregistrer
           </button>
         </div>
