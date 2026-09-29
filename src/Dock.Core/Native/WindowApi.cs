@@ -23,6 +23,14 @@ public static class WindowApi
     [DllImport("user32.dll")]
     public static extern bool SetForegroundWindow(nint windowHandle);
 
+    public const int ShowRestore = 9;
+
+    [DllImport("user32.dll")]
+    public static extern bool IsIconic(nint windowHandle);
+
+    [DllImport("user32.dll")]
+    public static extern bool ShowWindow(nint windowHandle, int command);
+
     public const uint SoundAsync = 0x0001;
     public const uint SoundNoDefault = 0x0002;
     public const uint SoundAlias = 0x00010000;

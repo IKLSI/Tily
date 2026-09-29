@@ -122,6 +122,11 @@ public sealed class AttentionNotifier : IDisposable
         _dispatcher.TryEnqueue(() =>
         {
             _shown.Remove(paneId);
+            if (WindowApi.IsIconic(_windowHandle))
+            {
+                WindowApi.ShowWindow(_windowHandle, WindowApi.ShowRestore);
+            }
+
             WindowApi.SetForegroundWindow(_windowHandle);
             _join(paneId);
         });
