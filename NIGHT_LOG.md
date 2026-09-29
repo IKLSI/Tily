@@ -579,6 +579,18 @@ Un sous-agent a relu les itérations 56 à 61 (`ace5e77..bc8a377`) sans rien mod
   - la doc hôte mentionne que « Insérer le chemin dans le terminal » passe aussi par `terminal.dropPath`.
 - **À savoir sur les essais** : Ctrl + C n'interrompait pas un `ping` dans l'instance de dev. Elle héritait de ma chaîne de lancement (Bash puis PowerShell) l'état « Ctrl + C ignoré » de Windows. Relancée par l'Explorateur, elle affiche bien « Control-C ». Ton Dock, lancé depuis le menu Démarrer, n'est pas concerné. L'instance de dev est désormais lancée ainsi.
 
+### 66. Le test instable de la nuit est identifié et fiabilisé
+
+Pendant l'itération 44, un `dotnet test` avait échoué une fois sur 190 sans qu'on sache quel test ; depuis, le script de vérification garde le journal complet. Il a échoué de nouveau pendant l'itération 65, et le journal le nomme : `TerminalManagerTests.Stop_WhenChildProcessesRunning_ThenNoneSurvive`. Le processus 5064 était « encore vivant » deux secondes après l'arrêt du pane.
+
+- **Cause** : le test relevait les numéros de processus (PID) du job avant l'arrêt, attendait 2 s, puis cherchait un processus vivant portant l'un de ces numéros. Windows réattribue vite un PID libéré, surtout quand beaucoup de processus démarrent, comme pendant mes essais. Un processus sans rapport pouvait donc être pris pour un survivant. L'attente fixe de 2 s pouvait aussi être trop courte sur une machine chargée.
+- **Correction** : le test ouvre un handle sur chaque processus du job avant l'arrêt. Un handle désigne ce processus précis, même si son numéro est réattribué. Il attend ensuite jusqu'à 10 s que chacun se termine (`WaitForExit`), puis libère les handles.
+- Vérifié :
+  - six exécutions consécutives des tests du gestionnaire de terminaux passent ;
+  - en remplaçant l'arrêt par celui d'un pane inexistant, le test échoue bien, avec les 4 processus nommés : il ne passe pas à vide ;
+  - aucun `ping` ne reste ensuite ;
+  - `docs/TESTING.md` précise le suivi par handle.
+
 ## Reste à faire et idées
 
 - **Alt + flèche sur un onglet ou une ligne du panneau** : quand un onglet de la barre ou une ligne du panneau des workspaces a le focus, Alt + flèche déplace cet élément (itérations 14, 47 et 58) au lieu de changer de pane, comme le prévoit le tableau retenu de la section 9. C'est une dérogation à confirmer ou à retirer ; la spec la signale comme « exception à confirmer ».

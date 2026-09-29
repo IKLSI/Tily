@@ -9,6 +9,7 @@ namespace Dock.Core.Tests.Terminal;
 public sealed class TerminalManagerTests
 {
     private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(30);
+    private static readonly TimeSpan StopTimeout = TimeSpan.FromSeconds(10);
 
     [Fact]
     public async Task Start_WhenPowerShell_ThenReportsCurrentDirectoryAndInjectsPaneVariable()
@@ -38,12 +39,18 @@ public sealed class TerminalManagerTests
         await directory.Task.WaitAsync(Timeout);
         session.Write(Encoding.UTF8.GetBytes("Start-Process cmd -WindowStyle Hidden -ArgumentList '/c','ping -t 127.0.0.1 > nul'\r"));
         await WaitForAsync(() => session.JobProcessIds().Count >= 3);
-        var processIds = session.JobProcessIds();
+        var processes = session.JobProcessIds().Select(OpenProcess).OfType<Process>().ToList();
 
         manager.Stop("pane-job");
-        await Task.Delay(TimeSpan.FromSeconds(2));
 
-        Assert.DoesNotContain(processIds, IsAlive);
+        try
+        {
+            Assert.All(processes, process => Assert.True(process.WaitForExit(StopTimeout), $"Processus {process.Id} encore vivant après l’arrêt du pane."));
+        }
+        finally
+        {
+            processes.ForEach(process => process.Dispose());
+        }
     }
 
     [Fact]
@@ -97,16 +104,17 @@ public sealed class TerminalManagerTests
         }
     }
 
-    private static bool IsAlive(int processId)
+    private static Process? OpenProcess(int processId)
     {
         try
         {
-            using var process = Process.GetProcessById(processId);
-            return !process.HasExited;
+            var process = Process.GetProcessById(processId);
+            _ = process.SafeHandle;
+            return process;
         }
         catch (ArgumentException)
         {
-            return false;
+            return null;
         }
     }
 }
