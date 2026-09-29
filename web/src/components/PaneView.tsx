@@ -163,7 +163,7 @@ export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZ
         {branchLabel && (
           <span className="flex max-w-[35%] min-w-0 shrink items-center gap-1 font-mono text-dock-muted @max-[520px]:hidden" data-tip={gitSummary(context)}>
             <BranchIcon />
-            <span className="truncate">{branchLabel}</span>
+            <span className="truncate py-1 [text-box:trim-both_cap_alphabetic]">{branchLabel}</span>
           </span>
         )}
         <button type="button" className={HEADER_BUTTON} data-tip={`Copier le chemin ${pane.path}`} aria-label="Copier le chemin" onClick={handleCopyPath}>

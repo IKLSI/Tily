@@ -36,11 +36,11 @@ export function StatusBar() {
           className="flex h-full min-w-0 flex-1 cursor-pointer items-center gap-[6px] px-3 text-left hover:bg-dock-green-hover"
           onClick={toggleStatusLog}
         >
-          <span className="flex shrink-0 -translate-y-px" data-tip={logOpen ? 'Masquer le journal (Ctrl + Maj + L)' : 'Afficher le journal des messages (Ctrl + Maj + L)'}>
+          <span className="flex shrink-0" data-tip={logOpen ? 'Masquer le journal (Ctrl + Maj + L)' : 'Afficher le journal des messages (Ctrl + Maj + L)'}>
             <Icon name={IconName.Chevron} size={10} className={`text-dock-muted transition-transform ${logOpen ? 'rotate-90' : '-rotate-90'}`} />
           </span>
           {spinning && <Spinner size={10} className="shrink-0 text-dock-green" />}
-          <span className="truncate">{busy ? busyLabel(busy, busyRefs) : status.text}</span>
+          <span className="truncate py-1 [text-box:trim-both_cap_alphabetic]">{busy ? busyLabel(busy, busyRefs) : status.text}</span>
         </button>
         {unsaved && (
           <span className="shrink-0 px-3 text-dock-error" data-tip="La dernière sauvegarde a échoué : la session restera en l’état d’avant tant qu’une écriture ne réussit pas.">
