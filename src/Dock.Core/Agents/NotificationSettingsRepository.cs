@@ -3,10 +3,11 @@ using Dock.Core.Session;
 
 namespace Dock.Core.Agents;
 
-public sealed record NotificationSettingsModel(bool WindowsToast, string Sound, bool TaskbarFlash)
+public sealed record NotificationSettingsModel(bool WindowsToast, string Sound, bool TaskbarFlash, bool NotifyDone = true, string DoneSound = NotificationSettingsModel.DefaultDoneSound)
 {
     public const string NoSound = "none";
     public const string DefaultSound = "Notification.Default";
+    public const string DefaultDoneSound = "Notification.IM";
     public static readonly IReadOnlyList<string> Sounds = [NoSound, DefaultSound, "Notification.IM", "Notification.Mail", "Notification.Reminder", "Notification.SMS"];
     public static readonly NotificationSettingsModel Default = new(true, DefaultSound, true);
 
@@ -16,11 +17,13 @@ public sealed record NotificationSettingsModel(bool WindowsToast, string Sound, 
 
     public static bool IsWavPath(string sound) => Path.IsPathRooted(sound) && string.Equals(Path.GetExtension(sound), WavExtension, StringComparison.OrdinalIgnoreCase);
 
-    public NotificationSettingsModel Normalized()
+    public NotificationSettingsModel Normalized() => this with { Sound = NormalizedSound(Sound, DefaultSound), DoneSound = NormalizedSound(DoneSound, DefaultDoneSound) };
+
+    private static string NormalizedSound(string? sound, string fallback)
     {
-        var trimmed = Sound.Trim();
-        var alias = Sounds.FirstOrDefault(sound => string.Equals(sound, trimmed, StringComparison.OrdinalIgnoreCase));
-        return this with { Sound = alias ?? (IsWavPath(trimmed) ? trimmed : DefaultSound) };
+        var trimmed = sound?.Trim() ?? string.Empty;
+        var alias = Sounds.FirstOrDefault(known => string.Equals(known, trimmed, StringComparison.OrdinalIgnoreCase));
+        return alias ?? (IsWavPath(trimmed) ? trimmed : fallback);
     }
 }
 

@@ -72,6 +72,28 @@ public sealed class SettingsServiceTests : IDisposable
     }
 
     [Fact]
+    public void Load_WhenDoneSettingsMissing_ThenNotifiesDoneWithDistinctSound()
+    {
+        var service = new SettingsService(_directory);
+        File.WriteAllText(Path.Combine(_directory, NotificationSettingsRepository.FileName), "{ \"windowsToast\": true, \"sound\": \"Notification.Default\", \"taskbarFlash\": true }");
+
+        var settings = service.Load();
+
+        Assert.Equal(new NotificationSettingsModel(true, NotificationSettingsModel.DefaultSound, true, true, NotificationSettingsModel.DefaultDoneSound), settings.Notifications);
+    }
+
+    [Fact]
+    public void Load_WhenDoneSoundUnknown_ThenFallsBackToDefaultDoneSound()
+    {
+        var service = new SettingsService(_directory);
+        File.WriteAllText(Path.Combine(_directory, NotificationSettingsRepository.FileName), "{ \"windowsToast\": true, \"sound\": \"none\", \"taskbarFlash\": true, \"notifyDone\": false, \"doneSound\": \"Klaxon\" }");
+
+        var settings = service.Load();
+
+        Assert.Equal(new NotificationSettingsModel(true, NotificationSettingsModel.NoSound, true, false, NotificationSettingsModel.DefaultDoneSound), settings.Notifications);
+    }
+
+    [Fact]
     public void Save_WhenShellUnknown_ThenRefusesWithoutWriting()
     {
         var service = new SettingsService(_directory);

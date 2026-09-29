@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using Xunit;
 
@@ -34,6 +35,33 @@ public sealed class AgentStateHookScriptTests : IDisposable
         var state = Run("{ \"hook_event_name\": \"PermissionRequest\", \"tool_name\": \"mcp__jira__create\", \"tool_input\": { \"summary\": \"Bug\" } }");
 
         Assert.Equal("{\"summary\":\"Bug\"}", state["detail"]!.GetValue<string>());
+    }
+
+    [Fact]
+    public void Run_WhenStopped_ThenWritesLastAssistantTextFromTranscript()
+    {
+        Directory.CreateDirectory(_directory);
+        var transcript = Path.Combine(_directory, "session.jsonl");
+        File.WriteAllLines(transcript,
+        [
+            "{\"type\":\"user\",\"message\":{\"role\":\"user\",\"content\":\"Corrige le bug\"}}",
+            "{\"isSidechain\":false,\"message\":{\"role\":\"assistant\",\"content\":[{\"type\":\"text\",\"text\":\"Le bug est corrigé et testé.\"}]},\"type\":\"assistant\"}",
+            "{\"isSidechain\":true,\"message\":{\"role\":\"assistant\",\"content\":[{\"type\":\"text\",\"text\":\"Sous-agent\"}]},\"type\":\"assistant\"}",
+            "{\"isSidechain\":false,\"message\":{\"role\":\"assistant\",\"content\":[{\"type\":\"tool_use\",\"name\":\"Bash\"}]},\"type\":\"assistant\"}"
+        ], new UTF8Encoding(false));
+
+        var state = Run(JsonSerializer.Serialize(new Dictionary<string, string> { ["hook_event_name"] = "Stop", ["transcript_path"] = transcript }));
+
+        Assert.Equal("done", state["state"]!.GetValue<string>());
+        Assert.Equal("Le bug est corrigé et testé.", state["detail"]!.GetValue<string>());
+    }
+
+    [Fact]
+    public void Run_WhenStoppedWithLastAssistantMessage_ThenPrefersIt()
+    {
+        var state = Run("{ \"hook_event_name\": \"Stop\", \"last_assistant_message\": \"Terminé : 3 fichiers modifiés.\", \"transcript_path\": \"C:\\\\absent.jsonl\" }");
+
+        Assert.Equal("Terminé : 3 fichiers modifiés.", state["detail"]!.GetValue<string>());
     }
 
     private JsonNode Run(string payload)
