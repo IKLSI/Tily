@@ -42,6 +42,7 @@ public sealed class GitOperationRunner
             "git.merge" => repository => GitHistoryCommands.Merge(repository, command.Reference),
             "git.rebase" => repository => GitHistoryCommands.Rebase(repository, command.Reference),
             "git.cherryPick" => repository => GitHistoryCommands.CherryPick(repository, command.Commit),
+            "git.revert" => repository => GitHistoryCommands.Revert(repository, command.Commit),
             "git.reset" => repository => GitHistoryCommands.Reset(repository, command.Commit, command.Mode, command.Confirmed),
             "git.switch" => repository => GitBranchCommands.Switch(repository, command.Reference, command.Target),
             "git.branchCreate" => repository => GitBranchCommands.Create(repository, command.Name, command.Reference, command.Checkout),

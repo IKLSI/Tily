@@ -133,6 +133,23 @@ public sealed class GitHistoryCommandsTests : IDisposable
     }
 
     [Fact]
+    public void Revert_WhenPastCommit_ThenUndoesItsChangesAndUndoRestoresHead()
+    {
+        _sandbox.Commit("Base", ("a.txt", "a\n"));
+        var reverted = _sandbox.Commit("À défaire", ("f.txt", "f\n"));
+        _sandbox.Commit("Suite", ("s.txt", "s\n"));
+        var head = _sandbox.Head();
+
+        var outcome = GitHistoryCommands.Revert(_sandbox.Repository, reverted);
+        var removed = !_sandbox.Exists("f.txt") && _sandbox.Exists("s.txt");
+        GitUndo.Apply(_sandbox.Repository, outcome.Undo);
+
+        Assert.True(removed);
+        Assert.Equal(head, _sandbox.Head());
+        Assert.True(_sandbox.Exists("f.txt"));
+    }
+
+    [Fact]
     public void Rebase_WhenBranchBehind_ThenReplaysCommitsAndUndoRestoresTip()
     {
         _sandbox.Commit("Base", ("a.txt", "a\n"));

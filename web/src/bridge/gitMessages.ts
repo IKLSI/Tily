@@ -265,6 +265,7 @@ export type GitWebMessage =
   | { type: 'git.pull' | 'git.fetch' | 'git.continue' | 'git.undo'; path: string }
   | { type: 'git.merge' | 'git.rebase'; path: string; reference: string }
   | { type: 'git.cherryPick'; path: string; commit: string }
+  | { type: 'git.revert'; path: string; commit: string }
   | { type: 'git.reset'; path: string; commit: string; mode: GitResetMode; confirmed: boolean }
   | { type: 'git.switch'; path: string; reference: string; target: GitSwitchTarget }
   | { type: 'git.branchCreate'; path: string; name: string; reference?: string; checkout: boolean }

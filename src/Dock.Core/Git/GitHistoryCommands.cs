@@ -38,6 +38,18 @@ public static class GitHistoryCommands
             $"Cherry-pick de {GitRepository.Short(sha)} sur « {branch ?? "HEAD"} » terminé.", "Le cherry-pick a échoué.", "Cherry-pick interrompu");
     }
 
+    public static GitOutcomeModel Revert(GitRepository repository, string? commit)
+    {
+        var sha = repository.RequireCommit(commit);
+        repository.RequireNoOperation();
+        var before = repository.HeadSha() ?? throw new GitCommandException("Aucun commit sur la branche courante.", string.Empty);
+        var branch = repository.CurrentBranch();
+        var isMerge = GitHistoryReader.Parents(repository.Read("rev-list", "--parents", "-n", "1", sha).Trim()).Count > 2;
+        var output = isMerge ? repository.Run("revert", "--no-edit", "-m", "1", sha) : repository.Run("revert", "--no-edit", sha);
+        return Conclude(repository, output, new GitUndoRecordModel { Kind = GitUndoKind.Revert, Label = $"Revert de {GitRepository.Short(sha)}", HeadBefore = before, BranchBefore = branch },
+            $"Revert de {GitRepository.Short(sha)} sur « {branch ?? "HEAD"} » terminé.", "Le revert a échoué.", "Revert interrompu");
+    }
+
     public static GitOutcomeModel Reset(GitRepository repository, string? commit, string? mode, bool confirmed)
     {
         var sha = repository.RequireCommit(commit);

@@ -145,6 +145,19 @@ Tout le code web tenait dans un seul fichier JavaScript de 1,3 Mo, lu et compil�
 - Vérifié dans l'instance de dev : au démarrage, aucun fichier d'aperçu n'est demandé ; au clic sur `notes.md`, `FilePreviewDrawer-*.js` est servi par l'hôte comme les autres fichiers de `wwwroot`, le titre et la coloration du bloc de code sont identiques. La publication de l'installeur copie tout `dist`, le fichier supplémentaire compris.
 - Architecture front mise à jour.
 
+### 14. Revert d'un commit depuis la vue Git
+
+La vue Git proposait cherry-pick, merge, rebase et reset, mais pas le revert, pourtant le moyen sûr de défaire un commit déjà publié.
+
+- Le menu d'un commit propose « Revert sur « branche » ». Il lance `git revert --no-edit`, par rapport au premier parent pour un merge, et fonctionne aussi sur le commit HEAD.
+- Tout le reste existait déjà et sert tel quel : la détection d'un revert en cours (`REVERT_HEAD`), « Terminer » et « Abandonner » en cas de conflit. « Annuler » (nouveau type `Revert` dans le journal d'annulation) retire le commit de revert par `reset --keep` tant qu'il n'est pas publié.
+- 1 test d'intégration Git : revert d'un commit passé, fichier retiré, puis « Annuler » rend HEAD.
+- Vérifié dans l'instance de dev, sur le clone jetable :
+  - revert de « Suppression de l'ancien night log » depuis le graphe : commit `Revert "…"` créé, `NIGHT_LOG.md` restauré, message « Revert de 2009a21 sur « night-session » terminé. » ;
+  - « Annuler » ramène HEAD sur `2009a21`.
+- **Convention proposée** en section 11 de la spec, README mis à jour.
+- **Remarque** : l'en-tête du panneau Git manque de place à 280 px : le bouton « Actualiser » passe à la ligne sous « Annuler ». À revoir.
+
 ## Reste à faire et idées
 
 - Déplacer un pane vers un onglet d'un autre workspace (l'itération 8 se limite au workspace du pane).
