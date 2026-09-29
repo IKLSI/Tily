@@ -44,7 +44,7 @@ Décisions déjà tranchées à ne pas rouvrir : Leader = Ctrl + Espace (délai 
 
 ## Application (`src/`, `web/`, `tests/`)
 
-- `src/Dock.Core` : terminaux ConPTY et Job Objects (`Terminal`, `Native`), shells et intégration OSC 7 (`Shell`), session et texte des panes (`Session`, `%LOCALAPPDATA%\Dock\session.json`), préférences (`Settings`), sélecteur de projets (`Projects`), actions contextuelles et éditeur (`Context`), explorateur de fichiers (`Files`), vue Git avec annulation (`Git`), worktrees natifs (`Worktrees`), états d'agents et hooks Claude Code (`Agents`). L'hôte valide toute session avant de l'écrire.
+- `src/Dock.Core` : terminaux ConPTY et Job Objects (`Terminal`, `Native`), shells et intégration OSC 7 (`Shell`), session et texte des panes (`Session`, `%LOCALAPPDATA%\Dock\session.json`), préférences (`Settings`), sélecteur de projets (`Projects`), actions contextuelles et éditeur (`Context`), explorateur de fichiers (`Files`), vue Git avec annulation (`Git`), worktrees natifs (`Worktrees`), états d'agents et hooks Claude Code (`Agents`), mises à jour depuis les releases GitHub (`Updates`). L'hôte valide toute session avant de l'écrire.
 - `src/Dock.Host` : fenêtre WinUI 3 non empaquetée, une seule WebView2, aucun `KeyboardAccelerator`, pont JSON `HostBridge` et flux associés dans `Bridge/` (contrat dans `docs/BACKEND_ARCHITECTURE.md`, types miroir dans `web/src/bridge/messages.ts`), script de hook `hooks/dock-agent-state.ps1`.
 - `web/` : modèle pur dans `src/model`, stores Zustand, une instance xterm.js par pane conservée hors React (`terminalRegistry`), raccourcis interceptés dans xterm.js (Leader Ctrl + Espace, Ctrl + P), composants un par fichier, tokens Tailwind `dock-*`. Enums TypeScript autorisés (`erasableSyntaxOnly` désactivé).
 

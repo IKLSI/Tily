@@ -367,6 +367,12 @@ L’export de préférences ne doit pas embarquer implicitement la sortie des te
 
 **Retenu (29 septembre 2026).** Le dossier des worktrees et la base par défaut font partie des préférences exportées, sous une clé `worktrees` facultative : un fichier de version 1 qui ne la contient pas reste importable, avec les valeurs par défaut.
 
+### Mises à jour de l’application
+
+**Retenu (29 septembre 2026).** Dock signale qu’une nouvelle version est publiée et ne l’installe que sur un clic « Installer et redémarrer » : il télécharge l’installeur, ferme Dock, installe la mise à jour puis relance Dock. La nouvelle version s’annonce par un bouton « Mise à jour x.y.z » dans l’en-tête, à côté de Paramètres, qui ouvre ses nouveautés, et par une section « Mises à jour » dans Paramètres (état, « Rechercher maintenant »). La vérification a lieu au démarrage puis toutes les 6 heures, désactivable dans Paramètres ; la recherche manuelle reste toujours possible.
+
+**Convention proposée.** La source est la dernière release publique du dépôt GitHub (hors brouillons et préversions), dont l’installeur `Dock-x.y.z-setup.exe` est vérifié par l’empreinte SHA-256 que publie GitHub avant tout lancement : une release sans empreinte n’est pas installable. Les nouveautés affichées sont la section « Nouveautés » des notes de la release, ou toutes les notes sans elle. La fermeture suit celle de l’application (section 13) : confirmation si des programmes tournent, avec « Arrêter et installer » ; la session est sauvegardée puis restaurée avec des shells neufs. L’installeur tourne en mode silencieux avec sa fenêtre de progression, dans le mode de l’installation existante (par utilisateur, ou pour tous les utilisateurs avec l’autorisation de Windows), attend la fin de Dock et le relance. Une copie de Dock qui n’a pas été installée par son installeur (version de développement) signale la nouvelle version mais renvoie vers GitHub. Le réglage fait partie des préférences exportées, sous une clé `updates` facultative.
+
 **Convention proposée.** À l’import, une valeur de persistance hors bornes (sauvegarde du texte, lignes par pane, historique global) est ramenée dans sa plage, et chaque correction est signalée dans l’écran Paramètres, sous l’avis d’import, avant tout enregistrement.
 
 ## 15. Architecture fonctionnelle et choix techniques
@@ -463,6 +469,7 @@ Ces scénarios définissent les vérifications à effectuer sur l’application 
 | R31 | Dans un dépôt de test avec un worktree créé par `wtr`, ouvrir la vue Git, puis ouvrir ce worktree depuis sa section. | La section « Worktrees » liste le dépôt principal et le worktree avec leur branche ; « Ouvrir » rejoint un pane déjà dans le worktree, sinon ouvre un workspace. |
 | R32 | Créer un worktree par Leader puis N (nouvelle branche), par l’icône d’arbre (branche existante) et depuis le menu d’une branche distante, dans un projet qui a des ports, un `package.json` et une base de test. | Workspace ouvert dès la création, `pnpm install` lancé dans son terminal, ports remplacés, base répliquée et chaîne de connexion réécrite ; bilan et avertissements dans la barre de statut. |
 | R33 | Supprimer ce worktree avec un pane ouvert dedans, d’abord sans fermer le pane, puis en le fermant. | Premier essai refusé, worktree intact et « Réessayer » ; second essai : pane fermé, dossier, base répliquée et branche supprimés, sauf la branche si « Garder la branche » est cochée. |
+| R34 | Sur un Dock installé dans une version antérieure à la dernière release, attendre la vérification ou lancer « Rechercher maintenant », ouvrir le bouton « Mise à jour » puis « Installer et redémarrer » avec un programme actif dans un terminal ; recommencer en annulant le téléchargement. | Nouveautés affichées, progression visible, confirmation « Arrêter et installer » ; Dock se ferme, s’installe et redémarre dans la nouvelle version avec sa session ; l’annulation laisse Dock inchangé et ne garde aucun fichier partiel. |
 
 ## 18. Décisions restantes avant développement
 
@@ -479,5 +486,6 @@ Ces scénarios définissent les vérifications à effectuer sur l’application 
 11. **À décider :** sur un onglet de la barre ou une ligne du panneau des workspaces qui a le focus, Alt + flèche déplace cet élément au lieu de changer de pane comme le prévoit le tableau retenu de la section 9 (conventions proposées des sections 5, 6 et 9). Garder cette exception ou la retirer.
 12. **À décider :** la « Décision prise » de la section 5 demande une confirmation pour supprimer un workspace « lorsqu’il contient des onglets ou des processus actifs ». Aujourd’hui, « Fermer le workspace » (menu du panneau, palette) ne confirme que si des programmes tournent : un workspace de plus de cinq onglets inactifs se ferme sans confirmation et ses onglets au-delà des cinq derniers ne sont plus restaurables. Préciser si la confirmation doit porter sur tout workspace qui contient des onglets.
 13. **Fait (29 septembre 2026) :** gestion native des worktrees (section 11, recettes R31 à R33) ; `wtr` et `rmwt` restent utilisables au terminal avec les mêmes chemins.
+14. **Fait (29 septembre 2026) :** mises à jour dans l’application (section 14, recette R34) : signalement, installation au clic, vérification au démarrage puis toutes les 6 heures.
 
 Ces décisions ne bloquent pas la compréhension du produit ; elles évitent de traiter un comportement accidentel comme une exigence validée.

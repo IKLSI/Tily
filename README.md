@@ -30,6 +30,7 @@
 - **Suivi de Claude Code** : repérer d’un coup d’œil le workspace et l’onglet où Claude Code travaille, attend une réponse ou a terminé.
 - **Liens cliquables** : Ctrl + clic sur un lien affiché dans le terminal l’ouvre dans le navigateur.
 - **Glisser-déposer** : déposer un fichier ou un dossier de l’Explorateur Windows, ou une ligne de l’arbre des fichiers de Dock, sur un terminal y insère son chemin.
+- **Mises à jour intégrées** : Dock signale une nouvelle version dans son en-tête, affiche ses nouveautés et l’installe en un clic avant de redémarrer.
 - **Session retrouvée** : workspaces, onglets, splits et texte des terminaux sont restaurés à la réouverture ; les préférences s’exportent et s’importent.
 
 ## Aperçu
@@ -51,7 +52,7 @@
 1. Télécharger `Dock-x.y.z-setup.exe` depuis la [dernière version](https://github.com/MaximeRazafinjato/dock-terminal/releases/latest).
 2. Lancer l’installeur. Il n’est pas signé : si Windows SmartScreen s’affiche, cliquer « Informations complémentaires » puis « Exécuter quand même ».
 
-Aucun droit administrateur n’est nécessaire. Pour mettre à jour, fermer Dock puis lancer le nouvel installeur : workspaces et préférences sont conservés.
+Aucun droit administrateur n’est nécessaire. Dock vérifie ensuite lui-même les nouvelles versions (au démarrage puis toutes les 6 heures, désactivable dans Paramètres) : le bouton « Mise à jour » de l’en-tête installe la nouvelle version et redémarre Dock, workspaces et préférences conservés. Lancer à la main le nouvel installeur, Dock fermé, reste possible.
 
 ## Raccourcis clavier
 
