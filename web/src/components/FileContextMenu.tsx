@@ -12,6 +12,7 @@ export interface FileMenuActions {
   remove: (entry: FileEntry, parent: string) => void
   copyPath: (path: string) => void
   reveal: (path: string) => void
+  openFolder: (path: string) => void
   refresh: () => void
 }
 
@@ -32,10 +33,14 @@ const itemsFor = ({ entry, parent }: FileMenuRequest, actions: FileMenuActions):
     ]
   }
   const folder = entry.isDirectory ? entry.path : parent
+  const openItems: ActionMenuItem[] = entry.isDirectory
+    ? [
+        { id: 'terminal', label: 'Ouvrir un terminal ici', run: () => actions.openTerminal(entry.path) },
+        { id: 'open-folder', label: 'Ouvrir dans l’éditeur', run: () => actions.openFolder(entry.path) },
+      ]
+    : [{ id: 'open', label: 'Ouvrir dans l’éditeur', detail: <MenuShortcut keys="Entrée" />, run: () => actions.open(entry) }]
   return [
-    entry.isDirectory
-      ? { id: 'terminal', label: 'Ouvrir un terminal ici', run: () => actions.openTerminal(entry.path) }
-      : { id: 'open', label: 'Ouvrir dans l’éditeur', detail: <MenuShortcut keys="Entrée" />, run: () => actions.open(entry) },
+    ...openItems,
     { id: 'new-file', label: 'Nouveau fichier', run: () => actions.newEntry(folder, EntryKind.File) },
     { id: 'new-folder', label: 'Nouveau dossier', run: () => actions.newEntry(folder, EntryKind.Folder) },
     { id: 'rename', label: 'Renommer', detail: <MenuShortcut keys="F2" />, run: () => actions.rename(entry.path) },

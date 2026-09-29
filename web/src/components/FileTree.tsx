@@ -7,6 +7,7 @@ import {
   focusActivePane,
   focusFileRow,
   openFile,
+  openFolderInEditor,
   revealInExplorer,
   refocusFileTreeIfLost,
   refreshFolders,
@@ -99,6 +100,7 @@ export function FileTree({ root, rows, expanded, selectedPath, renamingPath, dra
     remove: requestDelete,
     copyPath: copyEntryPath,
     reveal: revealInExplorer,
+    openFolder: openFolderInEditor,
     refresh: refreshFolders,
   }
 

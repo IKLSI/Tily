@@ -1,5 +1,5 @@
 import { bridge } from '../bridge/bridge'
-import type { EntryKind, FileEntry } from '../bridge/messages'
+import { OpenTarget, type EntryKind, type FileEntry } from '../bridge/messages'
 import { activeTab, activeWorkspace, folderName } from '../model/session'
 import { useExplorerStore, type DeleteRequest } from '../store/explorerStore'
 import { StatusLevel, useHostStore } from '../store/hostStore'
@@ -68,6 +68,13 @@ export const openFile = (entry: FileEntry): void => {
 }
 
 export const revealInExplorer = (path: string): void => bridge.send({ type: 'files.reveal', path })
+
+export const openFolderInEditor = (path: string): void => {
+  const { session } = useSessionStore.getState()
+  const workspace = session ? activeWorkspace(session) : undefined
+  bridge.send({ type: 'context.open', pane: workspace ? activeTab(workspace).active : '', path, target: OpenTarget.Editor })
+  useHostStore.getState().setStatus(`Ouverture dans l’éditeur : ${folderName(path)}`)
+}
 
 export const createEntry = (parent: string, name: string, kind: EntryKind): void => {
   const trimmed = name.trim()
