@@ -12,6 +12,8 @@ public sealed class PreviewTypesTests
     [InlineData(@"C:\app\appsettings.json", PreviewKind.Text)]
     [InlineData(@"C:\app\.env", PreviewKind.Text)]
     [InlineData(@"C:\app\LICENSE", PreviewKind.Text)]
+    [InlineData(@"C:\app\logo.PNG", PreviewKind.Image)]
+    [InlineData(@"C:\app\icone.svg", PreviewKind.Image)]
     public void KindOf_WhenFileIsReadable_ThenReturnsItsKind(string path, PreviewKind expected)
     {
         var kind = PreviewTypes.KindOf(path);
@@ -21,7 +23,7 @@ public sealed class PreviewTypesTests
 
     [Theory]
     [InlineData(@"C:\app\Program.cs")]
-    [InlineData(@"C:\app\logo.png")]
+    [InlineData(@"C:\app\archive.zip")]
     [InlineData(@"C:\app\Makefile")]
     public void KindOf_WhenFileIsNotPreviewable_ThenReturnsNull(string path)
     {

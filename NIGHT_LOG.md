@@ -181,6 +181,16 @@ L'aide affichée après Ctrl + Espace tenait sur deux lignes dans les 42 px de l
 - Vérifié dans l'instance de dev, fenêtre redimensionnée par son handle : à 1 084 px, les 24 séquences sont visibles en trois colonnes, aucune rognée.
 - Architecture front mise à jour.
 
+### 18. Aperçu des images
+
+L'aperçu de l'explorateur ne connaissait que le Markdown et le texte. Une capture ou un logo s'ouvrait dans l'éditeur, alors que l'hôte sait déjà servir les images locales, pour celles d'un Markdown.
+
+- Les images courantes (`.png`, `.jpg`, `.gif`, `.webp`, `.svg`, `.bmp`, `.ico`, `.avif`) s'ouvrent par un simple clic dans le tiroir d'aperçu, ajustées à la place disponible, avec le badge « Image · largeur × hauteur ».
+- Côté hôte, `FilePreview.Read` ne lit pas le fichier. Il renvoie son adresse `https://dock.files/…`, déjà servie avec `Cache-Control: no-cache`, suivie de `?v=` et de la date de modification, pour que le rechargement à la modification affiche la nouvelle version. Un SVG est affiché par une balise `img`, donc sans exécuter de script.
+- 4 tests de plus : type image, adresse avec version, adresse résolue vers le même fichier par l'hôte, image absente.
+- Vérifié dans l'instance de dev : `docs\images\files.png` du clone s'affiche avec « Image · 1586 × 922 », puis `git.png` au clic suivant.
+- **Convention proposée** en section 4 de la spec. README et architecture back mis à jour.
+
 ## Reste à faire et idées
 
 - Déplacer un pane vers un onglet d'un autre workspace (l'itération 8 se limite au workspace du pane).

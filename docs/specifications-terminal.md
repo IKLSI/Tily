@@ -82,6 +82,8 @@ Ces valeurs sont des références de réalisation, pas des contraintes de taille
 
 **Convention proposée.** Aperçu limité aux 2 premiers Mo du fichier, avec un avertissement ; fichier binaire refusé avec un message ; Échap ferme l’aperçu et rend le focus à l’arbre.
 
+**Convention proposée.** Les images courantes (`.png`, `.jpg`, `.gif`, `.webp`, `.svg`, `.bmp`, `.ico`, `.avif`) s’ouvrent aussi dans l’aperçu par un simple clic ou Entrée, ajustées à la place disponible, avec leurs dimensions en pixels à côté du badge « Image » ; elles sont servies par l’hôte comme les images d’un Markdown et rechargées quand le fichier change. « Ouvrir dans l’éditeur » reste disponible.
+
 **Convention proposée.** Dans l’arbre des fichiers, taper les premières lettres d’un nom sélectionne l’élément visible suivant qui commence ainsi, sans tenir compte de la casse ni des accents, comme dans l’Explorateur Windows ; répéter la même lettre passe d’un élément à l’autre, et la saisie repart de zéro après 0,7 seconde sans frappe.
 
 **Convention proposée.** Le menu contextuel d’un fichier ou d’un dossier propose aussi « Afficher dans l’Explorateur Windows », qui ouvre son dossier parent avec l’élément sélectionné ; celui d’un dossier propose en plus « Ouvrir dans l’éditeur ». « Copier le chemin relatif » copie son chemin depuis la racine de l’arbre, c’est-à-dire le dossier du pane actif (`docs\TESTING.md`), pratique pour citer un fichier à un agent. « Insérer le chemin dans le terminal » colle son chemin complet dans le terminal actif, comme un glisser de la ligne sur ce terminal ; si un message recouvre ce terminal, rien n’est inséré et la barre de statut le dit.

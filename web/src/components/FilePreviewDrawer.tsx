@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, type KeyboardEvent, type MouseEvent } from 'react'
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type MouseEvent, type SyntheticEvent } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { PreviewKind, type FilePreview } from '../bridge/previewMessages'
 import { focusFileTree } from '../explorer/fileExplorerActions'
@@ -14,6 +14,7 @@ import { PANEL_HEADER_BUTTON } from './rightPanelStyles'
 const KIND_LABELS: Record<PreviewKind, string> = {
   [PreviewKind.Markdown]: 'Markdown',
   [PreviewKind.Text]: 'Texte',
+  [PreviewKind.Image]: 'Image',
 }
 
 const handleClose = () => {
@@ -44,7 +45,7 @@ const preventAuxiliaryOpen = (event: MouseEvent<HTMLElement>) => {
 }
 
 const renderedHtml = (preview: FilePreview | null): string | null => {
-  if (!preview || preview.error) {
+  if (!preview || preview.error || preview.kind === PreviewKind.Image) {
     return null
   }
   return preview.kind === PreviewKind.Markdown ? renderMarkdown(preview.content, preview.baseUrl) : highlightText(preview.content, preview.language)
@@ -54,6 +55,8 @@ export function FilePreviewDrawer() {
   const { path, preview, anchor, anchorRequest } = usePreviewStore(useShallow((store) => ({ path: store.path, preview: store.preview, anchor: store.anchor, anchorRequest: store.anchorRequest })))
   const bodyRef = useRef<HTMLDivElement>(null)
   const html = useMemo(() => renderedHtml(preview), [preview])
+  const [imageSize, setImageSize] = useState<string | null>(null)
+  const handleImageLoad = (event: SyntheticEvent<HTMLImageElement>) => setImageSize(`${event.currentTarget.naturalWidth} × ${event.currentTarget.naturalHeight}`)
 
   useEffect(() => {
     const body = bodyRef.current
@@ -76,7 +79,7 @@ export function FilePreviewDrawer() {
   return (
     <aside aria-label="Aperçu du fichier" data-preview-drawer="" className="absolute inset-y-0 right-0 z-20 flex w-[min(920px,100%)] flex-col border-l border-dock-line bg-dock-panel shadow-2xl" onKeyDown={handleKeyDown}>
       <header className="flex h-[36px] shrink-0 items-center gap-[8px] border-b border-dock-line pr-[6px] pl-[12px]">
-        {preview && <span className="shrink-0 rounded bg-dock-paper px-[6px] py-[1px] text-[11px] text-dock-muted">{KIND_LABELS[preview.kind]}</span>}
+        {preview && <span className="shrink-0 rounded bg-dock-paper px-[6px] py-[1px] text-[11px] text-dock-muted">{preview.kind === PreviewKind.Image && imageSize ? `${KIND_LABELS[preview.kind]} · ${imageSize}` : KIND_LABELS[preview.kind]}</span>}
         <span className="min-w-0 flex-1 truncate text-[12px] font-semibold text-dock-ink" data-tip={path}>
           {name}
         </span>
@@ -91,6 +94,8 @@ export function FilePreviewDrawer() {
           <p className="text-[12px] text-dock-muted">Chargement de l’aperçu…</p>
         ) : preview.error ? (
           <p className="text-[12px] text-dock-error">{preview.error}</p>
+        ) : preview.kind === PreviewKind.Image ? (
+          <img src={preview.content} alt={name} className="mx-auto block max-h-full max-w-full object-contain" onLoad={handleImageLoad} />
         ) : preview.kind === PreviewKind.Markdown && html !== null ? (
           <div className="dock-markdown text-dock-ink" dangerouslySetInnerHTML={{ __html: html }} />
         ) : html !== null ? (

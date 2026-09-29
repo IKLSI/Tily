@@ -1,6 +1,7 @@
 export enum PreviewKind {
   Markdown = 'markdown',
   Text = 'text',
+  Image = 'image',
 }
 
 export interface FilePreview {

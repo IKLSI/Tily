@@ -15,6 +15,13 @@ public static class FilePreview
         FileExplorer.RequireFullPath(path);
         var kind = PreviewTypes.KindOf(path) ?? throw new InvalidOperationException($"Aperçu indisponible pour ce type de fichier : {System.IO.Path.GetFileName(path)}");
         var empty = new FilePreviewModel(path, System.IO.Path.GetFileName(path), kind, PreviewTypes.LanguageOf(path), string.Empty, false, PreviewAddress.BaseUrlOf(path), null);
+        if (kind == PreviewKind.Image)
+        {
+            return File.Exists(path)
+                ? empty with { Content = ImageUrl(path) }
+                : empty with { Error = $"Le fichier n’existe plus : {path}" };
+        }
+
         try
         {
             var (bytes, truncated) = ReadHead(path);
@@ -32,6 +39,9 @@ public static class FilePreview
             return empty with { Error = $"Fichier illisible : {exception.Message}" };
         }
     }
+
+    private static string ImageUrl(string path) =>
+        $"{PreviewAddress.BaseUrlOf(path)}{Uri.EscapeDataString(System.IO.Path.GetFileName(path))}?v={File.GetLastWriteTimeUtc(path).Ticks}";
 
     private static (byte[] Bytes, bool Truncated) ReadHead(string path)
     {
