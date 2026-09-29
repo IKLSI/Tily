@@ -240,6 +240,15 @@ Avec Alt + PgUp / PgDn, `shortcuts.ts` était repassé à 427 lignes, au-dessus 
 - Vérifié dans l'instance de dev avec `Start-Sleep 11; Write-Output 'fini'` lancé avant Ctrl + Maj + T.
 - Spec et architecture back mises à jour.
 
+### 23. Graphe Git utilisable dans une petite fenêtre
+
+À 900 px de large, avec le panneau des workspaces et le panneau Git ouverts, le graphe n'avait plus qu'une centaine de pixels, mangés par la colonne des branches et tags. C'était une limite notée la nuit dernière : il fallait replier un panneau à la main.
+
+- Comme Auteur et Date, la colonne des branches, tags et stash se replie à l'affichage quand il resterait moins de 400 px au graphe, sans changer le réglage mémorisé. Elle revient quand la place revient.
+- Le bouton de la barre du graphe suit l'affichage réel : enfoncé seulement si la colonne est visible. Quand elle est repliée faute de place, il la force à s'afficher, sans rien mémoriser.
+- Vérifié dans l'instance de dev, fenêtre de 884 px : la colonne se replie et le graphe s'affiche avec ses voies. Le bouton la réaffiche, puis la fenêtre agrandie la garde.
+- Convention de la section 11 complétée.
+
 ## Reste à faire et idées
 
 ### À décider par toi

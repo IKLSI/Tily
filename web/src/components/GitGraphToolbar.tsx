@@ -1,17 +1,16 @@
 import { useShallow } from 'zustand/react/shallow'
 import { GitHistoryScope, type GitState } from '../bridge/gitMessages'
 import { setHistoryScope } from '../git/gitRequests'
-import type { GitGraphLayout } from '../model/session'
 import { hideGitGraph } from '../panel/rightPanel'
 import { useGitStore } from '../store/gitStore'
-import { useSessionStore } from '../store/sessionStore'
 import { Icon } from './Icon'
 import { IconName } from './iconName'
 import { PANEL_HEADER_BUTTON, SECTION_TITLE } from './rightPanelStyles'
 
 interface GitGraphToolbarProps {
   state: GitState
-  layout: GitGraphLayout
+  referencesShown: boolean
+  onToggleReferences: () => void
 }
 
 const SCOPES: { scope: GitHistoryScope; label: string; tip: string }[] = [
@@ -19,9 +18,8 @@ const SCOPES: { scope: GitHistoryScope; label: string; tip: string }[] = [
   { scope: GitHistoryScope.Current, label: 'Courante', tip: 'Branche courante et sa branche distante suivie' },
 ]
 
-export function GitGraphToolbar({ state, layout }: GitGraphToolbarProps) {
+export function GitGraphToolbar({ state, referencesShown, onToggleReferences }: GitGraphToolbarProps) {
   const { history, scope } = useGitStore(useShallow((store) => ({ history: store.history, scope: store.scope })))
-  const handleToggleReferences = () => useSessionStore.getState().setGitGraphLayout({ referencesOpen: !layout.referencesOpen })
 
   const renderScope = (entry: (typeof SCOPES)[number]) => {
     const handleScope = () => setHistoryScope(entry.scope)
@@ -45,10 +43,10 @@ export function GitGraphToolbar({ state, layout }: GitGraphToolbarProps) {
       <button
         type="button"
         className={`${PANEL_HEADER_BUTTON} aria-pressed:text-dock-green-deep`}
-        aria-pressed={layout.referencesOpen}
+        aria-pressed={referencesShown}
         aria-label="Branches, tags et stash"
-        data-tip={layout.referencesOpen ? 'Masquer les branches, tags et stash' : 'Afficher les branches, tags et stash'}
-        onClick={handleToggleReferences}
+        data-tip={referencesShown ? 'Masquer les branches, tags et stash' : 'Afficher les branches, tags et stash'}
+        onClick={onToggleReferences}
       >
         <Icon name={IconName.Sidebar} />
       </button>
