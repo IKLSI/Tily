@@ -305,12 +305,18 @@ Un sous-agent a relu tout le diff de la nuit (`main..night-session`) sans rien m
 ### 42. Les textes coupés montrent leur texte complet au survol
 
 - **Quoi** : quand aucun `data-tip` n'est trouvé sous le pointeur, `Tooltip` cherche un texte coupé par des points de suspension, sur l'élément survolé ou jusqu'à deux parents au-dessus, et affiche son texte complet. Les infobulles explicites restent prioritaires. La bulle coupe désormais les mots trop longs, comme les chemins, au lieu de déborder de ses 360 px.
-- **Pourquoi** : une quarantaine de textes tronqués (`truncate`) n'avaient aucune infobulle : barre de statut, noms de fichiers de l'arbre et du panneau Git, libellés de la palette, étiquettes de branches… Un long message d'erreur avec un chemin restait illisible dans la barre de statut. Un mécanisme unique évite d'ajouter un `data-tip` à chaque endroit, et ne s'active que si le texte est vraiment coupé.
+- **Pourquoi** : de nombreux textes tronqués (`truncate`) n'avaient aucune infobulle, par exemple : barre de statut, noms de fichiers de l'arbre et du panneau Git, libellés de la palette, étiquettes de branches… Un long message d'erreur avec un chemin restait illisible dans la barre de statut. Un mécanisme unique évite d'ajouter un `data-tip` à chaque endroit, et ne s'active que si le texte est vraiment coupé.
 - **Vérifié** : dans l'instance de test, avec de vrais mouvements de souris :
   - un long message d'erreur dans la barre de statut montre son texte complet, chemin coupé proprement dans la bulle (capture) ;
   - un nom de fichier tronqué du panneau Git affiche son nom complet ;
   - `nouveau.txt`, non tronqué, n'affiche rien ;
   - le bouton « Graphe » garde son infobulle explicite.
+
+### 43. L'arbre des fichiers donne le focus à sa première ligne dès qu'elle arrive
+
+- **Quoi** : quand l'arbre reçoit le focus avant que son dossier soit lu, le focus se pose sur le conteneur de l'arbre, faute de ligne. Dès que les lignes arrivent, `FileTree` le passe à la ligne focusable, la sélection ou à défaut la première ligne.
+- **Pourquoi** : à la première ouverture de l'explorateur sur un dossier, tout le panneau restait encadré par le contour de focus et aucune ligne n'était visée. La première flèche sélectionnait bien une ligne, mais l'état initial avait l'air d'un défaut. Depuis un dossier déjà lu, le focus allait déjà sur une ligne.
+- **Vérifié** : dans l'instance de test relancée, l'ouverture des fichiers par Ctrl + Maj + E, y compris sur un sous-dossier jamais lu, laisse le focus sur la première ligne de l'arbre (`gamma.txt`, capture). À l'itération 37, dans le même cas, il restait sur le conteneur. L'état intermédiaire n'a pas pu être observé : sur ces petits dossiers, la liste arrive en moins de 250 ms.
 
 ## Reste à faire et idées
 

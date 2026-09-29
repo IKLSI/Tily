@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState, type KeyboardEvent, type MouseEvent } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent, type MouseEvent } from 'react'
 import { EntryKind, type FileEntry } from '../bridge/messages'
 import { entryRows, RowKind, type TreeRow } from '../explorer/fileTree'
 import {
@@ -77,9 +77,16 @@ const selectAndFocus = (row: TreeRow | undefined): void => {
 
 export function FileTree({ root, rows, expanded, selectedPath, renamingPath, draft, onOpenTerminal }: FileTreeProps) {
   const [menu, setMenu] = useState<FileMenuRequest | null>(null)
+  const treeRef = useRef<HTMLDivElement>(null)
   const entries = entryRows(rows)
   const selectedIndex = entries.findIndex((row) => row.entry?.path === selectedPath)
   const focusablePath = entries[Math.max(selectedIndex, 0)]?.entry?.path
+
+  useEffect(() => {
+    if (focusablePath && document.activeElement === treeRef.current) {
+      focusFileRow(focusablePath)
+    }
+  }, [focusablePath])
 
   const handlers: FileTreeHandlers = useMemo(
     () => ({
@@ -173,6 +180,7 @@ export function FileTree({ root, rows, expanded, selectedPath, renamingPath, dra
   return (
     <>
       <div
+        ref={treeRef}
         role="tree"
         aria-label="Fichiers du dossier courant"
         data-file-tree=""
