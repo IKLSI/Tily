@@ -302,6 +302,16 @@ Un sous-agent a relu tout le diff de la nuit (`main..night-session`) sans rien m
   - trois tests xUnit : valeurs ramenées, un avertissement par valeur corrigée, aucun avertissement si tout est dans les bornes ; 190 tests au vert ;
   - dans l'instance de test, un `settings.imported` simulé par le protocole de débogage affiche les deux avertissements sous l'avis d'import (capture). Le parcours avec la vraie boîte de dialogue de fichiers n'a pas été automatisé : la partie hôte se limite à transmettre la liste.
 
+### 42. Les textes coupés montrent leur texte complet au survol
+
+- **Quoi** : quand aucun `data-tip` n'est trouvé sous le pointeur, `Tooltip` cherche un texte coupé par des points de suspension, sur l'élément survolé ou jusqu'à deux parents au-dessus, et affiche son texte complet. Les infobulles explicites restent prioritaires. La bulle coupe désormais les mots trop longs, comme les chemins, au lieu de déborder de ses 360 px.
+- **Pourquoi** : une quarantaine de textes tronqués (`truncate`) n'avaient aucune infobulle : barre de statut, noms de fichiers de l'arbre et du panneau Git, libellés de la palette, étiquettes de branches… Un long message d'erreur avec un chemin restait illisible dans la barre de statut. Un mécanisme unique évite d'ajouter un `data-tip` à chaque endroit, et ne s'active que si le texte est vraiment coupé.
+- **Vérifié** : dans l'instance de test, avec de vrais mouvements de souris :
+  - un long message d'erreur dans la barre de statut montre son texte complet, chemin coupé proprement dans la bulle (capture) ;
+  - un nom de fichier tronqué du panneau Git affiche son nom complet ;
+  - `nouveau.txt`, non tronqué, n'affiche rien ;
+  - le bouton « Graphe » garde son infobulle explicite.
+
 ## Reste à faire et idées
 
 - **Taille de police et zoom du terminal** : police fixe à 14 px. La spécification classe ce point « À décider » (section 4), je n'y ai donc pas touché ; c'est à trancher.

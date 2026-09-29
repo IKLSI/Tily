@@ -1,6 +1,8 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 
 const TIP_ATTRIBUTE = 'data-tip'
+const ELLIPSIS = 'ellipsis'
+const OVERFLOW_SEARCH_DEPTH = 3
 const SHOW_DELAY_MS = 250
 const GAP_PX = 6
 const EDGE_MARGIN_PX = 8
@@ -13,6 +15,17 @@ interface TooltipState {
 }
 
 const tipTargetOf = (target: EventTarget | null): HTMLElement | null => (target instanceof Element ? target.closest<HTMLElement>(`[${TIP_ATTRIBUTE}]`) : null)
+
+const truncatedTargetOf = (target: EventTarget | null): HTMLElement | null => {
+  let element = target instanceof HTMLElement ? target : null
+  for (let depth = 0; element && depth < OVERFLOW_SEARCH_DEPTH; depth += 1) {
+    if (element.scrollWidth > element.clientWidth && getComputedStyle(element).textOverflow === ELLIPSIS) {
+      return element
+    }
+    element = element.parentElement
+  }
+  return null
+}
 
 const placeFor = (element: HTMLElement, text: string): TooltipState => {
   const rect = element.getBoundingClientRect()
@@ -43,8 +56,7 @@ export function Tooltip() {
       current = null
       setState(null)
     }
-    const show = (element: HTMLElement) => {
-      const text = element.getAttribute(TIP_ATTRIBUTE)
+    const show = (element: HTMLElement, text: string | null) => {
       if (!text || element === current) {
         return
       }
@@ -53,9 +65,12 @@ export function Tooltip() {
       timer = setTimeout(() => setState(placeFor(element, text)), SHOW_DELAY_MS)
     }
     const handlePointerOver = (event: PointerEvent) => {
-      const element = event.buttons === 0 ? tipTargetOf(event.target) : null
-      if (element) {
-        show(element)
+      const tipped = event.buttons === 0 ? tipTargetOf(event.target) : null
+      const truncated = event.buttons === 0 && !tipped ? truncatedTargetOf(event.target) : null
+      if (tipped) {
+        show(tipped, tipped.getAttribute(TIP_ATTRIBUTE))
+      } else if (truncated) {
+        show(truncated, truncated.innerText)
       } else {
         hide()
       }
@@ -63,7 +78,7 @@ export function Tooltip() {
     const handleFocusIn = (event: FocusEvent) => {
       const element = tipTargetOf(event.target)
       if (element && element.matches(':focus-visible')) {
-        show(element)
+        show(element, element.getAttribute(TIP_ATTRIBUTE))
       }
     }
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -95,7 +110,7 @@ export function Tooltip() {
     <div
       ref={bubbleRef}
       role="tooltip"
-      className="pointer-events-none fixed z-50 max-w-[360px] rounded border border-dock-line bg-dock-panel px-2 py-1 text-[11px] leading-snug w-max text-dock-ink shadow-lg"
+      className="pointer-events-none fixed z-50 max-w-[360px] rounded border border-dock-line bg-dock-panel px-2 py-1 text-[11px] leading-snug break-words w-max text-dock-ink shadow-lg"
       style={{ left: 0, top: state.y, visibility: 'hidden', transform: state.above ? 'translateY(-100%)' : undefined }}
     >
       {state.text}

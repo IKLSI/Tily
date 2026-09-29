@@ -381,6 +381,8 @@ Ces exigences sont des recommandations d’implémentation pour préserver les i
 - Valider les données importées avant de modifier la session courante.
 - Traiter les chemins comme des arguments structurés lors des appels aux outils locaux, y compris avec espaces et caractères spéciaux.
 
+**Convention proposée.** Un nom, un chemin ou un message coupé par manque de place (points de suspension) montre son texte complet en infobulle au survol, y compris dans la barre de statut.
+
 ## 17. Matrice de recette
 
 Ces scénarios définissent les vérifications à effectuer sur l’application finale.
