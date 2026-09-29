@@ -77,6 +77,7 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
   const [importWarnings, setImportWarnings] = useState<string[]>([])
   const [numberTexts, setNumberTexts] = useState<NumberTexts>({})
   const dialogRef = useRef<HTMLDivElement>(null)
+  const numberInputsRef = useRef<Partial<Record<keyof PersistenceSettings, HTMLInputElement | null>>>({})
   if (snapshot !== seenSnapshot) {
     setSeenSnapshot(snapshot)
     setDraft(snapshot ? structuredClone(snapshot.settings) : null)
@@ -121,7 +122,7 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
   const invalidNumber = draft ? NUMBER_FIELDS.find((field) => valueWithin(numberTextOf(draft, field), field) === null) : undefined
   const handleSave = () => {
     if (invalidNumber) {
-      dialogRef.current?.querySelector<HTMLInputElement>(`[data-number-field="${invalidNumber.key}"]`)?.focus()
+      numberInputsRef.current[invalidNumber.key]?.focus()
     } else if (draft) {
       onSave(draft)
     }
@@ -224,6 +225,9 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
         {NUMBER_FIELDS.map((field) => {
           const text = numberTextOf(settings, field)
           const invalid = valueWithin(text, field) === null
+          const keepInput = (input: HTMLInputElement | null) => {
+            numberInputsRef.current[field.key] = input
+          }
           const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
             const next = event.target.value
             setNumberTexts((current) => ({ ...current, [field.key]: next }))
@@ -235,7 +239,7 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
           return (
             <label key={field.key} className="flex flex-col gap-1">
               <span className={LABEL}>{field.label}</span>
-              <input type="number" className={invalid ? INVALID_INPUT : INPUT} value={text} min={field.min} max={field.max} aria-invalid={invalid} data-number-field={field.key} onChange={handleChange} />
+              <input type="number" className={invalid ? INVALID_INPUT : INPUT} value={text} min={field.min} max={field.max} aria-invalid={invalid} ref={keepInput} onChange={handleChange} />
               <span className={invalid ? INVALID_HINT : HINT}>{`${field.hint} Entre ${field.min} et ${field.max}.`}</span>
             </label>
           )

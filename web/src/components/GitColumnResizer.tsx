@@ -7,20 +7,27 @@ interface GitColumnResizerProps {
   width: number
   defaultWidth: number
   label: string
+  narrowed: boolean
   onResize: (width: number) => void
 }
 
 const KEYBOARD_STEP = 10
+const TABBABLE = 0
+const UNTABBABLE = -1
+const NARROWED_TIP = 'Colonne resserrée faute de place : élargissez la fenêtre ou repliez un panneau pour la redimensionner'
 
 const stopClick = (event: MouseEvent) => event.stopPropagation()
 
-export function GitColumnResizer({ side, width, defaultWidth, label, onResize }: GitColumnResizerProps) {
+export function GitColumnResizer({ side, width, defaultWidth, label, narrowed, onResize }: GitColumnResizerProps) {
   const dragRef = useRef<{ startX: number; startWidth: number } | null>(null)
   const direction = side === ResizerSide.Right ? 1 : -1
 
   const handlePointerDown = (event: PointerEvent<HTMLSpanElement>) => {
     event.preventDefault()
     event.stopPropagation()
+    if (narrowed) {
+      return
+    }
     event.currentTarget.setPointerCapture(event.pointerId)
     dragRef.current = { startX: event.clientX, startWidth: width }
     document.body.style.cursor = 'ew-resize'
@@ -36,10 +43,12 @@ export function GitColumnResizer({ side, width, defaultWidth, label, onResize }:
   }
   const handleDoubleClick = (event: MouseEvent) => {
     event.stopPropagation()
-    onResize(defaultWidth)
+    if (!narrowed) {
+      onResize(defaultWidth)
+    }
   }
   const handleKeyDown = (event: KeyboardEvent<HTMLSpanElement>) => {
-    if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+    if (!narrowed && (event.key === 'ArrowLeft' || event.key === 'ArrowRight')) {
       event.preventDefault()
       event.stopPropagation()
       onResize(width + direction * (event.key === 'ArrowRight' ? KEYBOARD_STEP : -KEYBOARD_STEP))
@@ -54,9 +63,10 @@ export function GitColumnResizer({ side, width, defaultWidth, label, onResize }:
       aria-valuemin={GIT_COLUMN_MIN}
       aria-valuemax={GIT_COLUMN_MAX}
       aria-valuenow={width}
-      tabIndex={0}
-      data-tip={`${label} (glisser ou flèches, double-clic pour la largeur par défaut)`}
-      className={`group absolute inset-y-0 z-10 flex w-[7px] cursor-ew-resize justify-center focus-visible:outline-none ${side === ResizerSide.Right ? '-right-[4px]' : '-left-[4px]'}`}
+      aria-disabled={narrowed}
+      tabIndex={narrowed ? UNTABBABLE : TABBABLE}
+      data-tip={narrowed ? NARROWED_TIP : `${label} (glisser ou flèches, double-clic pour la largeur par défaut)`}
+      className={`group absolute inset-y-0 z-10 flex w-[7px] justify-center focus-visible:outline-none ${narrowed ? 'cursor-default' : 'cursor-ew-resize'} ${side === ResizerSide.Right ? '-right-[4px]' : '-left-[4px]'}`}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}

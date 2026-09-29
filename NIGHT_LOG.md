@@ -342,6 +342,15 @@ Les constats restants (glisser des workspaces, piège de Tab et zones défilante
   - le glisser d'un onglet dans la barre fonctionne toujours.
 - **Test instable** : une exécution de `dotnet test` a échoué une fois sur 190 tests, sans que je sache lequel, puis quatre exécutions ont passé. Ce lot ne touche que le web ; le script de vérification garde désormais le journal complet pour identifier ce test s'il échoue de nouveau.
 
+### 46. Deuxième relecture, dernier lot : clavier des fenêtres, infobulles et colonnes du graphe
+
+- **Zones défilantes des confirmations** : le piège de Tab de l'itération 35 ne connaissait que les éléments focalisables. Chromium, lui, fait aussi une étape de Tab d'une zone qui défile sans rien contenir de focalisable, comme une longue liste de processus. Cette liste ne se défilait donc plus au clavier. `keepTabInside` la compte désormais comme étape. Vérifié avec une fenêtre de 280 px de haut : la liste (121 px de contenu pour 88 px) est atteinte par Tab et par Maj + Tab, et le focus reste dans la confirmation.
+- **Nom des onglets tronqués** : l'infobulle générique de la barre d'onglets passait avant l'infobulle automatique de l'itération 42, si bien que le nom complet n'apparaissait jamais. Elle commence maintenant par le nom : « LZGChallenge2 · Double-clic pour renommer, glisser pour déplacer ».
+- **Colonnes resserrées du graphe Git** : un glisser partait de la largeur affichée. Il écrasait la largeur enregistrée (un tremblement de 1 px enregistrait 89 au lieu de 140) sans rien changer à l'écran. Tant qu'une colonne est resserrée, son séparateur est désactivé et l'infobulle explique pourquoi. Vérifié : à 1 100 px, un glisser de 40 px ne change rien et la largeur enregistrée reste 140 ; à 1 300 px, les séparateurs redeviennent actifs.
+- **Chaîne magique** : dans Paramètres, le focus du champ numérique invalide passe par une référence React au lieu d'un sélecteur écrit en toutes lettres. Vérifié : le champ vidé reçoit bien le focus.
+
+Les douze constats de la relecture sont traités (itérations 44 à 46).
+
 ## Reste à faire et idées
 
 - **Taille de police et zoom du terminal** : police fixe à 14 px. La spécification classe ce point « À décider » (section 4), je n'y ai donc pas touché ; c'est à trancher.

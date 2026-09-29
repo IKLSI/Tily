@@ -174,7 +174,7 @@ export function TabBar({ workspace, shells, renamingTabId, panelOpen, onTogglePa
                     type="button"
                     role="tab"
                     aria-selected={active}
-                    data-tip="Double-clic pour renommer, glisser pour déplacer"
+                    data-tip={`${tab.name} · Double-clic pour renommer, glisser pour déplacer`}
                     className="flex min-w-0 flex-1 cursor-pointer items-center gap-1.5 px-3 py-2 text-left text-xs"
                     onClick={handleSelect}
                     onDoubleClick={handleStartRename}

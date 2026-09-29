@@ -141,7 +141,7 @@ export function GitGraphTable({ state, layout }: GitGraphTableProps) {
       onScroll={handleScroll}
       onKeyDown={handleKeyDown}
     >
-      <GitGraphHeader layout={shownLayout} onResize={handleResize} onMenu={openColumnsMenu} />
+      <GitGraphHeader layout={shownLayout} stored={layout} onResize={handleResize} onMenu={openColumnsMenu} />
       {historyError && <p className="px-[12px] py-[4px] text-[12px] text-dock-error">{historyError}</p>}
       <div className="relative" style={{ height: rowCount * GRAPH_ROW_HEIGHT }}>
         {range.start === 0 && <GitWorkingTreeRow state={state} graph={history?.workingTree ?? SINGLE_NODE} selected={commit === null} layout={shownLayout} onSelect={selectWorkingTree} onMenu={openWorkingTreeMenu} />}
