@@ -24,6 +24,7 @@
 - **Touche Leader Ctrl + Espace** : toutes les actions au clavier, sans gêner la saisie dans le terminal.
 - **Sélecteur de projets** : ouvrir un nouveau workspace directement dans un dossier de projet ou dans l’un de ses worktrees.
 - **Explorateur de fichiers** : parcourir le dossier du terminal actif dans un panneau à droite.
+- **Notes par workspace** : garder des notes en texte brut (tâches, ports, commandes) dans la vue « Notes » du panneau de droite, enregistrées avec la session ; une icône signale les workspaces qui en ont.
 - **Branche visible** : l’en-tête de chaque terminal affiche la branche Git de son dossier, mise à jour après chaque commande.
 - **Vue Git** : graphe de l’historique, branches et tags, Stage et commit, Push et Pull, Merge, Rebase, Stash, résolution des conflits et bouton « Annuler », sans taper de commande.
 - **Worktrees** : lister, ouvrir, créer et supprimer des worktrees Git comme avec `wtr` et `rmwt` (ports de développement libres, `pnpm install` dans le terminal du nouveau workspace, base PostgreSQL ou SQL Server répliquée), depuis la vue Git, la palette, Leader puis N ou l’icône d’arbre du panneau des workspaces.
@@ -68,6 +69,7 @@ Aucun droit administrateur n’est nécessaire. Pour mettre à jour, fermer Dock
 | M | Ctrl + Maj + M | Agrandir / réduire le terminal actif (ou double-clic sur son en-tête) |
 | E | Ctrl + Maj + E | Explorateur de fichiers |
 | G | Ctrl + Maj + G | Vue Git |
+| O | Ctrl + Maj + O | Notes du workspace |
 | B | Ctrl + Maj + B | Afficher / masquer les workspaces |
 | Z | Ctrl + Maj + Z | Rouvrir le dernier onglet fermé |
 | A | Ctrl + Maj + A | Rejoindre l’agent Claude Code en attente depuis le plus longtemps |
