@@ -25,7 +25,7 @@ const SUBSEQUENCE_MIN_LENGTH = 3
 const TYPO_MIN_LENGTH = 4
 const TWO_TYPOS_MIN_LENGTH = 8
 
-const normalize = (text: string): string =>
+export const normalize = (text: string): string =>
   text
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')

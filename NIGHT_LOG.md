@@ -600,6 +600,20 @@ Pendant l'itération 44, un `dotnet test` avait échoué une fois sur 190 sans q
   - Avant la correction, il échoue au bout de 30 s. Après, il passe, avec les autres tests du gestionnaire de terminaux, trois fois de suite. Le total passe à 216 tests.
 - Vérifié en réel : l'instance de dev relancée par l'ancienne chaîne, celle qui posait le problème, s'arrête maintenant au 4ᵉ paquet d'un `ping -n 30` sur Ctrl + C.
 
+### 68. Taper les premières lettres d'un nom dans l'arbre des fichiers le sélectionne
+
+Dans un dossier chargé, par exemple un projet avec `node_modules`, `src`, `tests` et une vingtaine de fichiers, atteindre `package.json` au clavier demandait de nombreux ↓. L'Explorateur Windows et VS Code permettent de taper le début du nom.
+
+- Une lettre ou un chiffre sélectionne l'élément visible suivant dont le nom commence ainsi, sans tenir compte de la casse ni des accents (même normalisation que la palette). Les frappes espacées de moins de 700 ms s'ajoutent (« rea » donne `README.md`). La même lettre répétée passe d'un élément à l'autre, en boucle. Sans correspondance, rien ne bouge. L'espace ne compte qu'au milieu d'une saisie. Les frappes du renommage ne sont pas concernées, et la touche qui suit le Leader reste au Leader.
+- Fonction pure `typeAheadMatch` dans `fileTree.ts`, branchée dans le gestionnaire clavier de l'arbre.
+- Vérifié dans l'instance de dev, dossier `web` :
+  - P donne `public`, puis `package.json`, puis `pnpm-lock.yaml`, puis de nouveau `public` ;
+  - « pn » tapé d'un trait donne `pnpm-lock.yaml`, « read » donne `README.md` et D donne `dist` ;
+  - X, qui ne correspond à rien, laisse la sélection en place ;
+  - Leader puis E, depuis l'arbre, ferme toujours l'explorateur.
+- **Incident pendant l'essai** : une séquence de touches contenait par erreur le code de Suppr au lieu du point. L'arbre a donc demandé confirmation pour placer `web/tsconfig.app.json` dans la corbeille. J'ai annulé par Échap, rien n'a été supprimé : le fichier est intact et `git status` ne montrait que mes changements. Désormais, aucun essai sur l'arbre d'un vrai dossier n'envoie Suppr, Entrée ou F2.
+- **Convention proposée** en section 4 de la spec ; architecture front et README mis à jour.
+
 ## Reste à faire et idées
 
 - **Alt + flèche sur un onglet ou une ligne du panneau** : quand un onglet de la barre ou une ligne du panneau des workspaces a le focus, Alt + flèche déplace cet élément (itérations 14, 47 et 58) au lieu de changer de pane, comme le prévoit le tableau retenu de la section 9. C'est une dérogation à confirmer ou à retirer ; la spec la signale comme « exception à confirmer ».

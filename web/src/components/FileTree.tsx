@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent, type MouseEvent } from 'react'
 import { EntryKind, type FileEntry } from '../bridge/messages'
-import { entryRows, RowKind, type TreeRow } from '../explorer/fileTree'
+import { entryRows, RowKind, typeAheadMatch, type TreeRow } from '../explorer/fileTree'
 import {
   copyEntryPath,
   createEntry,
@@ -69,6 +69,10 @@ const handleCancelDraft = (): void => {
   refocusFileTreeIfLost()
 }
 
+const TYPE_AHEAD_RESET_MS = 700
+
+const isTypeAheadKey = (event: KeyboardEvent): boolean => event.key.length === 1 && !event.ctrlKey && !event.altKey && !event.metaKey && !event.nativeEvent.isComposing
+
 const selectAndFocus = (row: TreeRow | undefined): void => {
   if (row?.entry) {
     useExplorerStore.getState().select(row.entry.path)
@@ -82,6 +86,7 @@ export function FileTree({ root, rows, expanded, selectedPath, renamingPath, dra
   const entries = entryRows(rows)
   const selectedIndex = entries.findIndex((row) => row.entry?.path === selectedPath)
   const focusablePath = entries[Math.max(selectedIndex, 0)]?.entry?.path
+  const typedRef = useRef({ text: '', at: 0 })
 
   useEffect(() => {
     if (focusablePath && document.activeElement === treeRef.current) {
@@ -133,6 +138,14 @@ export function FileTree({ root, rows, expanded, selectedPath, renamingPath, dra
     setMenu({ x: rect ? rect.left + rect.width / 2 : 0, y: rect ? rect.bottom : 0, entry: row.entry, parent: row.parent })
   }
 
+  const typingSince = (at: number): boolean => at - typedRef.current.at <= TYPE_AHEAD_RESET_MS
+  const jumpToTyped = (key: string, at: number) => {
+    const text = typingSince(at) ? typedRef.current.text + key : key
+    typedRef.current = { text, at }
+    const cycling = [...text].every((character) => character === text[0])
+    selectAndFocus(typeAheadMatch(entries, cycling ? selectedIndex + 1 : selectedIndex, cycling ? text[0] : text))
+  }
+
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     const current = entries[selectedIndex]
     const entry = current?.entry
@@ -150,6 +163,8 @@ export function FileTree({ root, rows, expanded, selectedPath, renamingPath, dra
       selectAndFocus(entries.at(-1))
     } else if (event.key === 'Escape') {
       focusActivePane()
+    } else if (isTypeAheadKey(event) && (event.key !== ' ' || typingSince(event.timeStamp))) {
+      jumpToTyped(event.key, event.timeStamp)
     } else if (!current || !entry) {
       return
     } else if (event.key === 'ArrowRight' && entry.isDirectory) {

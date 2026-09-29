@@ -1,4 +1,5 @@
 import type { FileEntry } from '../bridge/messages'
+import { normalize } from '../palette/searchFilter'
 import type { DirectoryListing, EntryDraft } from '../store/explorerStore'
 
 export enum RowKind {
@@ -62,6 +63,12 @@ export const buildFileTree = (root: string, listings: Record<string, DirectoryLi
 }
 
 export const entryRows = (rows: TreeRow[]): TreeRow[] => rows.filter((row) => row.kind === RowKind.Entry)
+
+export const typeAheadMatch = (rows: TreeRow[], fromIndex: number, typed: string): TreeRow | undefined => {
+  const wanted = normalize(typed)
+  const start = Math.min(Math.max(fromIndex, 0), rows.length)
+  return [...rows.slice(start), ...rows.slice(0, start)].find((row) => row.entry !== undefined && normalize(row.entry.name).startsWith(wanted))
+}
 
 const EXTENSION_SEPARATOR = '.'
 
