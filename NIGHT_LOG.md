@@ -412,6 +412,16 @@ Les douze constats de la relecture sont traités (itérations 44 à 46).
   - quatre tests xUnit (contexte vide, contexte normal, caractères de contrôle, contexte trop long) ; 194 tests au vert ;
   - dans l'instance de test, titre lu par le système : « LZGChallenge › LZGChallenge2 - Dock », puis « … › LZGChallenge - Dock » après Ctrl + Tab, et « GameSolver › GameSolver - Dock » après un changement de workspace.
 
+### 54. Tests des gardes contre l'injection d'arguments Git
+
+- **Quoi** : `GitNamesTests` couvre `GitNames.RequireRevision` et `GitNames.RequireRelativePath` en 20 cas.
+  - Révisions acceptées : `main`, `origin/feature/git`, `HEAD~2`, un SHA.
+  - Révisions refusées : vide, blanche, `--upload-pack=calc`, `-n`, avec espace ou saut de ligne.
+  - Chemins acceptés : `src/app.ts`, un chemin avec espaces, `notes..bak.txt`, où « .. » ne forme pas un segment.
+  - Chemins refusés : vide, `C:\Windows\win.ini`, `/etc/passwd`, `../secret.txt`, `src\..\..\secret.txt`.
+- **Pourquoi** : ces deux fonctions sont la seule barrière entre les données reçues du web et la ligne de commande de `git`. Une révision qui commence par « - » serait lue comme une option, et un chemin avec « .. » sortirait du dépôt. Aucun test ne les visait directement.
+- **Vérifié** : 214 tests au vert. Pendant ce temps, une troisième relecture indépendante des itérations 47 à 53 tourne en arrière-plan ; le bilan HTML a été mis à jour (itérations 51 à 53, nouveaux chiffres).
+
 ## Reste à faire et idées
 
 - **Taille de police et zoom du terminal** : police fixe à 14 px. La spécification classe ce point « À décider » (section 4), je n'y ai donc pas touché ; c'est à trancher.
