@@ -16,6 +16,7 @@ const LEADER_TIMEOUT_MS = 5000
 const MODIFIER_KEYS = new Set(['Control', 'Shift', 'Alt', 'AltGraph', 'Meta'])
 const CANCEL_KEY = 'Escape'
 const TAB_KEY = 'Tab'
+const ENTER_KEY = 'Enter'
 const SHORTCUT_BLOCKERS = 'input, textarea, select, [contenteditable="true"], [role="menu"], [role="dialog"], [role="alertdialog"]'
 const LEADER_EXPIRED_STATUS = 'Leader expiré : la saisie revient au terminal.'
 
@@ -113,6 +114,7 @@ const isCloseWindow = (event: KeyboardEvent): boolean => event.altKey && event.k
 const isCopy = (event: KeyboardEvent): boolean => event.ctrlKey && event.shiftKey && !event.altKey && letterOf(event) === 'c'
 const isPlainCtrlC = (event: KeyboardEvent): boolean => event.ctrlKey && !event.shiftKey && !event.altKey && letterOf(event) === 'c'
 const isPaste = (event: KeyboardEvent): boolean => event.ctrlKey && !event.altKey && letterOf(event) === 'v'
+const isAgentLineBreak = (event: KeyboardEvent): boolean => event.key === ENTER_KEY && !event.altKey && !event.metaKey && event.shiftKey !== event.ctrlKey
 const isTabCycle = (event: KeyboardEvent): boolean => event.ctrlKey && !event.altKey && event.key === TAB_KEY
 
 const directCommand = (event: KeyboardEvent): Command | undefined => {
@@ -327,6 +329,8 @@ export interface ShortcutActions {
   hasSelection: () => boolean
   copySelection: () => void
   pasteClipboard: () => void
+  hasAgent: () => boolean
+  insertAgentLineBreak: () => void
 }
 
 export const handleTerminalKey = (event: KeyboardEvent, actions: ShortcutActions): boolean => {
@@ -362,6 +366,10 @@ const decide = (event: KeyboardEvent, actions: ShortcutActions): boolean => {
   }
   if (isPaste(event)) {
     actions.pasteClipboard()
+    return false
+  }
+  if (isAgentLineBreak(event) && actions.hasAgent()) {
+    actions.insertAgentLineBreak()
     return false
   }
   const command = directCommand(event)

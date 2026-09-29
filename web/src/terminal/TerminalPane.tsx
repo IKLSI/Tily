@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useRef, type MouseEvent } from 'react'
 import type { Pane } from '../model/session'
 import { handleTerminalKey } from '../keyboard/shortcuts'
 import { useUiStore } from '../store/uiStore'
-import { copyPaneSelection, focusPane, hasPaneSelection, isMouseTrackedByProgram, pasteIntoPane } from './terminalActions'
+import { copyPaneSelection, focusPane, hasPaneAgent, hasPaneSelection, insertAgentLineBreak, isMouseTrackedByProgram, pasteIntoPane } from './terminalActions'
 import { terminalRegistry } from './terminalRegistry'
 
 interface TerminalPaneProps {
@@ -35,6 +35,8 @@ export function TerminalPane({ pane, active, onFocus, onContextMenu }: TerminalP
         hasSelection: () => hasPaneSelection(paneId),
         copySelection: () => copyPaneSelection(paneId),
         pasteClipboard: () => pasteIntoPane(paneId),
+        hasAgent: () => hasPaneAgent(paneId),
+        insertAgentLineBreak: () => insertAgentLineBreak(paneId),
       })
     const observer = new ResizeObserver(() => handle.fit.fit())
     observer.observe(host)
