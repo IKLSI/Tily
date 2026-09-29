@@ -518,11 +518,21 @@ Le glisser de l'itération 60 ne sert qu'à la souris. Au clavier, il fallait to
   - le shell a ensuite été relancé par « Relancer ».
 - Convention proposée ajoutée en section 4 de la spec, à côté des autres entrées du menu de l'arbre.
 
+### 62. Une frappe en cours ne déclenche plus un message de pane à peine apparu
+
+C'était un point du « Reste à faire ». Quand un message apparaît sur le pane où l'on tape (shell terminé, dossier disparu), il prend le focus sur son bouton par défaut. La frappe suivante, déjà partie vers le terminal, pouvait l'activer : « Relancer » relançait le shell sans qu'on l'ait voulu, et « Ignorer » faisait disparaître le signalement d'un dossier disparu avant qu'on l'ait lu.
+
+- Pendant 600 ms après cette prise de focus automatique, Entrée et Espace sont ignorés par le message. Le blocage est posé à la capture, sur l'appui comme sur le relâchement. Passé ce délai, Entrée déclenche le bouton par défaut comme avant (itération 15). Tab et les clics ne sont pas concernés.
+- Vérifié dans l'instance de dev avec des frappes réelles, instrumentées par CDP :
+  - `exit` puis Entrée 350 ms plus tard : l'Entrée arrive 481 ms après l'apparition de « Relancer », elle est ignorée et le message reste ;
+  - une Entrée volontaire ensuite relance le shell ;
+  - avec 1,2 s d'écart, l'Entrée arrive à 1 349 ms et relance normalement.
+- Le point est retiré du « Reste à faire ». La spec (section 8, convention des messages de pane) et l'architecture front décrivent ce délai.
+
 ## Reste à faire et idées
 
 - **Taille de police et zoom du terminal** : police fixe à 14 px. La spécification classe ce point « À décider » (section 4), je n'y ai donc pas touché ; c'est à trancher.
 - **Graphe Git dans une fenêtre très étroite** : depuis l'itération 39, Auteur et Date s'effacent, puis la colonne des branches rétrécit jusqu'à 88 px et celle du graphe jusqu'à la largeur de ses voies. En dessous d'environ 400 px pour la table (fenêtre de 900 px avec les trois panneaux ouverts), le message reste coupé : replier le panneau des références ou celui des workspaces reste nécessaire.
-- **Message de pane pendant une saisie** : un message qui apparaît sur le pane où l'on tape prend le focus, et la frappe suivante peut le déclencher. Pour un dossier disparu, le bouton par défaut est donc « Ignorer », sans effet sur le shell, mais le signalement peut alors disparaître sans avoir été lu. Le cas est rare : il faut que le dossier du pane actif disparaisse pendant la saisie.
 - **Glisser-déposer depuis l'Explorateur** : depuis l'itération 32, il est vérifié avec un vrai glisser OLE de fichier, le même mécanisme que l'Explorateur. Un essai à la main depuis l'Explorateur, avec une image dans Claude Code par exemple, reste conseillé.
 - **Collage de plusieurs lignes** : coller un texte de plusieurs lignes dans un shell qui n'a pas activé le collage encadré (bracketed paste) exécute chaque ligne comme une commande. Windows Terminal demande une confirmation dans ce cas. Je ne l'ai pas ajouté : c'est un choix entre sécurité et friction qui te revient. Il faudrait le limiter aux programmes sans collage encadré, pour ne pas gêner les prompts collés dans Claude Code.
 - **Tests web** : il n'y en a toujours aucun (décision du 21 septembre). Les fonctions pures ajoutées cette nuit (`fitGraphColumns`, `menuPlaceOf`, `selectAdjacentTab`…) s'y prêteraient bien si tu changes d'avis.

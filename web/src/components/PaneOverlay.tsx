@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type FocusEvent } from 'react'
+import { useCallback, useEffect, useRef, useState, type FocusEvent, type KeyboardEvent } from 'react'
 import type { ShellProfile } from '../bridge/messages'
 import { PaneStateKind, type PaneState } from '../store/paneStore'
 import { ShellMenu } from './ShellMenu'
@@ -21,6 +21,8 @@ const TITLES: Record<PaneStateKind, string> = {
 }
 
 const PANE_SELECTOR = '[data-pane-id]'
+const ACTIVATION_GUARD_MS = 600
+const ACTIVATION_KEYS = new Set(['Enter', ' '])
 
 const BUTTON = 'cursor-pointer rounded border px-3 py-1.5 text-[12px]'
 const PRIMARY = `${BUTTON} border-dock-green text-dock-green-deep hover:bg-dock-green-soft`
@@ -32,12 +34,14 @@ export function PaneOverlay({ state, active, shells, onRestart, onRestartIn, onC
   const overlayRef = useRef<HTMLDivElement>(null)
   const defaultRef = useRef<HTMLButtonElement>(null)
   const shellButtonRef = useRef<HTMLButtonElement>(null)
+  const guardUntilRef = useRef(0)
   const pathMissing = state.kind === PaneStateKind.PathMissing
 
   useEffect(() => {
     const focused = document.activeElement
     const pane = overlayRef.current?.closest(PANE_SELECTOR)
     if ((active && focused === document.body) || (focused && pane?.contains(focused))) {
+      guardUntilRef.current = performance.now() + ACTIVATION_GUARD_MS
       defaultRef.current?.focus()
     }
   }, [pathMissing, active])
@@ -56,13 +60,18 @@ export function PaneOverlay({ state, active, shells, onRestart, onRestartIn, onC
       onRestartIn(state.fallback)
     }
   }
+  const ignoreHastyActivation = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (ACTIVATION_KEYS.has(event.key) && performance.now() < guardUntilRef.current) {
+      event.preventDefault()
+    }
+  }
   const handleOverlayFocus = (event: FocusEvent<HTMLDivElement>) => {
     if (event.target === event.currentTarget && !menuOpen) {
       defaultRef.current?.focus()
     }
   }
   return (
-    <div ref={overlayRef} role="alert" tabIndex={-1} className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-dock-terminal/90 p-4 text-center" onFocus={handleOverlayFocus}>
+    <div ref={overlayRef} role="alert" tabIndex={-1} className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-dock-terminal/90 p-4 text-center" onFocus={handleOverlayFocus} onKeyDownCapture={ignoreHastyActivation} onKeyUpCapture={ignoreHastyActivation}>
       <p className="text-[13px] font-semibold text-dock-ink">{TITLES[state.kind]}</p>
       <p className="max-w-full font-mono text-[11px] break-words text-dock-muted">{state.message}</p>
       {pathMissing && state.fallback && <p className="max-w-full font-mono text-[11px] break-words text-dock-green">{`Repli : ${state.fallback}`}</p>}
