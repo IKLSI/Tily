@@ -61,6 +61,13 @@ export interface NotificationSettings {
   windowsToast: boolean
   sound: NotificationSound | string
   taskbarFlash: boolean
+  notifyDone: boolean
+  doneSound: NotificationSound | string
+}
+
+export enum AttentionKind {
+  Waiting = 'waiting',
+  Done = 'done',
 }
 
 export interface Settings {
@@ -167,8 +174,8 @@ export type WebToHostMessage =
   | { type: 'settings.save'; settings: Settings }
   | { type: 'settings.export' }
   | { type: 'settings.import' }
-  | { type: 'attention.raise'; pane: string; title: string; body: string; location: string }
-  | { type: 'attention.test'; pane: string; notifications: NotificationSettings }
+  | { type: 'attention.raise'; pane: string; kind: AttentionKind; title: string; body: string; location: string }
+  | { type: 'attention.test'; pane: string; kind: AttentionKind; notifications: NotificationSettings }
   | { type: 'agents.installHooks' }
   | { type: 'agents.removeHooks' }
   | { type: 'dialog.pick'; field: string; target: PickTarget }

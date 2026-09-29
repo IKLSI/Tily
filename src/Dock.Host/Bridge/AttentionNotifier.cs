@@ -50,7 +50,7 @@ public sealed class AttentionNotifier : IDisposable
         }
     }
 
-    public void Notify(string paneId, IEnumerable<string?> lines, NotificationSettingsModel settings, bool force)
+    public void Notify(string paneId, IEnumerable<string?> lines, string sound, NotificationSettingsModel settings, bool force)
     {
         if (WindowActive && !force)
         {
@@ -63,11 +63,12 @@ public sealed class AttentionNotifier : IDisposable
             WindowApi.FlashWindowEx(ref info);
         }
 
-        var toastPlaysSound = settings.WindowsToast && _toastNotifier is not null && !settings.UsesFile;
-        if (settings.Sound != NotificationSettingsModel.NoSound && !toastPlaysSound)
+        var usesFile = NotificationSettingsModel.IsWavPath(sound);
+        var toastPlaysSound = settings.WindowsToast && _toastNotifier is not null && !usesFile;
+        if (sound != NotificationSettingsModel.NoSound && !toastPlaysSound)
         {
-            var source = settings.UsesFile ? WindowApi.SoundFileName : WindowApi.SoundAlias;
-            WindowApi.PlaySound(settings.Sound, 0, source | WindowApi.SoundAsync | WindowApi.SoundNoDefault);
+            var source = usesFile ? WindowApi.SoundFileName : WindowApi.SoundAlias;
+            WindowApi.PlaySound(sound, 0, source | WindowApi.SoundAsync | WindowApi.SoundNoDefault);
         }
 
         if (!settings.WindowsToast || _toastNotifier is null)
@@ -75,8 +76,8 @@ public sealed class AttentionNotifier : IDisposable
             return;
         }
 
-        var muted = settings.Sound == NotificationSettingsModel.NoSound || settings.UsesFile;
-        var toast = new ToastNotification(BuildContent(lines.Where(line => !string.IsNullOrWhiteSpace(line)).Cast<string>(), muted ? null : settings.Sound)) { Tag = ToastTag(paneId), Group = ToastGroup };
+        var muted = sound == NotificationSettingsModel.NoSound || usesFile;
+        var toast = new ToastNotification(BuildContent(lines.Where(line => !string.IsNullOrWhiteSpace(line)).Cast<string>(), muted ? null : sound)) { Tag = ToastTag(paneId), Group = ToastGroup };
         toast.Activated += (_, _) => HandleActivated(paneId);
         _shown[paneId] = toast;
         _toastNotifier.Show(toast);

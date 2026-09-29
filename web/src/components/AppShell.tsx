@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { bridge } from '../bridge/bridge'
-import { PickTarget, type NotificationSettings, type Project, type Settings } from '../bridge/messages'
+import { PickTarget, type AttentionKind, type NotificationSettings, type Project, type Settings } from '../bridge/messages'
 import { activePane, activeTab, activeWorkspace, DEFAULT_SHELL, EXPLORER_DEFAULT, EXPLORER_MAX, EXPLORER_MIN, findWorkspace, RightPanelView, SIDEBAR_DEFAULT, SIDEBAR_MAX, SIDEBAR_MIN, type Session, type SplitAxis, type SplitPath, type Workspace } from '../model/session'
 import { toggleFavoriteCommand, type PaletteItem } from '../palette/paletteItems'
 import { waitingPanes } from '../agents/agentSummary'
@@ -286,7 +286,7 @@ export function AppShell({ session }: AppShellProps) {
   const handleImportPreferences = () => bridge.send({ type: 'settings.import' })
   const handleInstallHooks = () => bridge.send({ type: 'agents.installHooks' })
   const handleRemoveHooks = () => bridge.send({ type: 'agents.removeHooks' })
-  const handleTestNotification = (notifications: NotificationSettings) => bridge.send({ type: 'attention.test', pane: tab?.active ?? '', notifications })
+  const handleTestNotification = (notifications: NotificationSettings, kind: AttentionKind) => bridge.send({ type: 'attention.test', pane: tab?.active ?? '', kind, notifications })
   const handleCloseProjectPicker = () => {
     closeProjectPicker()
     focusActivePane()
