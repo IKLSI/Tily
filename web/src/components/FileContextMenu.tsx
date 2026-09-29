@@ -6,6 +6,7 @@ import type { FileMenuRequest } from './fileTreeHandlers'
 
 export interface FileMenuActions {
   open: (entry: FileEntry) => void
+  preview: (path: string) => void
   openTerminal: (path: string) => void
   newEntry: (parent: string, kind: EntryKind) => void
   rename: (path: string) => void
@@ -39,7 +40,12 @@ const itemsFor = ({ entry, parent }: FileMenuRequest, actions: FileMenuActions):
         { id: 'terminal', label: 'Ouvrir un terminal ici', run: () => actions.openTerminal(entry.path) },
         { id: 'open-folder', label: 'Ouvrir dans l’éditeur', run: () => actions.openFolder(entry.path) },
       ]
-    : [{ id: 'open', label: 'Ouvrir dans l’éditeur', detail: <MenuShortcut keys="Entrée" />, run: () => actions.open(entry) }]
+    : entry.preview
+      ? [
+          { id: 'preview', label: 'Aperçu', detail: <MenuShortcut keys="Entrée" />, run: () => actions.preview(entry.path) },
+          { id: 'open', label: 'Ouvrir dans l’éditeur', run: () => actions.open(entry) },
+        ]
+      : [{ id: 'open', label: 'Ouvrir dans l’éditeur', detail: <MenuShortcut keys="Entrée" />, run: () => actions.open(entry) }]
   return [
     ...openItems,
     { id: 'new-file', label: 'Nouveau fichier', run: () => actions.newEntry(folder, EntryKind.File) },

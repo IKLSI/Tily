@@ -17,6 +17,8 @@ import {
 import { NO_TYPED_TEXT, typeAheadIndex, typeAheadText, type TypedText } from '../keyboard/typeAhead'
 import { RightPanelView } from '../model/session'
 import { togglePanelView } from '../panel/rightPanel'
+import { closePreview, openPreview } from '../preview/previewActions'
+import { usePreviewStore } from '../store/previewStore'
 import { useExplorerStore, type EntryDraft } from '../store/explorerStore'
 import { FileContextMenu, type FileMenuActions } from './FileContextMenu'
 import { FileTreeRow } from './FileTreeRow'
@@ -44,6 +46,8 @@ const toggleFolder = (path: string): void => {
 const activateEntry = (entry: FileEntry): void => {
   if (entry.isDirectory) {
     toggleFolder(entry.path)
+  } else if (entry.preview) {
+    openPreview(entry.path)
   } else {
     openFile(entry)
   }
@@ -104,6 +108,7 @@ export function FileTree({ root, rows, expanded, selectedPath, renamingPath, dra
   )
   const menuActions: FileMenuActions = {
     open: openFile,
+    preview: openPreview,
     openTerminal: onOpenTerminal,
     newEntry: (parent, kind) => useExplorerStore.getState().startDraft({ parent, kind }),
     rename: startRename,
@@ -156,6 +161,8 @@ export function FileTree({ root, rows, expanded, selectedPath, renamingPath, dra
       selectAndFocus(entries[0])
     } else if (event.key === 'End') {
       selectAndFocus(entries.at(-1))
+    } else if (event.key === 'Escape' && usePreviewStore.getState().path !== null) {
+      closePreview()
     } else if (event.key === 'Escape') {
       focusActivePane()
     } else if (typed) {

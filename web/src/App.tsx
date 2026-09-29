@@ -12,6 +12,7 @@ import { receiveActivity, receiveApplicationClosing } from './terminal/closeGuar
 import { queryContext, receiveContext } from './terminal/contextActions'
 import { startExternalDrops } from './terminal/externalDrop'
 import { receiveCreated, receiveDeleted, receiveListing, receiveRenamed } from './explorer/fileExplorerActions'
+import { receivePreview } from './preview/previewActions'
 import { receiveGitAutoFetchEnded, receiveGitAutoFetchStarted, receiveGitChanged, receiveGitDetails, receiveGitDiff, receiveGitDone, receiveGitFailed, receiveGitHistory, receiveGitPushRejected, receiveGitState } from './git/gitReceivers'
 import { insertIntoPane, joinPane } from './terminal/terminalActions'
 import { receiveWorktreeCreated, receiveWorktreeDone, receiveWorktreeFailed, receiveWorktreePlan, receiveWorktreeProgress } from './worktree/worktreeReceivers'
@@ -91,6 +92,7 @@ export default function App() {
       bridge.on('files.created', (message) => receiveCreated(message.path)),
       bridge.on('files.renamed', (message) => receiveRenamed(message.path, message.target)),
       bridge.on('files.deleted', (message) => receiveDeleted(message.path)),
+      bridge.on('preview.loaded', receivePreview),
       bridge.on('git.state', (message) => receiveGitState(message.path, message.state, message.error)),
       bridge.on('git.changed', (message) => receiveGitChanged(message.path)),
       bridge.on('git.history', (message) => receiveGitHistory(message.history, message.error)),

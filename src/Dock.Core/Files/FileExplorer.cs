@@ -1,6 +1,6 @@
 namespace Dock.Core.Files;
 
-public sealed record FileEntryModel(string Name, string Path, bool IsDirectory);
+public sealed record FileEntryModel(string Name, string Path, bool IsDirectory, PreviewKind? Preview = null);
 
 public sealed record DirectoryListingModel(string Path, IReadOnlyList<FileEntryModel> Entries, int Total, string? Error);
 
@@ -21,7 +21,7 @@ public static class FileExplorer
             RequireFullPath(path);
             var entries = new DirectoryInfo(path)
                 .EnumerateFileSystemInfos()
-                .Select(info => new FileEntryModel(info.Name, info.FullName, info.Attributes.HasFlag(FileAttributes.Directory)))
+                .Select(EntryOf)
                 .OrderByDescending(entry => entry.IsDirectory)
                 .ThenBy(entry => entry.Name, StringComparer.CurrentCultureIgnoreCase)
                 .ToList();
@@ -35,6 +35,12 @@ public static class FileExplorer
         {
             return new DirectoryListingModel(path, [], 0, $"Dossier illisible : {exception.Message}");
         }
+    }
+
+    private static FileEntryModel EntryOf(FileSystemInfo info)
+    {
+        var isDirectory = info.Attributes.HasFlag(FileAttributes.Directory);
+        return new FileEntryModel(info.Name, info.FullName, isDirectory, isDirectory ? null : PreviewTypes.KindOf(info.Name));
     }
 
     public static string CreateFile(string parent, string name)

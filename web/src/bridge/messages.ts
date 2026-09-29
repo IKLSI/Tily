@@ -1,5 +1,6 @@
 import type { Session } from '../model/session'
 import type { GitHostMessage, GitSettings, GitWebMessage } from './gitMessages'
+import type { PreviewHostMessage, PreviewKind, PreviewWebMessage } from './previewMessages'
 import type { UpdateHostMessage, UpdateSettings, UpdateWebMessage } from './updateMessages'
 import type { WorktreeHostMessage, WorktreeSettings, WorktreeWebMessage } from './worktreeMessages'
 
@@ -36,6 +37,7 @@ export interface FileEntry {
   name: string
   path: string
   isDirectory: boolean
+  preview?: PreviewKind
 }
 
 export interface GitContext {
@@ -171,6 +173,7 @@ export type HostToWebMessage =
   | { type: 'files.deleted'; path: string }
   | { type: 'error'; pane?: string; message: string }
   | GitHostMessage
+  | PreviewHostMessage
   | WorktreeHostMessage
   | UpdateHostMessage
 
@@ -210,6 +213,7 @@ export type WebToHostMessage =
   | { type: 'window.closeCancel' }
   | { type: 'window.title'; title: string }
   | GitWebMessage
+  | PreviewWebMessage
   | WorktreeWebMessage
   | UpdateWebMessage
 
