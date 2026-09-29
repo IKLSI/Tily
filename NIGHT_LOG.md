@@ -200,7 +200,7 @@ Un sous-agent a relu tout le diff de la nuit (`main..night-session`) sans rien m
 
 - **Quoi** : le menu contextuel d'un dossier de l'explorateur propose « Ouvrir dans l'éditeur », juste après « Ouvrir un terminal ici ». Le dossier s'ouvre avec la commande d'éditeur configurée, VS Code par défaut, par la commande `context.open` déjà utilisée par l'en-tête des panes.
 - **Pourquoi** : seuls les fichiers pouvaient s'ouvrir dans l'éditeur depuis l'arbre. Pour ouvrir un sous-dossier, dans un monorepo par exemple, il fallait passer par un terminal.
-- **Vérifié** : pour ne pas ouvrir VS Code sur ton bureau en pleine nuit, l'instance de test utilisait un faux éditeur (un `.cmd` qui écrit son argument). Il a reçu `D:\Projects\Perso\LZGChallengein` et la barre de statut l'annonce. La configuration d'éditeur de l'instance de test a ensuite été remise.
+- **Vérifié** : pour ne pas ouvrir VS Code sur ton bureau en pleine nuit, l'instance de test utilisait un faux éditeur (un `.cmd` qui écrit son argument). Il a reçu `D:\Projects\Perso\LZGChallenge\bin` et la barre de statut l'annonce. La configuration d'éditeur de l'instance de test a ensuite été remise.
 
 ## Reste à faire et idées
 
