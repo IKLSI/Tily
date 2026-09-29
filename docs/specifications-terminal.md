@@ -194,6 +194,8 @@ Les splits peuvent être imbriqués. L’action de fermeture d’un pane retire 
 
 **Conventions proposées.** Reconnaître les URL présentes dans le texte ainsi que les hyperliens explicites émis par les programmes (séquence OSC 8). Ouvrir le lien dans le navigateur par défaut de Windows, jamais dans la fenêtre de Dock. N’ouvrir que les liens `http` et `https` ; un autre schéma est ignoré et signalé dans la barre de statut. Souligner le lien au survol pour montrer qu’il est actif.
 
+**Retenu (29 septembre 2026).** Dans un pane où Dock détecte Claude Code ou Codex CLI, Maj + Entrée et Ctrl + Entrée insèrent un retour à la ligne dans le prompt au lieu de l’envoyer (Dock transmet Échap + Entrée, que les deux agents interprètent ainsi). Dans les autres panes, ces combinaisons restent transmises telles quelles au shell.
+
 ## 9. Palette et clavier
 
 ### Palette de commandes
@@ -463,6 +465,7 @@ Ces scénarios définissent les vérifications à effectuer sur l’application 
 | R31 | Dans un dépôt de test avec un worktree créé par `wtr`, ouvrir la vue Git, puis ouvrir ce worktree depuis sa section. | La section « Worktrees » liste le dépôt principal et le worktree avec leur branche ; « Ouvrir » rejoint un pane déjà dans le worktree, sinon ouvre un workspace. |
 | R32 | Créer un worktree par Leader puis N (nouvelle branche), par l’icône d’arbre (branche existante) et depuis le menu d’une branche distante, dans un projet qui a des ports, un `package.json` et une base de test. | Workspace ouvert dès la création, `pnpm install` lancé dans son terminal, ports remplacés, base répliquée et chaîne de connexion réécrite ; bilan et avertissements dans la barre de statut. |
 | R33 | Supprimer ce worktree avec un pane ouvert dedans, d’abord sans fermer le pane, puis en le fermant. | Premier essai refusé, worktree intact et « Réessayer » ; second essai : pane fermé, dossier, base répliquée et branche supprimés, sauf la branche si « Garder la branche » est cochée. |
+| R34 | Dans un pane, lancer Claude Code puis Codex CLI et saisir un prompt sur plusieurs lignes avec Maj + Entrée et Ctrl + Entrée, puis faire Maj + Entrée dans PowerShell. | Chaque combinaison ajoute une ligne au prompt de l’agent sans l’envoyer ; dans PowerShell, Maj + Entrée exécute la commande comme Entrée. |
 
 ## 18. Décisions restantes avant développement
 
