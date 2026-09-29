@@ -1,19 +1,23 @@
 using Dock.Core.Agents;
 using Dock.Core.Native;
 using Microsoft.UI.Dispatching;
-using Microsoft.Windows.AppNotifications;
-using Microsoft.Windows.AppNotifications.Builder;
+using Microsoft.Win32;
+using Windows.Data.Xml.Dom;
+using Windows.UI.Notifications;
 
 namespace Dock.Host.Bridge;
 
 public sealed class AttentionNotifier : IDisposable
 {
-    private const string PaneArgument = "pane";
+    private const string ApplicationUserModelId = "MaximeRazafinjato.Dock";
+    private const string RegistrationKey = @"Software\Classes\AppUserModelId\" + ApplicationUserModelId;
+    private const string ToastGroup = "agents";
 
     private readonly DispatcherQueue _dispatcher;
     private readonly nint _windowHandle;
     private readonly Action<string> _join;
-    private bool _registered;
+    private readonly Dictionary<string, ToastNotification> _shown = new(StringComparer.Ordinal);
+    private ToastNotifier? _toastNotifier;
     private string? _registrationError;
 
     public AttentionNotifier(DispatcherQueue dispatcher, nint windowHandle, Action<string> join)
@@ -25,20 +29,24 @@ public sealed class AttentionNotifier : IDisposable
 
     public bool WindowActive { get; set; } = true;
 
-    public object Describe() => new { toastAvailable = _registered, toastError = _registrationError };
+    public object Describe() => new { toastAvailable = _toastNotifier is not null, toastError = _registrationError };
 
     public void Register()
     {
         try
         {
-            AppNotificationManager.Default.NotificationInvoked += HandleInvoked;
-            AppNotificationManager.Default.Register();
-            _registered = true;
+            using (var key = Registry.CurrentUser.CreateSubKey(RegistrationKey))
+            {
+                key.SetValue("DisplayName", "Dock");
+                key.SetValue("IconUri", Path.Combine(AppContext.BaseDirectory, "Assets", "Dock.png"));
+            }
+
+            _toastNotifier = ToastNotificationManager.CreateToastNotifier(ApplicationUserModelId);
         }
         catch (Exception exception)
         {
-            _registered = false;
-            _registrationError = exception.Message;
+            _toastNotifier = null;
+            _registrationError = $"Inscription de Dock auprès des notifications Windows impossible : {exception.Message}";
         }
     }
 
@@ -55,51 +63,83 @@ public sealed class AttentionNotifier : IDisposable
             WindowApi.FlashWindowEx(ref info);
         }
 
-        var toastPlaysSound = settings.WindowsToast && _registered && !settings.UsesFile;
+        var toastPlaysSound = settings.WindowsToast && _toastNotifier is not null && !settings.UsesFile;
         if (settings.Sound != NotificationSettingsModel.NoSound && !toastPlaysSound)
         {
             var source = settings.UsesFile ? WindowApi.SoundFileName : WindowApi.SoundAlias;
             WindowApi.PlaySound(settings.Sound, 0, source | WindowApi.SoundAsync | WindowApi.SoundNoDefault);
         }
 
-        if (!settings.WindowsToast || !_registered)
+        if (!settings.WindowsToast || _toastNotifier is null)
         {
             return;
         }
 
-        var builder = new AppNotificationBuilder().AddArgument(PaneArgument, paneId).AddText(title).AddText(body);
-        if (settings.Sound == NotificationSettingsModel.NoSound || settings.UsesFile)
+        var muted = settings.Sound == NotificationSettingsModel.NoSound || settings.UsesFile;
+        var toast = new ToastNotification(BuildContent(title, body, muted ? null : settings.Sound)) { Tag = ToastTag(paneId), Group = ToastGroup };
+        toast.Activated += (_, _) => HandleActivated(paneId);
+        _shown[paneId] = toast;
+        _toastNotifier.Show(toast);
+    }
+
+    private static XmlDocument BuildContent(string title, string body, string? sound)
+    {
+        var document = new XmlDocument();
+        var toast = document.CreateElement("toast");
+        document.AppendChild(toast);
+
+        var binding = document.CreateElement("binding");
+        binding.SetAttribute("template", "ToastGeneric");
+        foreach (var line in new[] { title, body })
         {
-            builder.MuteAudio();
+            var text = document.CreateElement("text");
+            text.InnerText = line;
+            binding.AppendChild(text);
+        }
+
+        var visual = document.CreateElement("visual");
+        visual.AppendChild(binding);
+        toast.AppendChild(visual);
+
+        var audio = document.CreateElement("audio");
+        if (sound is null)
+        {
+            audio.SetAttribute("silent", "true");
         }
         else
         {
-            builder.SetAudioUri(new Uri($"ms-winsoundevent:{settings.Sound}"));
+            audio.SetAttribute("src", $"ms-winsoundevent:{sound}");
         }
 
-        AppNotificationManager.Default.Show(builder.BuildNotification());
+        toast.AppendChild(audio);
+        return document;
     }
 
-    private void HandleInvoked(AppNotificationManager sender, AppNotificationActivatedEventArgs args)
+    private static string ToastTag(string paneId) => paneId.Length <= 64 ? paneId : paneId[..64];
+
+    private void HandleActivated(string paneId) =>
+        _dispatcher.TryEnqueue(() =>
+        {
+            _shown.Remove(paneId);
+            WindowApi.SetForegroundWindow(_windowHandle);
+            _join(paneId);
+        });
+
+    public void Dispose()
     {
-        if (!args.Arguments.TryGetValue(PaneArgument, out var paneId))
+        if (_toastNotifier is null)
         {
             return;
         }
 
-        _dispatcher.TryEnqueue(() =>
+        try
         {
-            WindowApi.SetForegroundWindow(_windowHandle);
-            _join(paneId);
-        });
-    }
-
-    public void Dispose()
-    {
-        if (_registered)
-        {
-            AppNotificationManager.Default.NotificationInvoked -= HandleInvoked;
-            AppNotificationManager.Default.Unregister();
+            ToastNotificationManager.History.RemoveGroup(ToastGroup, ApplicationUserModelId);
         }
+        catch (Exception exception) when (exception is System.Runtime.InteropServices.COMException or UnauthorizedAccessException)
+        {
+        }
+
+        _shown.Clear();
     }
 }

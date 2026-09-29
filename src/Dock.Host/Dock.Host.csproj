@@ -23,6 +23,7 @@
   <ItemGroup>
     <None Include="hooks\dock-agent-state.ps1" CopyToOutputDirectory="PreserveNewest" />
     <None Include="Assets\Dock.ico" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Assets\Dock.png" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Dock.Core\Dock.Core.csproj" />
