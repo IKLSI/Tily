@@ -249,6 +249,13 @@ Avec Alt + PgUp / PgDn, `shortcuts.ts` était repassé à 427 lignes, au-dessus 
 - Vérifié dans l'instance de dev, fenêtre de 884 px : la colonne se replie et le graphe s'affiche avec ses voies. Le bouton la réaffiche, puis la fenêtre agrandie la garde.
 - Convention de la section 11 complétée.
 
+### 24. Distinguer les panes d'un même onglet dans la palette
+
+J'ai revu l'interface à 900 px de large (palette, paramètres, graphe Git) : rien ne déborde. En revanche, la palette listait quatre fois « Pane · Général / repo / repo (powershell) » pour les quatre panes d'un onglet, avec des indices tronqués identiques.
+
+- Quand un onglet a plusieurs panes, chaque entrée « Pane » porte sa position dans l'ordre de la disposition : « · 1/4 », « · 2/4 »…
+- Vérifié dans l'instance de dev : taper « pane » affiche « … (powershell) · 1/4 » à « · 4/4 », puis le pane seul de « Workspace 2 » sans numéro.
+
 ## Reste à faire et idées
 
 ### À décider par toi

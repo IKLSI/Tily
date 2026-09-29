@@ -169,10 +169,10 @@ const navigationItems = (session: Session): PaletteItem[] => {
           selectTab(tab.id)
         },
       },
-      ...panesOf(tab.tree).map((pane) => ({
+      ...panesOf(tab.tree).map((pane, index, panes) => ({
         id: `pane-${pane.id}`,
         kind: PaletteKind.Pane,
-        label: `Pane${SEPARATOR}${workspace.name} / ${tab.name} / ${folderName(pane.path)} (${pane.shell})`,
+        label: `Pane${SEPARATOR}${workspace.name} / ${tab.name} / ${folderName(pane.path)} (${pane.shell})${panes.length > 1 ? `${SEPARATOR}${index + 1}/${panes.length}` : ''}`,
         hint: paneHint(pane, contexts),
         run: () => selectPane(pane.id),
       })),
