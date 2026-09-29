@@ -14,6 +14,7 @@ export interface TerminalMenuActions {
   splitSideBySide: () => void
   splitTopBottom: () => void
   toggleZoom: () => void
+  moveToNewTab: () => void
   close: () => void
 }
 
@@ -32,6 +33,7 @@ const itemsFor = (canCopy: boolean, zoomed: boolean, actions: TerminalMenuAction
   { id: 'split-x', label: 'Split côte à côte', detail: <MenuShortcut keys="Ctrl + Maj + D" />, run: actions.splitSideBySide },
   { id: 'split-y', label: 'Split haut / bas', detail: <MenuShortcut keys="Ctrl + Maj + H" />, run: actions.splitTopBottom },
   { id: 'zoom', label: zoomed ? 'Réduire le pane' : 'Agrandir le pane', detail: <MenuShortcut keys="Ctrl + Maj + M" />, run: actions.toggleZoom },
+  { id: 'move-to-new-tab', label: 'Déplacer dans un nouvel onglet', detail: <MenuShortcut keys="Leader puis !" />, run: actions.moveToNewTab },
   { id: 'close', label: 'Fermer le pane', detail: <MenuShortcut keys="Ctrl + Maj + X" />, run: actions.close },
 ]
 

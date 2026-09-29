@@ -144,10 +144,9 @@ export const folderName = (path: string): string => {
 
 export const createPane = (path: string, shell: string): Pane => ({ id: newId(), path, shell })
 
-export const createTab = (path: string, shell: string): Tab => {
-  const pane = createPane(path, shell)
-  return { id: newId(), name: folderName(path) || shell, manual: false, active: pane.id, tree: { pane } }
-}
+export const tabOfPane = (pane: Pane): Tab => ({ id: newId(), name: folderName(pane.path) || pane.shell, manual: false, active: pane.id, tree: { pane } })
+
+export const createTab = (path: string, shell: string): Tab => tabOfPane(createPane(path, shell))
 
 export const createWorkspace = (name: string, path: string, shell: string): Workspace => {
   const tab = createTab(path, shell)

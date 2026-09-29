@@ -6,6 +6,7 @@ import { useHostStore } from '../store/hostStore'
 import { usePaneStore } from '../store/paneStore'
 import { copyPaneBranch, copyPanePath, gitSummary, openPaneFolder, queryContext } from '../terminal/contextActions'
 import { copyPaneSelection, focusPane, hasPaneSelection, pasteIntoPane, selectAllInPane, setPaneTerminalTabbable } from '../terminal/terminalActions'
+import { movePaneToNewTab } from '../terminal/tabLifecycle'
 import { TerminalPane } from '../terminal/TerminalPane'
 import { AgentBadge } from './AgentBadge'
 import { PaneOverlay } from './PaneOverlay'
@@ -139,6 +140,7 @@ export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZ
     splitSideBySide: handleSplitSideBySide,
     splitTopBottom: handleSplitTopBottom,
     toggleZoom: handleToggleZoom,
+    moveToNewTab: () => movePaneToNewTab(pane.id),
     close: handleClose,
   }
   const branchTitle = context?.branch ? `Copier la branche « ${context.branch} »` : gitSummary(context)

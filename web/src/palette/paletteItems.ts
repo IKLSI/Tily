@@ -94,7 +94,10 @@ const commandItems = (session: Session, shells: ShellProfile[]): PaletteItem[] =
       items.push(command('remove-worktree', `Supprimer ce worktree${SEPARATOR}${name}…`, () => requestWorktreeRemoval(path, context.branch ?? undefined)))
     }
     if (!isLeaf(tab.tree)) {
-      items.push(command('equalize-panes', 'Égaliser les panes de l’onglet', () => runCommand(Command.EqualizePanes), 'Leader puis ='))
+      items.push(
+        command('equalize-panes', 'Égaliser les panes de l’onglet', () => runCommand(Command.EqualizePanes), 'Leader puis ='),
+        command('move-pane-to-new-tab', 'Déplacer le pane actif dans un nouvel onglet', () => runCommand(Command.MovePaneToNewTab), 'Leader puis !'),
+      )
     }
     items.push(
       command('rename-tab', 'Renommer l’onglet', () => ui.startRenamingTab(tab.id)),

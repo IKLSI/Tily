@@ -9,6 +9,7 @@ import {
   cloneTabWithNewIds,
   createPane,
   createTab,
+  tabOfPane,
   createWorkspace,
   DEFAULT_GIT_GRAPH,
   EXPLORER_DEFAULT,
@@ -68,6 +69,7 @@ interface SessionState {
   splitPane: (axis: SplitAxis) => void
   setSplitRatio: (tabId: string, path: SplitPath, ratio: number) => void
   equalizeSplits: (tabId: string) => void
+  movePaneToNewTab: (paneId: string) => void
   closePane: (paneId: string) => void
   setPanePath: (paneId: string, path: string) => void
   setPaneShell: (paneId: string, shell: string) => void
@@ -426,6 +428,30 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
         if (tab) {
           tab.tree = equalizeNode(tab.tree)
         }
+      }),
+    })),
+
+  movePaneToNewTab: (paneId) =>
+    set((state) => ({
+      session: mutateSession(state.session, (draft) => {
+        const workspace = draft.workspaces.find((candidate) => candidate.tabs.some((tab) => panesOf(tab.tree).some((pane) => pane.id === paneId)))
+        const index = workspace ? workspace.tabs.findIndex((tab) => panesOf(tab.tree).some((pane) => pane.id === paneId)) : -1
+        const source = workspace?.tabs[index]
+        const remaining = source ? pruneNode(source.tree, paneId) : null
+        const pane = source ? panesOf(source.tree).find((candidate) => candidate.id === paneId) : undefined
+        if (!workspace || !source || !remaining || !pane) {
+          return
+        }
+        const tab = tabOfPane(current(pane))
+        source.tree = remaining
+        if (source.active === paneId) {
+          const next = panesOf(remaining)[0]
+          source.active = next.id
+          source.name = tabNameFor(source, next.id, next.path)
+        }
+        workspace.tabs.splice(index + 1, 0, tab)
+        workspace.active = tab.id
+        draft.active = workspace.id
       }),
     })),
 

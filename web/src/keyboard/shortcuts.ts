@@ -5,7 +5,7 @@ import { Direction, paneInDirection } from '../components/paneNavigation'
 import { focusWorkspacePanel } from '../components/workspacePanel'
 import { useSessionStore } from '../store/sessionStore'
 import { requestApplicationClose } from '../terminal/closeGuard'
-import { closePaneKeepingText, restoreClosedTab } from '../terminal/tabLifecycle'
+import { closePaneKeepingText, movePaneToNewTab, restoreClosedTab } from '../terminal/tabLifecycle'
 import { focusPane, joinNextWaitingPane } from '../terminal/terminalActions'
 import { endPaneZoom, togglePaneZoom } from '../terminal/paneZoom'
 import { togglePanelView } from '../panel/rightPanel'
@@ -46,6 +46,7 @@ export enum Command {
   ToggleSidebar = 'toggleSidebar',
   TogglePaneZoom = 'togglePaneZoom',
   EqualizePanes = 'equalizePanes',
+  MovePaneToNewTab = 'movePaneToNewTab',
   JoinWaitingAgent = 'joinWaitingAgent',
   CreateWorktree = 'createWorktree',
 }
@@ -67,6 +68,7 @@ const LEADER_KEYS: Record<string, Command> = {
   x: Command.ClosePane,
   m: Command.TogglePaneZoom,
   '=': Command.EqualizePanes,
+  '!': Command.MovePaneToNewTab,
   z: Command.RestoreTab,
   a: Command.JoinWaitingAgent,
   ArrowRight: Command.FocusPaneRight,
@@ -312,6 +314,9 @@ export const runCommand = (command: Command): void => {
       break
     case Command.EqualizePanes:
       equalizeActiveTab()
+      break
+    case Command.MovePaneToNewTab:
+      movePaneToNewTab(currentPaneId())
       break
     case Command.JoinWaitingAgent:
       joinNextWaitingPane()

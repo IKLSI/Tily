@@ -18,6 +18,7 @@ export const LEADER_HINTS: LeaderHint[] = [
   { keys: 'X', label: 'fermer le pane' },
   { keys: 'M', label: 'agrandir / réduire le pane' },
   { keys: '=', label: 'égaliser les panes' },
+  { keys: '!', label: 'pane dans un nouvel onglet' },
   { keys: 'Z', label: 'rouvrir' },
   { keys: 'A', label: 'agent en attente' },
   { keys: 'P', label: 'palette' },
