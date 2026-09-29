@@ -14,6 +14,9 @@ import { togglePanelView } from '../panel/rightPanel'
 import { RenameOrigin, useUiStore } from '../store/uiStore'
 import { startWorktreeCreation } from '../worktree/worktreeActions'
 import { toggleStatusLog } from '../statusLog/statusLogActions'
+import { Command, DIRECT_ARROW_KEYS, DIRECT_LETTER_KEYS, DIRECT_PAGE_KEYS, LEADER_KEYS, LEADER_SHIFT_ARROW_KEYS } from './commands'
+
+export { Command }
 
 const LEADER_TIMEOUT_MS = 5000
 const MODIFIER_KEYS = new Set(['Control', 'Shift', 'Alt', 'AltGraph', 'Meta'])
@@ -22,108 +25,6 @@ const TAB_KEY = 'Tab'
 const ENTER_KEY = 'Enter'
 const SHORTCUT_BLOCKERS = 'input, textarea, select, [contenteditable="true"], [role="menu"], [role="dialog"], [role="alertdialog"]'
 const LEADER_EXPIRED_STATUS = 'Leader expiré : la saisie revient au terminal.'
-
-export enum Command {
-  Palette = 'palette',
-  NewTab = 'newTab',
-  SplitSideBySide = 'splitSideBySide',
-  SplitTopBottom = 'splitTopBottom',
-  NewWorkspace = 'newWorkspace',
-  Projects = 'projects',
-  Settings = 'settings',
-  ClosePane = 'closePane',
-  FocusPaneLeft = 'focusPaneLeft',
-  FocusPaneRight = 'focusPaneRight',
-  FocusPaneUp = 'focusPaneUp',
-  FocusPaneDown = 'focusPaneDown',
-  PreviousCommand = 'previousCommand',
-  NextCommand = 'nextCommand',
-  SwapPaneLeft = 'swapPaneLeft',
-  SwapPaneRight = 'swapPaneRight',
-  SwapPaneUp = 'swapPaneUp',
-  SwapPaneDown = 'swapPaneDown',
-  MoveTabLeft = 'moveTabLeft',
-  MoveTabRight = 'moveTabRight',
-  NextTab = 'nextTab',
-  PreviousTab = 'previousTab',
-  RestoreTab = 'restoreTab',
-  ToggleExplorer = 'toggleExplorer',
-  ToggleGit = 'toggleGit',
-  ToggleNotes = 'toggleNotes',
-  ToggleStatusLog = 'toggleStatusLog',
-  ToggleSidebar = 'toggleSidebar',
-  TogglePaneZoom = 'togglePaneZoom',
-  EqualizePanes = 'equalizePanes',
-  MovePaneToNewTab = 'movePaneToNewTab',
-  JoinWaitingAgent = 'joinWaitingAgent',
-  CreateWorktree = 'createWorktree',
-}
-
-const LEADER_KEYS: Record<string, Command> = {
-  p: Command.Palette,
-  t: Command.NewTab,
-  v: Command.SplitSideBySide,
-  h: Command.SplitTopBottom,
-  w: Command.NewWorkspace,
-  f: Command.Projects,
-  n: Command.CreateWorktree,
-  e: Command.ToggleExplorer,
-  g: Command.ToggleGit,
-  o: Command.ToggleNotes,
-  l: Command.ToggleStatusLog,
-  b: Command.ToggleSidebar,
-  ',': Command.Settings,
-  x: Command.ClosePane,
-  m: Command.TogglePaneZoom,
-  '=': Command.EqualizePanes,
-  '!': Command.MovePaneToNewTab,
-  z: Command.RestoreTab,
-  a: Command.JoinWaitingAgent,
-  ArrowRight: Command.FocusPaneRight,
-  ArrowDown: Command.FocusPaneDown,
-  ArrowLeft: Command.FocusPaneLeft,
-  ArrowUp: Command.FocusPaneUp,
-  PageUp: Command.MoveTabLeft,
-  PageDown: Command.MoveTabRight,
-}
-
-const LEADER_SHIFT_ARROW_KEYS: Record<string, Command> = {
-  ArrowRight: Command.SwapPaneRight,
-  ArrowDown: Command.SwapPaneDown,
-  ArrowLeft: Command.SwapPaneLeft,
-  ArrowUp: Command.SwapPaneUp,
-}
-
-const DIRECT_PAGE_KEYS: Record<string, Command> = {
-  PageUp: Command.MoveTabLeft,
-  PageDown: Command.MoveTabRight,
-}
-
-const DIRECT_LETTER_KEYS: Record<string, Command> = {
-  p: Command.Palette,
-  t: Command.NewTab,
-  d: Command.SplitSideBySide,
-  h: Command.SplitTopBottom,
-  w: Command.NewWorkspace,
-  x: Command.ClosePane,
-  m: Command.TogglePaneZoom,
-  z: Command.RestoreTab,
-  e: Command.ToggleExplorer,
-  g: Command.ToggleGit,
-  o: Command.ToggleNotes,
-  l: Command.ToggleStatusLog,
-  b: Command.ToggleSidebar,
-  a: Command.JoinWaitingAgent,
-}
-
-const DIRECT_ARROW_KEYS: Record<string, Command> = {
-  ArrowRight: Command.FocusPaneRight,
-  ArrowDown: Command.FocusPaneDown,
-  ArrowLeft: Command.FocusPaneLeft,
-  ArrowUp: Command.FocusPaneUp,
-  PageUp: Command.PreviousCommand,
-  PageDown: Command.NextCommand,
-}
 
 let leaderTimer: ReturnType<typeof setTimeout> | undefined
 

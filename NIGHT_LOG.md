@@ -223,6 +223,13 @@ Dans un terminal qui a beaucoup défilé (plusieurs builds ou tests à la suite)
   - Alt + PgUp affiche la ligne de contexte puis l'invite de la commande précédente, et un second appui celle d'avant.
 - **Conventions proposées** en section 8 de la spec. README et architecture back mis à jour.
 
+### 21. Sortir les commandes et les tables de touches des raccourcis
+
+Avec Alt + PgUp / PgDn, `shortcuts.ts` était repassé à 427 lignes, au-dessus de la limite de 400.
+
+- L'enum `Command` et les tables de touches (Leader, Leader + Maj + flèche, Ctrl + Maj + lettre, Alt + flèche ou page) passent dans `keyboard/commands.ts`. `shortcuts.ts` réexporte `Command`, donc aucun import ne change. Il revient à 328 lignes.
+- Vérifié dans l'instance de dev : Ctrl + Maj + D ouvre un split, Leader puis X le ferme, Ctrl + P ouvre la palette.
+
 ## Reste à faire et idées
 
 - Déplacer un pane vers un onglet d'un autre workspace (l'itération 8 se limite au workspace du pane).
