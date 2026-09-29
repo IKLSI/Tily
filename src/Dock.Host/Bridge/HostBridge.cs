@@ -104,6 +104,17 @@ public sealed class HostBridge : IDisposable
         }
     }
 
+    private void PostDroppedPath(BridgeCommandModel command)
+    {
+        if (command.Path is not { } path || !Path.IsPathFullyQualified(path))
+        {
+            Post(new { type = "error", message = "Chemin déposé invalide." });
+            return;
+        }
+
+        Post(new { type = "terminal.dropped", pane = RequirePane(command), text = DroppedPaths.Format([path], command.Shell ?? ShellCatalog.DefaultShellId) });
+    }
+
     private void Receive(string json)
     {
         if (json.StartsWith(TextSavePrefix, StringComparison.Ordinal))
@@ -236,6 +247,9 @@ public sealed class HostBridge : IDisposable
                 break;
             case "terminal.close":
                 CloseTerminal(RequirePane(command));
+                break;
+            case "terminal.dropPath":
+                PostDroppedPath(command);
                 break;
             case "terminal.activity":
                 Post(new { type = "terminal.activityResult", panes = _terminals.Activity(command.Panes ?? []) });

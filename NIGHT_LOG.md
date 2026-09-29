@@ -492,6 +492,20 @@ Le zoom d'un pane (itération 49) et le clavier des onglets (itérations 47 et 5
   - le pane de test a ensuite été fermé.
 - Spec (conventions du menu du terminal et du zoom) et architecture front mises à jour.
 
+### 60. Glisser un fichier de l'arbre sur un terminal y insère son chemin
+
+Depuis l'itération 13, un fichier déposé depuis l'Explorateur Windows sur un terminal y insère son chemin. L'arbre des fichiers de Dock, lui, obligeait à passer par « Copier le chemin » puis à coller, alors qu'il est affiché juste à côté des terminaux. C'est pourtant le geste le plus direct pour désigner un fichier à une commande ou à Claude Code.
+
+- Les lignes de l'arbre (fichiers et dossiers) sont glissables, sauf pendant un renommage. Elles portent leur chemin sous un type propre à Dock et en texte, pour un dépôt dans une autre application.
+- Déposée sur un terminal, une ligne envoie `terminal.dropPath {pane, shell, path}` à l'hôte. L'hôte protège le chemin selon le shell avec `DroppedPaths`, comme pour l'Explorateur, et le renvoie dans `terminal.dropped`. La protection reste donc côté hôte. Un chemin qui n'est pas absolu est refusé avec « Chemin déposé invalide. », sans marquer le terminal en échec.
+- Le reste ne change pas : un pane couvert par un message refuse le dépôt, et ailleurs dans Dock le curseur indique « interdit ».
+- Vérifié dans l'instance de dev avec un vrai glisser à la souris, onglet `web` du workspace Dock, shell PowerShell :
+  - `package.json` déposé sur le terminal insère `'D:\Projects\Perso\Projet T\dock-terminal\web\package.json' `, entre guillemets à cause de l'espace, et le focus passe au terminal ;
+  - le dossier `src` insère `'…\web\src' ` ;
+  - `README.md` lâché sur un onglet n'insère rien et ne change pas d'onglet ;
+  - un clic sur une ligne la sélectionne toujours.
+- Documenté comme **convention proposée** en section 8 de la spec, avec le dépôt depuis l'Explorateur ; contrat du pont, architectures et README mis à jour.
+
 ## Reste à faire et idées
 
 - **Taille de police et zoom du terminal** : police fixe à 14 px. La spécification classe ce point « À décider » (section 4), je n'y ai donc pas touché ; c'est à trancher.

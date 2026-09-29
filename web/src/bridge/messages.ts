@@ -178,6 +178,7 @@ export type WebToHostMessage =
   | { type: 'terminal.close'; pane: string }
   | { type: 'terminal.activity'; panes: string[] }
   | { type: 'terminal.drop'; pane: string; shell: string }
+  | { type: 'terminal.dropPath'; pane: string; shell: string; path: string }
   | { type: 'projects.list' }
   | { type: 'context.query'; pane: string; path: string }
   | { type: 'context.open'; pane: string; path: string; target: OpenTarget }
