@@ -76,9 +76,18 @@ Après quelques splits, un terminal se retrouve souvent du mauvais côté (l'age
 - Vérifié dans l'instance de dev : après `echo PANE-UN` dans le pane de gauche, Leader puis Maj + → le place en haut à droite avec son texte, le focus le suit, l'ancien voisin passe à gauche.
 - **Convention proposée** en section 7 de la spec. README et architecture front mis à jour.
 
+### 8. Déplacer un pane vers un autre onglet
+
+Complément de l'itération 2 : ramener un terminal dans un onglet existant (le `join-pane` de tmux), par exemple pour regrouper un serveur et son agent.
+
+- La palette propose « Déplacer le pane actif vers l'onglet · <nom> » pour chaque autre onglet du workspace. Le pane arrive à droite du pane actif de cet onglet, qui devient actif, avec son terminal, son processus et son texte.
+- Si l'onglet d'origine se vide, il disparaît sans entrer dans les onglets fermés : aucun terminal n'a été arrêté, il n'y a rien à rouvrir. Une étoile posée sur une de ces entrées devient orpheline quand l'onglet cible n'existe plus, comme pour « Déplacer l'onglet vers ».
+- Vérifié dans l'instance de dev : le pane actif d'un onglet de 3 panes rejoint l'onglet « repo » (deux panes de 796 px côte à côte, l'onglet d'origine garde les 2 autres) ; en déplaçant ensuite les deux panes de « repo », l'onglet disparaît et l'autre en compte 4.
+- **Convention proposée** en section 7 de la spec, architecture front mise à jour.
+
 ## Reste à faire et idées
 
-- Déplacer un pane vers un onglet existant (l'inverse de l'itération 2, `join-pane` de tmux).
+- Déplacer un pane vers un onglet d'un autre workspace (l'itération 8 se limite au workspace du pane).
 - Après un redimensionnement (sortie d'un pane, panneau masqué…), la ligne d'invite PowerShell repliée par ConPTY peut se redessiner de travers jusqu'à la commande suivante. C'est un comportement de ConPTY au redimensionnement, pas propre à ces actions.
 - Fins de commandes longues : CMD et Git Bash n'ont pas de wrapper de prompt, donc pas d'indication ; on pourrait aussi faire clignoter la barre des tâches quand la fenêtre de Dock n'a pas le focus, comme pour les agents.
 - Sortie de la dernière commande : sous Windows 10, une ligne longue repliée par ConPTY est copiée en plusieurs lignes (pas d'indicateur de repli). Une invite qui s'écrit elle-même par `Write-Host` au lieu de renvoyer son texte fausserait la hauteur annoncée.

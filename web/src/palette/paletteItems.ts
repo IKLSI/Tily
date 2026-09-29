@@ -7,7 +7,7 @@ import { useAgentStore } from '../store/agentStore'
 import { useHostStore } from '../store/hostStore'
 import { useSessionStore } from '../store/sessionStore'
 import { RenameOrigin, useUiStore } from '../store/uiStore'
-import { closeOtherTabsKeepingText, closeTabKeepingText, closeWorkspaceKeepingText, duplicateTabKeepingLayout, restoreClosedTab, restoreClosedTabAt } from '../terminal/tabLifecycle'
+import { closeOtherTabsKeepingText, closeTabKeepingText, closeWorkspaceKeepingText, duplicateTabKeepingLayout, movePaneToTab, restoreClosedTab, restoreClosedTabAt } from '../terminal/tabLifecycle'
 import { copyLastCommandOutput, joinPane } from '../terminal/terminalActions'
 import { OpenTarget } from '../bridge/messages'
 import { copyPaneBranch, copyPanePath, openPaneFolder } from '../terminal/contextActions'
@@ -33,6 +33,7 @@ const SEPARATOR = ' · '
 const FAVORITES_FULL_NOTICE = `Pas plus de ${FAVORITES_MAX} favoris : retirez une étoile avant d’en ajouter une.`
 const ATTENTION_PREFIX = 'attention-'
 const MOVE_TAB_PREFIX = 'move-tab-'
+const JOIN_TAB_PREFIX = 'join-tab-'
 
 const command = (id: string, label: string, run: () => void, hint?: string): PaletteItem => ({ id, kind: PaletteKind.Command, label, hint, favorite: false, run })
 
@@ -112,6 +113,9 @@ const commandItems = (session: Session, shells: ShellProfile[]): PaletteItem[] =
     if (workspace && workspace.tabs.length > 1) {
       items.push(command('close-other-tabs', 'Fermer les autres onglets', () => closeOtherTabsKeepingText(tab.id)))
     }
+    for (const target of workspace?.tabs.filter((candidate) => candidate.id !== tab.id) ?? []) {
+      items.push(command(`${JOIN_TAB_PREFIX}${target.id}`, `Déplacer le pane actif vers l’onglet${SEPARATOR}${target.name}`, () => movePaneToTab(paneId, target.id)))
+    }
     for (const target of session.workspaces.filter((candidate) => candidate.id !== workspace?.id)) {
       items.push(command(`${MOVE_TAB_PREFIX}${target.id}`, `Déplacer l’onglet vers${SEPARATOR}${target.name}`, () => store.moveTab(tab.id, target.id)))
     }
@@ -177,6 +181,10 @@ const navigationItems = (session: Session): PaletteItem[] => {
 const isOrphanFavorite = (session: Session, commandId: string): boolean => {
   if (commandId.startsWith(ATTENTION_PREFIX)) {
     return true
+  }
+  if (commandId.startsWith(JOIN_TAB_PREFIX)) {
+    const tabId = commandId.slice(JOIN_TAB_PREFIX.length)
+    return !session.workspaces.some((workspace) => workspace.tabs.some((tab) => tab.id === tabId))
   }
   const workspaceId = commandId.startsWith(MOVE_TAB_PREFIX) ? commandId.slice(MOVE_TAB_PREFIX.length) : null
   return workspaceId !== null && !session.workspaces.some((workspace) => workspace.id === workspaceId) && !session.closed.some((entry) => entry.workspaceId === workspaceId)

@@ -41,6 +41,19 @@ export const movePaneToNewTab = (paneId: string): void => {
   requestAnimationFrame(() => focusPane(paneId))
 }
 
+export const movePaneToTab = (paneId: string, targetTabId: string): void => {
+  const target = tabOf(targetTabId)
+  if (!target) {
+    return
+  }
+  if (useUiStore.getState().zoomedPaneId === paneId) {
+    useUiStore.getState().clearPaneZoom()
+  }
+  useSessionStore.getState().movePaneToTab(paneId, targetTabId)
+  useHostStore.getState().setStatus(`Pane déplacé dans l’onglet « ${target.name} » : son terminal continue de tourner.`)
+  requestAnimationFrame(() => focusPane(paneId))
+}
+
 const closeTabNow = (tabId: string): void => {
   const tab = tabOf(tabId)
   if (!tab) {

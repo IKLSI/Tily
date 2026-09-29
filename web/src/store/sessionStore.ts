@@ -72,6 +72,7 @@ interface SessionState {
   equalizeSplits: (tabId: string) => void
   swapActivePane: (targetPaneId: string) => void
   movePaneToNewTab: (paneId: string) => void
+  movePaneToTab: (paneId: string, targetTabId: string) => void
   closePane: (paneId: string) => void
   setPanePath: (paneId: string, path: string) => void
   setPaneShell: (paneId: string, shell: string) => void
@@ -460,6 +461,35 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
         }
         workspace.tabs.splice(index + 1, 0, tab)
         workspace.active = tab.id
+        draft.active = workspace.id
+      }),
+    })),
+
+  movePaneToTab: (paneId, targetTabId) =>
+    set((state) => ({
+      session: mutateSession(state.session, (draft) => {
+        const workspace = draft.workspaces.find((candidate) => candidate.tabs.some((tab) => tab.id === targetTabId))
+        const source = workspace?.tabs.find((tab) => panesOf(tab.tree).some((pane) => pane.id === paneId))
+        const target = workspace?.tabs.find((tab) => tab.id === targetTabId)
+        const pane = source ? panesOf(source.tree).find((candidate) => candidate.id === paneId) : undefined
+        if (!workspace || !source || !target || !pane || source.id === target.id) {
+          return
+        }
+        const moved = current(pane)
+        const remaining = pruneNode(source.tree, paneId)
+        if (remaining) {
+          source.tree = remaining
+          if (source.active === paneId) {
+            const next = panesOf(remaining)[0]
+            source.active = next.id
+            source.name = tabNameFor(source, next.id, next.path)
+          }
+        } else {
+          workspace.tabs = workspace.tabs.filter((tab) => tab.id !== source.id)
+        }
+        target.tree = splitLeaf(target.tree, target.active, SplitAxis.Horizontal, moved)
+        target.active = moved.id
+        workspace.active = target.id
         draft.active = workspace.id
       }),
     })),
