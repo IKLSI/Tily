@@ -130,6 +130,7 @@ export interface PaneAgent {
   agent: string
   state: AgentState
   message?: string
+  detail?: string
 }
 
 export type HostToWebMessage =
@@ -166,7 +167,7 @@ export type WebToHostMessage =
   | { type: 'settings.save'; settings: Settings }
   | { type: 'settings.export' }
   | { type: 'settings.import' }
-  | { type: 'attention.raise'; pane: string; title: string; body: string }
+  | { type: 'attention.raise'; pane: string; title: string; body: string; location: string }
   | { type: 'attention.test'; pane: string; notifications: NotificationSettings }
   | { type: 'agents.installHooks' }
   | { type: 'agents.removeHooks' }

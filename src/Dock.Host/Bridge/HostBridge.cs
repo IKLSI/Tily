@@ -220,11 +220,11 @@ public sealed class HostBridge : IDisposable
                 SaveSettings(command);
                 break;
             case "attention.raise":
-                Notify(RequirePane(command), command.Title ?? "Dock", command.Body ?? string.Empty, _settings.Notifications, false);
+                Notify(RequirePane(command), [command.Title ?? "Dock", command.Body, command.Location], _settings.Notifications, false);
                 break;
             case "attention.test":
                 var notifications = command.Notifications?.Deserialize<NotificationSettingsModel>(JsonOptions) ?? _settings.Notifications;
-                Notify(RequirePane(command), "Dock : test de notification", "Voici l’apparence d’une demande d’attention.", notifications.Normalized(), true);
+                Notify(RequirePane(command), ["Dock : test de notification", "Voici l’apparence d’une demande d’attention.", command.Location], notifications.Normalized(), true);
                 break;
             case "agents.installHooks":
                 _agents.Hooks.Install();
@@ -301,11 +301,11 @@ public sealed class HostBridge : IDisposable
         }
     }
 
-    private void Notify(string paneId, string title, string body, NotificationSettingsModel settings, bool force)
+    private void Notify(string paneId, IEnumerable<string?> lines, NotificationSettingsModel settings, bool force)
     {
         try
         {
-            _notifier.Notify(paneId, title, body, settings, force);
+            _notifier.Notify(paneId, lines, settings, force);
         }
         catch (Exception exception)
         {
