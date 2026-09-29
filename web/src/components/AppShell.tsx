@@ -225,6 +225,7 @@ export function AppShell({ session }: AppShellProps) {
   const gitShown = Boolean(tab?.explorer) && panelView === RightPanelView.Git
   const graphShown = gitShown && gitGraphReady
   const tabId = tab?.id
+  const activePaneId = tab?.active
   const availableShells = useMemo(() => shells.filter((shell) => shell.available), [shells])
 
   useEffect(() => {
@@ -246,11 +247,14 @@ export function AppShell({ session }: AppShellProps) {
     if (graphShown) {
       takeFocusFromCoveredTerminals()
     }
-  }, [graphShown, tabId])
+  }, [graphShown, tabId, activePaneId])
 
   const handleClosePalette = () => {
     closePalette()
     focusActivePane()
+    if (graphShown) {
+      takeFocusFromCoveredTerminals()
+    }
   }
   const handleRunPaletteItem = (item: PaletteItem) => {
     handleClosePalette()
