@@ -1,9 +1,11 @@
+import type { Terminal } from '@xterm/xterm'
 import { longestWaitingFirst, waitingPanes } from '../agents/agentSummary'
 import { activeTab, activeWorkspace, RightPanelView } from '../model/session'
 import { useAgentStore } from '../store/agentStore'
 import { useGitStore } from '../store/gitStore'
 import { usePaneStore } from '../store/paneStore'
 import { StatusLevel, useHostStore } from '../store/hostStore'
+import { usePasteStore } from '../store/pasteStore'
 import { useSessionStore } from '../store/sessionStore'
 import { CommandDirection, lastCommandOutput, OutputFailure, scrollToCommand } from './commandOutput'
 import { terminalRegistry } from './terminalRegistry'
@@ -19,7 +21,38 @@ const TAB_INDEX_ATTRIBUTE = 'tabindex'
 const AGENT_LINE_BREAK = '\x1b\r'
 const LINE_BREAK = '\n'
 
+const PASTED_LINE_BREAK = /\r\n|\r|\n/
+const TRAILING_LINE_BREAK = /(\r\n|\r|\n)$/
+const PASTE_CANCELLED = 'Collage annulé : rien n’a été envoyé au terminal.'
+
 const reportFailure = (message: string) => (): void => useHostStore.getState().setStatus(message, StatusLevel.Error)
+
+const pasteGuarded = (paneId: string, terminal: Terminal, text: string): void => {
+  const lines = text.replace(TRAILING_LINE_BREAK, '').split(PASTED_LINE_BREAK)
+  if (lines.length > 1 && !terminal.modes.bracketedPasteMode) {
+    usePasteStore.getState().ask({ paneId, text, lines })
+  } else {
+    terminal.paste(text)
+  }
+}
+
+export const confirmPaste = (): void => {
+  const { request, clear } = usePasteStore.getState()
+  clear()
+  if (request) {
+    terminalRegistry.get(request.paneId)?.terminal.paste(request.text)
+    focusPane(request.paneId)
+  }
+}
+
+export const cancelPaste = (): void => {
+  const { request, clear } = usePasteStore.getState()
+  clear()
+  useHostStore.getState().setStatus(PASTE_CANCELLED)
+  if (request) {
+    focusPane(request.paneId)
+  }
+}
 
 const OUTPUT_FAILURES: Record<OutputFailure, string> = {
   [OutputFailure.NoCommand]: 'Aucune commande terminée dans ce terminal depuis son ouverture (Windows PowerShell et PowerShell 7 uniquement).',
@@ -72,8 +105,8 @@ export const sendTextToActivePane = (text: string): void => {
   } else if (!paneId || !terminal || usePaneStore.getState().states[paneId]) {
     useHostStore.getState().setStatus(PANE_BUSY)
   } else {
-    terminal.paste(text)
     focusPane(paneId)
+    pasteGuarded(paneId, terminal, text)
   }
 }
 
@@ -92,7 +125,7 @@ export const pasteIntoPane = (paneId: string): void => {
   if (terminal) {
     void navigator.clipboard
       .readText()
-      .then((text) => terminal.paste(text))
+      .then((text) => pasteGuarded(paneId, terminal, text))
       .catch(reportFailure(PASTE_FAILED))
   }
 }

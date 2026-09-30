@@ -375,7 +375,7 @@ Pour sauter directement à un onglet, il fallait enchaîner Ctrl + Tab ou passer
 
 Les notes servent souvent à garder des commandes (ports, scripts, requêtes) : il fallait les sélectionner, copier, cliquer dans le terminal et coller.
 
-- Dans la note, Ctrl + Entrée colle la ligne du curseur, ou la sélection, dans le terminal actif du workspace (collage xterm.js, donc protégé par le bracketed paste), sans l'exécuter, et donne le focus au terminal : il ne reste qu'à relire et taper Entrée. Ligne vide ou terminal sans shell : message dans la barre de statut, rien n'est envoyé. Le texte d'aide de la note le mentionne.
+- Dans la note, Ctrl + Entrée colle la ligne du curseur, ou la sélection, dans le terminal actif du workspace (collage xterm.js), sans l'exécuter, et donne le focus au terminal : il ne reste qu'à relire et taper Entrée. Ligne vide ou terminal sans shell : message dans la barre de statut, rien n'est envoyé. Le texte d'aide de la note le mentionne. *Correction (itération 42) : une sélection de plusieurs lignes, elle, était exécutée ligne à ligne sous Windows PowerShell 5.1 ; elle passe désormais par la confirmation du collage multi-ligne.*
 - Vérifié dans l'instance de dev : note « git status --short / echo depuis-les-notes », Ctrl + Entrée sur la 2ᵉ ligne → `echo depuis-les-notes` apparaît après le prompt, non exécuté, focus dans le terminal.
 - **Convention proposée** en section 5 de la spec (« Notes du workspace ») et ligne ajoutée au README.
 
@@ -419,6 +419,15 @@ La taille du texte était figée à 14 px dans le code : impossible de l'agrandi
 - Côté hôte : huitième fichier de réglages `appearance.json` (`AppearanceSettingsRepository`), taille ramenée entre 8 et 32 à la lecture, à l'enregistrement et à l'import, clé `appearance` facultative dans les préférences exportées.
 - Vérifié : 438 tests (dont 4 nouveaux : bornes, fichier vide, export / import, import sans la clé) ; dans l'instance de dev, passage à 18 px → texte agrandi à chaud, `$Host.UI.RawUI.WindowSize` donne 131 × 42 et le prompt se replie bien à 131 colonnes dans un onglet qui était masqué.
 - **Convention proposée** en section 4 de la spec (la police et le zoom restent à décider) ; README et architecture backend mis à jour.
+
+### 42. Confirmation avant un collage de plusieurs lignes
+
+Coller plusieurs lignes dans Windows PowerShell 5.1 les exécutait aussitôt, une par une : ni PSReadLine 2.0 ni ConPTY sous Windows 10 n'activent le collage délimité (bracketed paste). Vérifié dans l'instance de dev : `echo un` / `echo deux` collés → la première ligne s'exécute immédiatement. Un script copié depuis une page ou un message partait donc sans relecture ; Windows Terminal demande confirmation dans ce cas.
+
+- Ctrl + V, Ctrl + Maj + V, « Coller » du menu du terminal et Ctrl + Entrée des notes demandent confirmation quand le texte compte plusieurs lignes et que le programme n'a pas activé le collage délimité : dialogue « Coller N lignes ? » avec l'avertissement, les 8 premières lignes et « … et N autres lignes » ; Entrée colle et exécute, Échap annule (« Collage annulé : rien n'a été envoyé au terminal. ») et rend le focus au terminal.
+- Un seul saut de ligne final ne déclenche rien (une commande copiée avec son retour à la ligne se colle comme avant). Claude Code, Codex et les éditeurs plein écran, qui activent le collage délimité, reçoivent le texte sans confirmation.
+- Vérifié dans l'instance de dev : deux lignes → dialogue ; Échap → rien dans le terminal, focus rendu ; Entrée → les deux commandes s'exécutent ; une ligne avec saut de ligne final → collée directement.
+- **Convention proposée** en section 8 de la spec ; la convention des notes (section 5) y renvoie. Journal de l'itération 37 corrigé : il affirmait à tort que le collage des notes était protégé par le bracketed paste.
 
 ## Reste à faire et idées
 

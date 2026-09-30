@@ -16,6 +16,7 @@ import { useExplorerStore } from '../store/explorerStore'
 import { focusGitPanel, takeFocusFromCoveredTerminals } from '../git/gitFocus'
 import { openWorkspaceNotes, toggleRightPanel } from '../panel/rightPanel'
 import { useGitStore } from '../store/gitStore'
+import { usePasteStore } from '../store/pasteStore'
 import { worktreeModalOpen } from '../store/worktreeStore'
 import { changePaneShell, dismissPaneState, restartPane, restartPaneIn } from '../terminal/paneLifecycle'
 import { closeOtherTabsKeepingText, closePaneKeepingText, closeTabKeepingText, closeWorkspaceKeepingText, duplicateTabKeepingLayout, restoreClosedTab } from '../terminal/tabLifecycle'
@@ -23,6 +24,7 @@ import { focusPane, joinPane } from '../terminal/terminalActions'
 import { togglePaneZoom, useEndZoomWhenPaneChanges, zoomedPaneOf } from '../terminal/paneZoom'
 import { AttentionToasts } from './AttentionToasts'
 import { CloseConfirmDialog } from './CloseConfirmDialog'
+import { PasteConfirmDialog } from './PasteConfirmDialog'
 import { CommandPalette } from './CommandPalette'
 import { DeleteConfirmDialog } from './DeleteConfirmDialog'
 import { EmptyState } from './EmptyState'
@@ -164,7 +166,7 @@ const handleCancelGit = (): void => {
 
 const modalOpen = (): boolean => {
   const { settingsOpen, closeConfirmation, paletteOpen, projectPickerOpen } = useUiStore.getState()
-  return settingsOpen || paletteOpen || projectPickerOpen || closeConfirmation !== null || useExplorerStore.getState().deleteRequest !== null || useGitStore.getState().confirmation !== null || worktreeModalOpen()
+  return settingsOpen || paletteOpen || projectPickerOpen || closeConfirmation !== null || useExplorerStore.getState().deleteRequest !== null || useGitStore.getState().confirmation !== null || usePasteStore.getState().request !== null || worktreeModalOpen()
 }
 
 const panelActions: WorkspacePanelActions = {
@@ -397,6 +399,7 @@ export function AppShell({ session }: AppShellProps) {
       <WorktreeDialogs />
       {gitConfirmation && <GitConfirmDialog confirmation={gitConfirmation} onConfirm={handleConfirmGit} onCancel={handleCancelGit} />}
       {closeConfirmation && <CloseConfirmDialog confirmation={closeConfirmation} onConfirm={confirmClose} onCancel={handleCancelClose} />}
+      <PasteConfirmDialog />
       <Tooltip />
       <StatusBar />
     </div>
