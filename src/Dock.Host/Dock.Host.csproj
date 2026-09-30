@@ -13,7 +13,7 @@
     <SelfContained>true</SelfContained>
     <PublishTrimmed>false</PublishTrimmed>
     <EnableMsixTooling>true</EnableMsixTooling>
-    <Version>1.7.0</Version>
+    <Version>1.7.1</Version>
     <WebRoot>$(MSBuildProjectDirectory)\..\..\web</WebRoot>
     <WebDist>$(WebRoot)\dist</WebDist>
   </PropertyGroup>
