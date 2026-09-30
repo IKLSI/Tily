@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using Dock.Core.Git;
+using Dock.Core.StatusLog;
 
 namespace Dock.Host.Bridge;
 
@@ -93,7 +94,7 @@ public sealed class GitOperationRunner
         }
         catch (Exception exception)
         {
-            _post(new { type = "git.failed", operation = command.Type, message = exception.Message });
+            _post(new { type = "git.failed", operation = command.Type, message = UserErrorMessage.Of(exception) });
         }
         finally
         {

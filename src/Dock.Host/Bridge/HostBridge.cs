@@ -7,6 +7,7 @@ using Dock.Core.Projects;
 using Dock.Core.Session;
 using Dock.Core.Settings;
 using Dock.Core.Shell;
+using Dock.Core.StatusLog;
 using Dock.Core.Terminal;
 using Microsoft.UI.Dispatching;
 using Microsoft.Web.WebView2.Core;
@@ -112,7 +113,7 @@ public sealed class HostBridge : IDisposable
         }
         catch (Exception exception) when (exception is JsonException or InvalidOperationException)
         {
-            Post(new { type = "error", message = exception.Message });
+            Post(new { type = "error", message = UserErrorMessage.Of(exception) });
         }
     }
 
@@ -175,7 +176,7 @@ public sealed class HostBridge : IDisposable
         }
         catch (Exception exception)
         {
-            Post(new { type = "error", pane = FailedTerminalPane(command), message = exception.Message });
+            Post(new { type = "error", pane = FailedTerminalPane(command), message = UserErrorMessage.Of(exception) });
         }
     }
 
@@ -354,7 +355,7 @@ public sealed class HostBridge : IDisposable
         }
         catch (Exception exception)
         {
-            Post(new { type = "error", message = exception.Message });
+            Post(new { type = "error", message = UserErrorMessage.Of(exception) });
         }
     }
 
@@ -462,7 +463,7 @@ public sealed class HostBridge : IDisposable
     private void QueryContext(string paneId, string path) =>
         _queries.Enqueue(() => Post(new { type = "context.result", pane = paneId, path, git = GitContext.Resolve(path) }));
 
-    private void PostBackgroundError(Exception exception) => Post(new { type = "error", message = exception.Message });
+    private void PostBackgroundError(Exception exception) => Post(new { type = "error", message = UserErrorMessage.Of(exception) });
 
     private void Persist(string filePath, Func<string?> write)
     {

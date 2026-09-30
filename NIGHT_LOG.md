@@ -732,6 +732,14 @@ Le filtre de l'itération 78 a fait ressortir une erreur en anglais : « An erro
 - Vérifié : 446 tests, dont un nouveau (dossier disparu → message français exact) ; aucun appel ne passe volontairement un dossier vide.
 - Noté dans « Reste à faire » : d'autres chemins d'erreur affichent `exception.Message` tel quel ; une exception imprévue du framework (entrée / sortie, processus) y apparaîtrait en anglais.
 
+### 80. Messages d'erreur imprévus en français
+
+Suite de l'itération 79 : les remontées d'erreur génériques de l'hôte affichaient `exception.Message` tel quel ; une exception d'entrée / sortie du framework .NET (fichier verrouillé, accès refusé, chemin introuvable) y apparaissait en anglais.
+
+- `UserErrorMessage.Of` (Core, dossier `StatusLog`) traduit les exceptions d'entrée / sortie que Dock ne lève jamais lui-même : « Fichier introuvable : chemin », « Dossier introuvable (…) », « Chemin trop long (…) », « Accès refusé (…) », « Erreur de lecture ou d'écriture (…) », le détail système restant entre parenthèses pour le diagnostic. Les autres exceptions, levées par Dock avec un message français, sont inchangées (les `Win32Exception` des terminaux, par exemple, portent déjà un message français).
+- Appliqué aux dix remontées génériques (`HostBridge`, `GitFeed`, `GitOperationRunner`, `WorktreeFeed`) ; celles qui préfixent déjà une phrase française (« Export des préférences impossible : … ») n'ont pas changé.
+- Vérifié : 450 tests (dont quatre pour `UserErrorMessage`) ; limite connue de l'itération 79 réduite.
+
 ## Reste à faire et idées
 
 ### À décider par toi
@@ -754,7 +762,7 @@ Le filtre de l'itération 78 a fait ressortir une erreur en anglais : « An erro
 - **Copie de sortie et navigation entre commandes** : Windows PowerShell et PowerShell 7 seulement, pas CMD ni Git Bash. Une invite qui s'écrit elle-même par `Write-Host` au lieu de renvoyer son texte fausserait la hauteur annoncée.
 - **Liens de fichiers** : depuis l'itération 44, un chemin absolu avec des espaces dans ses dossiers est lié ; un nom de fichier ou un chemin relatif avec espaces ne l'est toujours pas, ni un chemin replié sur deux lignes, et un chemin dont un dossier contient une extension suivie d'une espace (`Node.js Apps`, `ASP.NET Core`) n'est souligné que jusqu'à ce point (le Ctrl + clic ouvre quand même le fichier complet s'il existe, itération 63).
 - **Clignotement de la barre des tâches** (itération 38) : la commande est bien reçue par l'hôte, mais le clignotement lui-même ne s'observe pas par le débogage distant ; à confirmer à l'usage.
-- **Messages d'erreur imprévus** : une vingtaine de chemins d'erreur de l'hôte affichent `exception.Message` tel quel. Les exceptions levées par Dock sont en français, mais une exception imprévue du framework .NET (entrée / sortie, lancement de processus) apparaîtrait en anglais ; une traduction centrale des types courants serait à prévoir (itération 79).
+- **Messages d'erreur imprévus** : une vingtaine de chemins d'erreur de l'hôte affichent `exception.Message` tel quel. Les exceptions levées par Dock sont en français, mais une exception imprévue du framework .NET (entrée / sortie, lancement de processus) apparaîtrait en anglais ; traduites en français depuis l'itération 80 pour les exceptions d'entrée / sortie ; restent en anglais les éventuelles exceptions imprévues d'autres familles (réseau, processus hors terminaux).
 - **Commit et push, push en échec** : corrigé à l'itération 74 (commit gardé, message vidé, avertissement « Push impossible »).
 - **Diff copié** : un fichier UTF-8 qui contient réellement le caractère de remplacement U+FFFD est traité comme mal décodé et n'est pas copiable (rarissime).
 

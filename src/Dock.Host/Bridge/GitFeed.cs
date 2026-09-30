@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Dock.Core.Git;
 using Dock.Core.Session;
+using Dock.Core.StatusLog;
 
 namespace Dock.Host.Bridge;
 
@@ -79,7 +80,7 @@ public sealed class GitFeed : IDisposable
         }
         catch (GitCommandException exception)
         {
-            _post(new { type = "git.state", path, error = exception.Message });
+            _post(new { type = "git.state", path, error = UserErrorMessage.Of(exception) });
             return;
         }
 
@@ -159,7 +160,7 @@ public sealed class GitFeed : IDisposable
         }
         catch (GitCommandException exception)
         {
-            _post(new { type = "git.state", path, error = exception.Message });
+            _post(new { type = "git.state", path, error = UserErrorMessage.Of(exception) });
             return;
         }
 
@@ -202,7 +203,7 @@ public sealed class GitFeed : IDisposable
         }
         catch (GitCommandException exception)
         {
-            _post(new { type = "git.history", history = GitHistoryReader.Empty(repository.Root, scope), error = exception.Message });
+            _post(new { type = "git.history", history = GitHistoryReader.Empty(repository.Root, scope), error = UserErrorMessage.Of(exception) });
         }
     }
 
@@ -226,7 +227,7 @@ public sealed class GitFeed : IDisposable
             }
             catch (Exception exception) when (exception is GitCommandException or IOException or UnauthorizedAccessException)
             {
-                _post(new { type, request = command.Request, error = exception.Message });
+                _post(new { type, request = command.Request, error = UserErrorMessage.Of(exception) });
             }
         });
 
