@@ -118,6 +118,8 @@ Ces valeurs sont des références de réalisation, pas des contraintes de taille
 
 **Convention proposée.** Leader puis O, Ctrl + Maj + O, la palette (« Afficher / masquer les notes du workspace ») ou l’onglet « Notes » du panneau ouvrent la vue avec le focus dans la note, ou la ferment ; Échap rend le focus au terminal. Un clic sur l’icône de note, ou « Notes du workspace » dans le menu contextuel du workspace, active ce workspace et ouvre la vue. Police mono, au plus 100 000 caractères. Fermer le dernier onglet d’un workspace garde sa note avec l’onglet fermé : le rouvrir recrée le workspace avec sa note (recette R35).
 
+**Convention proposée.** Dans la note, Ctrl + Entrée colle la ligne du curseur, ou la sélection si elle existe, dans le terminal actif du workspace sans l’exécuter, puis donne le focus à ce terminal : Entrée reste à taper. Une ligne vide, ou un terminal qui affiche un message à la place de son shell (processus terminé), n’envoie rien et l’explique dans la barre de statut.
+
 ### Création et renommage
 
 Le « + » du panneau crée directement un workspace et permet de modifier son nom inline. Le clic sur le titre du workspace actif démarre le renommage. Entrée ou perte de focus enregistre ; Échap annule. Un nom vide ne remplace pas le nom existant.

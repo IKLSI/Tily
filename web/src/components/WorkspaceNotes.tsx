@@ -3,9 +3,20 @@ import { useShallow } from 'zustand/react/shallow'
 import { focusActivePane } from '../explorer/fileExplorerActions'
 import { activeWorkspace, NOTE_MAX_CHARS } from '../model/session'
 import { useSessionStore } from '../store/sessionStore'
+import { sendTextToActivePane } from '../terminal/terminalActions'
 import { SECTION_TITLE } from './rightPanelStyles'
 
 const NOTE_ID = 'workspace-note'
+const LINE_BREAK = '\n'
+
+const noteTextToSend = (value: string, start: number, end: number): string => {
+  if (start !== end) {
+    return value.slice(start, end)
+  }
+  const lineStart = value.lastIndexOf(LINE_BREAK, start - 1) + 1
+  const lineEnd = value.indexOf(LINE_BREAK, start)
+  return value.slice(lineStart, lineEnd < 0 ? value.length : lineEnd)
+}
 
 export function WorkspaceNotes() {
   const { id, name, note } = useSessionStore(
@@ -24,6 +35,10 @@ export function WorkspaceNotes() {
     if (event.key === 'Escape') {
       event.preventDefault()
       focusActivePane()
+    } else if (event.key === 'Enter' && event.ctrlKey && !event.shiftKey && !event.altKey) {
+      event.preventDefault()
+      const { value, selectionStart, selectionEnd } = event.currentTarget
+      sendTextToActivePane(noteTextToSend(value, selectionStart, selectionEnd))
     }
   }
 
@@ -40,7 +55,7 @@ export function WorkspaceNotes() {
         value={note}
         maxLength={NOTE_MAX_CHARS}
         spellCheck={false}
-        placeholder="Notes de ce workspace : tâches, ports, commandes… Enregistrées avec la session."
+        placeholder="Notes de ce workspace : tâches, ports, commandes… Enregistrées avec la session. Ctrl + Entrée colle la ligne (ou la sélection) dans le terminal actif."
         className="min-h-0 flex-1 resize-none rounded border border-dock-line bg-dock-panel px-[10px] py-[8px] font-mono text-[12px] leading-[1.5] text-dock-ink outline-none placeholder:text-dock-muted focus:border-dock-focus"
         onChange={handleChange}
         onKeyDown={handleKeyDown}

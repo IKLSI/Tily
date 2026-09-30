@@ -2,6 +2,7 @@ import { longestWaitingFirst, waitingPanes } from '../agents/agentSummary'
 import { activeTab, activeWorkspace, RightPanelView } from '../model/session'
 import { useAgentStore } from '../store/agentStore'
 import { useGitStore } from '../store/gitStore'
+import { usePaneStore } from '../store/paneStore'
 import { StatusLevel, useHostStore } from '../store/hostStore'
 import { useSessionStore } from '../store/sessionStore'
 import { CommandDirection, lastCommandOutput, OutputFailure, scrollToCommand } from './commandOutput'
@@ -57,6 +58,24 @@ export const scrollPaneToCommand = (paneId: string, direction: CommandDirection)
 }
 
 export const isPaneOnAlternateScreen = (paneId: string): boolean => terminalRegistry.get(paneId)?.terminal.buffer.active.type === 'alternate'
+
+const NOTHING_TO_SEND = 'Ligne vide : rien à envoyer au terminal.'
+const PANE_BUSY = 'Le terminal actif affiche un message : rien n’y a été envoyé.'
+
+export const sendTextToActivePane = (text: string): void => {
+  const { session } = useSessionStore.getState()
+  const workspace = session ? activeWorkspace(session) : undefined
+  const paneId = workspace ? activeTab(workspace).active : undefined
+  const terminal = paneId ? terminalRegistry.get(paneId)?.terminal : undefined
+  if (text.trim().length === 0) {
+    useHostStore.getState().setStatus(NOTHING_TO_SEND)
+  } else if (!paneId || !terminal || usePaneStore.getState().states[paneId]) {
+    useHostStore.getState().setStatus(PANE_BUSY)
+  } else {
+    terminal.paste(text)
+    focusPane(paneId)
+  }
+}
 
 export const hasPaneSelection = (paneId: string): boolean => terminalRegistry.get(paneId)?.terminal.hasSelection() ?? false
 

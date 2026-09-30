@@ -371,6 +371,14 @@ Pour sauter directement à un onglet, il fallait enchaîner Ctrl + Tab ou passer
 - Vérifié dans l'instance de dev, avec trois onglets : Leader puis 1, 9 et 2 affichent le 1ᵉʳ, le 3ᵉ puis le 2ᵉ onglet, et 5 affiche le message.
 - **Convention proposée** en section 9 de la spec. Point 15 de la section 18 complété (pas de raccourci direct).
 
+### 37. Envoyer une ligne des notes au terminal
+
+Les notes servent souvent à garder des commandes (ports, scripts, requêtes) : il fallait les sélectionner, copier, cliquer dans le terminal et coller.
+
+- Dans la note, Ctrl + Entrée colle la ligne du curseur, ou la sélection, dans le terminal actif du workspace (collage xterm.js, donc protégé par le bracketed paste), sans l'exécuter, et donne le focus au terminal : il ne reste qu'à relire et taper Entrée. Ligne vide ou terminal sans shell : message dans la barre de statut, rien n'est envoyé. Le texte d'aide de la note le mentionne.
+- Vérifié dans l'instance de dev : note « git status --short / echo depuis-les-notes », Ctrl + Entrée sur la 2ᵉ ligne → `echo depuis-les-notes` apparaît après le prompt, non exécuté, focus dans le terminal.
+- **Convention proposée** en section 5 de la spec (« Notes du workspace ») et ligne ajoutée au README.
+
 ## Reste à faire et idées
 
 ### À décider par toi
