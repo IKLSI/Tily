@@ -363,6 +363,14 @@ Le README ne mentionnait que certaines nouveautés, au fil des itérations.
   - la copie du diff Git.
 - Le paragraphe des raccourcis ajoute Ctrl + C / Ctrl + Maj + C dans l'arbre des fichiers et le double-clic dans la barre d'onglets.
 
+### 36. Aller à l'onglet N par Leader puis un chiffre
+
+Pour sauter directement à un onglet, il fallait enchaîner Ctrl + Tab ou passer par la palette.
+
+- Leader puis 1 à 8 affiche l'onglet correspondant du workspace actif, et 9 le dernier, comme dans les navigateurs et avec le préfixe de tmux. La touche est reconnue par sa position (`Digit1`…) : en AZERTY, la rangée du haut marche sans Maj. Un onglet absent est signalé (« Pas d'onglet 5 dans ce workspace. »). L'aide du Leader et le README le mentionnent.
+- Vérifié dans l'instance de dev, avec trois onglets : Leader puis 1, 9 et 2 affichent le 1ᵉʳ, le 3ᵉ puis le 2ᵉ onglet, et 5 affiche le message.
+- **Convention proposée** en section 9 de la spec. Point 15 de la section 18 complété (pas de raccourci direct).
+
 ## Reste à faire et idées
 
 ### À décider par toi

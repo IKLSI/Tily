@@ -2,7 +2,7 @@ import { bridge } from '../bridge/bridge'
 import { useHostStore } from '../store/hostStore'
 import { activePane, activeTab, activeWorkspace, DEFAULT_SHELL, RightPanelView, SplitAxis, type Workspace } from '../model/session'
 import { Direction } from '../components/paneNavigation'
-import { equalizeActiveTab, focusPaneToward, swapPaneToward } from './paneCommands'
+import { equalizeActiveTab, focusPaneToward, selectTabNumber, swapPaneToward } from './paneCommands'
 import { focusWorkspacePanel } from '../components/workspacePanel'
 import { useSessionStore } from '../store/sessionStore'
 import { requestApplicationClose } from '../terminal/closeGuard'
@@ -24,6 +24,7 @@ const CANCEL_KEY = 'Escape'
 const TAB_KEY = 'Tab'
 const ENTER_KEY = 'Enter'
 const SHORTCUT_BLOCKERS = 'input, textarea, select, [contenteditable="true"], [role="menu"], [role="dialog"], [role="alertdialog"]'
+const TAB_NUMBER_CODE = /^Digit([1-9])$/
 const LEADER_EXPIRED_STATUS = 'Leader expiré : la saisie revient au terminal.'
 
 let leaderTimer: ReturnType<typeof setTimeout> | undefined
@@ -89,6 +90,11 @@ const decideInLeader = (event: KeyboardEvent): boolean => {
     return true
   }
   if (event.key === CANCEL_KEY) {
+    return false
+  }
+  const tabNumber = TAB_NUMBER_CODE.exec(event.code)
+  if (tabNumber && !event.ctrlKey && !event.altKey) {
+    selectTabNumber(Number(tabNumber[1]))
     return false
   }
   const command = (event.shiftKey ? LEADER_SHIFT_ARROW_KEYS[event.key] : undefined) ?? LEADER_KEYS[leaderKeyOf(event)]

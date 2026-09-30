@@ -85,6 +85,7 @@ Aucun droit administrateur n’est nécessaire. Dock vérifie ensuite lui-même 
 | Flèche | Alt + flèche | Passer d’un terminal à l’autre |
 | — | Alt + PgUp / PgDn | Remonter ou descendre d’une commande dans l’historique du terminal (PowerShell) |
 | Pg préc. / Pg suiv. | Ctrl + Maj + Pg préc. / Pg suiv. | Déplacer l’onglet vers la gauche / la droite |
+| 1 … 9 | — | Aller à l’onglet 1 à 8 du workspace, 9 pour le dernier |
 | — | Ctrl + Tab / Ctrl + Maj + Tab | Onglet suivant / précédent |
 
 Ctrl + Maj + C et Ctrl + Maj + V copient et collent. Un clic droit, ou la touche Menu, ouvre le menu d’un terminal, d’un onglet, d’un workspace ou d’un fichier. Dans le panneau des workspaces, où Ctrl + Maj + B amène le focus quand il l’affiche et d’où Échap le rend au terminal, ↑ et ↓ passent d’une ligne à l’autre, → et ← déplient et replient, F2 renomme et Alt + ↑ / ↓ déplace la ligne. Dans la barre d’onglets, ← et → déplacent le focus d’un onglet à l’autre sans l’afficher (Entrée l’affiche), F2 renomme et Alt + ← / → déplace l’onglet. Dans le panneau des workspaces comme dans l’arbre des fichiers, taper les premières lettres d’un nom y amène. Dans l’arbre des fichiers, Ctrl + C copie le chemin de la ligne sélectionnée et Ctrl + Maj + C son chemin relatif. Un double-clic dans l’espace vide de la barre d’onglets ouvre un nouvel onglet.

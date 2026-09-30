@@ -272,6 +272,8 @@ Le principe d’une touche Leader est retenu. Le raccourci par défaut est **Ctr
 
 Les séquences Leader sont consommées par l’application uniquement lorsqu’elles correspondent à une commande active. Une commande non reconnue ou expirée rend la saisie au pane actif ; les raccourcis personnalisés peuvent désactiver ou remplacer les valeurs par défaut.
 
+**Convention proposée.** Leader puis un chiffre de 1 à 9 (touches de la rangée du haut, sans Maj en AZERTY) affiche l’onglet correspondant du workspace actif, 9 affichant le dernier, comme les navigateurs et le préfixe de tmux ; un onglet absent est signalé dans la barre de statut.
+
 **Convention proposée.** Leader puis N ouvre la création d’un worktree (section 11), comme le Leader + n de WezTerm ; aucun raccourci direct.
 
 **Convention proposée.** Leader puis O, ou Ctrl + Maj + O, ouvre ou ferme la vue Notes du panneau de droite (section 5, « Notes du workspace »).
@@ -548,6 +550,6 @@ Ces scénarios définissent les vérifications à effectuer sur l’application 
 12. **À décider :** la « Décision prise » de la section 5 demande une confirmation pour supprimer un workspace « lorsqu’il contient des onglets ou des processus actifs ». Aujourd’hui, « Fermer le workspace » (menu du panneau, palette) ne confirme que si des programmes tournent : un workspace de plus de cinq onglets inactifs se ferme sans confirmation et ses onglets au-delà des cinq derniers ne sont plus restaurables. Préciser si la confirmation doit porter sur tout workspace qui contient des onglets.
 13. **Fait (29 septembre 2026) :** gestion native des worktrees (section 11, recettes R31 à R33) ; `wtr` et `rmwt` restent utilisables au terminal avec les mêmes chemins.
 14. **Fait (29 septembre 2026) :** mises à jour dans l’application (section 14, recette R37) : signalement, installation au clic, vérification au démarrage puis toutes les 6 heures.
-15. **À décider :** Alt + PgUp et Alt + PgDn (navigation de commande en commande, section 8) sortent de la règle retenue des raccourcis directs (Ctrl + Maj + lettre, Alt + flèche). Garder cette exception, choisir un autre raccourci ou ne garder que la palette. De même, les nouvelles séquences Leader =, ! et Maj + flèche (section 7) n’ont pas de raccourci direct.
+15. **À décider :** Alt + PgUp et Alt + PgDn (navigation de commande en commande, section 8) sortent de la règle retenue des raccourcis directs (Ctrl + Maj + lettre, Alt + flèche). Garder cette exception, choisir un autre raccourci ou ne garder que la palette. De même, les nouvelles séquences Leader =, ! et Maj + flèche (section 7) et Leader puis chiffre (section 9) n’ont pas de raccourci direct.
 
 Ces décisions ne bloquent pas la compréhension du produit ; elles évitent de traiter un comportement accidentel comme une exigence validée.

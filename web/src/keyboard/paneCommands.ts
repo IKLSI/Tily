@@ -1,5 +1,6 @@
 import { Direction, paneInDirection } from '../components/paneNavigation'
 import { activeTab, activeWorkspace, type Tab } from '../model/session'
+import { useHostStore } from '../store/hostStore'
 import { useSessionStore } from '../store/sessionStore'
 import { useUiStore } from '../store/uiStore'
 import { endPaneZoom } from '../terminal/paneZoom'
@@ -32,6 +33,19 @@ export const swapPaneToward = (direction: Direction): void =>
     useSessionStore.getState().swapActivePane(target)
     requestAnimationFrame(() => focusPane(currentPaneId()))
   })
+
+const LAST_TAB_NUMBER = 9
+
+export const selectTabNumber = (number: number): void => {
+  const { session, selectTab } = useSessionStore.getState()
+  const tabs = session ? (activeWorkspace(session)?.tabs ?? []) : []
+  const tab = number === LAST_TAB_NUMBER ? tabs.at(-1) : tabs[number - 1]
+  if (tab) {
+    selectTab(tab.id)
+  } else {
+    useHostStore.getState().setStatus(`Pas d’onglet ${number} dans ce workspace.`)
+  }
+}
 
 export const equalizeActiveTab = (): void => {
   const tab = currentTab()
