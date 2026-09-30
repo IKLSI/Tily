@@ -386,7 +386,7 @@ Lancer un build ou des tests puis passer à une autre fenêtre : rien ne signala
 - Quand une commande Windows PowerShell ou PowerShell 7 d'au moins 10 secondes se termine et que Dock n'est pas la fenêtre active, Dock clignote dans la barre des tâches, même si la commande tournait dans l'onglet affiché. Pas de réglage en plus : c'est la case « Faire clignoter Dock dans la barre des tâches » des notifications d'agents, dont le libellé le précise désormais. Pas de son ni de notification Windows, pour rester discret.
 - Nouvelle commande de pont `attention.flash` ; l'hôte vérifie lui-même que la fenêtre est inactive et le réglage coché (`AttentionNotifier.FlashWhenInactive`).
 - Vérifié : build et 431 tests verts ; dans l'instance de dev, `attention.flash` est acceptée (une commande inconnue affiche bien « Commande inconnue »). Le clignotement lui-même ne s'observe pas par le débogage distant : à confirmer à l'usage.
-- **Convention proposée** complétée en section 15 de la spec (fin d'une commande longue).
+- **Convention proposée** complétée en section 12 de la spec (fin d'une commande longue).
 
 ## Reste à faire et idées
 
