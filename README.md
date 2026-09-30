@@ -18,12 +18,12 @@
 ## Fonctionnalités
 
 - **Workspaces libres** : un panneau en arborescence, repliable et redimensionnable, regroupe les workspaces et leurs onglets. Tout se renomme directement sur place (un onglet renommé peut reprendre le nom de son dossier), les workspaces se réordonnent, les onglets se dupliquent et se déplacent d’un workspace à l’autre, et un onglet fermé par erreur se rouvre.
-- **Vrais terminaux** : Windows PowerShell par défaut avec votre profil habituel, ses alias et ses fonctions ; PowerShell 7, CMD et Git Bash au clic droit sur « + » ; taille du texte réglable dans Paramètres.
+- **Vrais terminaux** : Windows PowerShell par défaut avec votre profil habituel, ses alias et ses fonctions ; PowerShell 7, CMD et Git Bash au clic droit sur « + » ; taille du texte réglable dans Paramètres ou depuis la palette ; historique de défilement effaçable depuis le menu du terminal.
 - **Splits** : plusieurs terminaux côte à côte ou l’un sous l’autre dans le même onglet, redimensionnables et navigables au clavier ; les égaliser, en échanger deux, sortir un terminal dans son propre onglet ou le ramener dans un autre onglet, sans jamais arrêter son processus.
 - **Palette Ctrl + P** : retrouver une commande, un workspace, un onglet ou un terminal en quelques lettres.
 - **Touche Leader Ctrl + Espace** : toutes les actions au clavier, sans gêner la saisie dans le terminal.
 - **Sélecteur de projets** : ouvrir un nouveau workspace directement dans un dossier de projet ou dans l’un de ses worktrees, ou, par Maj + Entrée, un nouvel onglet du workspace actif.
-- **Explorateur de fichiers** : parcourir le dossier du terminal actif dans un panneau à droite, avec l’état Git de chaque fichier (modifié, ajouté, non suivi…) et son diff à un clic droit, un bouton « Tout replier », et lire un fichier Markdown ou texte, ou voir une image, dans un aperçu rechargé à chaque modification ; « Ouvrir un fichier du projet… » dans la palette retrouve un fichier du dépôt par son nom.
+- **Explorateur de fichiers** : parcourir le dossier du terminal actif dans un panneau à droite, avec l’état Git de chaque fichier (modifié, ajouté, non suivi…) et son diff à un clic droit, un bouton « Tout replier », et lire un fichier Markdown ou texte, ou voir une image, dans un aperçu rechargé à chaque modification, rendu ou texte source pour le Markdown ; « Ouvrir un fichier du projet… » dans la palette retrouve un fichier du dépôt par son nom ou son chemin, les fichiers modifiés en tête, pour l’ouvrir dans l’éditeur, l’afficher dans l’arbre ou insérer son chemin dans le terminal.
 - **Notes par workspace** : garder des notes en texte brut (tâches, ports, commandes) dans la vue « Notes » du panneau de droite, enregistrées avec la session ; Ctrl + Entrée colle la ligne du curseur dans le terminal actif et Ctrl + Maj + Entrée l’exécute ; une icône signale les workspaces qui en ont.
 - **Journal des messages** : un clic sur la barre de statut, ou Ctrl + Maj + L, déplie l’historique horodaté de ses messages, conservé d’une session à l’autre.
 - **Branche visible** : l’en-tête de chaque terminal affiche la branche Git de son dossier, mise à jour après chaque commande ; un clic dessus ouvre la vue Git.
@@ -35,7 +35,7 @@
 - **Liens cliquables** : Ctrl + clic sur un lien affiché dans le terminal l’ouvre dans le navigateur ; Ctrl + clic sur un chemin de fichier (`src/app.ts:12:5`, `Program.cs(42,17)`) l’ouvre dans l’éditeur, à la bonne ligne avec VS Code et ses dérivés.
 - **Glisser-déposer** : déposer un fichier ou un dossier de l’Explorateur Windows, ou une ligne de l’arbre des fichiers de Dock, sur un terminal y insère son chemin.
 - **Mises à jour intégrées** : Dock signale une nouvelle version dans son en-tête, affiche ses nouveautés et l’installe en un clic avant de redémarrer.
-- **Session retrouvée** : workspaces, onglets, splits et texte des terminaux sont restaurés à la réouverture ; les préférences s’exportent et s’importent.
+- **Session retrouvée** : workspaces, onglets, splits et texte des terminaux sont restaurés à la réouverture, avec l’avant-dernier enregistrement en secours si la session a été abîmée (coupure de courant) ; les préférences s’exportent et s’importent.
 
 ## Aperçu
 

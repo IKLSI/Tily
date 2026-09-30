@@ -905,6 +905,12 @@ Onzième relecture indépendante (itérations 89 à 95), lancée à l’itérati
 - Écarté après vérification : la bascule « Source » ne survit pas à la fermeture de l’aperçu (le tiroir est démonté quand l’aperçu se ferme). Laissé tel quel : Ctrl + P ne bascule pas vers la palette depuis le sélecteur de fichiers (il est compté parmi les fenêtres modales).
 - Vérifié dans l’instance de dev (« web/src/App.tsx » trouvé, « split haut / bas » toujours trouvé dans la palette) ; 3 tests ajoutés (fichier indexé supprimé, dépôt imbriqué, limite de durée) ; 463 tests au vert.
 
+### 100. README à jour des nouveautés de fin de nuit
+
+Le README ne mentionnait ni l’effacement de l’historique de défilement (itération 86), ni la taille du texte depuis la palette (84), ni la vue source des Markdown (90), ni les possibilités du sélecteur de fichiers (92 à 95, 99), ni la session de secours (98).
+
+- Lignes « Vrais terminaux », « Explorateur de fichiers » et « Session retrouvée » complétées, sans nouvelle rubrique.
+
 ## Reste à faire et idées
 
 ### À décider par toi
