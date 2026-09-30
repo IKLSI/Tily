@@ -791,6 +791,15 @@ Un terminal restauré au démarrage ou après une longue sortie garde des millie
 - Au passage, espace manquante dans `GitHeader.tsx` (`undoTip =(`), reste d’une ancienne édition.
 - **Convention proposée** ajoutée en section 8 de la spec.
 
+### 87. En-tête des panes étroits : dernier dossier lisible, Fermer toujours visible
+
+Dans un pane étroit, le chemin de l’en-tête était coupé à la fin (`C:\Users\maxim\AppData\Lo…`), donc le dossier courant, la seule partie utile, disparaissait. Surtout, sous ~260 px de large, les boutons Split et Fermer sortaient de l’en-tête et n’étaient plus cliquables (constaté après trois splits côte à côte : panes de 158 px, bouton Fermer à droite du bord).
+
+- Le chemin est coupé en deux : le dossier parent se tronque, le dernier dossier reste entier (`C:\Users\m…\repo`) ; le chemin complet reste en infobulle.
+- Sous 280 px de large (requête de conteneur, comme la branche sous 520 px), Copier le chemin, Ouvrir dans l’éditeur, Ouvrir dans l’explorateur, Copier la branche et leur séparateur sont masqués : ils sont tous dans la palette. Split côte à côte, Split haut / bas et Fermer restent visibles.
+- Vérifié dans l’instance de dev avec quatre panes de 659, 325, 158 et 158 px : bouton Fermer dans l’en-tête pour les quatre, dernier dossier lisible à 659 et 325 px. À 158 px, il ne reste que quelques caractères pour le chemin, derrière le nom du shell.
+- **Convention proposée** complétée en section 11 de la spec (en-tête du pane).
+
 ## Reste à faire et idées
 
 ### À décider par toi

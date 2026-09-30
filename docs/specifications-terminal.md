@@ -338,7 +338,7 @@ Les actions utilisent le **dossier du pane actif**, jamais un hypothétique doss
 
 **Décision prise.** Montrer le chemin ciblé dans le menu ou la zone d’actions. Afficher explicitement « Aucun dépôt Git », « Aucune branche » ou « HEAD détachée » selon le contexte. Désactiver ou masquer les actions Git hors dépôt ; ne jamais afficher une branche fictive.
 
-**Convention proposée.** L’en-tête de chaque pane affiche la branche Git de son dossier, ou « HEAD détachée », à côté du chemin ; rien hors d’un dépôt. Elle est relue après chaque commande, pour suivre un `git switch` ou un `wtr`. Dans un pane de moins de 520 px de large, elle est masquée et reste lisible dans l’infobulle de « Copier la branche ». Dans la palette, l’entrée de chaque pane rappelle aussi sa branche, qu’on peut donc taper pour le retrouver.
+**Convention proposée.** L’en-tête de chaque pane affiche la branche Git de son dossier, ou « HEAD détachée », à côté du chemin ; rien hors d’un dépôt. Elle est relue après chaque commande, pour suivre un `git switch` ou un `wtr`. Dans un pane de moins de 520 px de large, elle est masquée et reste lisible dans l’infobulle de « Copier la branche ». Le chemin trop long est raccourci par le début, pour garder son dernier dossier lisible (`C:\Users\m…\repo`), et le chemin complet reste en infobulle. Dans un pane de moins de 280 px, les boutons Copier le chemin, Ouvrir dans l’éditeur, Ouvrir dans l’explorateur et Copier la branche sont masqués (ils restent dans la palette) pour que Split et Fermer restent visibles. Dans la palette, l’entrée de chaque pane rappelle aussi sa branche, qu’on peut donc taper pour le retrouver.
 
 ### Gestion des worktrees
 

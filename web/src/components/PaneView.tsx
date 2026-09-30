@@ -31,6 +31,7 @@ interface PaneViewProps {
 const HEADER_BUTTON = 'flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded hover:bg-dock-green-hover hover:text-dock-ink'
 const BUTTON_SELECTOR = 'button'
 const SINGLE_CLICK = 1
+const SECONDARY_BUTTON = `${HEADER_BUTTON} @max-[280px]:hidden`
 const MUTED_BUTTON = 'opacity-40 hover:bg-transparent hover:text-dock-muted'
 const ICON_SIZE = 12
 const ICON_PROPS = { width: ICON_SIZE, height: ICON_SIZE, viewBox: '0 0 12 12', fill: 'none', stroke: 'currentColor', strokeWidth: 1.2, strokeLinecap: 'round', strokeLinejoin: 'round' } as const
@@ -56,6 +57,12 @@ const FolderIcon = () => (
 )
 
 const DETACHED_LABEL = 'HEAD détachée'
+const LAST_FOLDER = /^(.+?)([\\/][^\\/]+[\\/]?)$/
+
+const pathParts = (path: string): { parent: string; folder: string } => {
+  const match = LAST_FOLDER.exec(path)
+  return match ? { parent: match[1], folder: match[2] } : { parent: '', folder: path }
+}
 
 const BranchIcon = () => (
   <svg {...ICON_PROPS} aria-hidden="true">
@@ -149,6 +156,7 @@ export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZ
   }
   const branchTitle = context?.branch ? `Copier la branche « ${context.branch} »` : gitSummary(context)
   const branchLabel = context?.branch ?? (context?.detachedHead ? DETACHED_LABEL : null)
+  const { parent, folder } = pathParts(pane.path)
 
   return (
     <section
@@ -163,8 +171,9 @@ export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZ
       >
         <span className="mr-1 font-semibold text-dock-ink">{pane.shell}</span>
         {agent && <AgentBadge agent={agent} />}
-        <span className="min-w-0 flex-1 truncate font-mono text-dock-green" data-tip={pane.path}>
-          {pane.path}
+        <span className="flex min-w-0 flex-1 font-mono whitespace-nowrap text-dock-green" data-tip={pane.path}>
+          {parent && <span className="min-w-[1.2em] truncate">{parent}</span>}
+          <span className={parent ? 'max-w-[calc(100%_-_1.2em)] shrink-0 truncate' : 'truncate'}>{folder}</span>
         </span>
         {branchLabel && (
           <button
@@ -178,19 +187,19 @@ export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZ
             <span className="truncate py-1 [text-box:trim-both_cap_alphabetic]">{branchLabel}</span>
           </button>
         )}
-        <button type="button" className={HEADER_BUTTON} data-tip={`Copier le chemin ${pane.path}`} aria-label="Copier le chemin" onClick={handleCopyPath}>
+        <button type="button" className={SECONDARY_BUTTON} data-tip={`Copier le chemin ${pane.path}`} aria-label="Copier le chemin" onClick={handleCopyPath}>
           <CopyIcon />
         </button>
-        <button type="button" className={HEADER_BUTTON} data-tip="Ouvrir dans l’éditeur" aria-label="Ouvrir dans l’éditeur" onClick={handleOpenEditor}>
+        <button type="button" className={SECONDARY_BUTTON} data-tip="Ouvrir dans l’éditeur" aria-label="Ouvrir dans l’éditeur" onClick={handleOpenEditor}>
           <EditorIcon />
         </button>
-        <button type="button" className={HEADER_BUTTON} data-tip="Ouvrir dans l’explorateur" aria-label="Ouvrir dans l’explorateur" onClick={handleOpenExplorer}>
+        <button type="button" className={SECONDARY_BUTTON} data-tip="Ouvrir dans l’explorateur" aria-label="Ouvrir dans l’explorateur" onClick={handleOpenExplorer}>
           <FolderIcon />
         </button>
-        <button type="button" className={`${HEADER_BUTTON} ${context?.branch ? '' : MUTED_BUTTON}`} data-tip={branchTitle} aria-label="Copier la branche Git" aria-disabled={!context?.branch} onClick={handleCopyBranch}>
+        <button type="button" className={`${SECONDARY_BUTTON} ${context?.branch ? '' : MUTED_BUTTON}`} data-tip={branchTitle} aria-label="Copier la branche Git" aria-disabled={!context?.branch} onClick={handleCopyBranch}>
           <BranchIcon />
         </button>
-        <span className="mx-1 h-3 w-px bg-dock-line" aria-hidden="true" />
+        <span className="mx-1 h-3 w-px bg-dock-line @max-[280px]:hidden" aria-hidden="true" />
         <button type="button" className={HEADER_BUTTON} data-tip="Split côte à côte" aria-label="Split côte à côte" onClick={ignoringRepeatedClicks(handleSplitSideBySide)}>
           <SplitIcon horizontal />
         </button>
