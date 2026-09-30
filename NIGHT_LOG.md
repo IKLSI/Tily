@@ -870,6 +870,12 @@ Le plus souvent, le fichier qu’on veut rouvrir est l’un de ceux sur lesquels
 - Vérifié dans l’instance de dev : les 6 fichiers modifiés ou non suivis du dépôt de test en tête, puis le reste par ordre alphabétique. Test ajouté (modifié, indexé, non suivi, supprimé) ; 460 tests au vert.
 - Spec (section 4), contrat du pont et architecture front complétés.
 
+### 96. Point d’étape : onzième relecture lancée
+
+- Relecture indépendante des itérations 89 à 95 lancée en arrière-plan ; ses corrections feront l’objet d’une itération dédiée.
+- « Reste à faire » complété : raccourci direct du sélecteur de fichiers à décider, idées de suite pour ce sélecteur (fichiers récents, aperçu direct).
+- Bilan HTML régénéré sur le Bureau.
+
 ## Reste à faire et idées
 
 ### À décider par toi
@@ -882,6 +888,7 @@ Le plus souvent, le fichier qu’on veut rouvrir est l’un de ceux sur lesquels
 - **Format du chemin relatif copié** : `src/app.ts` depuis la vue Git (format Git), `src\app.ts` depuis l'arbre des fichiers (format Windows). Harmoniser ou non ?
 - **Fermer un workspace de plus de cinq onglets** : la décision « conserver les cinq derniers onglets fermés » fait que les onglets au-delà sont perdus sans retour (constaté en fermant trois workspaces de test : « Général » n'était plus restaurable). Une confirmation, ou une limite plus haute pour ce cas, serait à décider.
 - **Taille du texte** (itérations 41 et 84) : réglable dans Paramètres et depuis la palette, en « Convention proposée » ; la police et un raccourci de zoom rapide restent à décider (section 4 de la spec).
+- **Ouvrir un fichier du projet** (itérations 92 à 95) : seulement depuis la palette, sans raccourci direct. Ctrl + P est déjà la palette ; un raccourci dédié (Leader puis une lettre libre, ou Ctrl + Maj + une lettre) reste à choisir avec le point 15 de la section 18.
 
 ### Limites connues
 
@@ -900,4 +907,5 @@ Le plus souvent, le fichier qu’on veut rouvrir est l’un de ceux sur lesquels
 ### Idées
 
 - Zoom rapide du texte (Ctrl + molette ou Ctrl + =, comme Windows Terminal) : la palette sait agrandir / réduire depuis l'itération 84, seul le raccourci reste à décider (point 15 de la section 18).
+- Sélecteur de fichiers : garder les fichiers ouverts récemment en tête (après les modifiés), et proposer l’aperçu Markdown directement depuis le sélecteur.
 - Tests web : aucun encore (décision du 21 septembre). Plusieurs fonctions pures ajoutées cette nuit s'y prêteraient : `findFileLinks` (le banc de 13 cas des itérations 44 et 54 en serait le point de départ), `equalizeNode`, `swapPanes`, `folderMarksOf`, `relativeEntryPath`, `formatCommandDuration`.
