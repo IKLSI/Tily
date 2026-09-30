@@ -16,13 +16,15 @@ Document de référence pour l’implémentation. Cette version remplace les sp�
 
 **Retenu.** Créer un véritable terminal Windows, organisé en workspaces libres, avec une interface légère permettant de naviguer rapidement entre plusieurs activités. L’utilisateur garde la liberté d’exécuter ses commandes, scripts et outils interactifs habituels.
 
-Le panneau de gauche présente les workspaces et leurs onglets. Les états d’agents fournissent des indications d’attention dans cette organisation. L’application ne distribue pas de tâches aux agents.
+Le panneau de gauche présente les workspaces et leurs onglets. Les états d’agents fournissent des indications d’attention dans cette organisation.
+
+**Retenu (30 septembre 2026, issue #118).** Le panneau de gauche bascule entre cette arborescence et une vue Agents, qui suit les agents de tous les workspaces, permet de leur répondre, d’en lancer un sur une tâche et de reprendre une session terminée (section 12, « Vue Agents »). La règle précédente, qui excluait toute interface dédiée aux agents et toute distribution de tâches, est levée.
 
 ### Hors périmètre actuel
 
 - Couche « Projet » obligatoire au-dessus des workspaces.
 - Maintien des agents ou serveurs en arrière-plan après fermeture de l’application ; reprise des processus après réouverture.
-- Orchestration de tâches entre agents ou interface de conversation dédiée aux agents.
+- Conversation complète d’un agent (transcript rendu) et orchestration entre agents (file de tâches, dépendances entre tâches) : la vue Agents s’en tient au résumé de chaque agent et au lancement d’un agent à la fois.
 - Création ou fermeture automatique de workspaces liée au cycle de vie des worktrees : seules les actions explicites de l’utilisateur en ouvrent ou en ferment (voir la gestion des worktrees en section 11).
 - Modèles de workspace et mode focus dédié.
 - Recherche globale dans le contenu des fichiers du projet.
@@ -55,7 +57,7 @@ Exemple : « Perso » peut contenir un terminal dans Documents, un autre dans un
 | Barre d’onglets | Onglets du workspace actif, bouton « + », actions compactes de split et actions du dossier. |
 | Zone de travail | Panes et séparateurs, occupant la hauteur restante. |
 | En-tête d’un pane | Shell, dossier courant et action de fermeture ; chemin tronqué si nécessaire et consultable intégralement. |
-| Panneau gauche | Workspaces, chevrons de dépliage, onglets enfants, accès aux projets et indications d’attention. |
+| Panneau gauche | Workspaces, chevrons de dépliage, onglets enfants, accès aux projets et indications d’attention ; ou, au choix, la vue Agents (section 12). |
 
 **Convention proposée.** Le titre de la fenêtre, visible dans la barre des tâches et Alt + Tab, reprend le workspace et l’onglet actifs : « workspace › onglet - Tily », ou « Tily » sans workspace.
 
@@ -314,6 +316,8 @@ Les séquences Leader sont consommées par l’application uniquement lorsqu’e
 
 **Convention proposée.** Leader puis L, ou Ctrl + Maj + L, ouvre ou ferme le journal de la barre de statut (section 4, « Journal de la barre de statut »).
 
+**Convention proposée.** Leader puis I, ou Ctrl + Maj + I, affiche la vue Agents du panneau de gauche, ou revient à la vue Workspaces (section 12, « Vue Agents »).
+
 **Convention proposée.** Ctrl + Tab et Ctrl + Maj + Tab passent à l’onglet suivant ou précédent du workspace actif, en boucle, comme dans Windows Terminal. Ces combinaisons n’envoient au shell que Tab ou Maj + Tab, qui restent disponibles sans Ctrl.
 
 **Convention proposée.** Leader puis B, ou Ctrl + Maj + B, masque ou affiche le panneau des workspaces (WS-08), en rendant le focus au terminal s’il était dans le panneau ; quand il l’affiche, le focus va à l’onglet actif dans le panneau. « Aller au panneau des workspaces », dans la palette, y amène le focus sans le masquer.
@@ -418,7 +422,32 @@ Les actions utilisent le **dossier du pane actif**, jamais un hypothétique doss
 
 **Convention proposée.** Leader puis A, Ctrl + Maj + A ou « Rejoindre l’agent en attente suivant » dans la palette rejoint le pane en attente qui suit le pane actif dans l’ordre de la palette, de l’attente la plus ancienne à la plus récente (ordre du panneau à égalité), tous workspaces confondus et en boucle ; répété, il passe d’une attente à l’autre. Sans agent en attente, la barre de statut l’indique.
 
-**Décision de périmètre.** L’architecture doit permettre des adaptateurs Claude Code et Codex CLI, mais leur détection fiable et leurs notifications sont reportées à une évolution dédiée. Tant qu’un adaptateur ne peut pas établir un état, afficher « État inconnu » plutôt que d’inférer une activité depuis le seul processus.
+**Décision de périmètre.** L’architecture permet des adaptateurs Claude Code et Codex CLI. Claude Code est suivi par ses hooks, que Tily installe depuis les Paramètres ; Codex CLI n’est reconnu que par son processus, et sa détection fiable est reportée à une évolution dédiée. Tant qu’un adaptateur ne peut pas établir un état, afficher « État inconnu » plutôt que d’inférer une activité depuis le seul processus.
+
+### Vue Agents
+
+**Retenu (30 septembre 2026, issue #118).** Le panneau de gauche porte deux vues : « Workspaces », l’arborescence des sections 4 et 5, et « Agents », un tableau de bord des agents de tous les workspaces, trié par urgence, où l’agent du pane actif est mis en avant. Pour chaque agent, la vue donne un résumé : le dernier message en entier, la question ou la permission en attente et l’action en cours, sans fil d’événements ni conversation complète. Elle permet aussi de répondre à un agent, d’en lancer un sur une tâche et de reprendre une session terminée. Seul Claude Code fournit ces informations ; Codex CLI garde « État inconnu » jusqu’à une évolution dédiée. Décisions de l’utilisateur :
+
+| Sujet | Décision |
+| --- | --- |
+| Répondre | Une permission propose « Autoriser », « Refuser… », avec une raison facultative transmise à Claude, qui continue son tour, et, quand Claude Code propose une règle, « Toujours », la règle étant affichée sur le bouton. Une question à choix unique se répond par ses options ; un message de suivi s’envoie depuis la carte de l’agent. |
+| Lancer | Depuis le dossier du pane actif, un projet, un nouveau worktree ou un worktree existant, avec une tâche et un mode de départ (Défaut, Plan, Modifications acceptées) mémorisé ; le modèle reste celui des réglages de Claude Code. Dans un nouveau worktree, Claude démarre dans le même terminal, après `pnpm install`. |
+| Orchestration | Un agent par lancement, sans file de tâches ni dépendances entre tâches. |
+| Historique | Les 50 dernières sessions Claude vues dans les terminaux de Tily, tous projets confondus, avec « Reprendre ». |
+| Redémarrage | Chaque pane restauré qui avait une session Claude la propose en « Reprendre », sans jamais la relancer seul. |
+| Cartes d’attention | Masquées tant que la vue Agents est affichée, puisqu’elle les remplace. |
+
+**Convention proposée.** Deux onglets, « Workspaces » et « Agents », remplacent le titre du panneau de gauche ; « Agents » porte le nombre d’agents en attente, et les boutons de l’en-tête changent avec la vue (projets, worktree et nouveau workspace ; « Nouvel agent »). La vue choisie est mémorisée dans la session avec la largeur et la visibilité du panneau, largeur partagée par les deux vues. Leader puis I, Ctrl + Maj + I ou « Afficher les agents » dans la palette affiche le panneau sur la vue Agents avec le focus, ou revient à la vue Workspaces quand la vue Agents est déjà affichée ; Leader puis B masque ou affiche toujours le panneau sur sa vue courante. Les gestes qui visent l’arborescence (« Aller au panneau des workspaces », glisser un onglet vers le panneau) affichent d’abord la vue Workspaces.
+
+**Convention proposée.** Les agents sont groupés par état : En attente (l’attente la plus ancienne d’abord, comme dans la palette), En erreur, En cours, Terminé, puis État inconnu ; un groupe vide n’apparaît pas. Chaque carte donne l’icône d’état, `workspace › onglet` (dossier et branche en infobulle), la durée dans l’état, le titre de la session (celui de `/rename`, sinon celui que génère Claude Code, sinon le premier prompt) et une ligne de résumé. Un clic déplie la carte ; Entrée ou « Rejoindre » rejoint le pane sans quitter la vue. Une carte dépliée ajoute l’action en cours (outil et cible), le dernier message en entier rendu en Markdown, les fichiers modifiés par l’agent avec leurs lignes ajoutées et supprimées (un clic rejoint le pane et ouvre le diff dans la vue Git), le contexte consommé (jetons de la dernière réponse, en pourcentage quand la fenêtre du modèle est connue) et la pull request liée. La carte de l’agent du pane actif est dépliée d’office ; ↑ / ↓ passent d’une carte à l’autre, Échap rend le focus au terminal. Sans agent, la vue invite à en lancer un.
+
+**Convention proposée.** L’hôte lit le transcript de chaque session suivie, dont les hooks lui donnent le chemin, par la fin, puis suit ses ajouts sans le relire en entier ; ce format est interne à Claude Code, et une information absente est simplement omise. L’état donné par les hooks est recoupé avec le registre des sessions de Claude Code (`~/.claude/sessions`) : un Échap ne déclenche aucun hook, et seul ce registre voit alors l’agent redevenir inactif.
+
+**Convention proposée.** Pour répondre, le hook PermissionRequest attend la réponse de la vue : le dialogue reste utilisable dans le terminal, et la première réponse l’emporte. Une question passe par le même hook, avec ses réponses dans `updatedInput`, s’il se déclenche pour elle ; sinon Tily tape les touches du dialogue. Le message de suivi est collé dans le champ de Claude, puis envoyé ; pendant que l’agent travaille, Claude Code le met en file. Avant tout envoi, l’hôte vérifie que l’agent attend toujours la même chose ; sinon, rien n’est envoyé et la barre de statut l’explique. Si une saisie est déjà commencée dans le champ de Claude, le message s’y ajoute.
+
+**Convention proposée.** « Nouvel agent », dans l’en-tête de la vue, ou « Lancer un agent… », dans la palette, ouvre un formulaire de la même famille que « Créer un worktree », qui propose de son côté « Lancer Claude Code avec une tâche ». Tily ouvre un nouvel onglet, un nouveau workspace ou un split (dernier choix mémorisé), y lance `claude --session-id <uuid>` pour connaître la session d’avance, puis colle la tâche dès que Claude Code active le collage délimité : la tâche garde ses sauts de ligne et échappe aux guillemets de Windows PowerShell 5.1.
+
+**Convention proposée.** L’historique, `agent-history.json` dans le dossier de données, garde pour chaque session son identifiant, son dossier, `workspace › onglet`, son titre, son début et sa fin, son dernier message, ses fichiers modifiés et son état final. Sa section, repliable, suit les agents vivants ; « Reprendre » ouvre un nouvel onglet dans le dossier de la session et y lance `claude --resume <id>`. Le bouton est grisé, avec la raison en infobulle, si le dossier n’existe plus, si Claude Code a effacé le transcript (30 jours par défaut) ou si la session tourne déjà. Après un redémarrage, un groupe « À reprendre » réunit les panes restaurés qui avaient une session Claude, avec « Reprendre ici », et l’en-tête de ces panes porte aussi « Reprendre Claude » jusqu’à la première commande tapée ; les anciennes sessions ne sont jamais présentées comme vivantes.
 
 ## 13. Sauvegarde, fermeture et restauration
 
@@ -430,7 +459,8 @@ Les actions utilisent le **dossier du pane actif**, jamais un hypothétique doss
 - Dispositions de splits, orientations, proportions et panes actifs.
 - Dossiers courants et shells utilisés.
 - Texte des anciennes sessions avec distinction visuelle à la réouverture.
-- Workspace et onglet actifs, largeur du panneau, panneau visible/replié et groupes dépliés/repliés.
+- Workspace et onglet actifs, largeur et vue du panneau (Workspaces ou Agents), panneau visible/replié et groupes dépliés/repliés.
+- Historique des sessions d’agents (section 12, « Vue Agents »).
 
 **Retenu.** Sauvegarder automatiquement la disposition pendant l’utilisation, sans attendre une fermeture normale. À la réouverture, restaurer l’environnement visuel et créer des shells neufs. Ne pas réexécuter les anciennes commandes et ne pas conserver volontairement les agents ou serveurs en arrière-plan après fermeture.
 
@@ -586,6 +616,10 @@ Ces scénarios définissent les vérifications à effectuer sur l’application 
 | R42 | Dans un dépôt de test avec des fichiers modifiés, non suivis et ignorés, un sous-module et un dépôt imbriqué, ouvrir « Ouvrir un fichier du projet… », puis tester Entrée, Alt + Entrée, Maj + Entrée (panneau fermé) et Ctrl + Entrée ; recommencer hors dépôt dans un gros dossier. | Fichiers modifiés puis récents en tête, ni fichiers ignorés, ni supprimés, ni sous-module, ni dépôt imbriqué ; éditeur, aperçu, arbre (panneau ouvert, focus sur le fichier) et chemin inséré ; hors dépôt, réponse en 3 secondes au plus et avertissement si la liste est incomplète (convention proposée, section 4). |
 | R43 | Dans un dépôt de test : Revert d’un commit, copie du diff d’un fichier puis `git apply` dans un clone, Ctrl + clic sur une ligne de diff, brouillon de commit gardé en changeant de dépôt, « Commit et push » (Ctrl + Maj + Entrée) avec un push refusé, « Rechercher un commit dans le graphe… » ; dans un dossier neuf, « Initialiser un dépôt Git ici ». | Chaque action aboutit ou explique son échec en français ; le commit reste fait quand seul le push échoue ; le commit recherché est sélectionné et centré ; le nouveau dépôt s’affiche aussitôt (conventions proposées, section 11). |
 | R44 | Enregistrer deux états successifs de la session (ouvrir un onglet entre les deux), fermer Tily, vider `session.json` à la main, relancer ; puis rendre `session.previous.json` en lecture seule et modifier la session. | L’avant-dernier état est restauré avec un avertissement et le fichier fautif mis de côté ; la session continue de s’enregistrer malgré la copie impossible (convention proposée, section 13). |
+| R45 | Lancer Claude Code dans trois onglets de deux workspaces ; provoquer une permission dans l’un et une question dans un autre ; afficher la vue Agents (Ctrl + Maj + I), rejoindre chaque agent, revenir à la vue Workspaces, puis interrompre un agent par Échap. | Agents groupés par état, l’attente la plus ancienne en tête, avec titre, dernier message entier, action en cours, fichiers modifiés et contexte ; « Rejoindre » active le bon pane sans quitter la vue ; les cartes d’attention restent masquées tant que la vue est affichée ; l’agent interrompu n’est plus affiché « En cours » (section 12, « Vue Agents »). |
+| R46 | Depuis la vue Agents : autoriser une commande, en refuser une autre avec une raison, choisir « Toujours » sur une troisième, répondre à une question à choix unique, envoyer un message pendant que l’agent travaille ; puis répondre dans le terminal à une permission affichée dans la vue. | Claude Code prend en compte chaque réponse, reçoit la raison du refus sans arrêter son tour et enregistre la règle « Toujours » ; le message part en file ; la réponse donnée dans le terminal retire la demande de la vue, sans envoi tardif. |
+| R47 | Lancer un agent sur une tâche de plusieurs lignes qui contient des guillemets, dans le dossier du pane actif, puis dans un nouveau worktree en mode Plan. | La tâche arrive intacte dans Claude Code ; dans le worktree, Claude démarre dans le même terminal après `pnpm install`, en mode Plan ; la carte de l’agent apparaît dès son démarrage. |
+| R48 | Terminer deux sessions Claude, fermer puis rouvrir Tily ; reprendre une session depuis « À reprendre », une autre depuis l’historique, puis supprimer le worktree d’une troisième session. | L’historique liste les sessions avec leur titre ; les panes restaurés proposent « Reprendre » sans relancer Claude d’eux-mêmes ; chaque reprise rouvre la bonne conversation ; la session du worktree supprimé ne peut plus être reprise et l’infobulle l’explique. |
 
 ## 18. Décisions restantes avant développement
 
@@ -597,12 +631,13 @@ Ces scénarios définissent les vérifications à effectuer sur l’application 
 6. **Fait :** Leader Ctrl + Espace, délai de 5 s, mapping personnalisable ; navigation spatiale.
 7. **Fait :** JSON, préférences/session/historique séparés, import par remplacement.
 8. **Fait :** noms automatiques dossier, branche absente/HEAD détachée et actions Git indisponibles hors dépôt ; contrat wtr/rmwt documenté.
-9. **Reporté :** implémenter les adaptateurs Claude Code/Codex CLI et définir leurs événements fiables dans une évolution dédiée.
+9. **Fait pour Claude Code**, suivi par ses hooks ; **reporté pour Codex CLI** : définir ses événements fiables dans une évolution dédiée.
 10. **Fait :** critères mesurables de performance et versions minimales de Windows consignés en section 15 à l’issue du spike.
 11. **À décider :** sur un onglet de la barre ou une ligne du panneau des workspaces qui a le focus, Alt + flèche déplace cet élément au lieu de changer de pane comme le prévoit le tableau retenu de la section 9 (conventions proposées des sections 5, 6 et 9). Garder cette exception ou la retirer.
 12. **À décider :** la « Décision prise » de la section 5 demande une confirmation pour supprimer un workspace « lorsqu’il contient des onglets ou des processus actifs ». Aujourd’hui, « Fermer le workspace » (menu du panneau, palette) ne confirme que si des programmes tournent : un workspace de plus de cinq onglets inactifs se ferme sans confirmation et ses onglets au-delà des cinq derniers ne sont plus restaurables. Préciser si la confirmation doit porter sur tout workspace qui contient des onglets.
 13. **Fait (29 septembre 2026) :** gestion native des worktrees (section 11, recettes R31 à R33) ; `wtr` et `rmwt` restent utilisables au terminal avec les mêmes chemins.
 14. **Fait (29 septembre 2026) :** mises à jour dans l’application (section 14, recette R37) : signalement, installation au clic, vérification au démarrage puis toutes les 6 heures.
 15. **À décider :** Alt + PgUp et Alt + PgDn (navigation de commande en commande, section 8) sortent de la règle retenue des raccourcis directs (Ctrl + Maj + lettre, Alt + flèche). Garder cette exception, choisir un autre raccourci ou ne garder que la palette. De même, les nouvelles séquences Leader =, ! et Maj + flèche (section 7) et Leader puis chiffre (section 9) n’ont pas de raccourci direct, pas plus que « Ouvrir un fichier du projet… » (section 4), accessible seulement depuis la palette.
+16. **Décidé (30 septembre 2026, issue #118) :** vue Agents du panneau de gauche (section 12, « Vue Agents », recettes R45 à R48). **À vérifier** avant d’implémenter les réponses : que le dialogue de permission reste utilisable dans le terminal pendant que le hook PermissionRequest attend. **Vérifié :** un Échap laisse aujourd’hui l’agent affiché « En cours » ou « En attente », faute de hook (issue #121).
 
 Ces décisions ne bloquent pas la compréhension du produit ; elles évitent de traiter un comportement accidentel comme une exigence validée.
