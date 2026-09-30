@@ -351,6 +351,18 @@ Le menu d'une ligne d'onglet du panneau ne proposait que « Fermer l'onglet », 
 - Vérifié dans l'instance de dev : les deux entrées apparaissent, grisées pour un workspace d'un seul onglet.
 - Convention de la section 6 complétée.
 
+### 35. README à jour des nouveautés de la nuit
+
+Le README ne mentionnait que certaines nouveautés, au fil des itérations.
+
+- La liste des fonctionnalités couvre maintenant :
+  - les opérations sur les panes : égaliser, échanger, sortir, ramener ;
+  - la sortie des commandes : copie et navigation ;
+  - la fin de commande qui cite la commande ;
+  - les liens de fichiers du terminal ;
+  - la copie du diff Git.
+- Le paragraphe des raccourcis ajoute Ctrl + C / Ctrl + Maj + C dans l'arbre des fichiers et le double-clic dans la barre d'onglets.
+
 ## Reste à faire et idées
 
 ### À décider par toi
