@@ -972,6 +972,15 @@ Point laissé à l’itération 106 : hors dépôt, la limite de 3 secondes, l�
 - Les trois vérifications ont lieu à chaque entrée lue : le parcours s’arrête au plus tard à la limite, et la liste est signalée incomplète.
 - Tests existants toujours verts (limite de durée nulle, plafond de 2 fichiers) ; 464 tests au vert.
 
+### 108. Aperçu d’un fichier depuis le sélecteur de fichiers
+
+Idée notée au point d’étape 96 : pour relire un Markdown ou un fichier texte trouvé dans le sélecteur, il fallait l’ouvrir dans l’éditeur, ou l’afficher dans l’arbre puis appuyer sur Entrée.
+
+- Alt + Entrée ouvre le fichier dans l’aperçu de Dock (Markdown rendu, texte coloré, image), en ouvrant au besoin le panneau sur la vue Fichiers ; le fichier compte parmi les récents. Le pied du sélecteur rappelle les quatre actions.
+- `SearchDialog` gagne `onRunAlt` (Alt + Entrée), inutilisé ailleurs.
+- Test ajouté pour l’itération 107 : un seul dossier de 30 fichiers avec un plafond de 3 s’arrête dedans et signale la liste incomplète.
+- Vérifié dans l’instance de dev : « readme », Alt + Entrée → aperçu Markdown du README, panneau ouvert, focus dans l’arbre. 465 tests au vert.
+
 ## Reste à faire et idées
 
 ### À décider par toi
@@ -1003,5 +1012,5 @@ Point laissé à l’itération 106 : hors dépôt, la limite de 3 secondes, l�
 ### Idées
 
 - Zoom rapide du texte (Ctrl + molette ou Ctrl + =, comme Windows Terminal) : la palette sait agrandir / réduire depuis l'itération 84, seul le raccourci reste à décider (point 15 de la section 18).
-- Sélecteur de fichiers : proposer l’aperçu Markdown directement depuis le sélecteur ; garder les fichiers récents (itération 101) d’une ouverture de Dock à l’autre.
+- Sélecteur de fichiers : garder les fichiers récents (itération 101) d’une ouverture de Dock à l’autre.
 - Tests web : aucun encore (décision du 21 septembre). Plusieurs fonctions pures ajoutées cette nuit s'y prêteraient : `findFileLinks` (le banc de 13 cas des itérations 44 et 54 en serait le point de départ), `equalizeNode`, `swapPanes`, `folderMarksOf`, `relativeEntryPath`, `formatCommandDuration`.

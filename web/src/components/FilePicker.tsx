@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useShallow } from 'zustand/react/shallow'
-import { closeFilePicker, insertProjectFilePath, openProjectFile, revealProjectFile } from '../explorer/projectFileActions'
+import { closeFilePicker, insertProjectFilePath, openProjectFile, previewProjectFile, revealProjectFile } from '../explorer/projectFileActions'
 import type { SearchItem } from '../palette/searchFilter'
 import { recentKey, useFilePickerStore, type ProjectFileList } from '../store/filePickerStore'
 import { SearchDialog } from './SearchDialog'
@@ -10,7 +10,7 @@ const LAST_SEPARATOR = /^(.*)\\([^\\]+)$/
 const LOADING = 'Chargement des fichiers…'
 const NO_MATCH = 'Aucun fichier ne correspond à la recherche.'
 const TRUNCATED = 'Liste incomplète (plus de 20 000 fichiers, ou parcours hors dépôt arrêté après 3 secondes) : un fichier absent de la liste ne peut pas être trouvé ici.'
-const FOOTER = 'Entrée : ouvrir dans l’éditeur · Maj + Entrée : afficher dans l’arbre · Ctrl + Entrée : insérer le chemin dans le terminal'
+const FOOTER = 'Entrée : éditeur · Alt + Entrée : aperçu · Maj + Entrée : afficher dans l’arbre · Ctrl + Entrée : insérer le chemin dans le terminal'
 
 const CHANGED_HINT = 'modifié'
 const RECENT_HINT = 'récent'
@@ -59,6 +59,7 @@ export function FilePicker() {
   const handleRun = (item: SearchItem) => openProjectFile(root, item.id)
   const handleRunAlternate = (item: SearchItem) => revealProjectFile(root, item.id)
   const handleRunControl = (item: SearchItem) => insertProjectFilePath(root, item.id)
+  const handleRunAlt = (item: SearchItem) => previewProjectFile(root, item.id)
 
   return (
     <SearchDialog
@@ -71,6 +72,7 @@ export function FilePicker() {
       onRun={handleRun}
       onRunAlternate={handleRunAlternate}
       onRunControl={handleRunControl}
+      onRunAlt={handleRunAlt}
       footer={FOOTER}
       notice={list?.truncated ? TRUNCATED : null}
     />

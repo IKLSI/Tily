@@ -1,7 +1,8 @@
 import { bridge } from '../bridge/bridge'
 import type { HostMessageOf } from '../bridge/messages'
-import { activePane, activeTab, activeWorkspace, folderName } from '../model/session'
-import { revealInFileTree } from '../panel/rightPanel'
+import { activePane, activeTab, activeWorkspace, folderName, RightPanelView } from '../model/session'
+import { openPanelView, revealInFileTree } from '../panel/rightPanel'
+import { openPreview } from '../preview/previewActions'
 import { useFilePickerStore } from '../store/filePickerStore'
 import { useHostStore } from '../store/hostStore'
 import { useSessionStore } from '../store/sessionStore'
@@ -34,6 +35,13 @@ export const openProjectFile = (root: string, relative: string): void => {
   bridge.send({ type: 'files.open', path })
   useHostStore.getState().setStatus(`Ouverture dans l’éditeur : ${folderName(path)}`)
   focusActivePane()
+}
+
+export const previewProjectFile = (root: string, relative: string): void => {
+  useFilePickerStore.getState().remember(root, relative)
+  useFilePickerStore.getState().close()
+  openPanelView(RightPanelView.Files)
+  openPreview(fullPath(root, relative))
 }
 
 export const insertProjectFilePath = (root: string, relative: string): void => {

@@ -58,6 +58,21 @@ public sealed class ProjectFilesTests : IDisposable
     }
 
     [Fact]
+    public void List_WhenSingleFolderHasTooManyFiles_ThenStopsInsideItAndSignalsTruncation()
+    {
+        Directory.CreateDirectory(_folder);
+        for (var index = 0; index < 30; index++)
+        {
+            File.WriteAllText(Path.Combine(_folder, $"f{index:00}.txt"), "x");
+        }
+
+        var listing = ProjectFiles.List(new GitRunner(), _folder, 3);
+
+        Assert.Equal(3, listing.Files.Count);
+        Assert.True(listing.Truncated);
+    }
+
+    [Fact]
     public void List_WhenPlainFolderTakesTooLong_ThenSignalsTruncation()
     {
         Directory.CreateDirectory(Path.Combine(_folder, "a"));

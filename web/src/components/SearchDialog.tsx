@@ -11,6 +11,7 @@ interface SearchDialogProps<T extends SearchItem> {
   onRun: (item: T) => void
   onRunAlternate?: (item: T) => void
   onRunControl?: (item: T) => void
+  onRunAlt?: (item: T) => void
   footer?: string
   onToggleFavorite?: (item: T) => void
   notice?: string | null
@@ -20,7 +21,7 @@ interface SearchDialogProps<T extends SearchItem> {
 const RESULT_ID_PREFIX = 'search-result-'
 const LISTBOX_ID = 'search-results'
 
-export function SearchDialog<T extends SearchItem>({ label, placeholder, emptyMessage, items, onClose, onRun, onRunAlternate, onRunControl, footer, onToggleFavorite, notice, maxResults }: SearchDialogProps<T>) {
+export function SearchDialog<T extends SearchItem>({ label, placeholder, emptyMessage, items, onClose, onRun, onRunAlternate, onRunControl, onRunAlt, footer, onToggleFavorite, notice, maxResults }: SearchDialogProps<T>) {
   const [query, setQuery] = useState('')
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const listRef = useRef<HTMLDivElement>(null)
@@ -56,6 +57,11 @@ export function SearchDialog<T extends SearchItem>({ label, placeholder, emptyMe
         onToggleFavorite?.(selectedItem)
       } else if (selectedItem) {
         onRunControl?.(selectedItem)
+      }
+    } else if (event.key === 'Enter' && event.altKey && onRunAlt) {
+      event.preventDefault()
+      if (selectedItem) {
+        onRunAlt(selectedItem)
       }
     } else if (event.key === 'Enter') {
       event.preventDefault()
