@@ -702,6 +702,13 @@ Défaut antérieur à la nuit, relevé à l'itération 73 : quand « Commit et p
 - Build `Release` de toute la solution (configuration de l'installeur) après les 74 itérations : réussi, sans aucun avertissement.
 - README : le paragraphe des raccourcis mentionne F5 dans la vue Git, Ctrl + Entrée (commit) et Ctrl + Maj + Entrée (commit puis push) dans le message de commit.
 
+### 76. Raison du push en échec après « Commit et push »
+
+Suite de l'itération 74 : quand le push échouait après un commit réussi, seul « Le push a échoué. » s'affichait ; la raison donnée par Git (dépôt distant introuvable, réseau, authentification) était perdue.
+
+- `git.done` peut porter la sortie de Git d'une étape secondaire en échec (`output`, champ `Output` de `GitOutcomeModel`) ; la vue Git l'affiche dans son bandeau d'échec habituel, sous le message.
+- Vérifié dans l'instance de dev avec le dépôt jetable dont le distant n'existe pas : bandeau « Commit 12991ad créé : « Ajouter b ». Push impossible : Le push a échoué. » suivi de `fatal: '…inexistant.git' does not appear to be a git repository`. 445 tests verts ; contrat du pont mis à jour.
+
 ## Reste à faire et idées
 
 ### À décider par toi

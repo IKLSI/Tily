@@ -106,7 +106,7 @@ export default function App() {
       bridge.on('git.history', (message) => receiveGitHistory(message.history, message.error)),
       bridge.on('git.diff', (message) => receiveGitDiff(message.request, message.result, message.error)),
       bridge.on('git.details', (message) => receiveGitDetails(message.request, message.result, message.error)),
-      bridge.on('git.done', (message) => receiveGitDone(message.operation, message.message, message.warning)),
+      bridge.on('git.done', (message) => receiveGitDone(message.operation, message.message, message.warning, message.output)),
       bridge.on('git.failed', (message) => receiveGitFailed(message.operation, message.message, message.output, message.code)),
       bridge.on('git.pushRejected', (message) => receiveGitPushRejected(message.operation, message.branch, message.message, message.output)),
       bridge.on('git.autoFetchStarted', (message) => receiveGitAutoFetchStarted(message.path)),

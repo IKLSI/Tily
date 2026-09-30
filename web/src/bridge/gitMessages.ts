@@ -246,7 +246,7 @@ export type GitHostMessage =
   | { type: 'git.history'; history: GitHistory; error?: string }
   | { type: 'git.diff'; request: number; result?: GitDiff; error?: string }
   | { type: 'git.details'; request: number; result?: GitCommitDetails; error?: string }
-  | { type: 'git.done'; operation: string; message: string; warning: boolean }
+  | { type: 'git.done'; operation: string; message: string; warning: boolean; output?: string }
   | { type: 'git.failed'; operation: string; message: string; output?: string; code?: GitFailureCode }
   | { type: 'git.pushRejected'; operation: string; branch: string; message: string; output: string }
   | { type: 'git.autoFetchStarted'; path: string }

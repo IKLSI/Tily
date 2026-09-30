@@ -68,7 +68,7 @@ export const receiveGitAutoFetchStarted = (path: string): void => {
 
 export const receiveGitAutoFetchEnded = (): void => finishBusy(AUTO_FETCH_OPERATION)
 
-export const receiveGitDone = (operation: string, message: string, warning: boolean): void => {
+export const receiveGitDone = (operation: string, message: string, warning: boolean, output: string | undefined): void => {
   finishBusy(operation)
   const store = useGitStore.getState()
   takeRetry(operation)
@@ -84,6 +84,9 @@ export const receiveGitDone = (operation: string, message: string, warning: bool
   }
   if (operation === 'git.refsDelete') {
     clearRefSelection()
+  }
+  if (output) {
+    store.setFailure({ message, output })
   }
   useHostStore.getState().setStatus(message, warning ? StatusLevel.Warning : StatusLevel.Info)
 }

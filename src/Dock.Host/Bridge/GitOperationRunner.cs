@@ -80,7 +80,7 @@ public sealed class GitOperationRunner
             repository = _open(command.Path);
             var outcome = action(repository);
             Journal.Apply(repository.Root, outcome);
-            _post(new { type = "git.done", operation = command.Type, message = outcome.Message, warning = outcome.Warning });
+            _post(new { type = "git.done", operation = command.Type, message = outcome.Message, warning = outcome.Warning, output = outcome.Output });
         }
         catch (GitPushRejectedException rejected)
         {
@@ -157,7 +157,7 @@ public sealed class GitOperationRunner
         }
         catch (GitCommandException failure) when (failure is not GitPushRejectedException)
         {
-            return new GitOutcomeModel($"{committed.Message} Push impossible : {failure.Message}", true);
+            return new GitOutcomeModel($"{committed.Message} Push impossible : {failure.Message}", true, Output: failure.Output.Length > 0 ? failure.Output : null);
         }
     }
 
