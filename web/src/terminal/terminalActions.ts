@@ -56,6 +56,8 @@ export const scrollPaneToCommand = (paneId: string, direction: CommandDirection)
   }
 }
 
+export const isPaneOnAlternateScreen = (paneId: string): boolean => terminalRegistry.get(paneId)?.terminal.buffer.active.type === 'alternate'
+
 export const hasPaneSelection = (paneId: string): boolean => terminalRegistry.get(paneId)?.terminal.hasSelection() ?? false
 
 export const copyPaneSelection = (paneId: string): void => {

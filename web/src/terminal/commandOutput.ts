@@ -12,6 +12,9 @@ const SAME_ROW = 0
 const MAX_COMMAND_MARKS = 500
 const CONTEXT_ROWS = 2
 const COMMAND_TAIL_CHARS = 24
+const MIN_SEARCH_TAIL_CHARS = 6
+const COMMAND_END_CHARS = 3
+const ALTERNATE_BUFFER = 'alternate'
 const ROW_SEARCH_OFFSETS = [0, -1, 1, -2, 2, -3, 3]
 const LINE_BREAK = /\r?\n/
 
@@ -66,19 +69,29 @@ const startOutput = (track: CommandTrack, marker: IMarker | undefined, offset: n
 
 const withoutSpaces = (text: string): string => text.replace(/\s+/g, '')
 
-const firstOutputRow =(buffer: IBuffer, start: OutputStart): number => {
+const firstOutputRow = (buffer: IBuffer, start: OutputStart): number => {
   const expected = start.marker.line + start.offset
   const tail = withoutSpaces(start.command.split(LINE_BREAK).at(-1) ?? '').slice(-COMMAND_TAIL_CHARS)
   if (tail.length === 0) {
     return expected
   }
   const rowText = (row: number): string => buffer.getLine(row)?.translateToString(true) ?? ''
-  const endsCommand = (row: number): boolean => rowText(row).trim().length > 0 && withoutSpaces(rowText(row - 2) + rowText(row - 1) + rowText(row)).endsWith(tail)
-  const commandRow = ROW_SEARCH_OFFSETS.map((delta) => expected - 1 + delta).find(endsCommand)
+  const holdsCommand = (row: number): boolean =>
+    withoutSpaces(rowText(row)).includes(tail.slice(-COMMAND_END_CHARS)) && withoutSpaces(rowText(row - 2) + rowText(row - 1) + rowText(row)).includes(tail)
+  if (holdsCommand(expected - 1)) {
+    return expected
+  }
+  const endsWithCommand = (row: number): boolean => withoutSpaces(rowText(row)).endsWith(tail)
+  const commandRow = ROW_SEARCH_OFFSETS.map((delta) => expected - 1 + delta).find(tail.length < MIN_SEARCH_TAIL_CHARS ? endsWithCommand : holdsCommand)
   return commandRow === undefined ? expected : commandRow + 1
 }
 
+const isLive = (marker: IMarker): boolean => !marker.isDisposed && marker.line >= 0
+
 const rememberCommand = (track: CommandTrack, terminal: Terminal, start: OutputStart): void => {
+  if (!isLive(start.marker)) {
+    return
+  }
   const buffer = terminal.buffer.active
   const marker = terminal.registerMarker(start.marker.line - (buffer.baseY + buffer.cursorY))
   if (marker) {
@@ -90,7 +103,10 @@ const rememberCommand = (track: CommandTrack, terminal: Terminal, start: OutputS
 }
 
 export const scrollToCommand = (terminal: Terminal, direction: CommandDirection): boolean => {
-  const buffer = terminal.buffer.active
+  if (terminal.buffer.active.type === ALTERNATE_BUFFER) {
+    return true
+  }
+  const buffer = terminal.buffer.normal
   const top = buffer.viewportY
   const tops = (tracks.get(terminal)?.commands ?? [])
     .filter((command) => !command.marker.isDisposed && command.marker.line >= 0)
@@ -114,10 +130,9 @@ export const trackCommandOutput = (terminal: Terminal): void => {
     if (!track.prompted || track.running || !data.includes(ENTER)) {
       return
     }
-    if (track.announcesExecution) {
-      track.typedStart?.dispose()
-      track.typedStart = terminal.registerMarker(0) ?? null
-    } else if (!track.outputStart) {
+    track.typedStart?.dispose()
+    track.typedStart = terminal.registerMarker(0) ?? null
+    if (!track.announcesExecution && !track.outputStart) {
       startOutput(track, terminal.registerMarker(0), NEXT_ROW)
     }
   })
@@ -145,10 +160,12 @@ export const trackCommandOutput = (terminal: Terminal): void => {
       track.running = true
       track.settling = null
       const command = decodeCommandText(value)
-      if (track.typedStart) {
-        startOutput(track, track.typedStart, NEXT_ROW, command)
-        track.typedStart = null
+      const typed = track.typedStart
+      track.typedStart = null
+      if (typed && isLive(typed)) {
+        startOutput(track, typed, NEXT_ROW, command)
       } else {
+        typed?.dispose()
         startOutput(track, terminal.registerMarker(0), terminal.buffer.active.cursorX === 0 ? SAME_ROW : NEXT_ROW, command)
       }
     }

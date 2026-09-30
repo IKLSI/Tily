@@ -295,6 +295,21 @@ Geste attendu des navigateurs et de Windows Terminal : double-cliquer dans l'esp
 - Une troisième relecture indépendante (itérations 20 à 27) tourne en parallèle ; ses constats seront traités à l'itération suivante.
 - **Convention proposée** en section 6 de la spec.
 
+### 29. Troisième relecture indépendante (itérations 20 à 27) et corrections
+
+Le sous-agent a rejoué `commandOutput.ts` avec xterm.js sans interface dans un dossier temporaire. Il a relevé 1 défaut important et 5 mineurs, tous corrigés :
+
+- **Important : invite qui affiche du texte à droite** (l'heure d'un thème oh-my-posh, par exemple). La ligne de commande devient `PS> ls      10:32:05` et ne se termine plus par la commande. Le recalage de l'itération 20 cherchait alors ailleurs et prenait `Directory: …`, qui se termine par `ls` : la copie perdait deux lignes, et Alt + PgUp s'arrêtait trop bas. Désormais :
+  - la ligne attendue est testée en premier, par « contient » plutôt que « se termine par » ;
+  - ailleurs, la recherche exige que la ligne se termine par la commande quand sa fin est courte (moins de 6 caractères, comme `}` ou `ls`) ;
+  - dans tous les cas, la ligne candidate doit contenir les 3 derniers caractères de la commande, sans quoi une ligne de sortie glissée juste en dessous passait pour la commande.
+- **`cls`** : il effaçait le repère de départ, et la navigation gardait un repère fantôme par `cls`. Les repères effacés sont maintenant ignorés, y compris celui de l'Entrée à l'annonce `exec`.
+- **Première commande de chaque terminal** : elle n'utilisait pas encore le repère posé à l'Entrée. C'est corrigé.
+- **Écran alternatif** (`less`, vim) : Alt + PgUp / PgDn est laissé à l'application au lieu d'être avalé.
+- **Graphe Git dans une fenêtre étroite** : si l'utilisateur avait fermé la colonne des branches, le premier clic sur son bouton semblait sans effet. Il l'affiche maintenant tout de suite.
+- **Aperçu d'image** : la taille réelle ne s'applique plus à l'image suivante.
+- Vérifié dans l'instance de dev avec un scénario rejouable (`scen.sh` du scratchpad), avec l'invite normale puis avec une invite qui affiche `10:32:05` à droite par positionnement du curseur. Les 10 copies sont justes : trois sorties longues qui font défiler l'écran (`LONGUE-n` en tête), `ls` (en tête `Directory: …`), et le bloc `if` multiligne (`dans le bloc`).
+
 ## Reste à faire et idées
 
 ### À décider par toi

@@ -272,12 +272,15 @@ export const handleDocumentShortcut = (event: KeyboardEvent): void => {
 const isReservedShortcut = (event: KeyboardEvent): boolean =>
   isLeaderChord(event) || isCloseWindow(event) || isCopy(event) || isPaste(event) || directCommand(event) !== undefined
 
+const COMMAND_NAVIGATION = new Set([Command.PreviousCommand, Command.NextCommand])
+
 export interface ShortcutActions {
   hasSelection: () => boolean
   copySelection: () => void
   pasteClipboard: () => void
   hasAgent: () => boolean
   insertAgentLineBreak: () => void
+  usesAlternateScreen: () => boolean
 }
 
 export const handleTerminalKey = (event: KeyboardEvent, actions: ShortcutActions): boolean => {
@@ -320,7 +323,7 @@ const decide = (event: KeyboardEvent, actions: ShortcutActions): boolean => {
     return false
   }
   const command = directCommand(event)
-  if (command) {
+  if (command && !(COMMAND_NAVIGATION.has(command) && actions.usesAlternateScreen())) {
     runCommand(command)
     return false
   }

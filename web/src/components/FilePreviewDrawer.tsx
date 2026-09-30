@@ -56,10 +56,11 @@ export function FilePreviewDrawer() {
   const bodyRef = useRef<HTMLDivElement>(null)
   const html = useMemo(() => renderedHtml(preview), [preview])
   const [image, setImage] = useState<{ src: string; size: string } | null>(null)
-  const [actualSize, setActualSize] = useState(false)
+  const [actualSource, setActualSource] = useState<string | null>(null)
   const handleImageLoad = (event: SyntheticEvent<HTMLImageElement>) =>
     setImage({ src: event.currentTarget.getAttribute('src') ?? '', size: `${event.currentTarget.naturalWidth} × ${event.currentTarget.naturalHeight}` })
-  const handleToggleActualSize = () => setActualSize(!actualSize)
+  const actualSize = actualSource !== null && actualSource === preview?.content
+  const handleToggleActualSize = () => setActualSource(actualSize ? null : (preview?.content ?? null))
   const imageSize = image && image.src === preview?.content ? image.size : null
 
   useEffect(() => {

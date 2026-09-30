@@ -55,6 +55,7 @@ export function GitGraphView({ layout }: GitGraphViewProps) {
     if (cramped && layout.referencesOpen) {
       setForced(!forced)
     } else {
+      setForced(cramped)
       useSessionStore.getState().setGitGraphLayout({ referencesOpen: !layout.referencesOpen })
     }
   }
