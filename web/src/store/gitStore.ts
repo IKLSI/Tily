@@ -107,6 +107,7 @@ interface GitViewState {
   confirmation: GitConfirmation | null
   prompt: GitPrompt | null
   message: string
+  drafts: Record<string, string>
   amend: boolean
   drag: GitDrag | null
   menu: GitMenuRequest | null
@@ -144,6 +145,11 @@ const closedDrawer = { file: null, diff: null, diffError: null, diffSelection: e
 const noSelection = { ...closedDrawer, commit: null, details: null, detailsError: null }
 const emptySelection: GitSelection = { keys: new Set(), anchor: null }
 
+const draftsWith = (drafts: Record<string, string>, root: string, message: string): Record<string, string> => {
+  const rest = Object.fromEntries(Object.entries(drafts).filter(([key]) => key !== root))
+  return message.trim().length > 0 ? { ...rest, [root]: message } : rest
+}
+
 export const useGitStore = create<GitViewState>()((set) => ({
   path: '',
   resolved: '',
@@ -165,6 +171,7 @@ export const useGitStore = create<GitViewState>()((set) => ({
   confirmation: null,
   prompt: null,
   message: '',
+  drafts: {},
   amend: false,
   drag: null,
   menu: null,
@@ -177,9 +184,10 @@ export const useGitStore = create<GitViewState>()((set) => ({
         return current
       }
       const sameRepository = Boolean(state && current.state?.root === state.root)
+      const drafts = current.state && !current.amend ? draftsWith(current.drafts, current.state.root, current.message) : current.drafts
       return sameRepository
         ? { state, error, resolved: path }
-        : { state, error, resolved: path, history: null, historyError: null, historyCount: HISTORY_PAGE, reveal: null, message: '', amend: false, prompt: null, rejection: null, failure: null, menu: null, drag: null, changeSelection: emptySelection, refSelection: emptySelection, ...noSelection }
+        : { state, error, resolved: path, history: null, historyError: null, historyCount: HISTORY_PAGE, reveal: null, message: state ? (drafts[state.root] ?? '') : '', drafts, amend: false, prompt: null, rejection: null, failure: null, menu: null, drag: null, changeSelection: emptySelection, refSelection: emptySelection, ...noSelection }
     }),
   setGraphOpen: (graphOpen) => set({ graphOpen }),
   receiveHistory: (history, historyError) => set((current) => (current.state?.root === history.root ? { history, historyError } : current)),

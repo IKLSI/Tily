@@ -553,6 +553,13 @@ Rien n'indiquait qu'un message de commit dépassait la longueur usuelle de la pr
 - Vérifié dans l'instance de dev : « Corriger le lien » → `16` en gris ; message de 90 caractères → `90` en orange, infobulle « Première ligne de 90 caractères : au-delà de 72, elle est coupée par la plupart des outils Git ».
 - Point à décider ajouté au « Reste à faire » : fermer un workspace de plus de cinq onglets en perd une partie (limite des cinq onglets fermés conservés), constaté pendant le test de l'itération 56.
 
+### 58. Brouillon du message de commit gardé par dépôt
+
+Passer sur un onglet d'un autre dépôt (ou hors dépôt) vidait le message de commit en cours de rédaction, sans retour possible : un message soigné était perdu au moindre changement d'onglet.
+
+- Chaque dépôt garde son brouillon (en mémoire, pour la session de Dock) : en quittant un dépôt, le message non vide est mis de côté ; en y revenant, il est restauré. Un message vide efface le brouillon, donc un commit réussi ne laisse rien derrière lui. Le mode Amend n'est pas mis de côté (il repart décoché, comme avant).
+- Vérifié dans l'instance de dev : « Brouillon à garder » saisi dans `repo`, Ctrl + Tab vers `xt` (hors dépôt), Ctrl + Tab retour → message restauré.
+
 ## Reste à faire et idées
 
 ### À décider par toi
