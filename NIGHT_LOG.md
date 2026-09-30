@@ -919,6 +919,15 @@ Idée notée au point d’étape 96 : un fichier qu’on vient d’ouvrir depuis
 - Vérifié dans l’instance de dev : `terminalRegistry.ts` ouvert, puis sélecteur rouvert → « terminalRegistry.ts · récent · web\src\terminal » juste après les 6 fichiers modifiés. Lint et build au vert.
 - Spec (section 4) et architecture front complétées.
 
+### 102. Rechercher un commit dans le graphe Git
+
+Le graphe liste des centaines de commits sans moyen d’en retrouver un par son message, son SHA ou son auteur : il fallait défiler.
+
+- Nouvelle entrée de palette « Rechercher un commit dans le graphe… » (dès qu’un historique est chargé) : le même sélecteur que la palette, sur les commits déjà chargés par le graphe (200 au départ, davantage en défilant, hors stash), message en libellé et « SHA court · auteur · date » en indice ; la recherche porte aussi sur le SHA complet, l’adresse de l’auteur et les noms de branches et de tags. Le pied rappelle combien de commits sont chargés et si des plus anciens manquent.
+- Entrée ouvre la vue Git sur le graphe (panneau rouvert au besoin), sélectionne le commit, le centre et affiche son détail, avec le focus dans le graphe.
+- Vérifié dans l’instance de dev : « session.json illisible » → commit f9e3509 sélectionné, centré, détail affiché, focus dans le graphe. Un premier essai laissait le panneau fermé : `showPanelView` ne rouvre pas un panneau fermé, remplacé par `openPanelView`. Lint et build au vert.
+- **Convention proposée** en section 11 de la spec ; architecture front complétée.
+
 ## Reste à faire et idées
 
 ### À décider par toi

@@ -8,6 +8,7 @@ import { openPanelView } from '../panel/rightPanel'
 import { refreshFolders } from '../explorer/fileExplorerActions'
 import { openFilePicker } from '../explorer/projectFileActions'
 import { refreshRepository } from '../git/gitRequests'
+import { canSearchCommits, openCommitPicker } from '../git/commitSearch'
 import { useAgentStore } from '../store/agentStore'
 import { useExplorerStore } from '../store/explorerStore'
 import { useHostStore } from '../store/hostStore'
@@ -119,6 +120,7 @@ const commandItems = (session: Session, shells: ShellProfile[]): PaletteItem[] =
       command('collapse-files', 'Tout replier dans l’arbre des fichiers', () => useExplorerStore.getState().collapseUnder(activePane(tab).path)),
       ...fontSizeItems(),
       command('refresh-files', 'Actualiser l’arbre des fichiers', () => showAndRun(RightPanelView.Files, refreshFolders), 'F5 dans l’arbre'),
+      ...(canSearchCommits() ? [command('search-commit', 'Rechercher un commit dans le graphe…', openCommitPicker)] : []),
       command('refresh-git', 'Actualiser la vue Git', () => showAndRun(RightPanelView.Git, refreshRepository), 'F5 dans la vue Git'),
     )
     const context = useHostStore.getState().contexts[paneId]
