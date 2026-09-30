@@ -8,13 +8,14 @@ Version HTML de ce journal, avec un sommaire des itérations : `file:///C:/Users
 
 ## En bref
 
-108 itérations, dont 12 relectures indépendantes suivies de leurs corrections ; 465 tests .NET au vert à la dernière vérification. Les décisions qui te reviennent sont listées en fin de journal, sous « À décider par toi ».
+114 itérations, dont 13 relectures indépendantes suivies de leurs corrections ; 467 tests .NET au vert à la dernière vérification. Scénarios de recette R40 à R44 ajoutés à la spec pour essayer à la main les nouveautés. Les décisions qui te reviennent sont listées en fin de journal, sous « À décider par toi ».
 
-- **Terminaux et panes** : égaliser les panes, sortir un pane dans un nouvel onglet ou le déplacer vers un autre onglet ou workspace, échanger deux panes, aller à l’onglet N (Leader puis chiffre), taille du texte (Paramètres et palette), effacer l’historique de défilement, confirmation avant un collage de plusieurs lignes, en-tête lisible dans les panes étroits.
+- **Terminaux et panes** : égaliser les panes, sortir un pane dans un nouvel onglet ou le déplacer vers un autre onglet ou workspace, échanger deux panes, aller à l’onglet N (Leader puis chiffre), taille du texte (Paramètres et palette), effacer l’historique de défilement, confirmation avant un collage de plusieurs lignes, en-tête lisible dans les panes étroits ; menus d’onglet avec « Déplacer vers « workspace » » et « Copier le chemin ».
 - **Commandes** : copier la sortie de la dernière commande, naviguer de commande en commande (Alt + PgUp / PgDn), fin d’une commande longue signalée sur l’onglet, le workspace, la barre de statut et la barre des tâches, Ctrl + clic sur un chemin de fichier (avec ligne et colonne) pour l’ouvrir dans l’éditeur.
 - **Fichiers** : état Git dans l’arbre, aperçu des images et source des Markdown, F5, « Tout replier », copier le chemin relatif, voir les modifications d’un fichier, ouvrir un terminal dans son dossier ; nouveau sélecteur « Ouvrir un fichier du projet… » (fichiers modifiés et récents en tête, éditeur, aperçu, arbre ou insertion du chemin).
 - **Git** : Revert, copier le diff, Ctrl + clic dans un diff vers la ligne du fichier, brouillon de commit gardé par dépôt, compteur de la première ligne, Commit et push par Ctrl + Maj + Entrée (push en échec expliqué), F5, ouvrir la vue d’un clic sur la branche d’un terminal, rechercher un commit dans le graphe, initialiser un dépôt.
 - **Notes et palette** : envoyer ou exécuter une ligne des notes (Ctrl + Entrée, Ctrl + Maj + Entrée), panes et onglets homonymes distingués dans la palette.
+- **Paramètres** : éditeur introuvable signalé, bouton « Afficher les fichiers » de réglages.
 - **Fiabilité** : session protégée contre les coupures de courant (écriture forcée sur disque et copie de l’avant-dernier enregistrement), messages d’erreur imprévus en français, dialogues qui ne perdent plus une saisie sur un clic à côté, nombreuses corrections d’accessibilité (annonces aux lecteurs d’écran, focus rendu au bon endroit).
 
 ## Itérations
@@ -1027,6 +1028,16 @@ La matrice de recette (section 17 de la spec) s’arrêtait à R39 : aucun scén
 - Cinq scénarios ajoutés, R40 à R44, sans renuméroter les précédents : panes (égaliser, échanger, sortir et ramener, effacer l’historique, panes étroits), commandes (fin en arrière-plan, sortie copiée, navigation, Ctrl + clic sur un chemin), sélecteur de fichiers (y compris sous-modules, dépôts imbriqués et parcours hors dépôt), vue Git (Revert, diff copié, commit et push refusé, recherche de commit, initialisation), session abîmée.
 - Chacun renvoie aux conventions proposées qu’il vérifie.
 - Treizième relecture indépendante (itérations 103 à 112) lancée en arrière-plan ; ses corrections suivront.
+
+### 114. Corrections de la treizième relecture
+
+Treizième relecture indépendante (itérations 104 à 112), lancée à l’itération 113 : trois défauts réels et quelques points mineurs.
+
+- **Alt + Entrée bloqué sur « Chargement de l’aperçu… »** pour un fichier sans aperçu (`.ts`, `.cs`, `.js`…) : l’hôte levait une erreur au lieu de répondre. Il renvoie désormais un aperçu en erreur, « Aperçu indisponible pour ce type de fichier : … « Ouvrir dans l’éditeur » l’ouvre dans l’éditeur. », sans badge de type trompeur. Test mis à jour.
+- **Note perdue en déplaçant le dernier onglet d’un workspace** (par le menu, la palette ou le glisser-déposer) : le workspace vidé disparaissait avec sa note, sans retour possible. Sa note est maintenant ajoutée à la fin de celle du workspace cible, sous son nom (bornée à la taille maximale d’une note).
+- **Dépôt refusé par Git pris pour « aucun dépôt »** (propriété douteuse, `.git` invalide) : la vue proposait « Initialiser un dépôt Git ici », qui pouvait créer un `.git` imbriqué et laissait la barre de statut sur « Initialisation… ». La vue affiche maintenant l’erreur de Git (« Dépôt Git illisible dans … : … », nouveau `GitRepository.AccessProblem`), l’initialisation la refuse, un dépôt créé mais illisible est signalé, et le drapeau d’initialisation est oublié quand on change de dossier. 2 tests ajoutés.
+- Mineurs : « En bref » mis à jour (114 itérations, Paramètres, menus d’onglet) ; README (aperçu depuis le sélecteur) ; contrat hôte précisé sur l’échec de la copie de secours. Laissés : le focus n’est pas rendu après une action du menu d’onglet (comme avant pour « Déplacer à gauche / droite ») ; Alt + Entrée n’a été essayé que par frappes injectées, à confirmer au clavier réel ; deux workspaces homonymes donnent deux entrées indiscernables, comme dans la palette.
+- Vérifié dans l’instance de dev (Alt + Entrée sur `terminalRegistry.ts` → message dans l’aperçu) ; 467 tests au vert.
 
 ## Reste à faire et idées
 

@@ -92,7 +92,7 @@ export function FilePreviewDrawer() {
   return (
     <aside aria-label="Aperçu du fichier" data-preview-drawer="" className="absolute inset-y-0 right-0 z-20 flex w-[min(920px,100%)] flex-col border-l border-dock-line bg-dock-panel shadow-2xl" onKeyDown={handleKeyDown}>
       <header className="flex h-[36px] shrink-0 items-center gap-[8px] border-b border-dock-line pr-[6px] pl-[12px]">
-        {preview && <span className="shrink-0 rounded bg-dock-paper px-[6px] py-[1px] text-[11px] text-dock-muted">{preview.kind === PreviewKind.Image && imageSize ? `${KIND_LABELS[preview.kind]} · ${imageSize}` : KIND_LABELS[preview.kind]}</span>}
+        {preview && !preview.error && <span className="shrink-0 rounded bg-dock-paper px-[6px] py-[1px] text-[11px] text-dock-muted">{preview.kind === PreviewKind.Image && imageSize ? `${KIND_LABELS[preview.kind]} · ${imageSize}` : KIND_LABELS[preview.kind]}</span>}
         <span className="min-w-0 flex-1 truncate text-[12px] font-semibold text-dock-ink" data-tip={path}>
           {name}
         </span>

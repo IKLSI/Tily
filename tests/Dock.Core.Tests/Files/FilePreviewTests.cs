@@ -102,13 +102,14 @@ public sealed class FilePreviewTests : IDisposable
     }
 
     [Fact]
-    public void Read_WhenTypeNotPreviewable_ThenRefusesInFrench()
+    public void Read_WhenTypeNotPreviewable_ThenExplainsInFrenchWithoutContent()
     {
         var path = Write("Program.cs", Encoding.UTF8.GetBytes("class A {}"));
 
-        var exception = Assert.Throws<InvalidOperationException>(() => FilePreview.Read(path));
+        var preview = FilePreview.Read(path);
 
-        Assert.Equal("Aperçu indisponible pour ce type de fichier : Program.cs", exception.Message);
+        Assert.Equal("Aperçu indisponible pour ce type de fichier : Program.cs. « Ouvrir dans l’éditeur » l’ouvre dans l’éditeur.", preview.Error);
+        Assert.Empty(preview.Content);
     }
 
     private string Write(string name, byte[] bytes)

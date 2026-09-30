@@ -19,6 +19,28 @@ public sealed class GitReadTests : IDisposable
     }
 
     [Fact]
+    public void AccessProblem_WhenOutsideOrInsideRepository_ThenNone()
+    {
+        var folder = Path.Combine(_sandbox.Root, "hors dépôt");
+        Directory.CreateDirectory(folder);
+
+        Assert.Null(GitRepository.AccessProblem(_sandbox.Runner, folder));
+        Assert.Null(GitRepository.AccessProblem(_sandbox.Runner, _sandbox.Work));
+    }
+
+    [Fact]
+    public void AccessProblem_WhenGitFileInvalid_ThenGivesGitDetails()
+    {
+        var folder = Path.Combine(_sandbox.Root, "dépôt abîmé");
+        Directory.CreateDirectory(folder);
+        File.WriteAllText(Path.Combine(folder, ".git"), "n'importe quoi");
+
+        var problem = GitRepository.AccessProblem(_sandbox.Runner, folder);
+
+        Assert.Contains("invalid gitfile format", problem);
+    }
+
+    [Fact]
     public void Run_WhenFolderMissing_ThenFailsInFrench()
     {
         var missing = Path.Combine(_sandbox.Root, "disparu");

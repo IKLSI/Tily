@@ -53,16 +53,19 @@ export const copyToClipboard = (text: string, done: string): void => {
     .catch(() => useHostStore.getState().setStatus('Copie dans le presse-papiers impossible.', StatusLevel.Error))
 }
 
+let initializing: string | null = null
+
 export const followRepository = (path: string): void => {
   if (useGitStore.getState().path !== path) {
+    if (initializing !== path) {
+      initializing = null
+    }
     useGitStore.getState().follow(path)
     bridge.send({ type: 'git.watch', path })
   }
 }
 
 export const refreshRepository = (): void => bridge.send({ type: 'git.refresh' })
-
-let initializing: string | null = null
 
 export const takeInitialized = (path: string): boolean => {
   const initialized = initializing === path

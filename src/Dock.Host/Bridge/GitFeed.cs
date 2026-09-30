@@ -115,7 +115,7 @@ public sealed class GitFeed : IDisposable
 
         if (location is null)
         {
-            _post(new { type = "git.state", path, error = GitRunner.IsInstalled ? null : MissingGit });
+            _post(new { type = "git.state", path, error = GitRunner.IsInstalled ? Inaccessible(path) : MissingGit });
             return;
         }
 
@@ -130,6 +130,12 @@ public sealed class GitFeed : IDisposable
     {
         try
         {
+            if (Inaccessible(path) is { } problem)
+            {
+                _post(new { type = "git.state", path, error = problem });
+                return;
+            }
+
             if (GitRepository.Locate(_runner, path) is null)
             {
                 GitRepository.Require(_runner.Run(path, ["init"]), $"Initialisation d’un dépôt Git impossible dans {path}.");
@@ -141,8 +147,17 @@ public sealed class GitFeed : IDisposable
             return;
         }
 
+        if (GitRepository.Locate(_runner, path) is null)
+        {
+            _post(new { type = "git.state", path, error = Inaccessible(path) ?? $"Le dépôt créé dans {path} reste illisible par Git." });
+            return;
+        }
+
         Follow(path);
     }
+
+    private string? Inaccessible(string path) =>
+        GitRepository.AccessProblem(_runner, path) is { } problem ? $"Dépôt Git illisible dans {path} : {problem}" : null;
 
     public void RefreshSoon() => ScheduleRefresh();
 

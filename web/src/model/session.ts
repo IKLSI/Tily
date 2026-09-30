@@ -132,6 +132,9 @@ export const notePreview = (note: string | undefined): string => {
   return line.length > NOTE_PREVIEW_CHARS ? `${line.slice(0, NOTE_PREVIEW_CHARS - 1)}…` : line
 }
 
+export const mergedNote = (note: string | undefined, movedFrom: string, moved: string): string =>
+  (note ? `${note}\n\n${movedFrom} :\n${moved}` : moved).slice(0, NOTE_MAX_CHARS)
+
 export const isLeaf = (node: SplitNode): node is SplitLeaf => 'pane' in node
 
 const newId = (): string => crypto.randomUUID().replace(/-/g, '')

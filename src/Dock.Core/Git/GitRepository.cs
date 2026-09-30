@@ -10,6 +10,8 @@ public sealed class GitRepository
         Location = location;
     }
 
+    private const string NotRepository = "not a git repository";
+
     public GitLocationModel Location { get; }
 
     public string Root => Location.Root;
@@ -29,6 +31,17 @@ public sealed class GitRepository
         }
 
         return new GitLocationModel(NormalizePath(lines[0]), NormalizePath(lines[1]), NormalizePath(lines[2]));
+    }
+
+    public static string? AccessProblem(GitRunner runner, string folder)
+    {
+        if (string.IsNullOrWhiteSpace(folder) || !Directory.Exists(folder))
+        {
+            return null;
+        }
+
+        var output = runner.Run(folder, ["rev-parse", "--git-dir"], new GitRunOptionsModel(NeutralLocale: true));
+        return output.Succeeded || output.Error.Contains(NotRepository, StringComparison.OrdinalIgnoreCase) ? null : output.Details;
     }
 
     public static GitRepository Open(GitRunner runner, string folder) =>

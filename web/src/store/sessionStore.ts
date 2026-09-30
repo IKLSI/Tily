@@ -18,6 +18,7 @@ import {
   EXPLORER_MIN,
   findWorkspace,
   folderName,
+  mergedNote,
   NOTE_MAX_CHARS,
   panesOf,
   pruneNode,
@@ -300,6 +301,9 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
         }
         const [tab] = source.tabs.splice(source.tabs.findIndex((candidate) => candidate.id === tabId), 1)
         if (source.tabs.length === 0 && source !== target) {
+          if (source.note) {
+            target.note = mergedNote(target.note, source.name, source.note)
+          }
           draft.workspaces = draft.workspaces.filter((candidate) => candidate !== source)
         } else if (source.active === tabId && source !== target) {
           source.active = source.tabs[0].id
