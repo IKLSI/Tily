@@ -343,6 +343,14 @@ Le menu d'un onglet proposait « Fermer les autres onglets », mais pas « Ferme
 - Vérifié dans l'instance de dev : sur le premier de trois onglets, l'entrée ferme les deux suivants.
 - Convention de la section 6 complétée.
 
+### 34. Mêmes fermetures d'onglets dans le panneau des workspaces
+
+Le menu d'une ligne d'onglet du panneau ne proposait que « Fermer l'onglet », alors que celui de la barre d'onglets offre aussi « Fermer les autres onglets » et, depuis l'itération 33, « Fermer les onglets à droite ».
+
+- Le menu du panneau propose « Fermer les autres onglets » et « Fermer les onglets en dessous », l'équivalent de « à droite » dans une liste verticale. Ce sont les mêmes actions, avec la même confirmation.
+- Vérifié dans l'instance de dev : les deux entrées apparaissent, grisées pour un workspace d'un seul onglet.
+- Convention de la section 6 complétée.
+
 ## Reste à faire et idées
 
 ### À décider par toi
