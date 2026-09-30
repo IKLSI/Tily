@@ -51,7 +51,7 @@ export function FileExplorer({ root, onOpenTerminal }: FileExplorerProps) {
         <button type="button" className={PANEL_HEADER_BUTTON} aria-label="Tout replier" data-tip="Tout replier" aria-disabled={!anyExpanded} onClick={handleCollapseAll}>
           <Icon name={IconName.CollapseAll} />
         </button>
-        <button type="button" className={PANEL_HEADER_BUTTON} aria-label="Actualiser" data-tip="Actualiser" onClick={refreshFolders}>
+        <button type="button" className={PANEL_HEADER_BUTTON} aria-label="Actualiser" data-tip="Actualiser (F5 dans l’arbre)" onClick={refreshFolders}>
           <Icon name={IconName.Refresh} />
         </button>
       </div>

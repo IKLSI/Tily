@@ -171,6 +171,8 @@ export function FileTree({ root, rows, expanded, selectedPath, renamingPath, dra
       closePreview()
     } else if (event.key === 'Escape') {
       focusActivePane()
+    } else if (event.key === 'F5') {
+      refreshFolders()
     } else if (typed) {
       jumpToTyped(typed)
     } else if (!current || !entry) {

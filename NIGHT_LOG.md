@@ -621,6 +621,14 @@ L'en-tête de chaque terminal affiche sa branche Git, mais ce n'était qu'un tex
 - README complété : diff d'un fichier depuis l'arbre et bouton « Tout replier » (explorateur), clic sur la branche d'un terminal pour ouvrir la vue Git, affichage d'un fichier modifié dans l'arbre et brouillon de commit gardé par dépôt (vue Git).
 - Bilan HTML de la nuit régénéré sur le Bureau.
 
+### 66. F5 actualise l'arbre des fichiers
+
+L'arbre des fichiers se met à jour tout seul, mais quand un dossier réseau ou un outil externe échappe à la surveillance, il fallait viser le petit bouton « Actualiser ».
+
+- F5, dans l'arbre des fichiers, relit les dossiers affichés, comme dans l'Explorateur Windows ; le raccourci est indiqué dans le menu (« Actualiser F5 ») et l'infobulle du bouton. Les raccourcis du navigateur étant désactivés dans la WebView, F5 ne recharge jamais l'interface.
+- Vérifié dans l'instance de dev : fichier créé sur le disque, focus dans l'arbre, F5 → l'interface n'est pas rechargée (une variable posée avant survit) et le fichier apparaît.
+- Banc des 10 scénarios réels de copie de sortie rejoué avant cette itération : toujours justes.
+
 ## Reste à faire et idées
 
 ### À décider par toi

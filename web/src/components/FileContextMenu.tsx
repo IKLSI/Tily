@@ -34,7 +34,7 @@ const itemsFor = ({ entry, parent }: FileMenuRequest, changed: boolean, actions:
       { id: 'new-folder', label: 'Nouveau dossier', run: () => actions.newEntry(parent, EntryKind.Folder) },
       { id: 'terminal', label: 'Ouvrir un terminal ici', run: () => actions.openTerminal(parent) },
       { id: 'copy-path', label: 'Copier le chemin', run: () => actions.copyPath(parent) },
-      { id: 'refresh', label: 'Actualiser', run: actions.refresh },
+      { id: 'refresh', label: 'Actualiser', detail: <MenuShortcut keys="F5" />, run: actions.refresh },
     ]
   }
   const folder = entry.isDirectory ? entry.path : parent
