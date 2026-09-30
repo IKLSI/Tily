@@ -1,5 +1,8 @@
 import { focusActivePane, focusFileRow, focusFileTree } from '../explorer/fileExplorerActions'
+import { GitDiffSource, type GitFileChange } from '../bridge/gitMessages'
 import { focusGitPanel, requestGraphFocus } from '../git/gitFocus'
+import { absolutePath } from '../git/gitLabels'
+import { showChange } from '../git/gitRequests'
 import { activePane, activeTab, activeWorkspace, RightPanelView } from '../model/session'
 import { useExplorerStore } from '../store/explorerStore'
 import { useGitStore } from '../store/gitStore'
@@ -90,6 +93,28 @@ export const revealInFileTree = (path: string): void => {
   explorer.select(file)
   showPanelView(RightPanelView.Files)
   setTimeout(() => focusRevealedRow(file, REVEAL_ATTEMPTS), REVEAL_RETRY_MS)
+}
+
+const CHANGE_ATTEMPTS = 60
+
+const showFoundChange = (target: string, attempts: number): void => {
+  const { state } = useGitStore.getState()
+  const find = (changes: GitFileChange[]): GitFileChange | undefined =>
+    state ? changes.find((change) => withBackslashes(absolutePath(state.root, change.path)).toLowerCase() === target) : undefined
+  const unstaged = find(state?.unstaged ?? [])
+  const change = unstaged ?? find(state?.staged ?? [])
+  if (change) {
+    showChange(change, unstaged ? GitDiffSource.Unstaged : GitDiffSource.Staged)
+  } else if (attempts > 1) {
+    setTimeout(() => showFoundChange(target, attempts - 1), REVEAL_RETRY_MS)
+  } else {
+    useHostStore.getState().setStatus('Aucune modification Git de ce fichier à afficher.')
+  }
+}
+
+export const showFileChanges = (path: string): void => {
+  showPanelView(RightPanelView.Git)
+  showFoundChange(withBackslashes(path).toLowerCase(), CHANGE_ATTEMPTS)
 }
 
 export const openWorkspaceNotes = (workspaceId: string): void => {

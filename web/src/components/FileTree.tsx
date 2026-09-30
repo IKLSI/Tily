@@ -21,6 +21,7 @@ import { closePreview, openPreview } from '../preview/previewActions'
 import { usePreviewStore } from '../store/previewStore'
 import { useExplorerStore, type EntryDraft } from '../store/explorerStore'
 import { markKey } from '../explorer/gitMarks'
+import { showFileChanges } from '../panel/rightPanel'
 import { FileContextMenu, type FileMenuActions } from './FileContextMenu'
 import { FileTreeRow } from './FileTreeRow'
 import { leafIndent, type FileMenuRequest, type FileTreeHandlers } from './fileTreeHandlers'
@@ -120,6 +121,7 @@ export function FileTree({ root, rows, expanded, selectedPath, renamingPath, dra
     copyRelativePath: (path) => copyEntryPath(relativeEntryPath(root, path)),
     insertPath: insertPathInActivePane,
     reveal: revealInExplorer,
+    showChanges: showFileChanges,
     openFolder: openFolderInEditor,
     refresh: refreshFolders,
   }
@@ -246,7 +248,7 @@ export function FileTree({ root, rows, expanded, selectedPath, renamingPath, dra
           )
         })}
       </div>
-      {menu && <FileContextMenu request={menu} actions={menuActions} onDismiss={handleDismissMenu} />}
+      {menu && <FileContextMenu request={menu} changed={Boolean(menu.entry && gitMarks.get(markKey(menu.entry.path)))} actions={menuActions} onDismiss={handleDismissMenu} />}
     </>
   )
 }

@@ -586,6 +586,14 @@ Depuis la vue Git, rien ne permettait de retrouver un fichier modifié dans l'ar
 - La barre d'invite Git (nom de branche, tag, stash) a été vérifiée : elle ne se ferme que par Annuler ou Échap, pas de perte de saisie. Une septième relecture (itérations 52 à 60) tourne en parallèle.
 - **Convention proposée** en section 4 de la spec.
 
+### 62. Voir les modifications d'un fichier depuis l'arbre
+
+L'inverse de l'itération 61 : l'arbre des fichiers marque les fichiers modifiés (M, A, U…) mais n'ouvrait pas leur diff.
+
+- Le menu d'un fichier marqué propose « Voir les modifications » : la vue Git s'ouvre et affiche son diff, Unstaged s'il en a, sinon Staged. L'état Git n'étant chargé qu'à l'ouverture de la vue Git, le diff s'affiche dès que cet état arrive (3 secondes au plus, sinon un message l'explique).
+- Vérifié dans l'instance de dev : menu de `README.md` (M) → vue Git ouverte sur le diff Unstaged de `README.md`. Le premier essai affichait « Aucune modification » parce que l'état Git n'était pas encore chargé ; corrigé par l'attente.
+- **Convention proposée** complétée en section 4 de la spec.
+
 ## Reste à faire et idées
 
 ### À décider par toi
