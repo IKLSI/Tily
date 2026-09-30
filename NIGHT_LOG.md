@@ -772,6 +772,12 @@ Changer la taille du texte des terminaux (itération 41) demandait d'ouvrir les 
 - Vérifié : 450 tests ; dans l'instance de dev, « Agrandir » → 15 px appliqués et écrits, « par défaut » → 14 px. Banc des 10 scénarios réels de copie de sortie rejoué avant l'itération : toujours justes.
 - **Convention proposée** complétée en section 4 de la spec ; contrat du pont mis à jour.
 
+### 85. Point d'étape avant le réveil
+
+- Vérifié : les Paramètres redemandent les réglages à l'hôte à chaque ouverture, donc une taille de texte changée depuis la palette (itération 84) y apparaît bien et n'est pas écrasée par un ancien instantané.
+- « Reste à faire » resserré : messages d'erreur imprévus, taille du texte (Paramètres et palette), limite des jonctions étendue aux marques Git de l'arbre.
+- Bilan HTML régénéré sur le Bureau.
+
 ## Reste à faire et idées
 
 ### À décider par toi
@@ -783,7 +789,7 @@ Changer la taille du texte des terminaux (itération 41) demandait d'ouvrir les 
 - **Leader puis un chiffre en AZERTY belge** : la touche 8 y donne `!`, donc Leader puis 8 sort le pane (Leader puis Maj + 8 affiche l'onglet 8). Compromis voulu pour que `!` marche sur tous les claviers.
 - **Format du chemin relatif copié** : `src/app.ts` depuis la vue Git (format Git), `src\app.ts` depuis l'arbre des fichiers (format Windows). Harmoniser ou non ?
 - **Fermer un workspace de plus de cinq onglets** : la décision « conserver les cinq derniers onglets fermés » fait que les onglets au-delà sont perdus sans retour (constaté en fermant trois workspaces de test : « Général » n'était plus restaurable). Une confirmation, ou une limite plus haute pour ce cas, serait à décider.
-- **Taille du texte** (itération 41) : réglée en « Convention proposée » ; la police et un zoom rapide restent à décider (section 4 de la spec).
+- **Taille du texte** (itérations 41 et 84) : réglable dans Paramètres et depuis la palette, en « Convention proposée » ; la police et un raccourci de zoom rapide restent à décider (section 4 de la spec).
 
 ### Limites connues
 
@@ -793,9 +799,9 @@ Changer la taille du texte des terminaux (itération 41) demandait d'ouvrir les 
   - après un redimensionnement, l'invite repliée peut se redessiner de travers jusqu'à la commande suivante.
 - **Copie de sortie et navigation entre commandes** : Windows PowerShell et PowerShell 7 seulement, pas CMD ni Git Bash. Une invite qui s'écrit elle-même par `Write-Host` au lieu de renvoyer son texte fausserait la hauteur annoncée.
 - **Liens de fichiers** : depuis l'itération 44, un chemin absolu avec des espaces dans ses dossiers est lié ; un nom de fichier ou un chemin relatif avec espaces ne l'est toujours pas, ni un chemin replié sur deux lignes, et un chemin dont un dossier contient une extension suivie d'une espace (`Node.js Apps`, `ASP.NET Core`) n'est souligné que jusqu'à ce point (le Ctrl + clic ouvre quand même le fichier complet s'il existe, itération 63).
-- **Jonction ou `subst` vers un sous-dossier du dépôt** : la racine d'affichage (itération 73) ne sait pas relier un dossier logique dont le nom diffère du dossier réel ; « Afficher dans l'arbre » et « Voir les modifications » y échouent (il faudrait comparer des chemins relatifs au dossier suivi).
+- **Jonction ou `subst` vers un sous-dossier du dépôt** : la racine d'affichage (itération 73) ne sait pas relier un dossier logique dont le nom diffère du dossier réel ; « Afficher dans l'arbre », « Voir les modifications » et les marques Git de l'arbre y échouent (il faudrait comparer des chemins relatifs au dossier suivi, dans l'arbre comme dans la vue Git ; écarté à l'itération 83 pour un cas rare).
 - **Clignotement de la barre des tâches** (itération 38) : la commande est bien reçue par l'hôte, mais le clignotement lui-même ne s'observe pas par le débogage distant ; à confirmer à l'usage.
-- **Messages d'erreur imprévus** : une vingtaine de chemins d'erreur de l'hôte affichent `exception.Message` tel quel. Les exceptions levées par Dock sont en français, mais une exception imprévue du framework .NET (entrée / sortie, lancement de processus) apparaîtrait en anglais ; traduites en français depuis l'itération 80 pour les exceptions d'entrée / sortie ; restent en anglais les éventuelles exceptions imprévues d'autres familles (réseau, processus hors terminaux).
+- **Messages d'erreur imprévus** : les exceptions levées par Dock sont en français, et depuis l'itération 80 celles d'entrée / sortie du framework .NET aussi (phrase française, détail système entre parenthèses). Une exception imprévue d'une autre famille (réseau, lancement de processus hors terminaux) apparaîtrait encore en anglais.
 - **Commit et push, push en échec** : corrigé à l'itération 74 (commit gardé, message vidé, avertissement « Push impossible »).
 - **Diff copié** : un fichier UTF-8 qui contient réellement le caractère de remplacement U+FFFD est traité comme mal décodé et n'est pas copiable (rarissime).
 
