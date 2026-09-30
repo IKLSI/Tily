@@ -236,7 +236,7 @@ export function TabBar({ workspace, shells, renamingTabId, panelOpen, onTogglePa
           aria-haspopup="menu"
           aria-expanded={menuOpen}
           className="cursor-pointer rounded px-2 py-1 text-base hover:bg-dock-green-hover"
-          data-tip="Nouvel onglet PowerShell (clic droit : choisir le shell ; double-clic dans l’espace vide de la barre : nouvel onglet)"
+          data-tip="Nouvel onglet PowerShell (Ctrl + Maj + T ; clic droit : choisir le shell ; double-clic dans l’espace vide de la barre : nouvel onglet)"
           onClick={handleNewDefault}
           onContextMenu={handleContextMenu}
           onKeyDown={handleAddKeyDown}

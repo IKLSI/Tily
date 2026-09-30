@@ -200,10 +200,10 @@ export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZ
           <BranchIcon />
         </button>
         <span className="mx-1 h-3 w-px bg-dock-line @max-[280px]:hidden" aria-hidden="true" />
-        <button type="button" className={HEADER_BUTTON} data-tip="Split côte à côte" aria-label="Split côte à côte" onClick={ignoringRepeatedClicks(handleSplitSideBySide)}>
+        <button type="button" className={HEADER_BUTTON} data-tip="Split côte à côte (Ctrl + Maj + D)" aria-label="Split côte à côte" onClick={ignoringRepeatedClicks(handleSplitSideBySide)}>
           <SplitIcon horizontal />
         </button>
-        <button type="button" className={HEADER_BUTTON} data-tip="Split haut / bas" aria-label="Split haut / bas" onClick={ignoringRepeatedClicks(handleSplitTopBottom)}>
+        <button type="button" className={HEADER_BUTTON} data-tip="Split haut / bas (Ctrl + Maj + H)" aria-label="Split haut / bas" onClick={ignoringRepeatedClicks(handleSplitTopBottom)}>
           <SplitIcon horizontal={false} />
         </button>
         {zoomed && (
@@ -211,7 +211,7 @@ export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZ
             <UnzoomIcon />
           </button>
         )}
-        <button type="button" className={`${HEADER_BUTTON} hover:text-dock-error`} data-tip="Fermer le pane" aria-label="Fermer le pane" onClick={ignoringRepeatedClicks(handleClose)}>
+        <button type="button" className={`${HEADER_BUTTON} hover:text-dock-error`} data-tip="Fermer le pane (Ctrl + Maj + X)" aria-label="Fermer le pane" onClick={ignoringRepeatedClicks(handleClose)}>
           <CloseIcon />
         </button>
       </header>

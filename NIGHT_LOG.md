@@ -876,6 +876,13 @@ Le plus souvent, le fichier qu’on veut rouvrir est l’un de ceux sur lesquels
 - « Reste à faire » complété : raccourci direct du sélecteur de fichiers à décider, idées de suite pour ce sélecteur (fichiers récents, aperçu direct).
 - Bilan HTML régénéré sur le Bureau.
 
+### 97. Raccourcis dans les infobulles des boutons de pane et d’onglet
+
+Les boutons Split côte à côte, Split haut / bas et Fermer le pane de l’en-tête d’un pane, et le « + » de la barre d’onglets, ne rappelaient pas leur raccourci, alors que le menu contextuel du terminal et la palette les affichent : on n’apprend pas les raccourcis en cliquant.
+
+- Infobulles complétées : « Split côte à côte (Ctrl + Maj + D) », « Split haut / bas (Ctrl + Maj + H) », « Fermer le pane (Ctrl + Maj + X) », « Nouvel onglet PowerShell (Ctrl + Maj + T ; clic droit : choisir le shell ; … ) ». Fermer un onglet n’a pas de raccourci direct, son infobulle reste telle quelle.
+- Lint et build au vert.
+
 ## Reste à faire et idées
 
 ### À décider par toi
