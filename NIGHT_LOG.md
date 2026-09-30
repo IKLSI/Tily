@@ -853,6 +853,15 @@ Les Paramètres signalaient un éditeur introuvable seulement pour un chemin abs
 - Vérifié dans l’instance de dev avec `editeur-inexistant` (avertissement affiché, réglage restauré ensuite) ; `code` est bien trouvé sur ce poste. 4 tests ajoutés ; 459 tests au vert.
 - **Convention proposée** ajoutée en section 14 de la spec.
 
+### 94. Insérer le chemin d’un fichier du projet dans le terminal
+
+Suite de l’itération 92 : pour citer un fichier à un agent (Claude Code, Codex) ou le passer à une commande, il fallait encore le retrouver dans l’arbre puis « Insérer le chemin dans le terminal ».
+
+- Dans « Ouvrir un fichier du projet… », Ctrl + Entrée (ou Ctrl + clic) insère le chemin complet du fichier à l’invite du terminal actif, protégé selon le shell comme un dépôt de fichier, et rend le focus au terminal. Le pied du sélecteur rappelle les trois actions.
+- `SearchDialog` gagne `onRunControl`, utilisé seulement pour les éléments sans étoile de favori : dans la palette, Ctrl + Entrée marque toujours une commande comme favorite.
+- Vérifié dans l’instance de dev : `notes.md` → chemin inséré à l’invite PowerShell, sélecteur fermé, focus dans le terminal. Lint et build au vert.
+- Spec (section 4) et architecture front complétées.
+
 ## Reste à faire et idées
 
 ### À décider par toi

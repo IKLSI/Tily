@@ -5,7 +5,7 @@ import { revealInFileTree } from '../panel/rightPanel'
 import { useFilePickerStore } from '../store/filePickerStore'
 import { useHostStore } from '../store/hostStore'
 import { useSessionStore } from '../store/sessionStore'
-import { focusActivePane } from './fileExplorerActions'
+import { focusActivePane, insertPathInActivePane } from './fileExplorerActions'
 
 const BACKSLASH = '\\'
 
@@ -32,6 +32,12 @@ export const openProjectFile = (root: string, relative: string): void => {
   useFilePickerStore.getState().close()
   bridge.send({ type: 'files.open', path })
   useHostStore.getState().setStatus(`Ouverture dans l’éditeur : ${folderName(path)}`)
+  focusActivePane()
+}
+
+export const insertProjectFilePath = (root: string, relative: string): void => {
+  useFilePickerStore.getState().close()
+  insertPathInActivePane(fullPath(root, relative))
   focusActivePane()
 }
 

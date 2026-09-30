@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useShallow } from 'zustand/react/shallow'
-import { closeFilePicker, openProjectFile, revealProjectFile } from '../explorer/projectFileActions'
+import { closeFilePicker, insertProjectFilePath, openProjectFile, revealProjectFile } from '../explorer/projectFileActions'
 import type { SearchItem } from '../palette/searchFilter'
 import { useFilePickerStore, type ProjectFileList } from '../store/filePickerStore'
 import { SearchDialog } from './SearchDialog'
@@ -10,7 +10,7 @@ const LAST_SEPARATOR = /^(.*)\\([^\\]+)$/
 const LOADING = 'Chargement des fichiers…'
 const NO_MATCH = 'Aucun fichier ne correspond à la recherche.'
 const TRUNCATED = 'Trop de fichiers : la liste proposée est incomplète, précisez la recherche ou ouvrez le terminal dans un sous-dossier.'
-const FOOTER = 'Entrée : ouvrir dans l’éditeur · Maj + Entrée : afficher dans l’arbre des fichiers'
+const FOOTER = 'Entrée : ouvrir dans l’éditeur · Maj + Entrée : afficher dans l’arbre · Ctrl + Entrée : insérer le chemin dans le terminal'
 
 const itemsOf = (list: ProjectFileList | null): SearchItem[] =>
   (list?.files ?? []).map((relative) => {
@@ -37,6 +37,7 @@ export function FilePicker() {
   const root = list?.root ?? folder
   const handleRun = (item: SearchItem) => openProjectFile(root, item.id)
   const handleRunAlternate = (item: SearchItem) => revealProjectFile(root, item.id)
+  const handleRunControl = (item: SearchItem) => insertProjectFilePath(root, item.id)
 
   return (
     <SearchDialog
@@ -48,6 +49,7 @@ export function FilePicker() {
       onClose={closeFilePicker}
       onRun={handleRun}
       onRunAlternate={handleRunAlternate}
+      onRunControl={handleRunControl}
       footer={FOOTER}
       notice={list?.truncated ? TRUNCATED : null}
     />

@@ -10,6 +10,7 @@ interface SearchDialogProps<T extends SearchItem> {
   onClose: () => void
   onRun: (item: T) => void
   onRunAlternate?: (item: T) => void
+  onRunControl?: (item: T) => void
   footer?: string
   onToggleFavorite?: (item: T) => void
   notice?: string | null
@@ -19,7 +20,7 @@ interface SearchDialogProps<T extends SearchItem> {
 const RESULT_ID_PREFIX = 'search-result-'
 const LISTBOX_ID = 'search-results'
 
-export function SearchDialog<T extends SearchItem>({ label, placeholder, emptyMessage, items, onClose, onRun, onRunAlternate, footer, onToggleFavorite, notice, maxResults }: SearchDialogProps<T>) {
+export function SearchDialog<T extends SearchItem>({ label, placeholder, emptyMessage, items, onClose, onRun, onRunAlternate, onRunControl, footer, onToggleFavorite, notice, maxResults }: SearchDialogProps<T>) {
   const [query, setQuery] = useState('')
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const listRef = useRef<HTMLDivElement>(null)
@@ -53,6 +54,8 @@ export function SearchDialog<T extends SearchItem>({ label, placeholder, emptyMe
       event.preventDefault()
       if (selectedItem && selectedItem.favorite !== undefined) {
         onToggleFavorite?.(selectedItem)
+      } else if (selectedItem) {
+        onRunControl?.(selectedItem)
       }
     } else if (event.key === 'Enter') {
       event.preventDefault()
@@ -93,7 +96,7 @@ export function SearchDialog<T extends SearchItem>({ label, placeholder, emptyMe
           {filtered.length === 0 && <p className="px-3 py-2 text-xs text-dock-muted">{emptyMessage}</p>}
           {filtered.map((item, index) => {
             const handleHover = () => setSelectedId(item.id)
-            const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => runItem(item, event.shiftKey)
+            const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => (event.ctrlKey && onRunControl && item.favorite === undefined ? onRunControl(item) : runItem(item, event.shiftKey))
             const handleToggleFavorite = (event: React.MouseEvent<HTMLButtonElement>) => {
               event.stopPropagation()
               onToggleFavorite?.(item)
