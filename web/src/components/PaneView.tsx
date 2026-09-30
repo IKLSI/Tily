@@ -1,6 +1,7 @@
 import { memo, useCallback, useEffect, useState, type MouseEvent } from 'react'
 import { OpenTarget, type ShellProfile } from '../bridge/messages'
-import { SplitAxis, type Pane } from '../model/session'
+import { RightPanelView, SplitAxis, type Pane } from '../model/session'
+import { openPanelView } from '../panel/rightPanel'
 import { useAgentStore } from '../store/agentStore'
 import { useHostStore } from '../store/hostStore'
 import { usePaneStore } from '../store/paneStore'
@@ -101,6 +102,7 @@ export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZ
   }, [pane.id, covered])
 
   const handleHeaderMouseDown = () => onFocus(pane.id)
+  const handleOpenGit = () => openPanelView(RightPanelView.Git)
   const handleHeaderDoubleClick = (event: MouseEvent) => {
     if (!(event.target instanceof Element && event.target.closest(BUTTON_SELECTOR))) {
       onToggleZoom(pane.id)
@@ -164,10 +166,16 @@ export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZ
           {pane.path}
         </span>
         {branchLabel && (
-          <span className="flex max-w-[35%] min-w-0 shrink items-center gap-1 font-mono text-dock-muted @max-[520px]:hidden" data-tip={gitSummary(context)}>
+          <button
+            type="button"
+            className="flex max-w-[35%] min-w-0 shrink cursor-pointer items-center gap-1 rounded font-mono text-dock-muted hover:text-dock-ink @max-[520px]:hidden"
+            data-tip={`${gitSummary(context)} · Clic : vue Git (Ctrl + Maj + G)`}
+            aria-label="Ouvrir la vue Git"
+            onClick={handleOpenGit}
+          >
             <BranchIcon />
             <span className="truncate py-1 [text-box:trim-both_cap_alphabetic]">{branchLabel}</span>
-          </span>
+          </button>
         )}
         <button type="button" className={HEADER_BUTTON} data-tip={`Copier le chemin ${pane.path}`} aria-label="Copier le chemin" onClick={handleCopyPath}>
           <CopyIcon />

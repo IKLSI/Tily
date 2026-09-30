@@ -607,6 +607,15 @@ Une relecture indépendante des itérations 52 à 60 a relevé un défaut moyen 
 - Cosmétique : compteur de la première ligne en caractères réels (un gitmoji compte pour un) ; double ligne vide retirée ; exemple faux de la limite connue (`v1.2 beta`) corrigé ; repli Maj + Entrée sans workspace ajouté à la spec.
 - Vérifié : 443 tests (dont deux pour `ExistingExactly`) ; banc de liens (chemins `Node.js Apps`, `ASP.NET Core`, phrase à deux chemins, `Projet T`) ; dans l'instance de dev, aller-retour dans un chemin de shell puis clic à côté → Paramètres fermés, modification puis clic à côté → gardés avec le focus dedans, Échap → fermés.
 
+### 64. Ouvrir la vue Git d'un clic sur la branche d'un terminal
+
+L'en-tête de chaque terminal affiche sa branche Git, mais ce n'était qu'un texte : pour voir l'état du dépôt, il fallait passer par Ctrl + Maj + G ou le bouton du panneau.
+
+- La branche de l'en-tête est maintenant un bouton : un clic sélectionne ce terminal et ouvre la vue Git sur son dépôt, en ouvrant le panneau de droite s'il était fermé ou en quittant la vue Fichiers / Notes. L'infobulle garde le résumé Git (branche, avance / retard) et indique le geste.
+- Vérifié dans l'instance de dev : panneau fermé → clic sur « night-session » → panneau ouvert sur la vue Git ; vue Fichiers → clic → vue Git.
+- Vérifié aussi de bout en bout le correctif de liens de l'itération 63 : `…\Temp\dock.js essai\cible.txt:3:1` affiché par PowerShell, Ctrl + clic sur la partie soulignée → l'éditeur reçoit `-g "…\dock.js essai\cible.txt:3:1"`.
+- **Convention proposée** en section 4 de la spec.
+
 ## Reste à faire et idées
 
 ### À décider par toi

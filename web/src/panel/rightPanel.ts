@@ -59,6 +59,15 @@ export const showPanelView = (view: RightPanelView): void => {
   requestAnimationFrame(() => focusView(view))
 }
 
+export const openPanelView = (view: RightPanelView): void => {
+  const { session, toggleExplorer } = useSessionStore.getState()
+  const workspace = session ? activeWorkspace(session) : undefined
+  if (workspace && !activeTab(workspace).explorer) {
+    toggleExplorer()
+  }
+  showPanelView(view)
+}
+
 const REVEAL_RETRY_MS = 50
 const REVEAL_ATTEMPTS = 40
 
