@@ -29,6 +29,7 @@ export const closeFilePicker = (): void => {
 
 export const openProjectFile = (root: string, relative: string): void => {
   const path = fullPath(root, relative)
+  useFilePickerStore.getState().remember(root, relative)
   useFilePickerStore.getState().close()
   bridge.send({ type: 'files.open', path })
   useHostStore.getState().setStatus(`Ouverture dans l’éditeur : ${folderName(path)}`)
@@ -36,12 +37,14 @@ export const openProjectFile = (root: string, relative: string): void => {
 }
 
 export const insertProjectFilePath = (root: string, relative: string): void => {
+  useFilePickerStore.getState().remember(root, relative)
   useFilePickerStore.getState().close()
   insertPathInActivePane(fullPath(root, relative))
   focusActivePane()
 }
 
 export const revealProjectFile = (root: string, relative: string): void => {
+  useFilePickerStore.getState().remember(root, relative)
   useFilePickerStore.getState().close()
   if (!revealInFileTree(fullPath(root, relative))) {
     focusActivePane()

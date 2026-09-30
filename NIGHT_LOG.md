@@ -911,6 +911,14 @@ Le README ne mentionnait ni l’effacement de l’historique de défilement (it�
 
 - Lignes « Vrais terminaux », « Explorateur de fichiers » et « Session retrouvée » complétées, sans nouvelle rubrique.
 
+### 101. Fichiers récents dans le sélecteur de fichiers
+
+Idée notée au point d’étape 96 : un fichier qu’on vient d’ouvrir depuis le sélecteur est souvent celui qu’on veut rouvrir, mais il retombait à sa place alphabétique s’il n’était pas modifié.
+
+- Les dix derniers fichiers choisis dans le sélecteur (ouverts, affichés dans l’arbre ou dont le chemin a été inséré) pour un même dépôt viennent juste après les fichiers modifiés, marqués « récent ». La mémoire est celle de la session de Dock (perdue à sa fermeture) : la garder d’une ouverture à l’autre demanderait de l’enregistrer côté hôte, laissé en idée.
+- Vérifié dans l’instance de dev : `terminalRegistry.ts` ouvert, puis sélecteur rouvert → « terminalRegistry.ts · récent · web\src\terminal » juste après les 6 fichiers modifiés. Lint et build au vert.
+- Spec (section 4) et architecture front complétées.
+
 ## Reste à faire et idées
 
 ### À décider par toi
@@ -942,5 +950,5 @@ Le README ne mentionnait ni l’effacement de l’historique de défilement (it�
 ### Idées
 
 - Zoom rapide du texte (Ctrl + molette ou Ctrl + =, comme Windows Terminal) : la palette sait agrandir / réduire depuis l'itération 84, seul le raccourci reste à décider (point 15 de la section 18).
-- Sélecteur de fichiers : garder les fichiers ouverts récemment en tête (après les modifiés), et proposer l’aperçu Markdown directement depuis le sélecteur.
+- Sélecteur de fichiers : proposer l’aperçu Markdown directement depuis le sélecteur ; garder les fichiers récents (itération 101) d’une ouverture de Dock à l’autre.
 - Tests web : aucun encore (décision du 21 septembre). Plusieurs fonctions pures ajoutées cette nuit s'y prêteraient : `findFileLinks` (le banc de 13 cas des itérations 44 et 54 en serait le point de départ), `equalizeNode`, `swapPanes`, `folderMarksOf`, `relativeEntryPath`, `formatCommandDuration`.

@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { closeFilePicker, insertProjectFilePath, openProjectFile, revealProjectFile } from '../explorer/projectFileActions'
 import type { SearchItem } from '../palette/searchFilter'
-import { useFilePickerStore, type ProjectFileList } from '../store/filePickerStore'
+import { recentKey, useFilePickerStore, type ProjectFileList } from '../store/filePickerStore'
 import { SearchDialog } from './SearchDialog'
 
 const MAX_RESULTS = 200
@@ -13,21 +13,30 @@ const TRUNCATED = 'Trop de fichiers : seuls les 20 000 premiers trouvés sont pr
 const FOOTER = 'Entrée : ouvrir dans l’éditeur · Maj + Entrée : afficher dans l’arbre · Ctrl + Entrée : insérer le chemin dans le terminal'
 
 const CHANGED_HINT = 'modifié'
+const RECENT_HINT = 'récent'
 const HINT_SEPARATOR = ' · '
+const NO_RECENT: string[] = []
 
-const itemOf = (relative: string, changed: boolean): SearchItem => {
+const itemOf = (relative: string, tag?: string): SearchItem => {
   const match = LAST_SEPARATOR.exec(relative)
   const folder = match?.[1]
-  const hint = changed ? (folder ? `${CHANGED_HINT}${HINT_SEPARATOR}${folder}` : CHANGED_HINT) : folder
+  const hint = tag ? (folder ? `${tag}${HINT_SEPARATOR}${folder}` : tag) : folder
   return { id: relative, label: match ? match[2] : relative, hint, searchText: relative }
 }
 
-const itemsOf = (list: ProjectFileList | null): SearchItem[] => {
+const itemsOf = (list: ProjectFileList | null, recent: string[]): SearchItem[] => {
   if (!list) {
     return []
   }
   const changed = new Set(list.changed)
-  return [...list.changed.map((relative) => itemOf(relative, true)), ...list.files.filter((relative) => !changed.has(relative)).map((relative) => itemOf(relative, false))]
+  const present = new Set(list.files)
+  const recentFiles = recent.filter((relative) => present.has(relative) && !changed.has(relative))
+  const first = new Set([...list.changed, ...recentFiles])
+  return [
+    ...list.changed.map((relative) => itemOf(relative, CHANGED_HINT)),
+    ...recentFiles.map((relative) => itemOf(relative, RECENT_HINT)),
+    ...list.files.filter((relative) => !first.has(relative)).map((relative) => itemOf(relative)),
+  ]
 }
 
 const emptyMessageOf = (list: ProjectFileList | null): string => {
@@ -41,8 +50,8 @@ const emptyMessageOf = (list: ProjectFileList | null): string => {
 }
 
 export function FilePicker() {
-  const { folder, list } = useFilePickerStore(useShallow((state) => ({ folder: state.folder, list: state.list })))
-  const items = useMemo(() => itemsOf(list), [list])
+  const { folder, list, recent } = useFilePickerStore(useShallow((state) => ({ folder: state.folder, list: state.list, recent: state.list ? (state.recent[recentKey(state.list.root)] ?? NO_RECENT) : NO_RECENT })))
+  const items = useMemo(() => itemsOf(list, recent), [list, recent])
   if (folder === null) {
     return null
   }
