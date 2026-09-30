@@ -6,6 +6,17 @@ Les essais se font dans un Dock de développement lancé avec son propre dossier
 
 Version HTML de ce journal, avec un sommaire des itérations : `file:///C:/Users/maxim/Desktop/nuit-dock-2026-09-30.html` (régénérée à la fin de la nuit).
 
+## En bref
+
+108 itérations, dont 12 relectures indépendantes suivies de leurs corrections ; 465 tests .NET au vert à la dernière vérification. Les décisions qui te reviennent sont listées en fin de journal, sous « À décider par toi ».
+
+- **Terminaux et panes** : égaliser les panes, sortir un pane dans un nouvel onglet ou le déplacer vers un autre onglet ou workspace, échanger deux panes, aller à l’onglet N (Leader puis chiffre), taille du texte (Paramètres et palette), effacer l’historique de défilement, confirmation avant un collage de plusieurs lignes, en-tête lisible dans les panes étroits.
+- **Commandes** : copier la sortie de la dernière commande, naviguer de commande en commande (Alt + PgUp / PgDn), fin d’une commande longue signalée sur l’onglet, le workspace, la barre de statut et la barre des tâches, Ctrl + clic sur un chemin de fichier (avec ligne et colonne) pour l’ouvrir dans l’éditeur.
+- **Fichiers** : état Git dans l’arbre, aperçu des images et source des Markdown, F5, « Tout replier », copier le chemin relatif, voir les modifications d’un fichier, ouvrir un terminal dans son dossier ; nouveau sélecteur « Ouvrir un fichier du projet… » (fichiers modifiés et récents en tête, éditeur, aperçu, arbre ou insertion du chemin).
+- **Git** : Revert, copier le diff, Ctrl + clic dans un diff vers la ligne du fichier, brouillon de commit gardé par dépôt, compteur de la première ligne, Commit et push par Ctrl + Maj + Entrée (push en échec expliqué), F5, ouvrir la vue d’un clic sur la branche d’un terminal, rechercher un commit dans le graphe, initialiser un dépôt.
+- **Notes et palette** : envoyer ou exécuter une ligne des notes (Ctrl + Entrée, Ctrl + Maj + Entrée), panes et onglets homonymes distingués dans la palette.
+- **Fiabilité** : session protégée contre les coupures de courant (écriture forcée sur disque et copie de l’avant-dernier enregistrement), messages d’erreur imprévus en français, dialogues qui ne perdent plus une saisie sur un clic à côté, nombreuses corrections d’accessibilité (annonces aux lecteurs d’écran, focus rendu au bon endroit).
+
 ## Itérations
 
 ### 1. Égaliser les panes d'un onglet
@@ -980,6 +991,10 @@ Idée notée au point d’étape 96 : pour relire un Markdown ou un fichier text
 - `SearchDialog` gagne `onRunAlt` (Alt + Entrée), inutilisé ailleurs.
 - Test ajouté pour l’itération 107 : un seul dossier de 30 fichiers avec un plafond de 3 s’arrête dedans et signale la liste incomplète.
 - Vérifié dans l’instance de dev : « readme », Alt + Entrée → aperçu Markdown du README, panneau ouvert, focus dans l’arbre. 465 tests au vert.
+
+### 109. Résumé « En bref » en tête du journal
+
+- Section « En bref » ajoutée avant les itérations : les apports de la nuit regroupés par thème, pour ne pas avoir à parcourir 108 entrées au réveil.
 
 ## Reste à faire et idées
 
