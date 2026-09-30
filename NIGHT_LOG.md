@@ -965,6 +965,13 @@ Douzième relecture indépendante (itérations 96 à 102), lancée à l’itéra
 - Mineurs : la liste du sélecteur de commits n’est plus recalculée quand il est fermé ; architecture front complétée (`searchText`, `/` et `\` confondus dans la recherche). Laissé : un dossier unique de centaines de milliers de fichiers est parcouru en entier avant la vérification de la limite de durée (rare).
 - Vérifié dans l’instance de dev (entrée absente panneau fermé ; Maj + Entrée → panneau ouvert, `notes.md` focalisé dans l’arbre) ; 464 tests au vert.
 
+### 107. Parcours hors dépôt borné même dans un très gros dossier
+
+Point laissé à l’itération 106 : hors dépôt, la limite de 3 secondes, l’annulation et le plafond de 20 000 fichiers n’étaient vérifiés qu’entre deux dossiers. Un seul dossier de centaines de milliers de fichiers (cache, sortie de build, partage réseau) était donc énuméré en entier avant tout arrêt.
+
+- Les trois vérifications ont lieu à chaque entrée lue : le parcours s’arrête au plus tard à la limite, et la liste est signalée incomplète.
+- Tests existants toujours verts (limite de durée nulle, plafond de 2 fichiers) ; 464 tests au vert.
+
 ## Reste à faire et idées
 
 ### À décider par toi

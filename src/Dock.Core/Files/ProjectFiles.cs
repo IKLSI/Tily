@@ -63,13 +63,20 @@ public static class ProjectFiles
         var files = new List<string>();
         var pending = new Stack<DirectoryInfo>([new DirectoryInfo(root)]);
         var clock = Stopwatch.StartNew();
-        while (pending.Count > 0 && files.Count <= maxFiles && clock.Elapsed < timeLimit)
+        var stopped = false;
+        while (pending.Count > 0 && !stopped)
         {
-            cancellation.ThrowIfCancellationRequested();
             try
             {
                 foreach (var entry in pending.Pop().EnumerateFileSystemInfos())
                 {
+                    cancellation.ThrowIfCancellationRequested();
+                    if (files.Count > maxFiles || clock.Elapsed >= timeLimit)
+                    {
+                        stopped = true;
+                        break;
+                    }
+
                     if (entry is FileInfo)
                     {
                         files.Add(Path.GetRelativePath(root, entry.FullName));
@@ -85,7 +92,7 @@ public static class ProjectFiles
             }
         }
 
-        return Limited(root, files, [], maxFiles, pending.Count > 0);
+        return Limited(root, files, [], maxFiles, stopped || pending.Count > 0);
     }
 
     private static ProjectFilesModel Limited(string root, List<string> files, IReadOnlyList<string> changed, int maxFiles, bool incomplete)
