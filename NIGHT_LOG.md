@@ -545,6 +545,14 @@ L'écran « Aucun workspace ouvert » était le seul endroit sans raccourcis ind
 - Infobulles des boutons complétées (« Nouveau workspace » : Ctrl + Maj + W ; « Ouvrir un projet… » : Leader puis F) et ligne d'aide discrète sous les boutons : « Ctrl + P ouvre la palette · Ctrl + Espace puis une lettre lance une commande au clavier ».
 - Vérifié dans l'instance de dev : tous les workspaces fermés → écran vide avec la ligne d'aide ; Ctrl + P ouvre la palette et Leader puis F le sélecteur de projets depuis cet écran ; session rouverte ensuite par Ctrl + Maj + Z.
 
+### 57. Longueur de la première ligne du message de commit
+
+Rien n'indiquait qu'un message de commit dépassait la longueur usuelle de la première ligne (72 caractères), au-delà de laquelle GitHub, `git log --oneline` et la plupart des outils la coupent.
+
+- Sous la zone de message de la vue Git, à droite d'« Amend du dernier commit », le nombre de caractères de la première ligne s'affiche en gris dès qu'elle n'est pas vide, en orange au-delà de 72, avec une infobulle qui explique la limite. Rien n'est bloqué.
+- Vérifié dans l'instance de dev : « Corriger le lien » → `16` en gris ; message de 90 caractères → `90` en orange, infobulle « Première ligne de 90 caractères : au-delà de 72, elle est coupée par la plupart des outils Git ».
+- Point à décider ajouté au « Reste à faire » : fermer un workspace de plus de cinq onglets en perd une partie (limite des cinq onglets fermés conservés), constaté pendant le test de l'itération 56.
+
 ## Reste à faire et idées
 
 ### À décider par toi
@@ -555,6 +563,7 @@ L'écran « Aucun workspace ouvert » était le seul endroit sans raccourcis ind
 - **Confirmation du collage multi-ligne** (itération 42) : toujours active dans un shell sans collage délimité. Windows Terminal propose un réglage pour la couper ; je n'en ai pas ajouté. À toi de dire si tu en veux un.
 - **Leader puis un chiffre en AZERTY belge** : la touche 8 y donne `!`, donc Leader puis 8 sort le pane (Leader puis Maj + 8 affiche l'onglet 8). Compromis voulu pour que `!` marche sur tous les claviers.
 - **Format du chemin relatif copié** : `src/app.ts` depuis la vue Git (format Git), `src\app.ts` depuis l'arbre des fichiers (format Windows). Harmoniser ou non ?
+- **Fermer un workspace de plus de cinq onglets** : la décision « conserver les cinq derniers onglets fermés » fait que les onglets au-delà sont perdus sans retour (constaté en fermant trois workspaces de test : « Général » n'était plus restaurable). Une confirmation, ou une limite plus haute pour ce cas, serait à décider.
 - **Taille du texte** (itération 41) : réglée en « Convention proposée » ; la police et un zoom rapide restent à décider (section 4 de la spec).
 
 ### Limites connues
