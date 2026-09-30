@@ -800,6 +800,14 @@ Dans un pane étroit, le chemin de l’en-tête était coupé à la fin (`C:\Use
 - Vérifié dans l’instance de dev avec quatre panes de 659, 325, 158 et 158 px : bouton Fermer dans l’en-tête pour les quatre, dernier dossier lisible à 659 et 325 px. À 158 px, il ne reste que quelques caractères pour le chemin, derrière le nom du shell.
 - **Convention proposée** complétée en section 11 de la spec (en-tête du pane).
 
+### 88. Onglets homonymes distingués dans la palette
+
+Un onglet prend par défaut le nom de son dossier : trois onglets ouverts dans le même projet s’appelaient tous « repo », et la palette listait trois « Onglet · Workspace 2 / repo » identiques, sans moyen de savoir lequel on rejoignait.
+
+- Quand plusieurs onglets d’un même workspace portent le même nom, leurs entrées de navigation (et celles de leurs panes) précisent leur position : « Onglet · Workspace 2 / repo (onglet 3) », le même numéro que Leader puis 3. Un nom unique reste tel quel.
+- Vérifié dans l’instance de dev (16 onglets) : « repo (onglet 1) », « repo (onglet 3) »…, l’onglet « xt » unique sans numéro. Au passage, la barre d’onglets à 16 onglets défile bien et garde l’onglet actif visible.
+- **Convention proposée** ajoutée en section 9 de la spec.
+
 ## Reste à faire et idées
 
 ### À décider par toi

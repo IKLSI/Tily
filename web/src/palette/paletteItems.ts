@@ -2,7 +2,7 @@ import { longestWaitingFirst, waitedFor, waitingPanes } from '../agents/agentSum
 import { bridge } from '../bridge/bridge'
 import type { GitContext, ShellProfile } from '../bridge/messages'
 import { Command, revealWorkspacePanel, runCommand } from '../keyboard/shortcuts'
-import { activePane, activeTab, activeWorkspace, FAVORITES_MAX, folderName, isLeaf, panesOf, RightPanelView, type Pane, type Session } from '../model/session'
+import { activePane, activeTab, activeWorkspace, FAVORITES_MAX, folderName, isLeaf, panesOf, RightPanelView, type Pane, type Session, type Tab, type Workspace } from '../model/session'
 import { openPanelView } from '../panel/rightPanel'
 import { refreshFolders } from '../explorer/fileExplorerActions'
 import { refreshRepository } from '../git/gitRequests'
@@ -195,6 +195,9 @@ const paneHint = (pane: Pane, contexts: Record<string, GitContext>): string => {
   return branch ? `${branch}${SEPARATOR}${pane.path}` : pane.path
 }
 
+const distinctTabName = (workspace: Workspace, tab: Tab): string =>
+  workspace.tabs.some((other) => other !== tab && other.name === tab.name) ? `${tab.name} (onglet ${workspace.tabs.indexOf(tab) + 1})` : tab.name
+
 const navigationItems = (session: Session): PaletteItem[] => {
   const { selectWorkspace, selectTab, selectPane } = useSessionStore.getState()
   const { contexts } = useHostStore.getState()
@@ -204,7 +207,7 @@ const navigationItems = (session: Session): PaletteItem[] => {
       {
         id: `tab-${tab.id}`,
         kind: PaletteKind.Tab,
-        label: `Onglet${SEPARATOR}${workspace.name} / ${tab.name}`,
+        label: `Onglet${SEPARATOR}${workspace.name} / ${distinctTabName(workspace, tab)}`,
         run: () => {
           selectWorkspace(workspace.id)
           selectTab(tab.id)
@@ -213,7 +216,7 @@ const navigationItems = (session: Session): PaletteItem[] => {
       ...panesOf(tab.tree).map((pane, index, panes) => ({
         id: `pane-${pane.id}`,
         kind: PaletteKind.Pane,
-        label: `Pane${SEPARATOR}${workspace.name} / ${tab.name} / ${folderName(pane.path)} (${pane.shell})${panes.length > 1 ? `${SEPARATOR}${index + 1}/${panes.length}` : ''}`,
+        label: `Pane${SEPARATOR}${workspace.name} / ${distinctTabName(workspace, tab)} / ${folderName(pane.path)} (${pane.shell})${panes.length > 1 ? `${SEPARATOR}${index + 1}/${panes.length}` : ''}`,
         hint: paneHint(pane, contexts),
         run: () => selectPane(pane.id),
       })),

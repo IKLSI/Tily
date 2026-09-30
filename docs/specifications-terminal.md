@@ -277,6 +277,8 @@ Les splits peuvent être imbriqués. L’action de fermeture d’un pane retire 
 
 **Convention proposée.** L’étoile d’une commande (clic ou Ctrl + Entrée) la marque comme favorite et la place en tête de la palette. Seules les commandes en portent une : ni les entrées de navigation, ni « Rejoindre », ni « Rouvrir l’onglet fermé ». Au plus 50 favoris ; au-delà, la palette demande d’en retirer un.
 
+**Convention proposée.** Quand plusieurs onglets d’un même workspace portent le même nom (par défaut celui de leur dossier), leurs entrées de navigation et celles de leurs panes précisent leur position : « repo (onglet 3) », le même numéro que Leader puis 3.
+
 ### Touche Leader
 
 Le principe d’une touche Leader est retenu. Le raccourci par défaut est **Ctrl + Espace** et son délai d’expiration est de **5 secondes**. Le mapping et le délai sont personnalisables.
