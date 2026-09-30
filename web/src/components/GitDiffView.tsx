@@ -1,7 +1,9 @@
 import { useMemo, useRef, type KeyboardEvent, type MouseEvent } from 'react'
+import { bridge } from '../bridge/bridge'
 import { GitDiffLineKind, GitDiffSource, type GitDiff } from '../bridge/gitMessages'
 import { applyDiffSelection, clearDiffSelection, DiffLineAction, DiffPick, moveDiffCursor, moveDiffHunk, pickDiffRow, selectAllDiffLines, toggleStageDiffSelection } from '../git/gitDiffActions'
 import { diffRowsOf, DiffRowKind, hunkHeaderRow, isChangeRow, type DiffRow } from '../git/gitDiffRows'
+import { absolutePath } from '../git/gitLabels'
 import { useGitStore, type GitDiffSelection } from '../store/gitStore'
 import { GitDiffHunkActions } from './GitDiffHunkActions'
 import { GitDiffLineAction } from './GitDiffLineAction'
@@ -147,6 +149,17 @@ export function GitDiffView({ diff, error, placeholder, selectable }: GitDiffVie
     draggedRow.current = event.ctrlKey || rows[row]?.kind === DiffRowKind.Hunk ? null : row
   }
 
+  const handleClick = (event: MouseEvent<HTMLDivElement>) => {
+    const target = event.target instanceof Element ? event.target : null
+    const line = rows[rowAt(event.clientY)]?.line
+    const root = useGitStore.getState().state?.root
+    if (!selectable || !event.ctrlKey || !target || target.closest(PICK_SELECTOR) || target.closest('button') || !line?.new || !root) {
+      return
+    }
+    event.preventDefault()
+    bridge.send({ type: 'files.openAt', path: absolutePath(root, diff.path), line: line.new, column: 1 })
+  }
+
   const handleMouseMove = (event: MouseEvent<HTMLDivElement>) => {
     if (draggedRow.current === null) {
       return
@@ -224,6 +237,7 @@ export function GitDiffView({ diff, error, placeholder, selectable }: GitDiffVie
         onScroll={handleScroll}
         onKeyDown={handleKeyDown}
         onMouseDown={handleMouseDown}
+        onClick={handleClick}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
       >

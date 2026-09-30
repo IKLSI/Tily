@@ -709,6 +709,14 @@ Suite de l'itération 74 : quand le push échouait après un commit réussi, seu
 - `git.done` peut porter la sortie de Git d'une étape secondaire en échec (`output`, champ `Output` de `GitOutcomeModel`) ; la vue Git l'affiche dans son bandeau d'échec habituel, sous le message.
 - Vérifié dans l'instance de dev avec le dépôt jetable dont le distant n'existe pas : bandeau « Commit 12991ad créé : « Ajouter b ». Push impossible : Le push a échoué. » suivi de `fatal: '…inexistant.git' does not appear to be a git repository`. 445 tests verts ; contrat du pont mis à jour.
 
+### 77. Ouvrir le fichier à la ligne depuis un diff
+
+Depuis le volet de diff de la vue Git, « Ouvrir dans l'éditeur » ouvrait le fichier au début : pour corriger la ligne qu'on venait de relire, il fallait la rechercher.
+
+- Ctrl + clic sur le texte d'une ligne d'un diff Unstaged ou Staged ouvre le fichier dans l'éditeur à cette ligne (numéro de la nouvelle version ; ignoré sur une ligne supprimée). Ctrl + clic dans la gouttière garde son rôle de sélection de lignes. L'infobulle du bouton « Ouvrir dans l'éditeur » l'indique.
+- Vérifié dans l'instance de dev : diff de `README.md`, Ctrl + clic sur la ligne ajoutée « modif » → l'éditeur reçoit `-g "…\README.md:85:1"`.
+- **Convention proposée** en section 11 de la spec (volet de diff).
+
 ## Reste à faire et idées
 
 ### À décider par toi
