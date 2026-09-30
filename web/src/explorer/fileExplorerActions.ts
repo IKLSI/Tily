@@ -32,6 +32,12 @@ export const focusActivePane = (): void => {
   }
 }
 
+export const focusActivePaneIfLost = (): void => {
+  if (!document.activeElement || document.activeElement === document.body) {
+    focusActivePane()
+  }
+}
+
 export const focusFileRow = (path: string | null): boolean => {
   const tree = document.querySelector<HTMLElement>(TREE_SELECTOR)
   const row = Array.from(tree?.querySelectorAll<HTMLElement>(ROW_SELECTOR) ?? []).find((candidate) => candidate.dataset.fileRow === path)

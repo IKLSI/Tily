@@ -10,6 +10,7 @@ import { CommandNoticeIcon } from './CommandNoticeIcon'
 import { tabCommandNotice } from '../terminal/commandNotices'
 import { useCommandStore } from '../store/commandStore'
 import { closeTabsToRightKeepingText } from '../terminal/tabLifecycle'
+import { focusActivePaneIfLost } from '../explorer/fileExplorerActions'
 import { Icon } from './Icon'
 import { IconName } from './iconName'
 import { InlineNameEditor } from './InlineNameEditor'
@@ -133,7 +134,10 @@ export function TabBar({ workspace, shells, renamingTabId, panelOpen, onTogglePa
   }
   const tabMenuPosition = tabMenu ? workspace.tabs.findIndex((tab) => tab.id === tabMenu.tabId) : -1
   const tabMenuActions: TabMenuActions = { rename: onStartRename, shift: onShift, duplicate: onDuplicate, close: onClose, closeOthers: onCloseOthers, closeToRight: closeTabsToRightKeepingText }
-  const handleRunTabMenu = useCallback(() => setTabMenu(null), [])
+  const handleRunTabMenu = useCallback(() => {
+    setTabMenu(null)
+    requestAnimationFrame(focusActivePaneIfLost)
+  }, [])
   const handleDismissTabMenu = useCallback(() => {
     const returnFocus = tabMenu?.returnFocus
     setTabMenu(null)
