@@ -36,10 +36,10 @@ export function WorkspaceNotes() {
     if (event.key === 'Escape') {
       event.preventDefault()
       focusActivePane()
-    } else if (event.key === 'Enter' && event.ctrlKey && !event.shiftKey && !event.altKey) {
+    } else if (event.key === 'Enter' && event.ctrlKey && !event.altKey) {
       event.preventDefault()
       const { value, selectionStart, selectionEnd } = event.currentTarget
-      sendTextToActivePane(noteTextToSend(value, selectionStart, selectionEnd))
+      sendTextToActivePane(noteTextToSend(value, selectionStart, selectionEnd), event.shiftKey)
     }
   }
 
@@ -56,7 +56,7 @@ export function WorkspaceNotes() {
         value={note}
         maxLength={NOTE_MAX_CHARS}
         spellCheck={false}
-        placeholder="Notes de ce workspace : tâches, ports, commandes… Enregistrées avec la session. Ctrl + Entrée colle la ligne (ou la sélection) dans le terminal actif."
+        placeholder="Notes de ce workspace : tâches, ports, commandes… Enregistrées avec la session. Ctrl + Entrée colle la ligne (ou la sélection) dans le terminal actif, Ctrl + Maj + Entrée la colle et l’exécute."
         className="min-h-0 flex-1 resize-none rounded border border-dock-line bg-dock-panel px-[10px] py-[8px] font-mono text-[12px] leading-[1.5] text-dock-ink outline-none placeholder:text-dock-muted focus:border-dock-focus"
         onChange={handleChange}
         onKeyDown={handleKeyDown}

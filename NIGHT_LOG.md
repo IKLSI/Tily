@@ -754,6 +754,15 @@ Une relecture indépendante des itérations 70 à 80 n'a trouvé ni défaut grav
 - **Non corrigé, noté** : sous une jonction ou un lecteur `subst` qui pointe vers un *sous-dossier* du dépôt, la racine d'affichage de l'itération 73 retombe sur la racine réelle ; « Afficher dans l'arbre » et « Voir les modifications » y échouent encore (limite connue ajoutée).
 - Vérifié : lint, build ; dans l'instance de dev, journal filtré « 7 sur 213 messages », palette avec panneau fermé.
 
+### 83. Exécuter une commande des notes par Ctrl + Maj + Entrée
+
+Les notes servent souvent de pense-bête de commandes (`pnpm dev`, requêtes, scripts) : Ctrl + Entrée les colle sans les exécuter, il fallait ensuite passer au terminal et taper Entrée.
+
+- Dans la note, Ctrl + Maj + Entrée colle la ligne du curseur dans le terminal actif **et l'exécute**. Pour éviter une exécution en cascade, seule une ligne est acceptée : une sélection de plusieurs lignes n'est pas envoyée et la barre de statut renvoie vers Ctrl + Entrée (collage avec confirmation). Ctrl + Entrée garde son comportement.
+- Vérifié dans l'instance de dev : note « echo execute-depuis-notes », Ctrl + Maj + Entrée → la commande s'exécute et affiche « execute-depuis-notes ».
+- Écarté cette itération : relier l'arbre et la vue Git sous une jonction vers un sous-dossier du dépôt ; les marques Git de l'arbre ont la même limite, et ne corriger que la vue Git laisserait un comportement incohérent pour un cas rare (limite connue maintenue).
+- **Convention proposée** complétée en section 5 de la spec ; texte d'aide de la note et README mis à jour.
+
 ## Reste à faire et idées
 
 ### À décider par toi

@@ -19,10 +19,12 @@ const UNTABBABLE = -1
 const VIEWPORT_SELECTOR = '.xterm-viewport'
 const TAB_INDEX_ATTRIBUTE = 'tabindex'
 const AGENT_LINE_BREAK = '\x1b\r'
+const RUN_KEY = '\r'
 const LINE_BREAK = '\n'
 
 const PASTED_LINE_BREAK = /\r\n|\r|\n/
 const TRAILING_LINE_BREAK = /(\r\n|\r|\n)$/
+const SEVERAL_LINES_NOT_RUN = 'Plusieurs lignes : Ctrl + Maj + Entrée n’exécute qu’une ligne. Ctrl + Entrée les colle avec confirmation.'
 const PASTE_CANCELLED = 'Collage annulé : rien n’a été envoyé au terminal.'
 
 const reportFailure = (message: string) => (): void => useHostStore.getState().setStatus(message, StatusLevel.Error)
@@ -95,7 +97,7 @@ export const isPaneOnAlternateScreen = (paneId: string): boolean => terminalRegi
 const NOTHING_TO_SEND = 'Ligne vide : rien à envoyer au terminal.'
 const PANE_BUSY = 'Le terminal actif affiche un message : rien n’y a été envoyé.'
 
-export const sendTextToActivePane = (text: string): void => {
+export const sendTextToActivePane = (text: string, execute = false): void => {
   const { session } = useSessionStore.getState()
   const workspace = session ? activeWorkspace(session) : undefined
   const paneId = workspace ? activeTab(workspace).active : undefined
@@ -104,6 +106,12 @@ export const sendTextToActivePane = (text: string): void => {
     useHostStore.getState().setStatus(NOTHING_TO_SEND)
   } else if (!paneId || !terminal || usePaneStore.getState().states[paneId]) {
     useHostStore.getState().setStatus(PANE_BUSY)
+  } else if (execute && PASTED_LINE_BREAK.test(text)) {
+    useHostStore.getState().setStatus(SEVERAL_LINES_NOT_RUN)
+  } else if (execute) {
+    focusPane(paneId)
+    terminal.paste(text)
+    terminal.input(RUN_KEY)
   } else {
     focusPane(paneId)
     pasteGuarded(paneId, terminal, text)
