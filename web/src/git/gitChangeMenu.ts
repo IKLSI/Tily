@@ -1,5 +1,6 @@
 import { GitChangeKind, type GitState } from '../bridge/gitMessages'
 import type { ActionMenuItem } from '../components/ActionMenu'
+import { insertPathInActivePane } from '../explorer/fileExplorerActions'
 import { absolutePath, fileName } from './gitLabels'
 import { promptStashFiles } from './gitRefActions'
 import { copyToClipboard, discardChanges, ignoreFiles, openInEditor, resolveConflicts, stageChanges, unstageChanges, withOldPaths } from './gitRequests'
@@ -60,6 +61,11 @@ export const changeMenu = (rows: GitChangeRow[], state: GitState): ActionMenuIte
     },
     untracked.length > 0 && { id: 'ignore', label: byCount(untracked.length, 'Ajouter au .gitignore', `Ajouter ${untracked.length} fichiers au .gitignore`), run: () => ignoreFiles(untracked) },
     { id: 'copy', label: byCount(paths.length, 'Copier le chemin', `Copier les ${paths.length} chemins`), run: () => copyToClipboard(copied, byCount(paths.length, 'Chemin copié.', `${paths.length} chemins copiés.`)) },
+    {
+      id: 'insert',
+      label: byCount(paths.length, 'Insérer le chemin dans le terminal', `Insérer les ${paths.length} chemins dans le terminal`),
+      run: () => paths.forEach((path) => insertPathInActivePane(absolutePath(state.root, path))),
+    },
     {
       id: 'copy-relative',
       label: byCount(paths.length, 'Copier le chemin relatif', `Copier les ${paths.length} chemins relatifs`),

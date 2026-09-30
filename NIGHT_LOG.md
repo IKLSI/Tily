@@ -498,6 +498,13 @@ La barre de statut garde son dernier message jusqu'au suivant, parfois des heure
 - README complété des nouveautés 36 à 49 qui n'y figuraient pas : clignotement de la barre des tâches à la fin d'une commande longue, retour au nom automatique d'un onglet, diff copié applicable par `git apply`, chemin relatif depuis la vue Git.
 - Vérifié : lint et build ; dans l'instance de dev, menu de `docs/TESTING.md` dans la vue Git → « Copier le chemin relatif » copie `docs/TESTING.md` et annonce « Chemin relatif copié. ».
 
+### 51. Insérer le chemin d'un fichier modifié dans le terminal
+
+Suite de l'itération 50 : l'arbre des fichiers sait insérer un chemin dans le terminal actif, pas la vue Git.
+
+- Le menu d'un ou plusieurs fichiers modifiés de la vue Git propose « Insérer le chemin dans le terminal » : chemin complet de chaque fichier, protégé par l'hôte selon le shell (guillemets simples pour PowerShell et Git Bash, doubles pour CMD) et suivi d'une espace, exactement comme depuis l'arbre des fichiers ou par glisser-déposer. Pratique pour taper `git diff`, `code` ou une commande d'agent puis y ajouter les fichiers.
+- Vérifié dans l'instance de dev : menu de `dossier avec espace/cible.txt` → `'C:\…epo\dossier avec espace\cible.txt'` inséré après le prompt, non exécuté.
+
 ## Reste à faire et idées
 
 ### À décider par toi
