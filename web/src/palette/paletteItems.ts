@@ -112,6 +112,9 @@ const commandItems = (session: Session, shells: ShellProfile[]): PaletteItem[] =
       command('duplicate-tab', 'Dupliquer l’onglet', () => duplicateTabKeepingLayout(tab.id)),
       command('close-tab', 'Fermer l’onglet', () => closeTabKeepingText(tab.id)),
     )
+    if (tab.manual) {
+      items.push(command('auto-name-tab', 'Reprendre le nom du dossier pour l’onglet', () => useSessionStore.getState().resetTabName(tab.id)))
+    }
     if (workspace && workspace.tabs.length > 1) {
       items.push(command('close-other-tabs', 'Fermer les autres onglets', () => closeOtherTabsKeepingText(tab.id)))
       if (workspace.tabs.at(-1)?.id !== tab.id) {

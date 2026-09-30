@@ -247,6 +247,9 @@ export const cloneTabWithNewIds = (tab: Tab): { tab: Tab; paneIds: Record<string
   return { tab: { ...tab, id: newId(), tree, active: paneIds[tab.active] ?? panesOf(tree)[0].id }, paneIds }
 }
 
+export const isManuallyNamed = (session: Session | null, tabId: string): boolean =>
+  session?.workspaces.some((workspace) => workspace.tabs.some((tab) => tab.id === tabId && tab.manual)) ?? false
+
 export const findWorkspace = (session: Session, workspaceId: string): Workspace | undefined =>
   session.workspaces.find((workspace) => workspace.id === workspaceId)
 

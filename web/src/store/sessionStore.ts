@@ -17,6 +17,7 @@ import {
   EXPLORER_MAX,
   EXPLORER_MIN,
   findWorkspace,
+  folderName,
   NOTE_MAX_CHARS,
   panesOf,
   pruneNode,
@@ -60,6 +61,7 @@ interface SessionState {
   newTab: (shell: string) => void
   newTabAt: (path: string, shell: string) => void
   renameTab: (tabId: string, name: string) => void
+  resetTabName: (tabId: string) => void
   moveTab: (tabId: string, targetWorkspaceId: string, beforeTabId?: string) => void
   moveActiveTab: (offset: number) => void
   shiftTab: (tabId: string, offset: number) => void
@@ -273,6 +275,17 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
         if (tab && trimmed.length > 0) {
           tab.name = trimmed
           tab.manual = true
+        }
+      }),
+    })),
+
+  resetTabName: (tabId) =>
+    set((state) => ({
+      session: mutateSession(state.session, (draft) => {
+        const tab = draft.workspaces.flatMap((workspace) => workspace.tabs).find((candidate) => candidate.id === tabId)
+        if (tab) {
+          tab.manual = false
+          tab.name = folderName(activePane(tab).path) || tab.name
         }
       }),
     })),

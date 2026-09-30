@@ -1,3 +1,5 @@
+import { isManuallyNamed } from '../model/session'
+import { useSessionStore } from '../store/sessionStore'
 import type { ActionMenuItem } from './ActionMenu'
 import { FloatingMenu } from './FloatingMenu'
 import { MenuShortcut } from './MenuShortcut'
@@ -27,8 +29,9 @@ interface TabContextMenuProps {
   onDismiss: () => void
 }
 
-const itemsFor = ({ tabId }: TabMenuRequest, position: number, count: number, actions: TabMenuActions): ActionMenuItem[] => [
+const itemsFor = ({ tabId }: TabMenuRequest, position: number, count: number, manual: boolean, actions: TabMenuActions): ActionMenuItem[] => [
   { id: 'rename', label: 'Renommer', detail: <MenuShortcut keys="F2" />, run: () => actions.rename(tabId) },
+  { id: 'auto-name', label: 'Reprendre le nom du dossier', disabled: !manual, run: () => useSessionStore.getState().resetTabName(tabId) },
   { id: 'duplicate', label: 'Dupliquer l’onglet', run: () => actions.duplicate(tabId) },
   { id: 'move-left', label: 'Déplacer à gauche', detail: <MenuShortcut keys="Alt + ←" />, disabled: position <= 0, run: () => actions.shift(tabId, -1) },
   { id: 'move-right', label: 'Déplacer à droite', detail: <MenuShortcut keys="Alt + →" />, disabled: position < 0 || position >= count - 1, run: () => actions.shift(tabId, 1) },
@@ -38,6 +41,7 @@ const itemsFor = ({ tabId }: TabMenuRequest, position: number, count: number, ac
 ]
 
 export function TabContextMenu({ request, position, count, actions, onRun, onDismiss }: TabContextMenuProps) {
+  const manual = useSessionStore((state) => isManuallyNamed(state.session, request.tabId))
   const closingFirst = (item: ActionMenuItem): ActionMenuItem => ({
     ...item,
     run: () => {
@@ -46,5 +50,5 @@ export function TabContextMenu({ request, position, count, actions, onRun, onDis
     },
   })
 
-  return <FloatingMenu x={request.x} y={request.y} label="Actions de l’onglet" items={itemsFor(request, position, count, actions).map(closingFirst)} onClose={onDismiss} />
+  return <FloatingMenu x={request.x} y={request.y} label="Actions de l’onglet" items={itemsFor(request, position, count, manual, actions).map(closingFirst)} onClose={onDismiss} />
 }

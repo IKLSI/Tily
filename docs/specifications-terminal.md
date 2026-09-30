@@ -153,6 +153,8 @@ La commande « Renommer le workspace » dans la palette active le même éditeur
 | TAB-08 | Fermer un onglet et pouvoir rouvrir un onglet fermé accidentellement. |
 | TAB-09 | La barre d’onglets et l’arborescence reflètent la même sélection, le même ordre et les mêmes noms. |
 
+**Convention proposée.** « Reprendre le nom du dossier », dans le menu d’un onglet (barre d’onglets ou panneau des workspaces) et dans la palette pour l’onglet actif, annule un nom saisi manuellement : l’onglet reprend le nom du dossier de son terminal actif et le suit de nouveau. L’entrée est grisée, ou absente de la palette, pour un onglet qui porte déjà son nom automatique.
+
 **Convention proposée.** Un double-clic dans l’espace vide de la barre d’onglets (hors onglets et boutons) ouvre un nouvel onglet, comme le bouton « + », à la manière des navigateurs et de Windows Terminal.
 
 ### Menu des shells

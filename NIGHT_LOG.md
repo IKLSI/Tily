@@ -476,6 +476,14 @@ Suite de l'itération 46, pour la cohérence : le sélecteur « Ouvrir un worktr
 - Vérifié dans l'instance de dev (dossier des projets pointé temporairement sur le scratchpad, avec un faux `worktrees\essai-wt`) : Maj + Entrée sur « essai-wt » → onglet « essai-wt » ajouté au workspace actif.
 - **Convention proposée** de la section 10 complétée.
 
+### 48. Revenir au nom automatique d'un onglet
+
+Un onglet renommé à la main ne suivait plus jamais son dossier (TAB-06a), et aucun geste ne permettait d'y revenir : il fallait le fermer et en rouvrir un.
+
+- « Reprendre le nom du dossier » dans le menu d'un onglet (barre d'onglets et panneau des workspaces), et « Reprendre le nom du dossier pour l'onglet » dans la palette pour l'onglet actif : l'onglet reprend le nom du dossier de son terminal actif et le suit de nouveau aux `cd` suivants. Grisé (menus) ou absent (palette) quand le nom est déjà automatique.
+- Vérifié dans l'instance de dev : onglet « essai-wt » renommé « mon-nom », puis menu → « Reprendre le nom du dossier » → « essai-wt » ; l'entrée est grisée sur un onglet au nom automatique.
+- **Convention proposée** en section 6 de la spec, après TAB-06a.
+
 ## Reste à faire et idées
 
 ### À décider par toi
