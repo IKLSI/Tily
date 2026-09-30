@@ -490,7 +490,7 @@ La barre de statut garde son dernier message jusqu'au suivant, parfois des heure
 
 - L'heure du message affiché (format du journal : `03:41:58`, précédée du jour si ce n'est pas aujourd'hui) s'affiche en gris à droite de la barre de statut, avec la date complète en infobulle. Masquée pendant une opération Git ou worktree, dont le libellé remplace le message.
 - Vérifié dans l'instance de dev : « Session restaurée… » suivi de `03:41:58`, infobulle « Message du mercredi 30 septembre 2026 à 03:41:58 ».
-- **Convention proposée** en section 5 de la spec (journal des messages).
+- **Convention proposée** en section 4 de la spec (journal des messages).
 
 ## Reste à faire et idées
 
