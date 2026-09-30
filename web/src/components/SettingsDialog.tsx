@@ -74,6 +74,7 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
   const [importSource, setImportSource] = useState<string | null>(null)
   const [importWarnings, setImportWarnings] = useState<string[]>([])
   const [numberTexts, setNumberTexts] = useState<NumberTexts>({})
+  const [closeHeld, setCloseHeld] = useState(false)
   const dialogRef = useRef<HTMLDivElement>(null)
   const numberInputsRef = useRef<Partial<Record<keyof PersistenceSettings, HTMLInputElement | null>>>({})
   if (snapshot !== seenSnapshot) {
@@ -111,8 +112,14 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
     }
   }, [loaded])
 
+  const unsaved = Boolean(draft && snapshot && (importSource !== null || JSON.stringify(draft) !== JSON.stringify(snapshot.settings)))
   const handleBackdropPointerDown = (event: PointerEvent<HTMLDivElement>) => {
-    if (event.target === event.currentTarget) {
+    if (event.target !== event.currentTarget) {
+      return
+    }
+    if (unsaved) {
+      setCloseHeld(true)
+    } else {
       onClose()
     }
   }
@@ -356,7 +363,10 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
           <button type="button" className={SECONDARY} data-tip="Écrit la configuration enregistrée (sans les modifications en cours) dans un fichier JSON versionné" onClick={onExport}>
             Exporter…
           </button>
-          <button type="button" className={`${SECONDARY} ml-auto`} onClick={onClose}>
+          <span role="status" className="ml-auto text-[11px] text-dock-warning">
+            {closeHeld && unsaved ? 'Modifications non enregistrées : Enregistrer, ou Annuler pour les abandonner.' : ''}
+          </span>
+          <button type="button" className={SECONDARY} onClick={onClose}>
             Annuler
           </button>
           <button type="button" className={PRIMARY} aria-disabled={!draft || invalidNumber !== undefined} data-tip={invalidNumber ? `${invalidNumber.label} : entre ${invalidNumber.min} et ${invalidNumber.max}` : 'Écrit les fichiers de réglages et applique immédiatement'} onClick={handleSave}>

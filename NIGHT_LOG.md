@@ -560,6 +560,14 @@ Passer sur un onglet d'un autre dépôt (ou hors dépôt) vidait le message de c
 - Chaque dépôt garde son brouillon (en mémoire, pour la session de Dock) : en quittant un dépôt, le message non vide est mis de côté ; en y revenant, il est restauré. Un message vide efface le brouillon, donc un commit réussi ne laisse rien derrière lui. Le mode Amend n'est pas mis de côté (il repart décoché, comme avant).
 - Vérifié dans l'instance de dev : « Brouillon à garder » saisi dans `repo`, Ctrl + Tab vers `xt` (hors dépôt), Ctrl + Tab retour → message restauré.
 
+### 59. Paramètres : un clic à côté ne jette plus les modifications
+
+Dans Paramètres, un clic hors du dialogue le fermait et abandonnait en silence toutes les modifications en cours (plusieurs chemins de shells, sons, dossiers…).
+
+- Si des modifications sont en cours (formulaire différent des réglages enregistrés, ou préférences importées), le clic à côté ne ferme plus : le pied du dialogue affiche « Modifications non enregistrées : Enregistrer, ou Annuler pour les abandonner. ». Sans modification, le clic à côté ferme comme avant ; Échap et Annuler ferment toujours.
+- Vérifié dans l'instance de dev : clic à côté sans modification → fermé ; taille du texte passée à 16 puis clic à côté → dialogue gardé avec le message ; Échap → fermé, `appearance.json` toujours à 14.
+- **Convention proposée** en section 14 de la spec.
+
 ## Reste à faire et idées
 
 ### À décider par toi
