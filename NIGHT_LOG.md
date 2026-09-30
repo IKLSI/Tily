@@ -996,6 +996,14 @@ Idée notée au point d’étape 96 : pour relire un Markdown ou un fichier text
 
 - Section « En bref » ajoutée avant les itérations : les apports de la nuit regroupés par thème, pour ne pas avoir à parcourir 108 entrées au réveil.
 
+### 110. Ouvrir le dossier des réglages depuis les Paramètres
+
+Les Paramètres affichent le chemin de chaque fichier de réglages, mais pour les sauvegarder, les comparer ou les modifier à la main, il fallait recopier ce chemin dans l’Explorateur.
+
+- Bouton « Afficher les fichiers » dans le pied des Paramètres, à côté d’Importer et Exporter : l’Explorateur Windows s’ouvre sur le dossier des réglages (le même que celui de la session), fichier `shells.json` sélectionné. Inactif tant que les réglages ne sont pas chargés.
+- Vérifié dans l’instance de dev : bouton présent et actif (sans le cliquer, pour ne pas ouvrir de fenêtre sur le bureau ; l’action est celle, déjà utilisée, de « Afficher dans l’Explorateur Windows » de l’arbre). Lint et build au vert.
+- **Convention proposée** en section 14 de la spec.
+
 ## Reste à faire et idées
 
 ### À décider par toi

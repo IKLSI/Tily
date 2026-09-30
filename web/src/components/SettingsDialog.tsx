@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ChangeEvent, type KeyboardEvent, type MouseEvent, type PointerEvent } from 'react'
 import { AttentionKind, PickTarget, type ImportedPreferences, type NotificationSettings, type PersistenceSettings, type PickedPath, type Settings, type SettingsSnapshot } from '../bridge/messages'
 import type { WorktreeSettings } from '../bridge/worktreeMessages'
+import { revealInExplorer } from '../explorer/fileExplorerActions'
 import { useHostStore } from '../store/hostStore'
 import { AppearanceSettingsSection } from './AppearanceSettingsSection'
 import { keepTabInside } from './focusTrap'
@@ -200,6 +201,11 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
   const handleTestDoneNotification = () => testNotification(AttentionKind.Done)
   const handleAutoCheckChange = (autoCheck: boolean) => updateDraft({ updates: { autoCheck } })
   const handleFontSizeChange = (fontSize: number) => updateDraft({ appearance: { fontSize } })
+  const handleRevealFiles = () => {
+    if (snapshot) {
+      revealInExplorer(snapshot.files.shells)
+    }
+  }
 
   const renderBody = (settings: Settings, current: SettingsSnapshot) => (
     <>
@@ -372,6 +378,9 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
           </button>
           <button type="button" className={SECONDARY} data-tip="Écrit la configuration enregistrée (sans les modifications en cours) dans un fichier JSON versionné" onClick={onExport}>
             Exporter…
+          </button>
+          <button type="button" className={SECONDARY} aria-disabled={!snapshot} data-tip="Ouvre l’Explorateur Windows sur le dossier des fichiers de réglages, pour les sauvegarder ou les modifier à la main" onClick={handleRevealFiles}>
+            Afficher les fichiers
           </button>
           <span role="status" className="ml-auto text-[11px] text-dock-warning">
             {closeHeld && unsaved ? 'Modifications non enregistrées : Enregistrer, ou Annuler pour les abandonner.' : ''}
