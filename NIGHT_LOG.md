@@ -667,6 +667,14 @@ Au lancement, « Session restaurée : nouveaux shells, aucune commande rejouée.
 - Le message indique désormais le nombre de workspaces et d'onglets restaurés : « Session restaurée (2 workspaces, 5 onglets) : nouveaux shells, aucune commande rejouée. » (singulier géré ; rien d'ajouté quand la session est vide).
 - Vérifié dans l'instance de dev : message conforme aux 2 workspaces et 5 onglets de son `session.json`.
 
+### 72. Nombre d'onglets d'un workspace replié
+
+Dans le panneau des workspaces, un workspace replié ne montrait que son nom : combien d'onglets il contenait ne se lisait que dans l'infobulle du chevron.
+
+- Un workspace replié affiche en gris, à droite de son nom, son nombre d'onglets (masqué aux lecteurs d'écran, l'infobulle et le bouton le disent déjà). Rien ne change quand il est déplié.
+- Vérifié dans l'instance de dev : « gd » replié → « 3 ».
+- Vérifié au passage avec 16 onglets ouverts : la barre d'onglets défile et estompe déjà le bord qui cache des onglets ; rien à corriger.
+
 ## Reste à faire et idées
 
 ### À décider par toi

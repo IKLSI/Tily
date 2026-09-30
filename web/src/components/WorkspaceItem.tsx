@@ -143,6 +143,11 @@ export const WorkspaceItem = memo(function WorkspaceItem({ workspace, workspaceN
             <Icon name={IconName.Note} size={11} />
           </button>
         )}
+        {!expanded && (
+          <span className="shrink-0 px-[2px] font-mono text-[11px] text-dock-muted tabular-nums" aria-hidden="true">
+            {tabs.length}
+          </span>
+        )}
         {!expanded && commandNotice && <CommandNoticeIcon notice={commandNotice} />}
         <WorkspaceStatus counts={workspaceStateCounts(workspace, agents)} onJoin={handleJoin} />
         <button type="button" className={PANEL_CLOSE_BUTTON} data-tip="Fermer le workspace" aria-label={`Fermer le workspace ${name}`} onClick={handleClose}>
