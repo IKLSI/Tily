@@ -1,19 +1,19 @@
 <p align="center">
-  <img src="src/Dock.Host/Assets/Dock.png" alt="Logo de Dock" width="96">
+  <img src="src/Tily.Host/Assets/Tily.png" alt="Logo de Tily" width="96">
 </p>
 
-<h1 align="center">Dock Terminal</h1>
+<h1 align="center">Tily</h1>
 
 <p align="center">
   Terminal Windows organisé en <strong>workspaces → onglets → panes</strong>, avec une interface compacte et un panneau en arborescence.
 </p>
 
 <p align="center">
-  <a href="https://github.com/MaximeRazafinjato/dock-terminal/releases/latest"><img src="https://img.shields.io/github/v/release/MaximeRazafinjato/dock-terminal" alt="Dernière version"></a>
+  <a href="https://github.com/MaximeRazafinjato/tily/releases/latest"><img src="https://img.shields.io/github/v/release/MaximeRazafinjato/tily" alt="Dernière version"></a>
   <img src="https://img.shields.io/badge/plateforme-Windows%2010%2B-0078d4" alt="Plateforme : Windows 10+">
 </p>
 
-![Dock avec plusieurs workspaces et un onglet découpé en trois terminaux](docs/images/overview.png)
+![Tily avec plusieurs workspaces et un onglet découpé en trois terminaux](docs/images/overview.png)
 
 ## Fonctionnalités
 
@@ -30,11 +30,11 @@
 - **Vue Git** : graphe de l’historique, branches et tags, Stage et commit, Push et Pull, Merge, Rebase, Cherry-pick, Revert, Stash, résolution des conflits et bouton « Annuler », sans taper de commande ; le diff d’un fichier se copie en un clic, prêt pour `git apply`, et le chemin relatif d’un fichier modifié depuis son menu, qui l’affiche aussi dans l’arbre des fichiers ; le brouillon du message de commit est gardé par dépôt ; fetch automatique à l’ouverture, désactivable dans les Paramètres.
 - **Worktrees** : lister, ouvrir, créer et supprimer des worktrees Git comme avec `wtr` et `rmwt` (ports de développement libres, `pnpm install` dans le terminal du nouveau workspace, base PostgreSQL ou SQL Server répliquée), depuis la vue Git, la palette, Leader puis N ou l’icône d’arbre du panneau des workspaces.
 - **Suivi de Claude Code** : repérer d’un coup d’œil le workspace et l’onglet où Claude Code travaille, attend une réponse ou a terminé.
-- **Commandes longues** : quand une commande de plus de 10 secondes se termine dans un onglet que vous ne regardez pas (build, tests, installation), l’onglet porte une coche ou une croix rouge en cas d’échec, et la barre de statut l’annonce en citant la commande ; si Dock n’a pas le focus, il clignote dans la barre des tâches.
+- **Commandes longues** : quand une commande de plus de 10 secondes se termine dans un onglet que vous ne regardez pas (build, tests, installation), l’onglet porte une coche ou une croix rouge en cas d’échec, et la barre de statut l’annonce en citant la commande ; si Tily n’a pas le focus, il clignote dans la barre des tâches.
 - **Sortie des commandes** : copier la sortie de la dernière commande (menu du terminal ou palette), pour la coller dans un agent, et passer d’une commande à l’autre dans l’historique par Alt + PgUp / PgDn (Windows PowerShell et PowerShell 7).
 - **Liens cliquables** : Ctrl + clic sur un lien affiché dans le terminal l’ouvre dans le navigateur ; Ctrl + clic sur un chemin de fichier (`src/app.ts:12:5`, `Program.cs(42,17)`) l’ouvre dans l’éditeur, à la bonne ligne avec VS Code et ses dérivés.
-- **Glisser-déposer** : déposer un fichier ou un dossier de l’Explorateur Windows, ou une ligne de l’arbre des fichiers de Dock, sur un terminal y insère son chemin.
-- **Mises à jour intégrées** : Dock signale une nouvelle version dans son en-tête, affiche ses nouveautés et l’installe en un clic avant de redémarrer.
+- **Glisser-déposer** : déposer un fichier ou un dossier de l’Explorateur Windows, ou une ligne de l’arbre des fichiers de Tily, sur un terminal y insère son chemin.
+- **Mises à jour intégrées** : Tily signale une nouvelle version dans son en-tête, affiche ses nouveautés et l’installe en un clic avant de redémarrer.
 - **Session retrouvée** : workspaces, onglets, splits et texte des terminaux sont restaurés à la réouverture, avec l’avant-dernier enregistrement en secours si la session a été abîmée (coupure de courant) ; les préférences s’exportent et s’importent.
 
 ## Aperçu
@@ -53,10 +53,10 @@
 
 ## Installation
 
-1. Télécharger `Dock-x.y.z-setup.exe` depuis la [dernière version](https://github.com/MaximeRazafinjato/dock-terminal/releases/latest).
+1. Télécharger `Tily-x.y.z-setup.exe` depuis la [dernière version](https://github.com/MaximeRazafinjato/tily/releases/latest).
 2. Lancer l’installeur. Il n’est pas signé : si Windows SmartScreen s’affiche, cliquer « Informations complémentaires » puis « Exécuter quand même ».
 
-Aucun droit administrateur n’est nécessaire. Dock vérifie ensuite lui-même les nouvelles versions (au démarrage puis toutes les 6 heures, désactivable dans Paramètres) : le bouton « Mise à jour » de l’en-tête installe la nouvelle version et redémarre Dock, workspaces et préférences conservés. Lancer à la main le nouvel installeur, Dock fermé, reste possible.
+Aucun droit administrateur n’est nécessaire. Tily vérifie ensuite lui-même les nouvelles versions (au démarrage puis toutes les 6 heures, désactivable dans Paramètres) : le bouton « Mise à jour » de l’en-tête installe la nouvelle version et redémarre Tily, workspaces et préférences conservés. Lancer à la main le nouvel installeur, Tily fermé, reste possible.
 
 ## Raccourcis clavier
 
