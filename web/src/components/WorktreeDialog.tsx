@@ -56,7 +56,7 @@ export function WorktreeDialog({ draft, plan, planPending, busy, failure }: Work
   const remoteBranches = plan?.remoteBranches ?? []
   const defaultBase = plan?.defaultBase ?? ''
   const baseValue = draft.base || defaultBase
-  const extraBase = baseValue && !remoteBranches.includes(baseValue) && !localBranches.includes(baseValue) ? [baseValue] : []
+  const extraBase = [...new Set([baseValue, plan?.configuredBase ?? ''])].filter((base) => base && !remoteBranches.includes(base) && !localBranches.includes(base))
   const canCreate = Boolean(plan?.path) && !plan?.error && !planPending && !busy
 
   useEffect(() => {

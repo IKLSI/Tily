@@ -99,12 +99,17 @@ export const closeOtherTabsKeepingText = (tabId: string): void => {
   }
 }
 
-export const closeTabsToRightKeepingText = (tabId: string): void => {
+export enum FollowingTabs {
+  Right = 'de droite',
+  Below = 'en dessous',
+}
+
+export const closeTabsToRightKeepingText = (tabId: string, wording = FollowingTabs.Right): void => {
   const { session } = useSessionStore.getState()
   const tabs = session?.workspaces.find((workspace) => workspace.tabs.some((tab) => tab.id === tabId))?.tabs ?? []
   const right = tabs.slice(tabs.findIndex((tab) => tab.id === tabId) + 1)
   if (right.length > 0) {
-    const title = right.length === 1 ? 'Fermer l’onglet de droite ?' : `Fermer les ${right.length} onglets de droite ?`
+    const title = right.length === 1 ? `Fermer l’onglet ${wording} ?` : `Fermer les ${right.length} onglets ${wording} ?`
     requestClose(title, right.flatMap(paneIdsOf), () => closeTabsNow(right.map((tab) => tab.id)))
   }
 }

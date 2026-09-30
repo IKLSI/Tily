@@ -29,20 +29,20 @@ public static class WorktreeCreator
             return new WorktreePlanModel(request.Repository, WorktreeTarget.Project(request.Repository), null, null, null, [], [], exception.Message);
         }
 
-        var defaultBase = DefaultBaseOf(settings.DefaultBase, context.Info);
+        var defaultBase = DefaultBaseOf(settings.DefaultBase, context);
         try
         {
             var target = Target(context, request, settings, projectsRoot);
             if (target is not null && request.Mode == WorktreeBranchMode.New)
             {
-                RequireBase(context, BaseOf(request, settings, context.Info));
+                RequireBase(context, BaseOf(request, settings, context));
             }
 
-            return Planned(context, defaultBase, target, null);
+            return Planned(context, defaultBase, target, null, settings);
         }
         catch (Exception exception) when (exception is WorktreeException or GitCommandException)
         {
-            return Planned(context, defaultBase, null, exception.Message);
+            return Planned(context, defaultBase, null, exception.Message, settings);
         }
     }
 
@@ -55,7 +55,7 @@ public static class WorktreeCreator
         switch (request.Mode)
         {
             case WorktreeBranchMode.New:
-                var start = RequireBase(context, BaseOf(request, settings, context.Info));
+                var start = RequireBase(context, BaseOf(request, settings, context));
                 if (RemoteOf(start, context.Info) is { } remote)
                 {
                     progress($"Fetch de {start}…");
@@ -197,20 +197,32 @@ public static class WorktreeCreator
             : throw new WorktreeException($"Base introuvable : « {start} ».", WorktreeSteps.Verification);
     }
 
-    private static string BaseOf(WorktreeRequestModel request, WorktreeSettingsModel settings, WorktreeRepositoryModel info) =>
-        string.IsNullOrWhiteSpace(request.Base) ? DefaultBaseOf(settings.DefaultBase, info) : request.Base;
+    private static string BaseOf(WorktreeRequestModel request, WorktreeSettingsModel settings, ContextModel context) =>
+        string.IsNullOrWhiteSpace(request.Base) ? DefaultBaseOf(settings.DefaultBase, context) : request.Base;
 
-    private static string DefaultBaseOf(string configured, WorktreeRepositoryModel info)
+    private static string DefaultBaseOf(string configured, ContextModel context)
     {
-        var resolved = ResolveBase(configured, info);
-        return HasBranch(resolved, info)
+        var resolved = ResolveBase(configured, context.Info);
+        return HasBranch(resolved, context.Info) || IsRevision(context.Main, resolved)
             ? resolved
-            : FallbackBases.Select(branch => ResolveBase(branch, info)).FirstOrDefault(candidate => HasBranch(candidate, info)) ?? resolved;
+            : FallbackBases.Select(branch => ResolveBase(branch, context.Info)).FirstOrDefault(candidate => HasBranch(candidate, context.Info)) ?? resolved;
+    }
+
+    private static bool IsRevision(GitRepository repository, string revision)
+    {
+        try
+        {
+            return repository.Resolve(revision) is not null;
+        }
+        catch (GitCommandException)
+        {
+            return false;
+        }
     }
 
     private static bool HasBranch(string branch, WorktreeRepositoryModel info) =>
         info.RemoteBranches.Contains(branch, StringComparer.Ordinal) || info.LocalBranches.Contains(branch, StringComparer.Ordinal);
 
-    private static WorktreePlanModel Planned(ContextModel context, string defaultBase, TargetModel? target, string? error) =>
-        new(context.Info.MainRoot, context.Info.Project, target?.Path, target?.LocalBranch, defaultBase, context.Info.LocalBranches, context.Info.RemoteBranches, error);
+    private static WorktreePlanModel Planned(ContextModel context, string defaultBase, TargetModel? target, string? error, WorktreeSettingsModel settings) =>
+        new(context.Info.MainRoot, context.Info.Project, target?.Path, target?.LocalBranch, defaultBase, context.Info.LocalBranches, context.Info.RemoteBranches, error, ResolveBase(settings.DefaultBase, context.Info));
 }

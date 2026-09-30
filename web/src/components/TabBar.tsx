@@ -76,6 +76,7 @@ export function TabBar({ workspace, shells, renamingTabId, panelOpen, onTogglePa
   const [fade, setFade] = useState<StripFade>(NO_FADE)
   const addButtonRef = useRef<HTMLButtonElement>(null)
   const stripRef = useRef<HTMLDivElement>(null)
+  const pressedEmptyRef = useRef(false)
   const { draggingTabId, tabDropTarget } = useUiStore(useShallow((state) => ({ draggingTabId: state.draggingTabId, tabDropTarget: state.tabDropTarget })))
   const agents = useAgentStore((state) => state.agents)
   const commandNotices = useCommandStore((state) => state.notices)
@@ -101,8 +102,14 @@ export function TabBar({ workspace, shells, renamingTabId, panelOpen, onTogglePa
   }, [workspace.active, workspace.tabs.length, activeIndex])
 
   const handleNewDefault = () => onNew(DEFAULT_SHELL)
+  const isEmptyArea = (event: MouseEvent<HTMLDivElement>) => event.target === event.currentTarget || event.target === stripRef.current
+  const handleBarMouseDown = (event: MouseEvent<HTMLDivElement>) => {
+    if (event.detail === 1) {
+      pressedEmptyRef.current = isEmptyArea(event)
+    }
+  }
   const handleEmptyDoubleClick = (event: MouseEvent<HTMLDivElement>) => {
-    if (event.target === event.currentTarget || event.target === stripRef.current) {
+    if (pressedEmptyRef.current && isEmptyArea(event)) {
       handleNewDefault()
     }
   }
@@ -147,7 +154,7 @@ export function TabBar({ workspace, shells, renamingTabId, panelOpen, onTogglePa
   const dropLine = (targeted: boolean) => `h-6 w-0.5 shrink-0 rounded ${targeted ? 'bg-dock-focus' : 'bg-transparent'}`
 
   return (
-    <div data-drop-workspace={workspace.id} className="flex shrink-0 items-center gap-0.5 px-2 pt-1 select-none" onDoubleClick={handleEmptyDoubleClick}>
+    <div data-drop-workspace={workspace.id} className="flex shrink-0 items-center gap-0.5 px-2 pt-1 select-none" onMouseDown={handleBarMouseDown} onDoubleClick={handleEmptyDoubleClick}>
       <div ref={stripRef} role="tablist" className="flex min-w-0 items-center gap-0.5 overflow-x-auto [scrollbar-width:none]" style={{ maskImage: maskOf(fade) }} onWheel={handleWheel} onScroll={handleStripScroll}>
         {workspace.tabs.map((tab) => {
           const active = tab.id === workspace.active

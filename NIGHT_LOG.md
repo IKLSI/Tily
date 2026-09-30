@@ -399,6 +399,17 @@ Une relecture indépendante des itérations 28 à 36 a relevé 8 défauts ; cett
 - Vérifié : 433 tests (dont deux nouveaux : renommage + suppression appliqués par `git apply`, diff tronqué sans `patch`) ; simulation xterm headless du cas de la relecture (première ligne retrouvée) et des anciennes simulations (identiques) ; les 10 scénarios réels de copie de sortie dans l'instance de dev ; Leader puis 1 et 3 du pavé numérique, Leader puis Maj + 1 (« ! » en QWERTY) qui sort bien le pane.
 - Spec (section 11, « Copier le diff ») et architecture backend mises à jour.
 
+### 40. Fin des corrections de la quatrième relecture
+
+Les deux derniers défauts et les deux remarques secondaires de la relecture des itérations 28 à 36.
+
+- **Base des worktrees** : le repli vers `main` / `master` (itération 32) s'appliquait aussi quand la base réglée venait d'être poussée sans avoir encore été récupérée, et la rendait inaccessible ; il remplaçait aussi un tag ou un commit réglé. Désormais une base qui désigne un tag ou un commit est gardée, et la base réglée reste toujours dans la liste « Base par défaut » du formulaire : la choisir la récupère par le fetch de la création.
+- **Double-clic sur le × du dernier onglet** : le premier clic fermait l'onglet, le « + » glissait à gauche et le second clic, tombé sur l'espace vide, formait un double-clic qui rouvrait un onglet. Le double-clic n'ouvre un onglet que si son premier clic visait déjà l'espace vide.
+- **Sélecteur de projets et de worktrees** : à la première ouverture, avant la réponse de l'hôte, ils affichaient « Aucun projet dans  : … » ; ils affichent « Chargement des projets… ».
+- **« Fermer les onglets en dessous »** (panneau des workspaces) demandait confirmation pour « les N onglets de droite » ; le texte dit maintenant « en dessous ».
+- Vérifié : 434 tests (dont base en tag sans dépôt distant gardée, base absente toujours proposée) ; dans l'instance de dev, double-clic sur le × du dernier onglet → l'onglet est fermé et aucun autre n'est ouvert, double-clic dans l'espace vide → nouvel onglet.
+- Spec (section 11, réglages des worktrees) mise à jour.
+
 ## Reste à faire et idées
 
 ### À décider par toi

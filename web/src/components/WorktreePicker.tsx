@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import type { Project } from '../bridge/messages'
 import type { SearchItem } from '../palette/searchFilter'
 import { WorktreePickerKind } from '../store/worktreeStore'
+import { PROJECTS_LOADING } from './ProjectPicker'
 import { SearchDialog } from './SearchDialog'
 
 interface WorktreePickerProps {
@@ -31,5 +32,5 @@ export function WorktreePicker({ kind, projects, root, error, onClose, onSelect 
   const { label, placeholder, empty } = LABELS[kind]
   const handleRun = (item: ProjectItem) => onSelect(kind, item.project)
 
-  return <SearchDialog label={label} placeholder={`${placeholder} (${root})`} emptyMessage={error ?? empty} items={items} onClose={onClose} onRun={handleRun} />
+  return <SearchDialog label={label} placeholder={root ? `${placeholder} (${root})` : placeholder} emptyMessage={error ?? (root === '' ? PROJECTS_LOADING : empty)} items={items} onClose={onClose} onRun={handleRun} />
 }

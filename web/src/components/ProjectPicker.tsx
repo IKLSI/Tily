@@ -16,6 +16,7 @@ interface ProjectItem extends SearchItem {
 }
 
 const WORKTREE_HINT = 'worktree · '
+export const PROJECTS_LOADING = 'Chargement des projets…'
 
 const hintOf = (project: Project): string => (project.worktree ? `${WORKTREE_HINT}${project.path}` : project.path)
 
@@ -26,8 +27,8 @@ export function ProjectPicker({ projects, root, error, onClose, onSelect }: Proj
   return (
     <SearchDialog
       label="Ouvrir un projet"
-      placeholder={`Dossier dans ${root}…`}
-      emptyMessage={error ?? (projects.length === 0 ? `Aucun projet dans ${root} : le dossier des projets se change dans Paramètres (Leader puis ,).` : 'Aucun dossier ne correspond à la recherche.')}
+      placeholder={root ? `Dossier dans ${root}…` : 'Dossier de projet…'}
+      emptyMessage={error ?? (root === '' ? PROJECTS_LOADING : projects.length === 0 ? `Aucun projet dans ${root} : le dossier des projets se change dans Paramètres (Leader puis ,).` : 'Aucun dossier ne correspond à la recherche.')}
       items={items}
       onClose={onClose}
       onRun={handleRun}

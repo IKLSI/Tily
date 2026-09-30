@@ -32,7 +32,8 @@ public sealed record WorktreePlanModel(
     string? DefaultBase,
     IReadOnlyList<string> LocalBranches,
     IReadOnlyList<string> RemoteBranches,
-    string? Error);
+    string? Error,
+    string? ConfiguredBase = null);
 
 public sealed record WorktreeStepModel(string Step, WorktreeStepStatus Status, string Message);
 

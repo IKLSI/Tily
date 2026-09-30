@@ -100,7 +100,20 @@ public sealed class WorktreeCreatorTests : IDisposable
 
         var plan = WorktreeCreator.Plan(_sandbox.Runner, new WorktreeRequestModel(_sandbox.Work, "feat/vue", WorktreeBranchMode.New, null), settings, _sandbox.Root);
 
-        Assert.Equal("origin/main", plan.DefaultBase);
+        Assert.Equal(("origin/main", "origin/absente"), (plan.DefaultBase, plan.ConfiguredBase));
+    }
+
+    [Fact]
+    public void Plan_WhenConfiguredBaseIsTagWithoutRemote_ThenKeepsIt()
+    {
+        using var local = new GitSandbox();
+        local.Commit("Base", ("a.txt", "a\n"));
+        local.Git("tag", "v1");
+        var settings = new WorktreeSettingsModel(Path.Combine(local.Root, "worktrees"), "v1");
+
+        var plan = WorktreeCreator.Plan(local.Runner, new WorktreeRequestModel(local.Work, "feat/vue", WorktreeBranchMode.New, null), settings, local.Root);
+
+        Assert.Equal(("v1", null), (plan.DefaultBase, plan.Error));
     }
 
     [Fact]
