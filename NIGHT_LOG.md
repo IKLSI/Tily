@@ -630,6 +630,13 @@ L'arbre des fichiers se met à jour tout seul, mais quand un dossier réseau ou 
 - Banc des 10 scénarios réels de copie de sortie rejoué avant cette itération : toujours justes.
 - Erreur de ma part : le commit `9477342` porte le gitmoji ⌨️, absent de ta liste autorisée (il aurait dû être ✨). Déjà poussé, je ne l'ai pas réécrit pour ne pas forcer le push ; c'est le seul de la nuit hors liste (vérifié sur tout l'historique de la branche).
 
+### 67. F5 actualise aussi la vue Git
+
+Suite de l'itération 66, pour la cohérence : dans la vue Git, seul le bouton « Actualiser » relisait l'état du dépôt.
+
+- F5, quand le focus est dans la vue Git (liste des modifications, branches, message de commit…), relit l'état du dépôt comme le bouton « Actualiser », dont l'infobulle indique désormais F5.
+- Vérifié dans l'instance de dev : fichier créé sur le disque, focus sur une ligne de la vue Git, F5 → l'interface n'est pas rechargée et le fichier apparaît dans les modifications.
+
 ## Reste à faire et idées
 
 ### À décider par toi

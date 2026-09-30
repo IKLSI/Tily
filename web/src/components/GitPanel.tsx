@@ -3,7 +3,7 @@ import { useShallow } from 'zustand/react/shallow'
 import { focusActivePane } from '../explorer/fileExplorerActions'
 import { focusGitGraph } from '../git/gitFocus'
 import { plural } from '../git/gitLabels'
-import { followRepository } from '../git/gitRequests'
+import { followRepository, refreshRepository } from '../git/gitRequests'
 import { RightPanelView } from '../model/session'
 import { togglePanelView } from '../panel/rightPanel'
 import { useGitStore } from '../store/gitStore'
@@ -37,6 +37,8 @@ const handleKeyDown = (event: KeyboardEvent<HTMLElement>) => {
     togglePanelView(RightPanelView.Files, true)
   } else if (event.key === 'Escape') {
     handleEscape()
+  } else if (event.key === 'F5') {
+    refreshRepository()
   } else {
     return
   }

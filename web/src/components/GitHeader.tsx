@@ -80,7 +80,7 @@ export function GitHeader({ state, busy }: GitHeaderProps) {
         <GitToolButton icon={IconName.Push} label={head.ahead > 0 ? `Push ${head.ahead}` : 'Push'} tip={pushTip} disabled={working || head.detached || head.unborn || noRemote} onClick={pushBranch} />
         <span className="flex-1" />
         <GitToolButton icon={IconName.Undo} label="Annuler" labelClassName="@max-[300px]:hidden" tip={undoTip(state)} disabled={working || !state.undo?.available} onClick={undoLastOperation} />
-        <GitToolButton icon={IconName.Refresh} tip="Actualiser" onClick={refreshRepository} />
+        <GitToolButton icon={IconName.Refresh} tip="Actualiser (F5)" onClick={refreshRepository} />
       </div>
     </div>
   )
