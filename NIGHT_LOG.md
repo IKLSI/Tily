@@ -628,6 +628,7 @@ L'arbre des fichiers se met à jour tout seul, mais quand un dossier réseau ou 
 - F5, dans l'arbre des fichiers, relit les dossiers affichés, comme dans l'Explorateur Windows ; le raccourci est indiqué dans le menu (« Actualiser F5 ») et l'infobulle du bouton. Les raccourcis du navigateur étant désactivés dans la WebView, F5 ne recharge jamais l'interface.
 - Vérifié dans l'instance de dev : fichier créé sur le disque, focus dans l'arbre, F5 → l'interface n'est pas rechargée (une variable posée avant survit) et le fichier apparaît.
 - Banc des 10 scénarios réels de copie de sortie rejoué avant cette itération : toujours justes.
+- Erreur de ma part : le commit `9477342` porte le gitmoji ⌨️, absent de ta liste autorisée (il aurait dû être ✨). Déjà poussé, je ne l'ai pas réécrit pour ne pas forcer le push ; c'est le seul de la nuit hors liste (vérifié sur tout l'historique de la branche).
 
 ## Reste à faire et idées
 
