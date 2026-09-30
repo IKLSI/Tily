@@ -4,7 +4,7 @@ import { useGitStore } from '../store/gitStore'
 import { StatusLevel, useHostStore } from '../store/hostStore'
 import { useStatusLogStore } from '../store/statusLogStore'
 import { useWorktreeStore } from '../store/worktreeStore'
-import { toggleStatusLog } from '../statusLog/statusLogActions'
+import { entryFullDate, entryTime, toggleStatusLog } from '../statusLog/statusLogActions'
 import { Icon } from './Icon'
 import { IconName } from './iconName'
 import { Spinner } from './Spinner'
@@ -42,6 +42,11 @@ export function StatusBar() {
           {spinning && <Spinner size={10} className="shrink-0 text-dock-green" />}
           <span className="truncate py-1 [text-box:trim-both_cap_alphabetic]">{busy ? busyLabel(busy, busyRefs) : status.text}</span>
         </button>
+        {status.at && !spinning && (
+          <time dateTime={status.at} data-tip={`Message du ${entryFullDate(status)}`} className="shrink-0 px-3 text-dock-muted tabular-nums">
+            {entryTime(status, new Date())}
+          </time>
+        )}
         {unsaved && (
           <span className="shrink-0 px-3 text-dock-error" data-tip="La dernière sauvegarde a échoué : la session restera en l’état d’avant tant qu’une écriture ne réussit pas.">
             Non enregistré

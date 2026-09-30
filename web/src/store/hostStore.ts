@@ -12,7 +12,7 @@ interface HostState {
   shells: ShellProfile[]
   home: string
   version: string
-  status: { text: string; level: StatusLevel }
+  status: { text: string; level: StatusLevel; at: string }
   leaderActive: boolean
   projects: Project[]
   projectsRoot: string
@@ -39,7 +39,7 @@ export const useHostStore = create<HostState>()((set) => ({
   shells: [],
   home: '',
   version: '',
-  status: { text: 'Connexion à l’hôte…', level: StatusLevel.Info },
+  status: { text: 'Connexion à l’hôte…', level: StatusLevel.Info, at: '' },
   leaderActive: false,
   projects: [],
   projectsRoot: '',
@@ -55,7 +55,7 @@ export const useHostStore = create<HostState>()((set) => ({
   applySettings: (settingsSnapshot, shells, persistence) => set({ settingsSnapshot, shells, persistence }),
   setHello: (version, shells, home, persistence) => set({ connected: true, version, shells, home, persistence }),
   setUnsaved: (unsaved) => set({ unsaved }),
-  setStatus: (text, level = StatusLevel.Info) => set({ status: { text, level } }),
+  setStatus: (text, level = StatusLevel.Info) => set({ status: { text, level, at: new Date().toISOString() } }),
   setLeaderActive: (leaderActive) => set({ leaderActive }),
   setProjects: (projectsRoot, projects, projectsError) => set({ projectsRoot, projects, projectsError }),
   setContext: (paneId, context) =>
