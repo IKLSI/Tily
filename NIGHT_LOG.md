@@ -568,6 +568,14 @@ Dans Paramètres, un clic hors du dialogue le fermait et abandonnait en silence 
 - Vérifié dans l'instance de dev : clic à côté sans modification → fermé ; taille du texte passée à 16 puis clic à côté → dialogue gardé avec le message ; Échap → fermé, `appearance.json` toujours à 14.
 - **Convention proposée** en section 14 de la spec.
 
+### 60. Formulaire de worktree : un clic à côté ne jette plus le nom saisi
+
+Même défaut que l'itération 59 dans le formulaire « Créer un worktree » : un clic hors du dialogue fermait le formulaire et perdait le nom de la nouvelle branche.
+
+- Une fois un nom de nouvelle branche saisi, le clic à côté ne ferme plus le formulaire ; Échap et Annuler le ferment toujours. Formulaire vide, ou mode « branche existante » (simple choix dans une liste) : comportement inchangé.
+- Vérifié dans l'instance de dev : Leader puis N, clic à côté → fermé ; Leader puis N, « feat/essai », clic à côté → formulaire gardé ; Échap → fermé.
+- Convention de la section 14 de la spec étendue à ce formulaire.
+
 ## Reste à faire et idées
 
 ### À décider par toi

@@ -21,11 +21,6 @@ const RADIO_LABEL = 'flex items-center gap-2 text-[12px] text-dock-ink'
 const LOCAL_GROUP = 'Locales'
 const REMOTE_GROUP = 'Distantes'
 
-const handleBackdropPointerDown = (event: PointerEvent<HTMLDivElement>) => {
-  if (event.target === event.currentTarget) {
-    closeWorktreeDialog()
-  }
-}
 
 const handleSubmit = (event: SubmitEvent<HTMLFormElement>) => {
   event.preventDefault()
@@ -58,6 +53,11 @@ export function WorktreeDialog({ draft, plan, planPending, busy, failure }: Work
   const baseValue = draft.base || defaultBase
   const extraBase = [...new Set([baseValue, plan?.configuredBase ?? ''])].filter((base) => base && !remoteBranches.includes(base) && !localBranches.includes(base))
   const canCreate = Boolean(plan?.path) && !plan?.error && !planPending && !busy
+  const handleBackdropPointerDown = (event: PointerEvent<HTMLDivElement>) => {
+    if (event.target === event.currentTarget && !(creating && draft.branch.trim().length > 0)) {
+      closeWorktreeDialog()
+    }
+  }
 
   useEffect(() => {
     const handleDocumentKeyDown = (event: KeyboardEvent) => {
