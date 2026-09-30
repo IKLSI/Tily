@@ -429,6 +429,14 @@ Coller plusieurs lignes dans Windows PowerShell 5.1 les exécutait aussitôt, un
 - Vérifié dans l'instance de dev : deux lignes → dialogue ; Échap → rien dans le terminal, focus rendu ; Entrée → les deux commandes s'exécutent ; une ligne avec saut de ligne final → collée directement.
 - **Convention proposée** en section 8 de la spec ; la convention des notes (section 5) y renvoie. Journal de l'itération 37 corrigé : il affirmait à tort que le collage des notes était protégé par le bracketed paste.
 
+### 43. Dossier du terminal dans l'infobulle des onglets
+
+Plusieurs onglets portent souvent le même nom (le dossier du projet, « repo » trois fois dans l'instance de dev) : rien ne permettait de les distinguer sans les afficher.
+
+- L'infobulle d'un onglet, dans la barre d'onglets comme dans le panneau des workspaces, donne maintenant le chemin complet du dossier de son terminal actif, suivi du nombre de panes (la barre d'onglets ne l'avait pas). Le chemin suit les `cd` (OSC 7).
+- Vérifié dans l'instance de dev : infobulles des trois onglets, puis `cd ..` dans l'un d'eux → son infobulle donne le dossier parent.
+- Polish d'affichage, pas de changement de spec.
+
 ## Reste à faire et idées
 
 ### À décider par toi

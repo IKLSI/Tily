@@ -256,6 +256,8 @@ export const activeWorkspace = (session: Session): Workspace | undefined =>
 export const activeTab = (workspace: Workspace): Tab =>
   workspace.tabs.find((tab) => tab.id === workspace.active) ?? workspace.tabs[0]
 
+export const paneCountLabel = (count: number): string => (count === 1 ? '1 pane' : `${count} panes`)
+
 export const activePane = (tab: Tab): Pane => panesOf(tab.tree).find((pane) => pane.id === tab.active) ?? panesOf(tab.tree)[0]
 
 export const allPanes = (session: Session): Pane[] =>

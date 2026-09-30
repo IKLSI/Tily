@@ -2,7 +2,7 @@ import { Fragment, useCallback, useEffect, useRef, useState, type KeyboardEvent,
 import { useShallow } from 'zustand/react/shallow'
 import type { ShellProfile } from '../bridge/messages'
 import { tabAgents } from '../agents/agentSummary'
-import { DEFAULT_SHELL, type Workspace } from '../model/session'
+import { activePane, DEFAULT_SHELL, paneCountLabel, panesOf, type Workspace } from '../model/session'
 import { useAgentStore } from '../store/agentStore'
 import { useUiStore } from '../store/uiStore'
 import { AgentStateIcon } from './AgentStateIcon'
@@ -209,7 +209,7 @@ export function TabBar({ workspace, shells, renamingTabId, panelOpen, onTogglePa
                     type="button"
                     role="tab"
                     aria-selected={active}
-                    data-tip={`${tab.name} · Double-clic pour renommer, glisser pour déplacer`}
+                    data-tip={`${tab.name} · ${activePane(tab).path} · ${paneCountLabel(panesOf(tab.tree).length)} · Double-clic pour renommer, glisser pour déplacer`}
                     className="flex min-w-0 flex-1 cursor-pointer items-center gap-1.5 px-3 py-2 text-left text-xs"
                     onClick={handleSelect}
                     onDoubleClick={handleStartRename}
