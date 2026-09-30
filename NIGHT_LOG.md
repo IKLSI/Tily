@@ -511,7 +511,7 @@ Dans l'arbre des fichiers, seuls les dossiers proposaient « Ouvrir un terminal 
 
 - Le menu d'un fichier propose « Ouvrir un terminal dans son dossier » (nouvel onglet dans le dossier parent), juste après « Ouvrir dans l'éditeur ».
 - Vérifié dans l'instance de dev : menu de `README.md` → nouvel onglet « repo » ouvert et affiché.
-- **Convention proposée** en section 5 de la spec (la liste « Retenu » du menu n'est pas modifiée).
+- **Convention proposée** en section 4 de la spec (la liste « Retenu » du menu n'est pas modifiée).
 - Une sixième relecture indépendante (itérations 44 à 51) tourne en parallèle.
 
 ## Reste à faire et idées
