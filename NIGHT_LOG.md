@@ -740,6 +740,10 @@ Suite de l'itération 79 : les remontées d'erreur génériques de l'hôte affic
 - Appliqué aux dix remontées génériques (`HostBridge`, `GitFeed`, `GitOperationRunner`, `WorktreeFeed`) ; celles qui préfixent déjà une phrase française (« Export des préférences impossible : … ») n'ont pas changé.
 - Vérifié : 450 tests (dont quatre pour `UserErrorMessage`) ; limite connue de l'itération 79 réduite.
 
+### 81. Neuvième relecture lancée, bilan régénéré
+
+- Relecture indépendante des itérations 70 à 80 lancée en arrière-plan (ses corrections forment l'itération 82) ; bilan HTML régénéré (80 itérations, 96 commits). Pas de changement de code dans cette itération.
+
 ### 82. Corrections de la neuvième relecture (diff, palette, journal, accessibilité)
 
 Une relecture indépendante des itérations 70 à 80 n'a trouvé ni défaut grave ni faille ; sept défauts mineurs et un écart de documentation, traités ainsi :
