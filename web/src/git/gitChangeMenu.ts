@@ -61,10 +61,10 @@ export const changeMenu = (rows: GitChangeRow[], state: GitState): ActionMenuIte
     },
     untracked.length > 0 && { id: 'ignore', label: byCount(untracked.length, 'Ajouter au .gitignore', `Ajouter ${untracked.length} fichiers au .gitignore`), run: () => ignoreFiles(untracked) },
     { id: 'copy', label: byCount(paths.length, 'Copier le chemin', `Copier les ${paths.length} chemins`), run: () => copyToClipboard(copied, byCount(paths.length, 'Chemin copié.', `${paths.length} chemins copiés.`)) },
-    {
+    editable.length > 0 && {
       id: 'insert',
-      label: byCount(paths.length, 'Insérer le chemin dans le terminal', `Insérer les ${paths.length} chemins dans le terminal`),
-      run: () => paths.forEach((path) => insertPathInActivePane(absolutePath(state.root, path))),
+      label: byCount(editable.length, 'Insérer le chemin dans le terminal', `Insérer les ${editable.length} chemins dans le terminal`),
+      run: () => editable.forEach((path) => insertPathInActivePane(absolutePath(state.root, path))),
     },
     {
       id: 'copy-relative',

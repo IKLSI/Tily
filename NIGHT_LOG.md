@@ -494,7 +494,7 @@ La barre de statut garde son dernier message jusqu'au suivant, parfois des heure
 
 ### 50. Chemin relatif depuis la vue Git, README à jour
 
-- Le menu d'un fichier modifié de la vue Git (un ou plusieurs sélectionnés) propose « Copier le chemin relatif » à côté de « Copier le chemin » : chemins relatifs à la racine du dépôt, un par ligne, à coller dans un agent (`@src/app.ts`) ou une commande, comme dans l'arbre des fichiers.
+- Le menu d'un fichier modifié de la vue Git (un ou plusieurs sélectionnés) propose « Copier le chemin relatif » à côté de « Copier le chemin » : chemins relatifs à la racine du dépôt, un par ligne, à coller dans un agent (`@src/app.ts`) ou une commande. *Nuance relevée à l'itération 54 : la vue Git donne le format de Git (relatif à la racine du dépôt, barres obliques), l'arbre des fichiers le format Windows (relatif à sa racine, antislashs).*
 - README complété des nouveautés 36 à 49 qui n'y figuraient pas : clignotement de la barre des tâches à la fin d'une commande longue, retour au nom automatique d'un onglet, diff copié applicable par `git apply`, chemin relatif depuis la vue Git.
 - Vérifié : lint et build ; dans l'instance de dev, menu de `docs/TESTING.md` dans la vue Git → « Copier le chemin relatif » copie `docs/TESTING.md` et annonce « Chemin relatif copié. ».
 
@@ -521,6 +521,17 @@ Après avoir fouillé plusieurs sous-dossiers, l'arbre des fichiers restait dép
 - Bouton « Tout replier » (deux chevrons qui se rejoignent) dans l'en-tête de l'arbre, entre « Nouveau dossier » et « Actualiser », comme dans VS Code : replie tous les dossiers dépliés sous la racine affichée, sans toucher à ceux d'un autre onglet. Grisé quand rien n'est déplié.
 - Vérifié dans l'instance de dev : 15 lignes, dossier `web` déplié → 27 lignes, « Tout replier » → 15 lignes et bouton grisé.
 - **Convention proposée** en section 4 de la spec.
+
+### 54. Corrections de la sixième relecture (liens, vue Git, sélecteurs, barre de statut)
+
+Une relecture indépendante des itérations 44 à 51 a relevé un défaut moyen et trois mineurs, tous corrigés.
+
+- **Liens, régression de l'itération 44** (moyen) : dans « Modified C:\repo\a.ts and src\b.ts » (sortie courante des agents), le motif à espaces prenait `a.ts and src` pour un dossier et ne faisait plus qu'un lien, `C:\repo\a.ts` n'étant plus ouvrable. Un chemin à espaces est désormais écarté dès qu'un de ses « dossiers » contient une extension suivie d'une espace : les deux liens courts reviennent. Banc de 13 cas rejoué : les deux phrases de la relecture donnent de nouveau deux liens, les 11 anciens cas sont inchangés.
+- **« Insérer le chemin dans le terminal » sur un fichier supprimé** : l'hôte refuse un chemin qui n'existe pas, avec un message parlant de dépôt. L'entrée ne porte plus que sur les fichiers existants (comme « Ouvrir dans l'éditeur ») et disparaît s'il n'y en a aucun.
+- **Maj + Entrée sans workspace ouvert** (sélecteur de projets, « Ouvrir un worktree ») : le sélecteur se fermait sans rien ouvrir. Sans workspace actif, Maj + Entrée ouvre un workspace comme Entrée.
+- **Heure de la barre de statut après minuit** : sans nouveau message, un message de 23:58 restait affiché sans le jour le lendemain. La barre se redessine à chaque minuit.
+- Remarques traitées : le caractère de remplacement U+FFFD est écrit `'\uFFFD'` dans `GitDiffReader` au lieu du caractère littéral ; espace rétablie dans `URL_BEFORE =` ; nuance de format du chemin relatif ajoutée à l'itération 50. Non retenu : distinguer un vrai U+FFFD d'un décodage raté (cas rarissime).
+- Vérifié : lint, build, 441 tests.
 
 ## Reste à faire et idées
 

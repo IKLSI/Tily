@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { busyLabel } from '../git/gitBusy'
 import { useGitStore } from '../store/gitStore'
@@ -16,13 +17,24 @@ const STATUS_CLASSES: Record<StatusLevel, string> = {
   [StatusLevel.Error]: 'text-dock-error',
 }
 
+const untilTomorrow = (): number => {
+  const now = new Date()
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).getTime() - now.getTime()
+}
+
 export function StatusBar() {
+  const [day, setDay] = useState(0)
   const status = useHostStore((state) => state.status)
   const unsaved = useHostStore((state) => state.unsaved)
   const { busy, busyRefs } = useGitStore(useShallow((state) => ({ busy: state.busy, busyRefs: state.busyRefs })))
   const worktreeBusy = useWorktreeStore((state) => state.busy !== null)
   const logOpen = useStatusLogStore((state) => state.open)
   const spinning = Boolean(busy) || worktreeBusy
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDay(day + 1), untilTomorrow())
+    return () => clearTimeout(timer)
+  }, [day])
 
   return (
     <>

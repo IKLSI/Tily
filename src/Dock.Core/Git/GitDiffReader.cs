@@ -21,7 +21,7 @@ public static class GitDiffReader
 
     private const int BinaryProbeBytes = 8000;
     private const char Separator = '\u001f';
-    private const char UndecodedCharacter = '�';
+    private const char UndecodedCharacter = '\uFFFD';
     private static readonly string[] DiffOptions = ["--no-ext-diff", "--no-color", "--src-prefix=a/", "--dst-prefix=b/", "-U3", "-M"];
 
     public static GitDiffModel Read(GitRepository repository, GitDiffRequestModel request)

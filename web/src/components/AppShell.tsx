@@ -306,7 +306,7 @@ export function AppShell({ session }: AppShellProps) {
   }
   const handleSelectProject = (project: Project, inActiveWorkspace: boolean) => {
     closeProjectPicker()
-    if (inActiveWorkspace) {
+    if (inActiveWorkspace && activeWorkspace(session)) {
       newTabAt(project.path, DEFAULT_SHELL)
     } else {
       newWorkspace(project.name, project.path, DEFAULT_SHELL)

@@ -5,7 +5,8 @@ import { useSessionStore } from '../store/sessionStore'
 
 const FILE_PATTERN = /(?:[A-Za-z]:[\\/]|\.{1,2}[\\/])?(?:[\p{L}\p{N}_.@+-]+[\\/])*[\p{L}\p{N}_@+-][\p{L}\p{N}_.@+-]*\.[A-Za-z][A-Za-z0-9]{0,9}(?::(\d+)(?::(\d+))?|\((\d+)(?:,\s*(\d+))?\))?/gu
 const SPACED_ABSOLUTE_PATTERN = /[A-Za-z]:[\\/](?:[\p{L}\p{N}_.@+()-]+(?: [\p{L}\p{N}_.@+()-]+)*[\\/])+[\p{L}\p{N}_@+-][\p{L}\p{N}_.@+-]*\.[A-Za-z][A-Za-z0-9]{0,9}(?::(\d+)(?::(\d+))?|\((\d+)(?:,\s*(\d+))?\))?/gu
-const URL_BEFORE =/\S*:\/\/\S*$/
+const URL_BEFORE = /\S*:\/\/\S*$/
+const EXTENSION_THEN_SPACE = /\.[A-Za-z][A-Za-z0-9]{0,9} /
 const SPACED_PATH_BEFORE = /[A-Za-z]:[\\/]\S*\s$/
 const SEPARATOR = /[\\/]/
 const PATH_CONTINUATION = /[\p{L}\p{N}_.@+\\/:-]/u
@@ -45,7 +46,7 @@ const matchesOf = (text: string, pattern: RegExp, continuesPreviousLine: boolean
 const overlaps = (match: FileLinkMatch, other: FileLinkMatch): boolean => match.index < other.index + other.text.length && other.index < match.index + match.text.length
 
 export const findFileLinks = (text: string, continuesPreviousLine = false): FileLinkMatch[] => {
-  const spaced = matchesOf(text, SPACED_ABSOLUTE_PATTERN, continuesPreviousLine).filter((match) => match.path.includes(' '))
+  const spaced = matchesOf(text, SPACED_ABSOLUTE_PATTERN, continuesPreviousLine).filter((match) => match.path.includes(' ') && !EXTENSION_THEN_SPACE.test(match.path))
   const plain = matchesOf(text, FILE_PATTERN, continuesPreviousLine).filter((match) => !spaced.some((other) => overlaps(match, other)))
   return [...spaced, ...plain].sort((first, second) => first.index - second.index)
 }

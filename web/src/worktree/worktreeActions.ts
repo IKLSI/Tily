@@ -95,7 +95,7 @@ export const openWorktree = (path: string, inActiveWorkspace = false): void => {
     joinPane(existing.id)
     return
   }
-  if (inActiveWorkspace) {
+  if (inActiveWorkspace && session && activeWorkspace(session)) {
     newTabAt(path, DEFAULT_SHELL)
   } else {
     newWorkspace(worktreeTarget(path).name, path, DEFAULT_SHELL)
