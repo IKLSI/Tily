@@ -637,6 +637,13 @@ Suite de l'itération 66, pour la cohérence : dans la vue Git, seul le bouton �
 - F5, quand le focus est dans la vue Git (liste des modifications, branches, message de commit…), relit l'état du dépôt comme le bouton « Actualiser », dont l'infobulle indique désormais F5.
 - Vérifié dans l'instance de dev : fichier créé sur le disque, focus sur une ligne de la vue Git, F5 → l'interface n'est pas rechargée et le fichier apparaît dans les modifications.
 
+### 68. Messages de la barre de statut annoncés aux lecteurs d'écran
+
+Le message de la barre de statut vit dans le bouton qui ouvre le journal : un lecteur d'écran (Narrateur, NVDA) ne l'annonçait pas quand il changeait, alors que c'est le seul retour de nombreuses actions (« Chemin copié », erreurs Git, collage annulé…).
+
+- Une région `status` invisible (classe `sr-only`) reprend le message courant, ou le libellé d'une opération Git en cours, pour qu'il soit annoncé à chaque changement. Rien ne change à l'écran.
+- Vérifié dans l'instance de dev : la région existe, est masquée (1 px, `overflow: hidden`) et passe de « Session restaurée… » à « Chemin copié : … » après un clic sur « Copier le chemin ».
+
 ## Reste à faire et idées
 
 ### À décider par toi
