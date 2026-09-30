@@ -39,7 +39,8 @@ export const changeMenuLabel = (rows: GitChangeRow[]): string => (rows.length ==
 
 export const changeMenu = (rows: GitChangeRow[], state: GitState): ActionMenuItem[] => {
   const { conflicts, staged, unstaged } = selectedChanges(rows)
-  const editable = unique(rows.filter((row) => row.change?.kind !== GitChangeKind.Deleted).map(rowPath))
+  const deletedOnDisk = new Set(state.unstaged.filter((change) => change.kind === GitChangeKind.Deleted).map((change) => change.path))
+  const editable = unique(rows.filter((row) => row.change?.kind !== GitChangeKind.Deleted && !deletedOnDisk.has(rowPath(row))).map(rowPath))
   const stashable = unique(withOldPaths([...staged, ...unstaged]))
   const untracked = unstaged.filter((change) => change.kind === GitChangeKind.Untracked).map((change) => change.path)
   const paths = unique(rows.map(rowPath))

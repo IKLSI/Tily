@@ -49,6 +49,9 @@ public sealed class BridgeCommandModel
     public int Rows { get; init; }
     public int Line { get; init; }
     public int Column { get; init; }
+    public string? Alternative { get; init; }
+    public int AlternativeLine { get; init; }
+    public int AlternativeColumn { get; init; }
     public int Chars { get; init; }
     public int Count { get; init; }
     public int Index { get; init; }

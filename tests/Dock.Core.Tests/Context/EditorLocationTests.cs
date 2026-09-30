@@ -94,6 +94,22 @@ public sealed class EditorLocationTests
     }
 
     [Fact]
+    public void ExistingExactly_WhenOnlyPathAfterSpaceExists_ThenReturnsNull()
+    {
+        var path = EditorLocation.ExistingExactly(@"D:\dépôt", @"C:\repo\a.ts and src\b.ts", candidate => candidate == @"D:\dépôt\src\b.ts");
+
+        Assert.Null(path);
+    }
+
+    [Fact]
+    public void ExistingExactly_WhenDottedFolderPathExists_ThenReturnsIt()
+    {
+        var path = EditorLocation.ExistingExactly(null, @"C:\Tools\Node.js Apps\index.ts", candidate => candidate == @"C:\Tools\Node.js Apps\index.ts");
+
+        Assert.Equal(@"C:\Tools\Node.js Apps\index.ts", path);
+    }
+
+    [Fact]
     public void ResolveExisting_WhenNothingExists_ThenReturnsNull()
     {
         var path = EditorLocation.ResolveExisting(@"D:\dépôt", "a/web/x.ts", _ => false);

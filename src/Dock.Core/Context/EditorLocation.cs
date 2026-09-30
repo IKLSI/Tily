@@ -19,6 +19,17 @@ public static class EditorLocation
         return Path.GetFullPath(Path.Combine(folder, path));
     }
 
+    public static string? ExistingExactly(string? folder, string path, Func<string, bool> exists)
+    {
+        if (!Path.IsPathRooted(path) && string.IsNullOrWhiteSpace(folder))
+        {
+            return null;
+        }
+
+        var resolved = Resolve(folder, path);
+        return exists(resolved) ? resolved : null;
+    }
+
     public static string? ResolveExisting(string? folder, string path, Func<string, bool> exists)
     {
         var resolved = Resolve(folder, path);

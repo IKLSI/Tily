@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ChangeEvent, type KeyboardEvent, type PointerEvent } from 'react'
+import { useEffect, useRef, useState, type ChangeEvent, type KeyboardEvent, type MouseEvent, type PointerEvent } from 'react'
 import { AttentionKind, PickTarget, type ImportedPreferences, type NotificationSettings, type PersistenceSettings, type PickedPath, type Settings, type SettingsSnapshot } from '../bridge/messages'
 import type { WorktreeSettings } from '../bridge/worktreeMessages'
 import { useHostStore } from '../store/hostStore'
@@ -65,6 +65,8 @@ const PRIMARY = `${BUTTON} border-dock-green text-dock-green-deep hover:bg-dock-
 const SECONDARY = `${BUTTON} border-dock-line text-dock-ink hover:bg-dock-green-hover`
 const BROWSE = SETTINGS_BROWSE
 
+const comparable = (settings: Settings): Settings => ({ ...settings, shells: Object.fromEntries(Object.entries(settings.shells).filter(([, path]) => path.trim().length > 0)) })
+
 export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave, onPick, onExport, onImport, onInstallHooks, onRemoveHooks, onTestNotification }: SettingsDialogProps) {
   const version = useHostStore((state) => state.version)
   const [draft, setDraft] = useState<Settings | null>(null)
@@ -112,7 +114,15 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
     }
   }, [loaded])
 
-  const unsaved = Boolean(draft && snapshot && (importSource !== null || JSON.stringify(draft) !== JSON.stringify(snapshot.settings)))
+  const unsaved = Boolean(draft && snapshot && (importSource !== null || JSON.stringify(comparable(draft)) !== JSON.stringify(comparable(snapshot.settings))))
+  if (closeHeld && !unsaved) {
+    setCloseHeld(false)
+  }
+  const handleBackdropMouseDown = (event: MouseEvent<HTMLDivElement>) => {
+    if (event.target === event.currentTarget && unsaved) {
+      event.preventDefault()
+    }
+  }
   const handleBackdropPointerDown = (event: PointerEvent<HTMLDivElement>) => {
     if (event.target !== event.currentTarget) {
       return
@@ -344,7 +354,7 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
   )
 
   return (
-    <div className="absolute inset-0 z-30 flex items-start justify-center bg-dock-paper/60 pt-[6vh]" onPointerDown={handleBackdropPointerDown}>
+    <div className="absolute inset-0 z-30 flex items-start justify-center bg-dock-paper/60 pt-[6vh]" onPointerDown={handleBackdropPointerDown} onMouseDown={handleBackdropMouseDown}>
       <div ref={dialogRef} role="dialog" aria-label="Paramètres" className="flex max-h-[86vh] w-[640px] max-w-[94vw] flex-col rounded-lg border border-dock-line bg-dock-panel shadow-xl" onKeyDown={handleKeyDown}>
         <div className="flex items-center justify-between border-b border-dock-line px-4 py-3">
           <h2 className="text-[15px] font-semibold text-dock-ink">

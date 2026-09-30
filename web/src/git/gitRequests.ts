@@ -172,7 +172,10 @@ export const discardChanges = (changes: GitFileChange[], total: number): void =>
 }
 
 export const commitChanges = (push: boolean): void => {
-  const { message, amend } = useGitStore.getState()
+  const { message, amend, state, startCommit } = useGitStore.getState()
+  if (state) {
+    startCommit(state.root)
+  }
   withRoot((path) => ({ type: 'git.commit', path, message, amend, push }))
 }
 

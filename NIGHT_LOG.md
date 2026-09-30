@@ -594,6 +594,19 @@ L'inverse de l'itération 61 : l'arbre des fichiers marque les fichiers modifié
 - Vérifié dans l'instance de dev : menu de `README.md` (M) → vue Git ouverte sur le diff Unstaged de `README.md`. Le premier essai affichait « Aucune modification » parce que l'état Git n'était pas encore chargé ; corrigé par l'attente.
 - **Convention proposée** complétée en section 4 de la spec.
 
+### 63. Corrections de la septième relecture (brouillons, dialogues, liens)
+
+Une relecture indépendante des itérations 52 à 60 a relevé un défaut moyen et cinq mineurs, tous corrigés.
+
+- **Brouillon de commit pendant un commit** (moyen) : changer d'onglet pendant un « Commit et push » effaçait à la fin le message affiché, celui d'un autre dépôt, et restaurait plus tard le message déjà commité. Le dépôt du commit est retenu : à la fin, seul son message (affiché ou mis de côté) est vidé.
+- **Brouillon et mode Amend** : un message saisi puis Amend coché était perdu au changement de dépôt, et un brouillon restauré puis commité pouvait revenir. Le brouillon d'un dépôt est retiré dès qu'il est restauré, et en mode Amend le message est mis de côté s'il diffère du dernier message de commit.
+- **Focus après un clic à côté gardé** (Paramètres, formulaire de worktree) : le clic sur le fond retirait le focus du dialogue, et Ctrl + Entrée, Entrée ou Tab ne marchaient plus. Le clic gardé n'enlève plus le focus.
+- **Paramètres « modifiés » à tort** après avoir tapé puis effacé un chemin de shell : la comparaison ignore les chemins vides (l'hôte ne les enregistre pas) ; le message « non enregistrées » disparaît quand on revient à l'état enregistré.
+- **Liens de l'itération 54 trop stricts** : `C:\Tools\Node.js Apps\index.ts` ou `D:\Dev\ASP.NET Core\Program.cs(12,5)` n'ouvraient plus que le dossier tronqué. Le lien court porte désormais le chemin long en alternative (`files.openAt` : `alternative`, `alternativeLine`, `alternativeColumn`) ; l'hôte ouvre ce chemin long s'il existe exactement comme fichier (`EditorLocation.ExistingExactly`, sans repli après les espaces), sinon le chemin court. « Modified C:\repo\a.ts and src\b.ts » garde ses deux liens corrects.
+- **« Insérer le chemin » et « Ouvrir dans l'éditeur »** proposés pour un fichier stagé puis supprimé du disque : exclus aussi.
+- Cosmétique : compteur de la première ligne en caractères réels (un gitmoji compte pour un) ; double ligne vide retirée ; exemple faux de la limite connue (`v1.2 beta`) corrigé ; repli Maj + Entrée sans workspace ajouté à la spec.
+- Vérifié : 443 tests (dont deux pour `ExistingExactly`) ; banc de liens (chemins `Node.js Apps`, `ASP.NET Core`, phrase à deux chemins, `Projet T`) ; dans l'instance de dev, aller-retour dans un chemin de shell puis clic à côté → Paramètres fermés, modification puis clic à côté → gardés avec le focus dedans, Échap → fermés.
+
 ## Reste à faire et idées
 
 ### À décider par toi
@@ -614,7 +627,7 @@ L'inverse de l'itération 61 : l'arbre des fichiers marque les fichiers modifié
   - un chemin de fichier replié sur deux lignes n'est pas cliquable ;
   - après un redimensionnement, l'invite repliée peut se redessiner de travers jusqu'à la commande suivante.
 - **Copie de sortie et navigation entre commandes** : Windows PowerShell et PowerShell 7 seulement, pas CMD ni Git Bash. Une invite qui s'écrit elle-même par `Write-Host` au lieu de renvoyer son texte fausserait la hauteur annoncée.
-- **Liens de fichiers** : depuis l'itération 44, un chemin absolu avec des espaces dans ses dossiers est lié ; un nom de fichier ou un chemin relatif avec espaces ne l'est toujours pas, ni un chemin replié sur deux lignes, ni un chemin dont un dossier contient une extension suivie d'une espace (`v1.2 beta`), écarté pour ne pas avaler une phrase.
+- **Liens de fichiers** : depuis l'itération 44, un chemin absolu avec des espaces dans ses dossiers est lié ; un nom de fichier ou un chemin relatif avec espaces ne l'est toujours pas, ni un chemin replié sur deux lignes, et un chemin dont un dossier contient une extension suivie d'une espace (`Node.js Apps`, `ASP.NET Core`) n'est souligné que jusqu'à ce point (le Ctrl + clic ouvre quand même le fichier complet s'il existe, itération 63).
 - **Clignotement de la barre des tâches** (itération 38) : la commande est bien reçue par l'hôte, mais le clignotement lui-même ne s'observe pas par le débogage distant ; à confirmer à l'usage.
 - **Diff copié** : un fichier UTF-8 qui contient réellement le caractère de remplacement U+FFFD est traité comme mal décodé et n'est pas copiable (rarissime).
 

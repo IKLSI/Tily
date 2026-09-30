@@ -1,4 +1,4 @@
-import { useEffect, type ChangeEvent, type PointerEvent, type SubmitEvent } from 'react'
+import { useEffect, type ChangeEvent, type MouseEvent, type PointerEvent, type SubmitEvent } from 'react'
 import { WorktreeBranchMode, type WorktreePlan } from '../bridge/worktreeMessages'
 import { folderName } from '../model/session'
 import type { WorktreeDraft, WorktreeFailure } from '../store/worktreeStore'
@@ -20,7 +20,6 @@ const PRIMARY = `${SETTINGS_BUTTON} flex items-center gap-2 border-dock-green te
 const RADIO_LABEL = 'flex items-center gap-2 text-[12px] text-dock-ink'
 const LOCAL_GROUP = 'Locales'
 const REMOTE_GROUP = 'Distantes'
-
 
 const handleSubmit = (event: SubmitEvent<HTMLFormElement>) => {
   event.preventDefault()
@@ -53,9 +52,15 @@ export function WorktreeDialog({ draft, plan, planPending, busy, failure }: Work
   const baseValue = draft.base || defaultBase
   const extraBase = [...new Set([baseValue, plan?.configuredBase ?? ''])].filter((base) => base && !remoteBranches.includes(base) && !localBranches.includes(base))
   const canCreate = Boolean(plan?.path) && !plan?.error && !planPending && !busy
+  const guarded = creating && draft.branch.trim().length > 0
   const handleBackdropPointerDown = (event: PointerEvent<HTMLDivElement>) => {
-    if (event.target === event.currentTarget && !(creating && draft.branch.trim().length > 0)) {
+    if (event.target === event.currentTarget && !guarded) {
       closeWorktreeDialog()
+    }
+  }
+  const handleBackdropMouseDown = (event: MouseEvent<HTMLDivElement>) => {
+    if (event.target === event.currentTarget && guarded) {
+      event.preventDefault()
     }
   }
 
@@ -76,7 +81,7 @@ export function WorktreeDialog({ draft, plan, planPending, busy, failure }: Work
   }
 
   return (
-    <div className="absolute inset-0 z-30 flex items-start justify-center bg-dock-paper/60 pt-[10vh]" onPointerDown={handleBackdropPointerDown}>
+    <div className="absolute inset-0 z-30 flex items-start justify-center bg-dock-paper/60 pt-[10vh]" onPointerDown={handleBackdropPointerDown} onMouseDown={handleBackdropMouseDown}>
       <form role="dialog" aria-label="Créer un worktree" className="flex max-h-[80vh] w-[560px] max-w-[94vw] flex-col rounded-lg border border-dock-line bg-dock-panel shadow-xl" onKeyDown={keepTabInside} onSubmit={handleSubmit}>
         <div className="flex items-center justify-between border-b border-dock-line px-4 py-3">
           <h2 className="text-[15px] font-semibold text-dock-ink">Créer un worktree</h2>

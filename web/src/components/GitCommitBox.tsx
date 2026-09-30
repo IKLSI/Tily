@@ -45,7 +45,7 @@ export function GitCommitBox({ state, busy }: GitCommitBoxProps) {
   const blocker = commitBlocker(state, busy, message, amend)
   const pushBlocked = blocker ?? pushBlocker(state)
   const commitLabel = amend ? 'Amend' : 'Commit'
-  const subjectLength = message.split(LINE_BREAK)[0].trim().length
+  const subjectLength = [...message.split(LINE_BREAK)[0].trim()].length
 
   const handleMessageChange = (event: ChangeEvent<HTMLTextAreaElement>) => useGitStore.getState().setMessage(event.target.value)
   const handleAmendChange = (event: ChangeEvent<HTMLInputElement>) => {

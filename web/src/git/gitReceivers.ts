@@ -73,7 +73,7 @@ export const receiveGitDone = (operation: string, message: string, warning: bool
   const store = useGitStore.getState()
   takeRetry(operation)
   if (operation === COMMIT_OPERATION) {
-    store.setAmend(false, '')
+    store.finishCommit()
   }
   if (operation === COMMIT_OPERATION || operation === 'git.push') {
     store.setRejection(null)
@@ -103,7 +103,7 @@ export const receiveGitPushRejected = (operation: string, branch: string, messag
   finishBusy(operation)
   const store = useGitStore.getState()
   if (operation === COMMIT_OPERATION) {
-    store.setAmend(false, '')
+    store.finishCommit()
   }
   store.setRejection({ branch, message, output })
   useHostStore.getState().setStatus(message, StatusLevel.Warning)

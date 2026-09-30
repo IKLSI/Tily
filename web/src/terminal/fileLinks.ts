@@ -21,6 +21,13 @@ export interface FileLinkMatch {
   path: string
   line: number
   column: number
+  alternative?: FileLocation
+}
+
+interface FileLocation {
+  path: string
+  line: number
+  column: number
 }
 
 const positionOf = (value: string | undefined): number => {
@@ -46,8 +53,15 @@ const matchesOf = (text: string, pattern: RegExp, continuesPreviousLine: boolean
 const overlaps = (match: FileLinkMatch, other: FileLinkMatch): boolean => match.index < other.index + other.text.length && other.index < match.index + match.text.length
 
 export const findFileLinks = (text: string, continuesPreviousLine = false): FileLinkMatch[] => {
-  const spaced = matchesOf(text, SPACED_ABSOLUTE_PATTERN, continuesPreviousLine).filter((match) => match.path.includes(' ') && !EXTENSION_THEN_SPACE.test(match.path))
-  const plain = matchesOf(text, FILE_PATTERN, continuesPreviousLine).filter((match) => !spaced.some((other) => overlaps(match, other)))
+  const candidates = matchesOf(text, SPACED_ABSOLUTE_PATTERN, continuesPreviousLine).filter((match) => match.path.includes(' '))
+  const spaced = candidates.filter((match) => !EXTENSION_THEN_SPACE.test(match.path))
+  const ambiguous = candidates.filter((match) => EXTENSION_THEN_SPACE.test(match.path))
+  const plain = matchesOf(text, FILE_PATTERN, continuesPreviousLine)
+    .filter((match) => !spaced.some((other) => overlaps(match, other)))
+    .map((match) => {
+      const whole = ambiguous.find((other) => other.index === match.index)
+      return whole ? { ...match, alternative: { path: whole.path, line: whole.line, column: whole.column } } : match
+    })
   return [...spaced, ...plain].sort((first, second) => first.index - second.index)
 }
 
@@ -88,7 +102,16 @@ export const registerFileLinks = (terminal: Terminal, paneId: string): void => {
         },
         activate: (event) => {
           if (event.ctrlKey) {
-            bridge.send({ type: 'files.openAt', path: match.path, cwd: folderOf(paneId), line: match.line, column: match.column })
+            bridge.send({
+              type: 'files.openAt',
+              path: match.path,
+              cwd: folderOf(paneId),
+              line: match.line,
+              column: match.column,
+              alternative: match.alternative?.path,
+              alternativeLine: match.alternative?.line,
+              alternativeColumn: match.alternative?.column,
+            })
           }
         },
       }))

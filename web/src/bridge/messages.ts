@@ -220,7 +220,7 @@ export type WebToHostMessage =
   | { type: 'files.watch'; paths: string[] }
   | { type: 'files.refresh' }
   | { type: 'files.open'; path: string }
-  | { type: 'files.openAt'; path: string; cwd?: string; line: number; column: number }
+  | { type: 'files.openAt'; path: string; cwd?: string; line: number; column: number; alternative?: string; alternativeLine?: number; alternativeColumn?: number }
   | { type: 'files.reveal'; path: string }
   | { type: 'files.create'; path: string; name: string; kind: EntryKind }
   | { type: 'files.rename'; path: string; parent: string; name: string }
