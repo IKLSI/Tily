@@ -717,6 +717,13 @@ Depuis le volet de diff de la vue Git, « Ouvrir dans l'éditeur » ouvrait le f
 - Vérifié dans l'instance de dev : diff de `README.md`, Ctrl + clic sur la ligne ajoutée « modif » → l'éditeur reçoit `-g "…\README.md:85:1"`.
 - **Convention proposée** en section 11 de la spec (volet de diff).
 
+### 78. Journal des messages : « Erreurs seulement »
+
+Le journal de la barre de statut (Ctrl + Maj + L) garde des centaines de messages ; retrouver l'erreur d'il y a une heure au milieu des « Chemin copié » était fastidieux.
+
+- Un bouton bascule « Erreurs seulement » dans l'en-tête du journal n'affiche que les avertissements et les erreurs (« Aucun avertissement ni erreur dans le journal. » s'il n'y en a pas) ; un second clic réaffiche tout. Copier et Effacer portent toujours sur tout le journal.
+- Vérifié dans l'instance de dev : 212 messages → 7 avertissements et erreurs. Le filtre a d'ailleurs fait ressortir un message d'erreur en anglais, corrigé à l'itération suivante.
+
 ## Reste à faire et idées
 
 ### À décider par toi
