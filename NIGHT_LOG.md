@@ -945,6 +945,14 @@ Suite de l’itération 103 : après le clic, la barre de statut restait sur « 
 - À l’arrivée de l’état du nouveau dépôt, la barre de statut affiche « Dépôt Git initialisé dans … (branche master) » ; en cas d’échec, le message d’erreur, en rouge.
 - Vérifié dans l’instance de dev sur un dossier neuf. Lint et build au vert.
 
+### 105. Raccourcis des notes toujours rappelés
+
+Ctrl + Entrée et Ctrl + Maj + Entrée n’étaient rappelés que dans le texte d’attente de la note, qui disparaît dès qu’on y écrit : une fois la note remplie, plus rien ne les signalait.
+
+- Pied discret sous la note, toujours visible : « Ctrl + Entrée : coller dans le terminal · Ctrl + Maj + Entrée : exécuter », passant à la ligne dans un panneau étroit, et relié à la zone de texte (`aria-describedby`) pour les lecteurs d’écran.
+- Vérifié dans l’instance de dev (pied présent sous la note, 16 px de haut en panneau large). Lint et build au vert.
+- Douzième relecture reçue ; ses corrections font l’objet de l’itération 106.
+
 ## Reste à faire et idées
 
 ### À décider par toi
