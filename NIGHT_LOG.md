@@ -883,6 +883,15 @@ Les boutons Split côte à côte, Split haut / bas et Fermer le pane de l’en-t
 - Infobulles complétées : « Split côte à côte (Ctrl + Maj + D) », « Split haut / bas (Ctrl + Maj + H) », « Fermer le pane (Ctrl + Maj + X) », « Nouvel onglet PowerShell (Ctrl + Maj + T ; clic droit : choisir le shell ; … ) ». Fermer un onglet n’a pas de raccourci direct, son infobulle reste telle quelle.
 - Lint et build au vert.
 
+### 98. Session protégée contre les coupures de courant
+
+Une session illisible était bien mise de côté, mais Dock repartait alors de la session initiale : tous les workspaces et onglets perdus. Or l’écriture « atomique » (fichier temporaire puis renommage) n’obligeait pas Windows à écrire les données sur le disque avant le renommage ; après une coupure de courant, NTFS peut laisser un `session.json` vide, cas classique.
+
+- `AtomicFile` force l’écriture du fichier temporaire sur le disque (`Flush(true)`) avant de le renommer ; cela vaut pour la session, le texte des panes et tous les réglages.
+- Chaque enregistrement de la session copie d’abord le précédent dans `session.previous.json`. Si `session.json` est illisible, il est toujours mis de côté, puis l’avant-dernier enregistrement est restauré s’il est valide, avec le message « … L’avant-dernier enregistrement de la session a été restauré. » ; sinon, session initiale comme avant.
+- Vérifié dans l’instance de dev : `session.json` vidé à la main, redémarrage → 17 onglets restaurés (l’état d’avant le dernier onglet ouvert) et message d’avertissement dans la barre de statut. Test ajouté ; 461 tests au vert.
+- **Convention proposée** en section 13 de la spec ; architecture hôte complétée.
+
 ## Reste à faire et idées
 
 ### À décider par toi
