@@ -392,13 +392,7 @@ public sealed class HostBridge : IDisposable
 
     private void SaveFontSize(BridgeCommandModel command)
     {
-        _settings.Appearance = new AppearanceSettingsModel(command.FontSize).Clamped();
-        var result = _settingsService.Save(_settings);
-        if (!result.IsValid)
-        {
-            throw new InvalidOperationException($"Réglages refusés : {result.Error}");
-        }
-
+        _settings.Appearance = _settingsService.SaveAppearance(new AppearanceSettingsModel(command.FontSize));
         Post(new { type = "appearance.changed", fontSize = _settings.Appearance.FontSize });
     }
 

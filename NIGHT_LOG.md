@@ -804,7 +804,7 @@ Dans un pane étroit, le chemin de l’en-tête était coupé à la fin (`C:\Use
 
 Un onglet prend par défaut le nom de son dossier : trois onglets ouverts dans le même projet s’appelaient tous « repo », et la palette listait trois « Onglet · Workspace 2 / repo » identiques, sans moyen de savoir lequel on rejoignait.
 
-- Quand plusieurs onglets d’un même workspace portent le même nom, leurs entrées de navigation (et celles de leurs panes) précisent leur position : « Onglet · Workspace 2 / repo (onglet 3) », le même numéro que Leader puis 3. Un nom unique reste tel quel.
+- Quand plusieurs onglets d’un même workspace portent le même nom, leurs entrées de navigation (et celles de leurs panes) précisent leur position : « Onglet · Workspace 2 / repo (onglet 3) », leur position dans la barre d’onglets (corrigé à l’itération 91 : ce n’est pas toujours le numéro de Leader puis chiffre, qui s’arrête à 9). Un nom unique reste tel quel.
 - Vérifié dans l’instance de dev (16 onglets) : « repo (onglet 1) », « repo (onglet 3) »…, l’onglet « xt » unique sans numéro. Au passage, la barre d’onglets à 16 onglets défile bien et garde l’onglet actif visible.
 - **Convention proposée** ajoutée en section 9 de la spec.
 
@@ -823,6 +823,15 @@ L’aperçu d’un Markdown (README, `CLAUDE.md`, notes d’agent) n’en montra
 - Bouton « Source » dans l’en-tête de l’aperçu Markdown : texte brut coloré par highlight.js à la place du rendu, bouton marqué enfoncé ; un second clic revient au rendu. Le choix tient tant que le même fichier reste ouvert (y compris quand il est rechargé après modification) et repart sur le rendu pour un autre fichier.
 - Vérifié dans l’instance de dev sur le README : source affichée et colorée, retour au rendu. Lint et build au vert.
 - **Convention proposée** ajoutée en section 4 de la spec (aperçu des fichiers).
+
+### 91. Corrections de la dixième relecture (en-tête avec agent, taille du texte, docs)
+
+Dixième relecture indépendante (itérations 83 à 88), lancée à l’itération 89 : deux défauts réels, quelques écarts de documentation.
+
+- **Bouton Fermer encore poussé hors de l’en-tête quand un agent est affiché** (itération 87 incomplète) : le badge « Claude Code · En attente » était incompressible. Il se tronque désormais et, sous 420 px, n’affiche que son icône (état en infobulle) ; le nom du shell se tronque aussi au besoin, seuls les boutons restent incompressibles. Vérifié dans l’instance de dev avec un badge simulé dans quatre panes de 659, 325, 158 et 158 px : Fermer visible partout.
+- **Agrandir le texte depuis la palette réécrivait et revalidait tous les réglages** : un `projects.json` édité à la main avec un chemin relatif faisait échouer « Agrandir le texte » avec « Réglages refusés : Le dossier des projets… », tout en laissant la nouvelle taille en mémoire, annoncée par les Paramètres. Nouveau `SettingsService.SaveAppearance`, qui borne et n’écrit que `appearance.json` ; la taille en mémoire n’est mise à jour qu’après l’écriture. Test ajouté ; 452 tests au vert.
+- Bornes 8 / 14 / 32 de la taille du texte recopiées en trois endroits du web : regroupées dans `model/appearance.ts`.
+- Docs : « (onglet N) » n’est pas toujours le numéro de Leader puis chiffre (qui s’arrête à 9), formulation corrigée ; Ctrl + Maj + Entrée exécute aussi une sélection d’une seule ligne ; le chemin de l’en-tête tronque le dossier parent (et non « par le début ») ; architecture front complétée (entrées de taille du texte, `distinctTabName`, `setFontSize`, raccourcis des notes, badge d’agent) et contrat `appearance.fontSize` précisé.
 
 ## Reste à faire et idées
 

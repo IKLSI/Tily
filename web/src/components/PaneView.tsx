@@ -169,7 +169,7 @@ export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZ
         onMouseDown={handleHeaderMouseDown}
         onDoubleClick={handleHeaderDoubleClick}
       >
-        <span className="mr-1 font-semibold text-dock-ink">{pane.shell}</span>
+        <span className="mr-1 min-w-[2em] truncate font-semibold text-dock-ink">{pane.shell}</span>
         {agent && <AgentBadge agent={agent} />}
         <span className="flex min-w-0 flex-1 font-mono whitespace-nowrap text-dock-green" data-tip={pane.path}>
           {parent && <span className="min-w-[1.2em] truncate">{parent}</span>}

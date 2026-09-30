@@ -7,6 +7,7 @@ import { ClipboardAddon } from '@xterm/addon-clipboard'
 import { SerializeAddon } from '@xterm/addon-serialize'
 import { WebLinksAddon } from '@xterm/addon-web-links'
 import { bridge } from '../bridge/bridge'
+import { DEFAULT_FONT_SIZE } from '../model/appearance'
 import type { Pane } from '../model/session'
 import { COMMAND_DONE_OSC, receiveCommandDone } from './commandNotices'
 import { trackCommandOutput } from './commandOutput'
@@ -18,7 +19,6 @@ const STABLE_CHUNK_LINES = 1000
 const CHUNK_SEPARATOR = '\x1b[0m\r\n'
 const SNAPSHOT_SCROLLBACK_LINES = 2000
 const DEFAULT_SCROLLBACK_LINES = 10000
-const DEFAULT_FONT_SIZE = 14
 const NEWLINE = String.fromCharCode(13, 10)
 const ERASE_SCROLLBACK = '\x1b[3J'
 

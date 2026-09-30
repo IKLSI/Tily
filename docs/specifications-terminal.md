@@ -136,7 +136,7 @@ Ces valeurs sont des références de réalisation, pas des contraintes de taille
 
 **Convention proposée.** Leader puis O, Ctrl + Maj + O, la palette (« Afficher / masquer les notes du workspace ») ou l’onglet « Notes » du panneau ouvrent la vue avec le focus dans la note, ou la ferment ; Échap rend le focus au terminal. Un clic sur l’icône de note, ou « Notes du workspace » dans le menu contextuel du workspace, active ce workspace et ouvre la vue. Police mono, au plus 100 000 caractères. Fermer le dernier onglet d’un workspace garde sa note avec l’onglet fermé : le rouvrir recrée le workspace avec sa note (recette R35).
 
-**Convention proposée.** Dans la note, Ctrl + Entrée colle la ligne du curseur, ou la sélection si elle existe (sans ses sauts de ligne finaux), dans le terminal actif du workspace sans l’exécuter, puis donne le focus à ce terminal : Entrée reste à taper. Ctrl + Maj + Entrée colle la ligne du curseur (une seule) et l’exécute aussitôt, pour lancer une commande gardée en note ; une sélection de plusieurs lignes n’est alors pas envoyée et la barre de statut renvoie vers Ctrl + Entrée. Une ligne vide, ou un terminal qui affiche un message à la place de son shell (processus terminé), n’envoie rien et l’explique dans la barre de statut ; une sélection de plusieurs lignes passe par la confirmation du collage multi-ligne (section 8).
+**Convention proposée.** Dans la note, Ctrl + Entrée colle la ligne du curseur, ou la sélection si elle existe (sans ses sauts de ligne finaux), dans le terminal actif du workspace sans l’exécuter, puis donne le focus à ce terminal : Entrée reste à taper. Ctrl + Maj + Entrée colle la ligne du curseur, ou la sélection si elle tient sur une seule ligne (même partielle), et l’exécute aussitôt, pour lancer une commande gardée en note ; une sélection de plusieurs lignes n’est alors pas envoyée et la barre de statut renvoie vers Ctrl + Entrée. Une ligne vide, ou un terminal qui affiche un message à la place de son shell (processus terminé), n’envoie rien et l’explique dans la barre de statut ; une sélection de plusieurs lignes passe par la confirmation du collage multi-ligne (section 8).
 
 ### Création et renommage
 
@@ -279,7 +279,7 @@ Les splits peuvent être imbriqués. L’action de fermeture d’un pane retire 
 
 **Convention proposée.** L’étoile d’une commande (clic ou Ctrl + Entrée) la marque comme favorite et la place en tête de la palette. Seules les commandes en portent une : ni les entrées de navigation, ni « Rejoindre », ni « Rouvrir l’onglet fermé ». Au plus 50 favoris ; au-delà, la palette demande d’en retirer un.
 
-**Convention proposée.** Quand plusieurs onglets d’un même workspace portent le même nom (par défaut celui de leur dossier), leurs entrées de navigation et celles de leurs panes précisent leur position : « repo (onglet 3) », le même numéro que Leader puis 3.
+**Convention proposée.** Quand plusieurs onglets d’un même workspace portent le même nom (par défaut celui de leur dossier), leurs entrées de navigation et celles de leurs panes précisent leur position dans la barre d’onglets : « repo (onglet 3) ».
 
 ### Touche Leader
 
@@ -342,7 +342,7 @@ Les actions utilisent le **dossier du pane actif**, jamais un hypothétique doss
 
 **Décision prise.** Montrer le chemin ciblé dans le menu ou la zone d’actions. Afficher explicitement « Aucun dépôt Git », « Aucune branche » ou « HEAD détachée » selon le contexte. Désactiver ou masquer les actions Git hors dépôt ; ne jamais afficher une branche fictive.
 
-**Convention proposée.** L’en-tête de chaque pane affiche la branche Git de son dossier, ou « HEAD détachée », à côté du chemin ; rien hors d’un dépôt. Elle est relue après chaque commande, pour suivre un `git switch` ou un `wtr`. Dans un pane de moins de 520 px de large, elle est masquée et reste lisible dans l’infobulle de « Copier la branche ». Le chemin trop long est raccourci par le début, pour garder son dernier dossier lisible (`C:\Users\m…\repo`), et le chemin complet reste en infobulle. Dans un pane de moins de 280 px, les boutons Copier le chemin, Ouvrir dans l’éditeur, Ouvrir dans l’explorateur et Copier la branche sont masqués (ils restent dans la palette) pour que Split et Fermer restent visibles. Dans la palette, l’entrée de chaque pane rappelle aussi sa branche, qu’on peut donc taper pour le retrouver.
+**Convention proposée.** L’en-tête de chaque pane affiche la branche Git de son dossier, ou « HEAD détachée », à côté du chemin ; rien hors d’un dépôt. Elle est relue après chaque commande, pour suivre un `git switch` ou un `wtr`. Dans un pane de moins de 520 px de large, elle est masquée et reste lisible dans l’infobulle de « Copier la branche ». Quand le chemin est trop long, c’est le dossier parent qui est tronqué et le dernier dossier reste entier (`C:\Users\m…\repo`), et le chemin complet reste en infobulle. Dans un pane de moins de 280 px, les boutons Copier le chemin, Ouvrir dans l’éditeur, Ouvrir dans l’explorateur et Copier la branche sont masqués (ils restent dans la palette) pour que Split et Fermer restent visibles ; sous 420 px, le badge d’un agent n’en garde que l’icône (son état reste en infobulle), et le nom du shell se tronque au besoin. Dans la palette, l’entrée de chaque pane rappelle aussi sa branche, qu’on peut donc taper pour le retrouver.
 
 ### Gestion des worktrees
 

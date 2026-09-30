@@ -2,6 +2,7 @@ import { longestWaitingFirst, waitedFor, waitingPanes } from '../agents/agentSum
 import { bridge } from '../bridge/bridge'
 import type { GitContext, ShellProfile } from '../bridge/messages'
 import { Command, revealWorkspacePanel, runCommand } from '../keyboard/shortcuts'
+import { DEFAULT_FONT_SIZE, MAX_FONT_SIZE, MIN_FONT_SIZE } from '../model/appearance'
 import { activePane, activeTab, activeWorkspace, FAVORITES_MAX, folderName, isLeaf, panesOf, RightPanelView, type Pane, type Session, type Tab, type Workspace } from '../model/session'
 import { openPanelView } from '../panel/rightPanel'
 import { refreshFolders } from '../explorer/fileExplorerActions'
@@ -39,10 +40,6 @@ const FAVORITES_FULL_NOTICE = `Pas plus de ${FAVORITES_MAX} favoris : retirez un
 const ATTENTION_PREFIX = 'attention-'
 const MOVE_TAB_PREFIX = 'move-tab-'
 const JOIN_TAB_PREFIX = 'join-tab-'
-
-const DEFAULT_FONT_SIZE = 14
-const MIN_FONT_SIZE = 8
-const MAX_FONT_SIZE = 32
 
 const requestFontSize = (fontSize: number): void => bridge.send({ type: 'appearance.fontSize', fontSize })
 

@@ -107,6 +107,13 @@ public sealed class SettingsService
         return result;
     }
 
+    public AppearanceSettingsModel SaveAppearance(AppearanceSettingsModel appearance)
+    {
+        var clamped = appearance.Clamped();
+        _appearance.Save(clamped);
+        return clamped;
+    }
+
     public void Export(SettingsModel settings, string filePath) =>
         AtomicFile.Write(filePath, JsonSerializer.Serialize(PreferencesDocumentModel.From(settings), SessionRepository.JsonOptions));
 

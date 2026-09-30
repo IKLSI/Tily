@@ -389,6 +389,18 @@ public sealed class SettingsServiceTests : IDisposable
     }
 
     [Fact]
+    public void SaveAppearance_WhenFontSizeTooSmall_ThenWritesOnlyClampedAppearanceFile()
+    {
+        var service = new SettingsService(_directory);
+
+        var saved = service.SaveAppearance(new AppearanceSettingsModel(3));
+
+        Assert.Equal(new AppearanceSettingsModel(AppearanceSettingsModel.MinFontSize), saved);
+        Assert.Equal([AppearanceSettingsRepository.FileName], Directory.GetFiles(_directory).Select(Path.GetFileName));
+        Assert.Equal(saved, service.Load().Appearance);
+    }
+
+    [Fact]
     public void Load_WhenAppearanceFileEmptyObject_ThenDefaultFontSize()
     {
         var service = new SettingsService(_directory);

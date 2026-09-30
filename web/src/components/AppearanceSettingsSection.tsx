@@ -1,4 +1,5 @@
 import type { ChangeEvent } from 'react'
+import { DEFAULT_FONT_SIZE, MAX_FONT_SIZE, MIN_FONT_SIZE } from '../model/appearance'
 import { SETTINGS_HINT, SETTINGS_INPUT, SETTINGS_LABEL } from './settingsStyles'
 
 interface AppearanceSettingsSectionProps {
@@ -8,9 +9,6 @@ interface AppearanceSettingsSectionProps {
   onFontSizeChange: (fontSize: number) => void
 }
 
-const DEFAULT_FONT_SIZE = 14
-const MIN_FONT_SIZE = 8
-const MAX_FONT_SIZE = 32
 const FONT_SIZES = Array.from({ length: MAX_FONT_SIZE - MIN_FONT_SIZE + 1 }, (_, index) => MIN_FONT_SIZE + index)
 const SAMPLE_FONT = '"CaskaydiaCove Nerd Font Mono", "Cascadia Mono", Consolas, monospace'
 
