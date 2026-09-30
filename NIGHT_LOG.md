@@ -533,6 +533,11 @@ Une relecture indépendante des itérations 44 à 51 a relevé un défaut moyen 
 - Remarques traitées : le caractère de remplacement U+FFFD est écrit `'\uFFFD'` dans `GitDiffReader` au lieu du caractère littéral ; espace rétablie dans `URL_BEFORE =` ; nuance de format du chemin relatif ajoutée à l'itération 50. Non retenu : distinguer un vrai U+FFFD d'un décodage raté (cas rarissime).
 - Vérifié : lint, build, 441 tests.
 
+### 55. Point d'étape : « Reste à faire » et bilan HTML à jour
+
+- Section « Reste à faire et idées » complétée des points ouverts depuis l'itération 38 : réglage éventuel pour couper la confirmation de collage, Leader puis 8 en AZERTY belge, format du chemin relatif copié, taille du texte en convention ; limites connues (liens avec extension dans un dossier, clignotement non observé, U+FFFD) ; idée de tests web étendue.
+- Bilan HTML de la nuit régénéré sur le Bureau.
+
 ## Reste à faire et idées
 
 ### À décider par toi
@@ -540,6 +545,10 @@ Une relecture indépendante des itérations 44 à 51 a relevé un défaut moyen 
 - **Raccourcis** (point 15 de la section 18 de la spec) : Alt + PgUp / PgDn sort de la règle « Ctrl + Maj + lettre ou Alt + flèche ». Leader puis `=`, `!` et Maj + flèche n'ont pas de raccourci direct.
 - **`CLAUDE.md`** dit que deux tests lancent un vrai PowerShell 5.1 : ils sont maintenant 15 (les 13 de `PowerShellIntegrationTests` en plus). Je n'ai pas touché ton `CLAUDE.md`.
 - **Le wrapper de prompt en fait plus** : il enveloppe `PSConsoleHostReadLine` de PSReadLine (comme VS Code) et annonce durée, succès et texte de chaque commande. PSReadLine est resté intact dans mes essais (coloration, continuation, historique). Si un module de ton profil redéfinit aussi `PSConsoleHostReadLine`, à surveiller.
+- **Confirmation du collage multi-ligne** (itération 42) : toujours active dans un shell sans collage délimité. Windows Terminal propose un réglage pour la couper ; je n'en ai pas ajouté. À toi de dire si tu en veux un.
+- **Leader puis un chiffre en AZERTY belge** : la touche 8 y donne `!`, donc Leader puis 8 sort le pane (Leader puis Maj + 8 affiche l'onglet 8). Compromis voulu pour que `!` marche sur tous les claviers.
+- **Format du chemin relatif copié** : `src/app.ts` depuis la vue Git (format Git), `src\app.ts` depuis l'arbre des fichiers (format Windows). Harmoniser ou non ?
+- **Taille du texte** (itération 41) : réglée en « Convention proposée » ; la police et un zoom rapide restent à décider (section 4 de la spec).
 
 ### Limites connues
 
@@ -548,9 +557,11 @@ Une relecture indépendante des itérations 44 à 51 a relevé un défaut moyen 
   - un chemin de fichier replié sur deux lignes n'est pas cliquable ;
   - après un redimensionnement, l'invite repliée peut se redessiner de travers jusqu'à la commande suivante.
 - **Copie de sortie et navigation entre commandes** : Windows PowerShell et PowerShell 7 seulement, pas CMD ni Git Bash. Une invite qui s'écrit elle-même par `Write-Host` au lieu de renvoyer son texte fausserait la hauteur annoncée.
-- **Liens de fichiers** : depuis l'itération 44, un chemin absolu avec des espaces dans ses dossiers est lié ; un nom de fichier ou un chemin relatif avec espaces ne l'est toujours pas, ni un chemin replié sur deux lignes.
+- **Liens de fichiers** : depuis l'itération 44, un chemin absolu avec des espaces dans ses dossiers est lié ; un nom de fichier ou un chemin relatif avec espaces ne l'est toujours pas, ni un chemin replié sur deux lignes, ni un chemin dont un dossier contient une extension suivie d'une espace (`v1.2 beta`), écarté pour ne pas avaler une phrase.
+- **Clignotement de la barre des tâches** (itération 38) : la commande est bien reçue par l'hôte, mais le clignotement lui-même ne s'observe pas par le débogage distant ; à confirmer à l'usage.
+- **Diff copié** : un fichier UTF-8 qui contient réellement le caractère de remplacement U+FFFD est traité comme mal décodé et n'est pas copiable (rarissime).
 
 ### Idées
 
 - Zoom rapide du texte (Ctrl + molette, comme Windows Terminal) en plus du réglage de l'itération 41 : raccourci à décider (point 15 de la section 18).
-- Tests web : aucun encore (décision du 21 septembre). Plusieurs fonctions pures ajoutées cette nuit s'y prêteraient : `findFileLinks`, `equalizeNode`, `swapPanes`, `folderMarksOf`, `relativeEntryPath`, `formatCommandDuration`.
+- Tests web : aucun encore (décision du 21 septembre). Plusieurs fonctions pures ajoutées cette nuit s'y prêteraient : `findFileLinks` (le banc de 13 cas des itérations 44 et 54 en serait le point de départ), `equalizeNode`, `swapPanes`, `folderMarksOf`, `relativeEntryPath`, `formatCommandDuration`.
