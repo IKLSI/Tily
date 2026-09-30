@@ -388,6 +388,17 @@ Lancer un build ou des tests puis passer à une autre fenêtre : rien ne signala
 - Vérifié : build et 431 tests verts ; dans l'instance de dev, `attention.flash` est acceptée (une commande inconnue affiche bien « Commande inconnue »). Le clignotement lui-même ne s'observe pas par le débogage distant : à confirmer à l'usage.
 - **Convention proposée** complétée en section 12 de la spec (fin d'une commande longue).
 
+### 39. Corrections de la quatrième relecture (clavier, sortie, diff copié)
+
+Une relecture indépendante des itérations 28 à 36 a relevé 8 défauts ; cette itération corrige les six premiers.
+
+- **Leader puis `!` cassé en QWERTY, QWERTZ et AZERTY belge** (important) : `!` y est Maj + 1 ou la touche 8, que le test des chiffres interceptait avant les touches Leader, affichant un onglet au lieu de sortir le pane. Les touches Leader sont maintenant cherchées d'abord, les chiffres ensuite. Rien ne change en AZERTY français.
+- **Pavé numérique** : Leader puis 1 … 9 du pavé numérique (Verr Num actif) affiche aussi l'onglet, au lieu de taper le chiffre dans le shell. Sans Verr Num, ces touches restent des flèches.
+- **Copie de sortie** : quand la commande repliée ne laisse qu'un ou deux caractères sur sa dernière ligne (`rg Leader src/…/shortcuts.ts` sur 40 colonnes), la première ligne de sortie était perdue. La ligne de la commande est maintenant celle où finit la dernière occurrence de la fin de la commande : la tolérance pour le texte affiché à droite de l'invite reste, et la ligne de sortie suivante n'est plus prise pour la commande.
+- **Diff copié** : l'hôte fournit le diff brut de Git (`patch`), copié tel quel. Un renommage, une suppression et un fichier CRLF s'appliquent désormais par `git apply` (avant : « No such file », fichier vidé au lieu de supprimé, « patch does not apply »). Un diff tronqué à l'affichage n'est plus copiable (bouton grisé, infobulle explicite) au lieu de donner un patch corrompu.
+- Vérifié : 433 tests (dont deux nouveaux : renommage + suppression appliqués par `git apply`, diff tronqué sans `patch`) ; simulation xterm headless du cas de la relecture (première ligne retrouvée) et des anciennes simulations (identiques) ; les 10 scénarios réels de copie de sortie dans l'instance de dev ; Leader puis 1 et 3 du pavé numérique, Leader puis Maj + 1 (« ! » en QWERTY) qui sort bien le pane.
+- Spec (section 11, « Copier le diff ») et architecture backend mises à jour.
+
 ## Reste à faire et idées
 
 ### À décider par toi

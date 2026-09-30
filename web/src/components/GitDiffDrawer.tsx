@@ -2,7 +2,7 @@ import type { KeyboardEvent } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { GitChangeKind, GitDiffSource, type GitFileChange } from '../bridge/gitMessages'
 import { isDiffSelectable } from '../git/gitDiffActions'
-import { canCopyDiff, copyDiff } from '../git/gitDiffText'
+import { canCopyDiff, copyDiff, copyDiffTip } from '../git/gitDiffText'
 import { focusGitPanel } from '../git/gitFocus'
 import { shortSha } from '../git/gitLabels'
 import { closeDrawer, discardChanges, openInEditor, stageChanges, unstageChanges } from '../git/gitRequests'
@@ -55,7 +55,7 @@ export function GitDiffDrawer() {
         <span className="min-w-0 flex-1 truncate text-[12px] font-semibold text-dock-ink" data-tip={file.oldPath ? `${file.oldPath} → ${file.path}` : file.path}>
           {file.path}
         </span>
-        <GitToolButton icon={IconName.Copy} tip={canCopyDiff(diff) ? 'Copier le diff (format unifié)' : 'Aucun diff texte à copier'} disabled={!canCopyDiff(diff)} onClick={handleCopyDiff} />
+        <GitToolButton icon={IconName.Copy} tip={copyDiffTip(diff)} disabled={!canCopyDiff(diff)} onClick={handleCopyDiff} />
         {working && (
           <span className="flex shrink-0 items-center gap-[2px]">
             <GitToolButton icon={IconName.Editor} tip="Ouvrir dans l’éditeur" onClick={handleEdit} />

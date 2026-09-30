@@ -35,7 +35,7 @@ public static class GitDiffReader
         string[] paths = oldPath is null ? [path] : [oldPath, path];
         var arguments = request.Source == GitDiffSource.Commit ? CommitArguments(repository, request.Commit, paths) : WorkingArguments(request.Source, paths);
         var raw = repository.Read(new GitRunOptionsModel(LiteralPaths: true), arguments);
-        var diff = GitDiffParser.Parse(path, oldPath, raw);
+        var diff = Copyable(GitDiffParser.Parse(path, oldPath, raw), raw);
         return request.Source == GitDiffSource.Commit || oldPath is not null ? diff : Selectable(diff, raw);
     }
 
@@ -74,6 +74,9 @@ public static class GitDiffReader
 
     private static string[] WorkingArguments(GitDiffSource source, string[] paths) =>
         source == GitDiffSource.Staged ? ["diff", "--cached", .. DiffOptions, "--", .. paths] : ["diff", .. DiffOptions, "--", .. paths];
+
+    private static GitDiffModel Copyable(GitDiffModel diff, string raw) =>
+        diff.Binary || diff.Truncated || diff.Hunks.Count == 0 ? diff : diff with { Patch = raw };
 
     private static GitDiffModel Selectable(GitDiffModel diff, string raw) =>
         diff.Binary || diff.Hunks.Count == 0 ? diff : diff with { Fingerprint = Fingerprint(raw) };
@@ -172,6 +175,8 @@ public static class GitDiffReader
         var lines = content.Length == 0 ? [] : content.Split('\n');
         var shown = lines.Take(GitDiffParser.MaxLines).Select((line, index) => new GitDiffLineModel(GitDiffLineKind.Added, null, index + 1, line)).ToList();
         var hunks = shown.Count == 0 ? [] : new List<GitDiffHunkModel> { new($"@@ -0,0 +1,{lines.Length} @@", shown) };
-        return new GitDiffModel(path, null, false, lines.Length > shown.Count, [untracked], hunks, hunks.Count == 0 ? null : Fingerprint(UntrackedDiff(path, raw)));
+        var patch = UntrackedDiff(path, raw);
+        var diff = new GitDiffModel(path, null, false, lines.Length > shown.Count, [untracked], hunks, hunks.Count == 0 ? null : Fingerprint(patch));
+        return Copyable(diff, patch);
     }
 }

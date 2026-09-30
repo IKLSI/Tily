@@ -233,6 +233,7 @@ export interface GitDiff {
   notes: string[]
   hunks: GitDiffHunk[]
   fingerprint?: string
+  patch?: string | null
 }
 
 export interface GitSettings {

@@ -183,6 +183,38 @@ public sealed class GitReadTests : IDisposable
     }
 
     [Fact]
+    public void ReadDiff_WhenRenamedAndDeleted_ThenPatchAppliesWithGit()
+    {
+        _sandbox.Commit("Base", ("ancien.txt", "un\ndeux\ntrois\n"), ("parti.txt", "p\n"));
+        _sandbox.Git("mv", "ancien.txt", "nouveau.txt");
+        _sandbox.Write("nouveau.txt", "un\ndeux\nquatre\n");
+        _sandbox.Git("rm", "-q", "parti.txt");
+        _sandbox.Git("add", "nouveau.txt");
+        var renamed = GitDiffReader.Read(_sandbox.Repository, new GitDiffRequestModel(GitDiffSource.Staged, "nouveau.txt", "ancien.txt", null, false));
+        var deleted = GitDiffReader.Read(_sandbox.Repository, new GitDiffRequestModel(GitDiffSource.Staged, "parti.txt", null, null, false));
+        _sandbox.Git("reset", "-q", "--hard");
+        var patchFile = Path.Combine(_sandbox.Root, "copie.patch");
+
+        foreach (var patch in new[] { renamed.Patch, deleted.Patch })
+        {
+            File.WriteAllText(patchFile, patch);
+            _sandbox.Git("apply", patchFile);
+        }
+
+        Assert.Equal((false, "un\ndeux\nquatre\n", false), (_sandbox.Exists("ancien.txt"), _sandbox.Read("nouveau.txt"), _sandbox.Exists("parti.txt")));
+    }
+
+    [Fact]
+    public void ReadDiff_WhenTruncated_ThenNoPatchToCopy()
+    {
+        _sandbox.Write("long.txt", string.Concat(Enumerable.Range(0, GitDiffParser.MaxLines + 1).Select(index => $"{index}\n")));
+
+        var diff = GitDiffReader.Read(_sandbox.Repository, new GitDiffRequestModel(GitDiffSource.Unstaged, "long.txt", null, null, true));
+
+        Assert.Equal((true, null), (diff.Truncated, diff.Patch));
+    }
+
+    [Fact]
     public void ReadCommit_WhenRenameAndRootCommit_ThenListsFilesAndDiff()
     {
         var root = _sandbox.Commit("Base", ("ancien.txt", "contenu identique\n"), ("b.txt", "b\n"));

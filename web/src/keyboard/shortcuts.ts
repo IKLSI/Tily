@@ -25,6 +25,7 @@ const TAB_KEY = 'Tab'
 const ENTER_KEY = 'Enter'
 const SHORTCUT_BLOCKERS = 'input, textarea, select, [contenteditable="true"], [role="menu"], [role="dialog"], [role="alertdialog"]'
 const TAB_NUMBER_CODE = /^Digit([1-9])$/
+const KEYPAD_NUMBER_CODE = /^Numpad([1-9])$/
 const LEADER_EXPIRED_STATUS = 'Leader expiré : la saisie revient au terminal.'
 
 let leaderTimer: ReturnType<typeof setTimeout> | undefined
@@ -81,6 +82,13 @@ const enterLeader = (): void => {
 
 const leaderKeyOf = (event: KeyboardEvent): string => (event.key.length === 1 ? event.key.toLowerCase() : event.key)
 
+const tabNumberOf = (event: KeyboardEvent): number | undefined => {
+  const digit = TAB_NUMBER_CODE.exec(event.code)
+  const keypadDigit = KEYPAD_NUMBER_CODE.exec(event.code)
+  const number = digit?.[1] ?? (keypadDigit && event.key === keypadDigit[1] ? keypadDigit[1] : undefined)
+  return number ? Number(number) : undefined
+}
+
 const decideInLeader = (event: KeyboardEvent): boolean => {
   if (MODIFIER_KEYS.has(event.key)) {
     return false
@@ -92,14 +100,14 @@ const decideInLeader = (event: KeyboardEvent): boolean => {
   if (event.key === CANCEL_KEY) {
     return false
   }
-  const tabNumber = TAB_NUMBER_CODE.exec(event.code)
-  if (tabNumber && !event.ctrlKey && !event.altKey) {
-    selectTabNumber(Number(tabNumber[1]))
-    return false
-  }
   const command = (event.shiftKey ? LEADER_SHIFT_ARROW_KEYS[event.key] : undefined) ?? LEADER_KEYS[leaderKeyOf(event)]
   if (command) {
     runCommand(command)
+    return false
+  }
+  const tabNumber = tabNumberOf(event)
+  if (tabNumber && !event.ctrlKey && !event.altKey) {
+    selectTabNumber(tabNumber)
     return false
   }
   return true

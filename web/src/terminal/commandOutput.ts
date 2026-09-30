@@ -13,7 +13,6 @@ const MAX_COMMAND_MARKS = 500
 const CONTEXT_ROWS = 2
 const COMMAND_TAIL_CHARS = 24
 const MIN_SEARCH_TAIL_CHARS = 6
-const COMMAND_END_CHARS = 3
 const ALTERNATE_BUFFER = 'alternate'
 const ROW_SEARCH_OFFSETS = [0, -1, 1, -2, 2, -3, 3]
 const LINE_BREAK = /\r?\n/
@@ -76,8 +75,11 @@ const firstOutputRow = (buffer: IBuffer, start: OutputStart): number => {
     return expected
   }
   const rowText = (row: number): string => buffer.getLine(row)?.translateToString(true) ?? ''
-  const holdsCommand = (row: number): boolean =>
-    withoutSpaces(rowText(row)).includes(tail.slice(-COMMAND_END_CHARS)) && withoutSpaces(rowText(row - 2) + rowText(row - 1) + rowText(row)).includes(tail)
+  const holdsCommand = (row: number): boolean => {
+    const before = withoutSpaces(rowText(row - 2) + rowText(row - 1))
+    const end = (before + withoutSpaces(rowText(row))).lastIndexOf(tail) + tail.length
+    return end > before.length && end >= tail.length
+  }
   if (holdsCommand(expected - 1)) {
     return expected
   }
