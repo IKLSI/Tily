@@ -335,6 +335,14 @@ Dans l'instance de dev, le sélecteur de projets (Leader puis F) affichait seule
 - Sans aucun projet : « Aucun projet dans C:\Files\Projects : le dossier des projets se change dans Paramètres (Leader puis ,). ». Si la recherche ne trouve rien : « Aucun dossier ne correspond à la recherche. ». Un dossier introuvable garde son message d'erreur existant.
 - Vérifié dans l'instance de dev pour le premier cas. Pour le second, il aurait fallu créer un dossier dans ton `C:\Files\Projects`, ce que je n'ai pas fait.
 
+### 33. Fermer les onglets à droite
+
+Le menu d'un onglet proposait « Fermer les autres onglets », mais pas « Fermer les onglets à droite », courant dans les navigateurs et VS Code pour nettoyer une série d'onglets ouverts le temps d'une tâche.
+
+- Nouvelle entrée « Fermer les onglets à droite », dans le menu de l'onglet (grisée pour le dernier) et dans la palette (seulement s'il y a des onglets à droite). Même confirmation quand un programme tourne, et même texte conservé pour « Rouvrir » que « Fermer les autres onglets ».
+- Vérifié dans l'instance de dev : sur le premier de trois onglets, l'entrée ferme les deux suivants.
+- Convention de la section 6 complétée.
+
 ## Reste à faire et idées
 
 ### À décider par toi

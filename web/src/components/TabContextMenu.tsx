@@ -15,6 +15,7 @@ export interface TabMenuActions {
   duplicate: (tabId: string) => void
   close: (tabId: string) => void
   closeOthers: (tabId: string) => void
+  closeToRight: (tabId: string) => void
 }
 
 interface TabContextMenuProps {
@@ -33,6 +34,7 @@ const itemsFor = ({ tabId }: TabMenuRequest, position: number, count: number, ac
   { id: 'move-right', label: 'Déplacer à droite', detail: <MenuShortcut keys="Alt + →" />, disabled: position < 0 || position >= count - 1, run: () => actions.shift(tabId, 1) },
   { id: 'close', label: 'Fermer l’onglet', detail: <MenuShortcut keys="Clic milieu" />, run: () => actions.close(tabId) },
   { id: 'close-others', label: 'Fermer les autres onglets', disabled: count <= 1, run: () => actions.closeOthers(tabId) },
+  { id: 'close-right', label: 'Fermer les onglets à droite', disabled: position < 0 || position >= count - 1, run: () => actions.closeToRight(tabId) },
 ]
 
 export function TabContextMenu({ request, position, count, actions, onRun, onDismiss }: TabContextMenuProps) {

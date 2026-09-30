@@ -99,6 +99,16 @@ export const closeOtherTabsKeepingText = (tabId: string): void => {
   }
 }
 
+export const closeTabsToRightKeepingText = (tabId: string): void => {
+  const { session } = useSessionStore.getState()
+  const tabs = session?.workspaces.find((workspace) => workspace.tabs.some((tab) => tab.id === tabId))?.tabs ?? []
+  const right = tabs.slice(tabs.findIndex((tab) => tab.id === tabId) + 1)
+  if (right.length > 0) {
+    const title = right.length === 1 ? 'Fermer l’onglet de droite ?' : `Fermer les ${right.length} onglets de droite ?`
+    requestClose(title, right.flatMap(paneIdsOf), () => closeTabsNow(right.map((tab) => tab.id)))
+  }
+}
+
 const closeWorkspaceNow = (workspaceId: string): void => {
   const { session, closeTab } = useSessionStore.getState()
   const workspace = session ? findWorkspace(session, workspaceId) : undefined

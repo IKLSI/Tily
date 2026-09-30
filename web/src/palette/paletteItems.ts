@@ -7,7 +7,7 @@ import { useAgentStore } from '../store/agentStore'
 import { useHostStore } from '../store/hostStore'
 import { useSessionStore } from '../store/sessionStore'
 import { RenameOrigin, useUiStore } from '../store/uiStore'
-import { closeOtherTabsKeepingText, closeTabKeepingText, closeWorkspaceKeepingText, duplicateTabKeepingLayout, movePaneToTab, restoreClosedTab, restoreClosedTabAt } from '../terminal/tabLifecycle'
+import { closeOtherTabsKeepingText, closeTabKeepingText, closeTabsToRightKeepingText, closeWorkspaceKeepingText, duplicateTabKeepingLayout, movePaneToTab, restoreClosedTab, restoreClosedTabAt } from '../terminal/tabLifecycle'
 import { copyLastCommandOutput, joinPane } from '../terminal/terminalActions'
 import { OpenTarget } from '../bridge/messages'
 import { copyPaneBranch, copyPanePath, openPaneFolder } from '../terminal/contextActions'
@@ -114,6 +114,9 @@ const commandItems = (session: Session, shells: ShellProfile[]): PaletteItem[] =
     )
     if (workspace && workspace.tabs.length > 1) {
       items.push(command('close-other-tabs', 'Fermer les autres onglets', () => closeOtherTabsKeepingText(tab.id)))
+      if (workspace.tabs.at(-1)?.id !== tab.id) {
+        items.push(command('close-tabs-to-right', 'Fermer les onglets à droite', () => closeTabsToRightKeepingText(tab.id)))
+      }
     }
     for (const target of workspace?.tabs.filter((candidate) => candidate.id !== tab.id) ?? []) {
       items.push(command(`${JOIN_TAB_PREFIX}${target.id}`, `Déplacer le pane actif vers l’onglet${SEPARATOR}${target.name}`, () => movePaneToTab(paneId, target.id)))
