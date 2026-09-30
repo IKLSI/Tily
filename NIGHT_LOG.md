@@ -410,6 +410,16 @@ Les deux derniers défauts et les deux remarques secondaires de la relecture des
 - Vérifié : 434 tests (dont base en tag sans dépôt distant gardée, base absente toujours proposée) ; dans l'instance de dev, double-clic sur le × du dernier onglet → l'onglet est fermé et aucun autre n'est ouvert, double-clic dans l'espace vide → nouvel onglet.
 - Spec (section 11, réglages des worktrees) mise à jour.
 
+### 41. Taille du texte des terminaux
+
+La taille du texte était figée à 14 px dans le code : impossible de l'agrandir sur un grand écran ou de la réduire pour plus de colonnes. La spec la laissait « À décider » (section 4), sans issue ouverte.
+
+- Nouveau réglage « Taille du texte (px) » dans une section « Terminaux » des Paramètres : liste de 8 à 32 px, 14 par défaut, avec un aperçu d'une ligne de prompt à la taille choisie.
+- À l'enregistrement, tous les terminaux ouverts changent de taille à chaud et recalculent colonnes et lignes, transmises au shell ; un onglet masqué se réajuste en s'affichant. La taille voyage dans `app.hello` : les terminaux naissent directement à la bonne taille au lancement, sans redimensionnement visible.
+- Côté hôte : huitième fichier de réglages `appearance.json` (`AppearanceSettingsRepository`), taille ramenée entre 8 et 32 à la lecture, à l'enregistrement et à l'import, clé `appearance` facultative dans les préférences exportées.
+- Vérifié : 438 tests (dont 4 nouveaux : bornes, fichier vide, export / import, import sans la clé) ; dans l'instance de dev, passage à 18 px → texte agrandi à chaud, `$Host.UI.RawUI.WindowSize` donne 131 × 42 et le prompt se replie bien à 131 colonnes dans un onglet qui était masqué.
+- **Convention proposée** en section 4 de la spec (la police et le zoom restent à décider) ; README et architecture backend mis à jour.
+
 ## Reste à faire et idées
 
 ### À décider par toi
@@ -429,4 +439,5 @@ Les deux derniers défauts et les deux remarques secondaires de la relecture des
 
 ### Idées
 
+- Zoom rapide du texte (Ctrl + molette, comme Windows Terminal) en plus du réglage de l'itération 41 : raccourci à décider (point 15 de la section 18).
 - Tests web : aucun encore (décision du 21 septembre). Plusieurs fonctions pures ajoutées cette nuit s'y prêteraient : `findFileLinks`, `equalizeNode`, `swapPanes`, `folderMarksOf`, `relativeEntryPath`, `formatCommandDuration`.

@@ -19,6 +19,7 @@ public sealed class PreferencesDocumentModel
     public WorktreeSettingsModel? Worktrees { get; set; }
     public GitSettingsModel? Git { get; set; }
     public UpdateSettingsModel? Updates { get; set; }
+    public AppearanceSettingsModel? Appearance { get; set; }
 
     public static PreferencesDocumentModel From(SettingsModel settings) => new()
     {
@@ -30,7 +31,8 @@ public sealed class PreferencesDocumentModel
         Notifications = settings.Notifications,
         Worktrees = settings.Worktrees,
         Git = settings.Git,
-        Updates = settings.Updates
+        Updates = settings.Updates,
+        Appearance = settings.Appearance
     };
 
     public string? MissingKey()

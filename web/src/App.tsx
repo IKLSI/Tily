@@ -43,6 +43,7 @@ export default function App() {
         setHello(message.version, message.shells, message.home, message.persistence)
         useStatusLogStore.getState().load(message.statusLog)
         terminalRegistry.configure(message.persistence.linesPerPane)
+        terminalRegistry.setFontSize(message.appearance.fontSize)
         primeSessionText(message.session, message.text)
         void document.fonts.load('14px "Symbols Nerd Font Mono"').then(() => {
           load(message.session)
@@ -61,6 +62,7 @@ export default function App() {
           return
         }
         terminalRegistry.configure(message.persistence.linesPerPane)
+        terminalRegistry.setFontSize(message.settings.appearance.fontSize)
         stopAutosave?.()
         stopAutosave = startTextAutosave(message.persistence.textIntervalSeconds)
         useUiStore.getState().closeSettings()

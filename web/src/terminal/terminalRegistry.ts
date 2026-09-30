@@ -18,6 +18,7 @@ const STABLE_CHUNK_LINES = 1000
 const CHUNK_SEPARATOR = '\x1b[0m\r\n'
 const SNAPSHOT_SCROLLBACK_LINES = 2000
 const DEFAULT_SCROLLBACK_LINES = 10000
+const DEFAULT_FONT_SIZE = 14
 const NEWLINE = String.fromCharCode(13, 10)
 
 export enum RestoreKind {
@@ -61,6 +62,7 @@ const handles = new Map<string, TerminalHandle>()
 const primedText = new Map<string, { text: string; kind: RestoreKind }>()
 const initialCommands = new Map<string, string>()
 let scrollbackLines = DEFAULT_SCROLLBACK_LINES
+let fontSize = DEFAULT_FONT_SIZE
 let webglUnavailable = false
 
 const start = (handle: TerminalHandle, pane: Pane): void => {
@@ -198,7 +200,7 @@ const createHandle = (pane: Pane): TerminalHandle => {
     allowProposedApi: true,
     cursorBlink: true,
     fontFamily: FONT_FAMILY,
-    fontSize: 14,
+    fontSize,
     scrollback: scrollbackLines,
     theme: { background: '#121416', foreground: '#cdd1cd', cursor: '#8fb39f', selectionBackground: '#7a9f8b40' },
     linkHandler: { activate: openLinkOnCtrlClick, allowNonHttpProtocols: true },
@@ -233,6 +235,19 @@ const createHandle = (pane: Pane): TerminalHandle => {
 export const terminalRegistry = {
   configure(linesPerPane: number): void {
     scrollbackLines = linesPerPane
+  },
+
+  setFontSize(size: number): void {
+    if (size === fontSize) {
+      return
+    }
+    fontSize = size
+    handles.forEach((handle) => {
+      handle.terminal.options.fontSize = size
+      if (handle.terminal.element?.isConnected) {
+        handle.fit.fit()
+      }
+    })
   },
 
   get(paneId: string): TerminalHandle | undefined {

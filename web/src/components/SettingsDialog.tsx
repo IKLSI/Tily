@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type ChangeEvent, type KeyboardEvent, type
 import { AttentionKind, PickTarget, type ImportedPreferences, type NotificationSettings, type PersistenceSettings, type PickedPath, type Settings, type SettingsSnapshot } from '../bridge/messages'
 import type { WorktreeSettings } from '../bridge/worktreeMessages'
 import { useHostStore } from '../store/hostStore'
+import { AppearanceSettingsSection } from './AppearanceSettingsSection'
 import { keepTabInside } from './focusTrap'
 import { SETTINGS_BROWSE, SETTINGS_BUTTON, SETTINGS_HINT, SETTINGS_INPUT, SETTINGS_INPUT_BASE, SETTINGS_LABEL } from './settingsStyles'
 import { SoundSetting } from './SoundSetting'
@@ -181,6 +182,7 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
   const handleTestNotification = () => testNotification(AttentionKind.Waiting)
   const handleTestDoneNotification = () => testNotification(AttentionKind.Done)
   const handleAutoCheckChange = (autoCheck: boolean) => updateDraft({ updates: { autoCheck } })
+  const handleFontSizeChange = (fontSize: number) => updateDraft({ appearance: { fontSize } })
 
   const renderBody = (settings: Settings, current: SettingsSnapshot) => (
     <>
@@ -220,6 +222,7 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
         })}
         <p className={`${HINT} font-mono`}>{current.files.shells}</p>
       </section>
+      <AppearanceSettingsSection sectionClassName={SECTION} fontSize={settings.appearance.fontSize} file={current.files.appearance} onFontSizeChange={handleFontSizeChange} />
       <section className="flex flex-col gap-2">
         <h3 className={SECTION}>Éditeur</h3>
         <label className="flex flex-col gap-1">

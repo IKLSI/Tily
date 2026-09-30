@@ -18,6 +18,7 @@ public sealed class SettingsModel
     public WorktreeSettingsModel Worktrees { get; set; } = WorktreeSettingsModel.Default;
     public GitSettingsModel Git { get; set; } = GitSettingsModel.Default;
     public UpdateSettingsModel Updates { get; set; } = UpdateSettingsModel.Default;
+    public AppearanceSettingsModel Appearance { get; set; } = AppearanceSettingsModel.Default;
 }
 
 public sealed record ShellSettingModel(string Id, string Name, string DefaultExecutable, string Configured, bool Available);

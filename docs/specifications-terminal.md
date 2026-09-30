@@ -70,7 +70,9 @@ Exemple : « Perso » peut contenir un terminal dans Documents, un autre dans un
 
 Ces valeurs sont des références de réalisation, pas des contraintes de taille absolues : en-tête d’environ 42 px, fond de l’application #17191b, panneaux #1e2123, fond de terminal #121416, accent #7a9f8b, fond de sélection à peine plus clair que le panneau, interface en Segoe UI et terminal en police monospace. Préserver la lisibilité avec la mise à l’échelle Windows.
 
-**À décider.** Personnalisation de la police terminal, taille du texte, zoom et comportement aux très petites dimensions. La cible principale reste une fenêtre d’application de bureau.
+**À décider.** Personnalisation de la police terminal, zoom et comportement aux très petites dimensions. La cible principale reste une fenêtre d’application de bureau.
+
+**Convention proposée.** Taille du texte des terminaux : réglage « Taille du texte (px) » de la section « Terminaux » des Paramètres, de 8 à 32 px, 14 par défaut, avec un aperçu. Elle s’applique à l’enregistrement à tous les terminaux ouverts, qui recalculent leurs colonnes et leurs lignes et les transmettent au shell ; elle est conservée dans `appearance.json` et fait partie des préférences exportées.
 
 ### Explorateur de fichiers
 

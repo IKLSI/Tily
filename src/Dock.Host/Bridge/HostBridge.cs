@@ -415,6 +415,7 @@ public sealed class HostBridge : IDisposable
             home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
             text = text.Text,
             persistence = _persistence,
+            appearance = _settings.Appearance,
             statusLog = _statusLog.Entries(),
             recovery = recovery.Length > 0 ? recovery : null
         });

@@ -54,6 +54,10 @@ export interface GitContext {
   worktreeRoot?: string
 }
 
+export interface AppearanceSettings {
+  fontSize: number
+}
+
 export interface PersistenceSettings {
   textIntervalSeconds: number
   linesPerPane: number
@@ -91,6 +95,7 @@ export interface Settings {
   worktrees: WorktreeSettings
   git: GitSettings
   updates: UpdateSettings
+  appearance: AppearanceSettings
 }
 
 interface ShellSetting {
@@ -156,7 +161,7 @@ export interface PaneAgent {
 }
 
 export type HostToWebMessage =
-  | { type: 'app.hello'; version: string; session: Session; shells: ShellProfile[]; home: string; text: Record<string, string>; persistence: PersistenceSettings; statusLog: StatusLogEntry[]; recovery?: string }
+  | { type: 'app.hello'; version: string; session: Session; shells: ShellProfile[]; home: string; text: Record<string, string>; persistence: PersistenceSettings; appearance: AppearanceSettings; statusLog: StatusLogEntry[]; recovery?: string }
   | { type: 'app.closing'; activity: PaneActivity[] }
   | { type: 'session.saved' }
   | { type: 'session.saveFailed'; message: string }

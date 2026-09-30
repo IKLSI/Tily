@@ -24,7 +24,8 @@ public sealed class SettingsServiceTests : IDisposable
         Assert.Equal(@"C:\Files\Projects", settings.ProjectsRoot);
         Assert.Equal(NotificationSettingsModel.Default, settings.Notifications);
         Assert.Equal(GitSettingsModel.Default, settings.Git);
-        Assert.Equal(7, Directory.GetFiles(_directory, "*.json").Length);
+        Assert.Equal(AppearanceSettingsModel.Default, settings.Appearance);
+        Assert.Equal(8, Directory.GetFiles(_directory, "*.json").Length);
     }
 
     [Fact]
@@ -136,7 +137,7 @@ public sealed class SettingsServiceTests : IDisposable
         Assert.False(snapshot.Shells.Single(shell => shell.Id == "gitbash").Available);
         Assert.Contains(snapshot.Warnings, warning => warning.Contains(@"C:\introuvable\bash.exe"));
         Assert.Contains(snapshot.Warnings, warning => warning.Contains(@"C:\introuvable\projets"));
-        Assert.Equal(7, snapshot.Files.Count);
+        Assert.Equal(8, snapshot.Files.Count);
     }
 
     [Fact]
@@ -373,6 +374,54 @@ public sealed class SettingsServiceTests : IDisposable
         var settings = service.Load();
 
         Assert.True(settings.Updates.AutoCheck);
+    }
+
+    [Fact]
+    public void Save_ThenLoad_KeepsFontSizeClampedInAppearanceFile()
+    {
+        var service = new SettingsService(_directory);
+        var settings = service.Load();
+        settings.Appearance = new AppearanceSettingsModel(99);
+
+        service.Save(settings);
+
+        Assert.Equal(new AppearanceSettingsModel(AppearanceSettingsModel.MaxFontSize), service.Load().Appearance);
+    }
+
+    [Fact]
+    public void Load_WhenAppearanceFileEmptyObject_ThenDefaultFontSize()
+    {
+        var service = new SettingsService(_directory);
+        File.WriteAllText(Path.Combine(_directory, AppearanceSettingsRepository.FileName), "{}");
+
+        var settings = service.Load();
+
+        Assert.Equal(AppearanceSettingsModel.DefaultFontSize, settings.Appearance.FontSize);
+    }
+
+    [Fact]
+    public void Export_ThenImport_KeepsFontSize()
+    {
+        var service = new SettingsService(_directory);
+        var settings = new SettingsModel { ProjectsRoot = _directory, Appearance = new AppearanceSettingsModel(18) };
+        var exportPath = Path.Combine(_directory, "prefs.json");
+
+        service.Export(settings, exportPath);
+        var result = service.Import(exportPath);
+
+        Assert.Equal(new AppearanceSettingsModel(18), result.Settings!.Appearance);
+    }
+
+    [Fact]
+    public void Import_WhenAppearanceMissing_ThenDefaultFontSize()
+    {
+        var service = new SettingsService(_directory);
+        var path = Path.Combine(_directory, "prefs.json");
+        File.WriteAllText(path, "{ \"version\": 1, \"shells\": {}, \"editor\": \"code.cmd\", \"persistence\": { \"textIntervalSeconds\": 30, \"linesPerPane\": 1000, \"maxTextMebibytes\": 32 }, \"projectsRoot\": \"C:\\\\Projets\" }");
+
+        var result = service.Import(path);
+
+        Assert.Equal(AppearanceSettingsModel.Default, result.Settings!.Appearance);
     }
 
     public void Dispose()
