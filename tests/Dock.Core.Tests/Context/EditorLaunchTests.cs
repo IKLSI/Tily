@@ -27,6 +27,19 @@ public sealed class EditorLaunchTests : IDisposable
         Assert.Equal($"\"-g\" \"{file}:3:1\"", received);
     }
 
+    [Fact]
+    public void OpenFileInEditor_WhenEditorMissing_ThenExplainsInFrenchWithoutDotNetText()
+    {
+        var file = Path.Combine(_root, "a.ts");
+        File.WriteAllText(file, "x");
+        var editor = Path.Combine(_root, "absent", "editeur-introuvable.exe");
+
+        var exception = Assert.Throws<InvalidOperationException>(() => LocalActions.OpenFileInEditor(file, editor));
+
+        Assert.StartsWith($"L’éditeur « {editor} » n’a pas pu être lancé : ", exception.Message);
+        Assert.DoesNotContain("An error occurred", exception.Message);
+    }
+
     private static string WaitForText(string path)
     {
         var deadline = DateTime.UtcNow + Timeout;

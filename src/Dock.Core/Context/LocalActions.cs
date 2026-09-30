@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Diagnostics;
 using Dock.Core.Native;
 
@@ -10,7 +11,7 @@ public static class LocalActions
     public static void OpenInExplorer(string path)
     {
         RequireDirectory(path);
-        Process.Start(new ProcessStartInfo(ExplorerExecutable) { ArgumentList = { path }, UseShellExecute = false });
+        Launch(new ProcessStartInfo(ExplorerExecutable) { ArgumentList = { path }, UseShellExecute = false }, "L’Explorateur Windows n’a pas pu être lancé");
     }
 
     public static void RevealInExplorer(string path)
@@ -65,18 +66,27 @@ public static class LocalActions
             throw new InvalidOperationException("Aucun éditeur configuré.");
         }
 
-        try
-        {
-            Process.Start(new ProcessStartInfo(editorCommand, EditorLocation.CommandLine(arguments)) { UseShellExecute = true, WindowStyle = ProcessWindowStyle.Hidden });
-        }
-        catch (Exception exception) when (exception is System.ComponentModel.Win32Exception or FileNotFoundException)
-        {
-            throw new InvalidOperationException($"L’éditeur « {editorCommand} » n’a pas pu être lancé : {exception.Message}");
-        }
+        Launch(new ProcessStartInfo(editorCommand, EditorLocation.CommandLine(arguments)) { UseShellExecute = true, WindowStyle = ProcessWindowStyle.Hidden }, $"L’éditeur « {editorCommand} » n’a pas pu être lancé");
     }
 
     public static void OpenLink(string url) =>
-        Process.Start(new ProcessStartInfo(RequireWebLink(url).AbsoluteUri) { UseShellExecute = true });
+        Launch(new ProcessStartInfo(RequireWebLink(url).AbsoluteUri) { UseShellExecute = true }, "Lien non ouvert");
+
+    private static void Launch(ProcessStartInfo start, string failure)
+    {
+        try
+        {
+            Process.Start(start);
+        }
+        catch (Win32Exception exception)
+        {
+            throw new InvalidOperationException($"{failure} : {new Win32Exception(exception.NativeErrorCode).Message}");
+        }
+        catch (FileNotFoundException exception)
+        {
+            throw new InvalidOperationException($"{failure} : {exception.Message}");
+        }
+    }
 
     public static Uri RequireWebLink(string url)
     {
