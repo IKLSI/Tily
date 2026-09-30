@@ -234,7 +234,9 @@ Les splits peuvent être imbriqués. L’action de fermeture d’un pane retire 
 - Suivre le dossier courant réel après les commandes de navigation, y compris après une fonction du profil qui change le dossier.
 - Ne pas remplacer le shell par un interpréteur limité à quelques commandes reconnues par l’interface.
 
-**Convention proposée.** Un clic droit dans un terminal, ou la touche Menu, ouvre un menu contextuel : Copier (si du texte est sélectionné), Copier la sortie de la dernière commande, Coller, Tout sélectionner, Split côte à côte, Split haut / bas, Agrandir le pane (ou Réduire le pane s’il est agrandi), Déplacer dans un nouvel onglet et Fermer le pane.
+**Convention proposée.** Un clic droit dans un terminal, ou la touche Menu, ouvre un menu contextuel : Copier (si du texte est sélectionné), Copier la sortie de la dernière commande, Coller, Tout sélectionner, Effacer l’historique de défilement, Split côte à côte, Split haut / bas, Agrandir le pane (ou Réduire le pane s’il est agrandi), Déplacer dans un nouvel onglet et Fermer le pane.
+
+**Convention proposée.** « Effacer l’historique de défilement » (menu contextuel du terminal, ou la palette pour le pane actif) supprime les lignes remontées au-dessus de l’écran, y compris le texte restauré au démarrage, et garde l’écran visible tel quel, pour ne pas désaligner le terminal de ConPTY ; le texte enregistré du pane suit à l’enregistrement suivant. Pendant un programme plein écran, la barre de statut demande de le quitter d’abord.
 
 **Convention proposée.** Alt + PgUp et Alt + PgDn (ou « Remonter à la commande précédente » et « Descendre à la commande suivante » dans la palette) font défiler le terminal actif jusqu’à la ligne de commande précédente ou suivante, avec une ligne de contexte au-dessus, comme les repères de commande de VS Code et Windows Terminal ; au-delà de la dernière, le terminal revient en bas, et sans commande plus haut la barre de statut le dit. Les 500 dernières commandes terminées de chaque terminal PowerShell sont repérées ; chaque repère est recalé sur le texte de la commande, que ConPTY peut décaler en redessinant l’écran.
 

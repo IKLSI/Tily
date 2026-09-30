@@ -782,6 +782,15 @@ Changer la taille du texte des terminaux (itération 41) demandait d'ouvrir les 
 - « Reste à faire » resserré : messages d'erreur imprévus, taille du texte (Paramètres et palette), limite des jonctions étendue aux marques Git de l'arbre.
 - Bilan HTML régénéré sur le Bureau.
 
+### 86. Effacer l’historique de défilement d’un terminal
+
+Un terminal restauré au démarrage ou après une longue sortie garde des milliers de lignes ; `cls` efface l’écran mais pas toujours l’historique, et rien dans Dock ne permettait de repartir d’un historique vide (Windows Terminal propose « Effacer la mémoire tampon »).
+
+- « Effacer l’historique de défilement » dans le menu contextuel du terminal et « Effacer l’historique de défilement du pane actif » dans la palette. Seules les lignes au-dessus de l’écran sont supprimées (séquence ED 3) : l’écran visible reste tel quel, pour que ConPTY, qui ne sait pas qu’on a effacé, continue d’écrire au bon endroit. Le texte mis en cache pour l’enregistrement est oublié et le pane marqué à enregistrer. Pendant un programme plein écran, la barre de statut demande de le quitter.
+- Vérifié dans l’instance de dev : historique de 4 847 px ramené à la hauteur de l’écran (879 px), commande suivante affichée au bon endroit, message de statut. Lint et build au vert.
+- Au passage, espace manquante dans `GitHeader.tsx` (`undoTip =(`), reste d’une ancienne édition.
+- **Convention proposée** ajoutée en section 8 de la spec.
+
 ## Reste à faire et idées
 
 ### À décider par toi

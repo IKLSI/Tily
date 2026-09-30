@@ -15,7 +15,7 @@ interface GitHeaderProps {
 
 const HEAD_LABEL = 'flex max-w-max min-w-0 flex-2 items-center gap-[4px] font-mono text-dock-green-deep'
 
-const undoTip =({ undo }: GitState): string => {
+const undoTip = ({ undo }: GitState): string => {
   if (!undo) {
     return 'Aucune opération faite depuis Dock à annuler'
   }

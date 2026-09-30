@@ -92,6 +92,21 @@ export const scrollPaneToCommand = (paneId: string, direction: CommandDirection)
   }
 }
 
+const SCROLLBACK_CLEARED = 'Historique de défilement effacé : seul l’écran visible du terminal est conservé.'
+const FULL_SCREEN_PROGRAM = 'Le terminal affiche un programme plein écran : quittez-le pour effacer l’historique de défilement.'
+
+export const clearPaneScrollback = (paneId: string): void => {
+  const terminal = terminalRegistry.get(paneId)?.terminal
+  if (!terminal) {
+    return
+  }
+  if (terminal.buffer.active.type === 'alternate') {
+    useHostStore.getState().setStatus(FULL_SCREEN_PROGRAM)
+    return
+  }
+  terminalRegistry.clearScrollback(paneId, () => useHostStore.getState().setStatus(SCROLLBACK_CLEARED))
+}
+
 export const isPaneOnAlternateScreen = (paneId: string): boolean => terminalRegistry.get(paneId)?.terminal.buffer.active.type === 'alternate'
 
 const NOTHING_TO_SEND = 'Ligne vide : rien à envoyer au terminal.'

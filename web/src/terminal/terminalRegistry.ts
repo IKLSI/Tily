@@ -20,6 +20,7 @@ const SNAPSHOT_SCROLLBACK_LINES = 2000
 const DEFAULT_SCROLLBACK_LINES = 10000
 const DEFAULT_FONT_SIZE = 14
 const NEWLINE = String.fromCharCode(13, 10)
+const ERASE_SCROLLBACK = '\x1b[3J'
 
 export enum RestoreKind {
   Tab = 'tab',
@@ -351,6 +352,18 @@ export const terminalRegistry = {
   },
   prime(paneId: string, text: string, kind: RestoreKind = RestoreKind.Tab): void {
     primedText.set(paneId, { text, kind })
+  },
+
+  clearScrollback(paneId: string, done: () => void): void {
+    const handle = handles.get(paneId)
+    if (!handle) {
+      return
+    }
+    handle.terminal.write(ERASE_SCROLLBACK, () => {
+      forgetChunks(handle)
+      handle.dirty = true
+      done()
+    })
   },
 
   markExited(paneId: string, code: number): void {

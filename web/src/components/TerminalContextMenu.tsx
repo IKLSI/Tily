@@ -12,6 +12,7 @@ export interface TerminalMenuActions {
   copyLastOutput: () => void
   paste: () => void
   selectAll: () => void
+  clearScrollback: () => void
   splitSideBySide: () => void
   splitTopBottom: () => void
   toggleZoom: () => void
@@ -32,6 +33,7 @@ const itemsFor = (canCopy: boolean, zoomed: boolean, actions: TerminalMenuAction
   { id: 'copy-last-output', label: 'Copier la sortie de la dernière commande', run: actions.copyLastOutput },
   { id: 'paste', label: 'Coller', detail: <MenuShortcut keys="Ctrl + Maj + V" />, run: actions.paste },
   { id: 'select-all', label: 'Tout sélectionner', run: actions.selectAll },
+  { id: 'clear-scrollback', label: 'Effacer l’historique de défilement', run: actions.clearScrollback },
   { id: 'split-x', label: 'Split côte à côte', detail: <MenuShortcut keys="Ctrl + Maj + D" />, run: actions.splitSideBySide },
   { id: 'split-y', label: 'Split haut / bas', detail: <MenuShortcut keys="Ctrl + Maj + H" />, run: actions.splitTopBottom },
   { id: 'zoom', label: zoomed ? 'Réduire le pane' : 'Agrandir le pane', detail: <MenuShortcut keys="Ctrl + Maj + M" />, run: actions.toggleZoom },
