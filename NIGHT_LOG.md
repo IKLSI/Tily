@@ -816,6 +816,14 @@ Suite de l’itération 80 : quand l’éditeur configuré est introuvable, le m
 - Écarté : traduire toute `Win32Exception` dans `UserErrorMessage`, car Dock lève lui-même des `Win32Exception` à message français (ConPTY, Job Objects) qu’il faut garder.
 - Test ajouté (éditeur absent : message français, sans « An error occurred ») ; 451 tests au vert.
 
+### 90. Voir le texte source d’un aperçu Markdown
+
+L’aperçu d’un Markdown (README, `CLAUDE.md`, notes d’agent) n’en montrait que le rendu : pour relire la syntaxe exacte, un tableau mal formé ou un commentaire HTML invisible, il fallait ouvrir l’éditeur.
+
+- Bouton « Source » dans l’en-tête de l’aperçu Markdown : texte brut coloré par highlight.js à la place du rendu, bouton marqué enfoncé ; un second clic revient au rendu. Le choix tient tant que le même fichier reste ouvert (y compris quand il est rechargé après modification) et repart sur le rendu pour un autre fichier.
+- Vérifié dans l’instance de dev sur le README : source affichée et colorée, retour au rendu. Lint et build au vert.
+- **Convention proposée** ajoutée en section 4 de la spec (aperçu des fichiers).
+
 ## Reste à faire et idées
 
 ### À décider par toi

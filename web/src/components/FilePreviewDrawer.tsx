@@ -44,17 +44,25 @@ const preventAuxiliaryOpen = (event: MouseEvent<HTMLElement>) => {
   }
 }
 
-const renderedHtml = (preview: FilePreview | null): string | null => {
+const MARKDOWN_LANGUAGE = 'markdown'
+
+const renderedHtml = (preview: FilePreview | null, source: boolean): string | null => {
   if (!preview || preview.error || preview.kind === PreviewKind.Image) {
     return null
   }
-  return preview.kind === PreviewKind.Markdown ? renderMarkdown(preview.content, preview.baseUrl) : highlightText(preview.content, preview.language)
+  if (preview.kind === PreviewKind.Markdown) {
+    return source ? highlightText(preview.content, MARKDOWN_LANGUAGE) : renderMarkdown(preview.content, preview.baseUrl)
+  }
+  return highlightText(preview.content, preview.language)
 }
 
 export function FilePreviewDrawer() {
   const { path, preview, anchor, anchorRequest } = usePreviewStore(useShallow((store) => ({ path: store.path, preview: store.preview, anchor: store.anchor, anchorRequest: store.anchorRequest })))
   const bodyRef = useRef<HTMLDivElement>(null)
-  const html = useMemo(() => renderedHtml(preview), [preview])
+  const [sourcePath, setSourcePath] = useState<string | null>(null)
+  const showSource = preview?.kind === PreviewKind.Markdown && sourcePath === preview.path
+  const html = useMemo(() => renderedHtml(preview, showSource), [preview, showSource])
+  const handleToggleSource = () => setSourcePath(showSource ? null : (preview?.path ?? null))
   const [image, setImage] = useState<{ src: string; size: string } | null>(null)
   const [actualSource, setActualSource] = useState<string | null>(null)
   const handleImageLoad = (event: SyntheticEvent<HTMLImageElement>) =>
@@ -88,6 +96,9 @@ export function FilePreviewDrawer() {
         <span className="min-w-0 flex-1 truncate text-[12px] font-semibold text-dock-ink" data-tip={path}>
           {name}
         </span>
+        {preview?.kind === PreviewKind.Markdown && !preview.error && (
+          <GitToolButton icon={IconName.File} tip={showSource ? 'Revenir au rendu Markdown' : 'Afficher le texte source du Markdown'} label="Source" pressed={showSource} onClick={handleToggleSource} />
+        )}
         <GitToolButton icon={IconName.Editor} tip="Ouvrir dans l’éditeur" onClick={openPreviewInEditor} />
         <button type="button" className={PANEL_HEADER_BUTTON} aria-label="Fermer" data-tip="Fermer (Échap)" onClick={handleClose}>
           <Icon name={IconName.Close} />
@@ -108,7 +119,7 @@ export function FilePreviewDrawer() {
             onLoad={handleImageLoad}
             onClick={handleToggleActualSize}
           />
-        ) : preview.kind === PreviewKind.Markdown && html !== null ? (
+        ) : preview.kind === PreviewKind.Markdown && !showSource && html !== null ? (
           <div className="dock-markdown text-dock-ink" dangerouslySetInnerHTML={{ __html: html }} />
         ) : html !== null ? (
           <pre className="font-mono text-[12.5px] leading-[1.5] whitespace-pre-wrap text-dock-ink" dangerouslySetInnerHTML={{ __html: html }} />
