@@ -68,7 +68,11 @@ export function GitCommitBox({ state, busy }: GitCommitBoxProps) {
     if (event.key === 'Enter' && event.ctrlKey && !event.nativeEvent.isComposing) {
       event.preventDefault()
       event.stopPropagation()
-      handleCommit()
+      if (event.shiftKey) {
+        handleCommitAndPush()
+      } else {
+        handleCommit()
+      }
     }
   }
 
@@ -99,7 +103,7 @@ export function GitCommitBox({ state, busy }: GitCommitBoxProps) {
         <button type="button" className={`${GIT_PRIMARY} min-w-0 flex-1 truncate`} aria-disabled={blocker !== null} data-tip={blocker ?? `${commitLabel} ${amend ? 'du dernier commit' : `de ${plural(state.stagedTotal, 'fichier staged', 'fichiers staged')}`} (Ctrl + Entrée)`} onClick={handleCommit}>
           {commitLabel}
         </button>
-        <button type="button" className={`${GIT_SECONDARY} min-w-0 flex-1 truncate`} aria-disabled={pushBlocked !== null} data-tip={pushBlocked ?? `${commitLabel} puis push`} onClick={handleCommitAndPush}>
+        <button type="button" className={`${GIT_SECONDARY} min-w-0 flex-1 truncate`} aria-disabled={pushBlocked !== null} data-tip={pushBlocked ?? `${commitLabel} puis push (Ctrl + Maj + Entrée)`} onClick={handleCommitAndPush}>
           {`${commitLabel} et push`}
         </button>
       </div>

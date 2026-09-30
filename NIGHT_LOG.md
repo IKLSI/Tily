@@ -644,6 +644,14 @@ Le message de la barre de statut vit dans le bouton qui ouvre le journal : un le
 - Une région `status` invisible (classe `sr-only`) reprend le message courant, ou le libellé d'une opération Git en cours, pour qu'il soit annoncé à chaque changement. Rien ne change à l'écran.
 - Vérifié dans l'instance de dev : la région existe, est masquée (1 px, `overflow: hidden`) et passe de « Session restaurée… » à « Chemin copié : … » après un clic sur « Copier le chemin ».
 
+### 69. Ctrl + Maj + Entrée : commit et push
+
+Dans le message de commit, Ctrl + Entrée faisait « Commit », mais « Commit et push » demandait la souris.
+
+- Ctrl + Maj + Entrée dans la zone de message lance « Commit et push », avec les mêmes garde-fous que le bouton (rien de staged, HEAD détachée, aucun dépôt distant, opération en cours) ; l'infobulle du bouton l'indique.
+- Vérifié dans l'instance de dev sans rien commiter ni pousser : fichier de test stagé dans le dépôt de test, messages vers l'hôte interceptés, Ctrl + Maj + Entrée → `git.commit` avec `push: true` capturé et non transmis ; fichier désindexé ensuite.
+- Vérifié aussi : tous les boutons de l'interface ont un nom accessible (aucun bouton à icône seule sans `aria-label`). L'idée de masquer `.git` dans l'arbre des fichiers a été écartée : la spec retient explicitement « tout est affiché, `.git` et fichiers cachés compris ».
+
 ## Reste à faire et idées
 
 ### À décider par toi
