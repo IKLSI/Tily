@@ -112,6 +112,8 @@ Ces valeurs sont des références de réalisation, pas des contraintes de taille
 
 **Convention proposée.** L’heure du message affiché (heures, minutes, secondes, précédées du jour s’il ne date pas d’aujourd’hui) figure en gris à droite de la barre de statut, la date complète en infobulle, pour qu’un message ancien ne passe pas pour un message récent ; elle est masquée pendant une opération Git ou worktree en cours.
 
+**Convention proposée.** Le tiroir du journal porte une bascule « Avertissements et erreurs » qui n’affiche que ces messages (« 7 sur 213 messages » dans l’en-tête) ; Copier et Effacer portent toujours sur tout le journal. Au lancement, le message « Session restaurée » indique le nombre de workspaces et d’onglets restaurés.
+
 ## 5. Workspaces et panneau en arborescence
 
 | ID | Exigence retenue |
@@ -145,6 +147,8 @@ La commande « Renommer le workspace » dans la palette active le même éditeur
 **Convention proposée.** « Fermer le workspace », dans son menu contextuel ou dans la palette pour le workspace actif (nommé dans l’entrée), ferme tous ses onglets avec une seule confirmation si des programmes tournent ; ses derniers onglets restent restaurables un par un.
 
 **Convention proposée.** Au clavier, dans le panneau des workspaces, ↑ / ↓ / Début / Fin passent d’une ligne visible à l’autre, workspaces et onglets confondus ; → déplie un workspace replié, ← le replie ou, depuis un onglet, remonte à son workspace. Tab parcourt toujours chaque bouton. Taper les premières lettres d’un nom donne le focus à la ligne visible suivante qui commence ainsi, comme dans l’arbre des fichiers. Échap rend le focus au terminal.
+
+**Convention proposée.** Un workspace replié affiche en gris, à droite de son nom, son nombre d’onglets ; le chevron le dit aussi aux lecteurs d’écran (« Afficher les 3 onglets de gd »).
 
 **Décision prise.** Un workspace créé depuis le sélecteur de projets porte automatiquement le nom du dossier choisi. Un workspace créé sans projet reçoit un nom automatique descriptif ; un nom saisi manuellement reste prioritaire et n’est jamais écrasé. Le premier onglet PowerShell reprend le dossier du pane actif ou, au premier lancement, le dossier utilisateur. Un clic sur un workspace rejoint son dernier onglet et son dernier pane actifs. Replier une branche ne change pas la sélection.
 
@@ -363,7 +367,7 @@ Les actions utilisent le **dossier du pane actif**, jamais un hypothétique doss
 
 **Convention proposée.** L’en-tête du volet de diff porte un bouton « Copier le diff », qui place dans le presse-papiers le diff du fichier tel que Git le produit (en-tête `diff --git` avec renommage, création ou suppression, `--- a/…`, `+++ b/…`, chunks `@@`, fins de ligne CR conservées), applicable par `git apply` ou à coller dans un agent, pour un fichier Unstaged, Staged, d’un commit ou d’un stash ; il est grisé pour un fichier binaire, pour un diff tronqué à l’affichage, dont la copie donnerait un patch incomplet, et pour un fichier qui n’est pas en UTF-8, dont les caractères accentués seraient perdus.
 
-**Convention proposée.** Dans un diff Unstaged ou Staged, Ctrl + clic sur le texte d’une ligne ouvre le fichier dans l’éditeur à cette ligne (numérotation de la nouvelle version ; sans effet sur une ligne supprimée) ; Ctrl + clic dans la gouttière reste réservé à la sélection de lignes.
+**Convention proposée.** Dans un diff Unstaged ou Staged, Ctrl + clic sur le texte d’une ligne ouvre le fichier dans l’éditeur à cette ligne (numérotation de la nouvelle version ; sans effet sur une ligne supprimée ; dans un diff Staged d’un fichier qui a aussi des modifications Unstaged, le fichier s’ouvre sans ligne, la numérotation de l’index ne correspondant plus) ; Ctrl + clic dans la gouttière reste réservé à la sélection de lignes.
 
 **Convention proposée.** Le menu d’un commit propose aussi « Revert sur « branche courante » », qui crée un commit défaisant ses modifications (`git revert --no-edit`, par rapport au premier parent pour un merge), y compris pour le commit HEAD ; un conflit suit le parcours des autres opérations (bannière « Terminer » / « Abandonner »), et « Annuler » retire le commit de revert tant qu’il n’est pas publié.
 

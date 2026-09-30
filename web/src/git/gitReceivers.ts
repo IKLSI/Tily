@@ -86,7 +86,7 @@ export const receiveGitDone = (operation: string, message: string, warning: bool
     clearRefSelection()
   }
   if (output) {
-    store.setFailure({ message, output })
+    store.setFailure({ message, output, warning })
   }
   useHostStore.getState().setStatus(message, warning ? StatusLevel.Warning : StatusLevel.Info)
 }

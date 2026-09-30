@@ -24,7 +24,8 @@ export function StatusLogDrawer() {
   const listRef = useRef<HTMLDivElement>(null)
   const pinnedToBottom = useRef(true)
   const [problemsOnly, setProblemsOnly] = useState(false)
-  const shown = problemsOnly ? entries.filter((entry) => entry.level !== StatusLevel.Info) : entries
+  const numbered = entries.map((entry, position) => ({ entry, position }))
+  const shown = problemsOnly ? numbered.filter(({ entry }) => entry.level !== StatusLevel.Info) : numbered
   const empty = entries.length === 0
   const now = new Date()
 
@@ -70,10 +71,10 @@ export function StatusLogDrawer() {
     >
       <div className="flex h-[32px] shrink-0 items-center gap-[6px] pr-[6px] pl-[12px]">
         <span className={SECTION_TITLE}>Journal</span>
-        <span className="text-[11px] text-dock-muted">{countLabel(entries.length)}</span>
+        <span className="text-[11px] text-dock-muted">{problemsOnly ? `${shown.length} sur ${countLabel(entries.length)}` : countLabel(entries.length)}</span>
         <span className="flex-1" />
         <button type="button" className={`${TEXT_BUTTON} aria-pressed:bg-dock-green-soft aria-pressed:text-dock-green-deep`} aria-pressed={problemsOnly} data-tip={problemsOnly ? 'Afficher tous les messages' : 'N’afficher que les avertissements et les erreurs'} onClick={handleToggleProblems}>
-          Erreurs seulement
+          Avertissements et erreurs
         </button>
         <button type="button" className={TEXT_BUTTON} aria-disabled={empty} data-tip="Copier tout le journal dans le presse-papiers" onClick={handleCopy}>
           Copier
@@ -92,8 +93,8 @@ export function StatusLogDrawer() {
           <p className="font-sans text-[12px] text-dock-muted">Aucun avertissement ni erreur dans le journal.</p>
         ) : (
           <ol>
-            {shown.map((entry, index) => (
-              <li key={`${entry.at}-${index}`} className="flex gap-[10px]">
+            {shown.map(({ entry, position }) => (
+              <li key={`${entry.at}-${position}`} className="flex gap-[10px]">
                 <time dateTime={entry.at} data-tip={entryFullDate(entry)} className="shrink-0 text-dock-muted tabular-nums">
                   {entryTime(entry, now)}
                 </time>

@@ -152,12 +152,14 @@ export function GitDiffView({ diff, error, placeholder, selectable }: GitDiffVie
   const handleClick = (event: MouseEvent<HTMLDivElement>) => {
     const target = event.target instanceof Element ? event.target : null
     const line = rows[rowAt(event.clientY)]?.line
-    const root = useGitStore.getState().state?.root
-    if (!selectable || !event.ctrlKey || !target || target.closest(PICK_SELECTOR) || target.closest('button') || !line?.new || !root) {
+    const state = useGitStore.getState().state
+    const selecting = !(window.getSelection()?.isCollapsed ?? true)
+    if (!selectable || !event.ctrlKey || selecting || !target || target.closest(PICK_SELECTOR) || target.closest('button') || !line?.new || !state) {
       return
     }
     event.preventDefault()
-    bridge.send({ type: 'files.openAt', path: absolutePath(root, diff.path), line: line.new, column: 1 })
+    const shifted = selectable === GitDiffSource.Staged && state.unstaged.some((change) => change.path === diff.path)
+    bridge.send({ type: 'files.openAt', path: absolutePath(state.root, diff.path), line: shifted ? 0 : line.new, column: shifted ? 0 : 1 })
   }
 
   const handleMouseMove = (event: MouseEvent<HTMLDivElement>) => {

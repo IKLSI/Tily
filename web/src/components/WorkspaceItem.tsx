@@ -112,7 +112,7 @@ export const WorkspaceItem = memo(function WorkspaceItem({ workspace, workspaceN
           type="button"
           aria-expanded={expanded}
           aria-controls={tabsId}
-          aria-label={`${expanded ? 'Replier' : 'Afficher'} les onglets de ${name}`}
+          aria-label={`${expanded ? 'Replier' : 'Afficher'} ${tabs.length === 1 ? 'l’onglet' : `les ${tabs.length} onglets`} de ${name}`}
           data-tip={toggleTip(expanded, tabs.length)}
           className="flex size-[20px] shrink-0 cursor-pointer items-center justify-center rounded text-dock-muted hover:text-dock-ink"
           onClick={handleToggle}

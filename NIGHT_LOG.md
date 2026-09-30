@@ -740,6 +740,20 @@ Suite de l'itération 79 : les remontées d'erreur génériques de l'hôte affic
 - Appliqué aux dix remontées génériques (`HostBridge`, `GitFeed`, `GitOperationRunner`, `WorktreeFeed`) ; celles qui préfixent déjà une phrase française (« Export des préférences impossible : … ») n'ont pas changé.
 - Vérifié : 450 tests (dont quatre pour `UserErrorMessage`) ; limite connue de l'itération 79 réduite.
 
+### 82. Corrections de la neuvième relecture (diff, palette, journal, accessibilité)
+
+Une relecture indépendante des itérations 70 à 80 n'a trouvé ni défaut grave ni faille ; sept défauts mineurs et un écart de documentation, traités ainsi :
+
+- **Ctrl + clic dans un diff Staged** : la ligne de la version indexée pouvait ne plus correspondre au fichier de travail (modifications non stagées au-dessus). Si le fichier a aussi des modifications Unstaged, il s'ouvre désormais sans ligne ; sinon à la ligne cliquée.
+- **Ctrl + glisser pour sélectionner du texte d'un diff** ouvrait l'éditeur au relâchement : ignoré tant qu'une sélection de texte existe.
+- **Palette « Actualiser la vue Git » / « Actualiser l'arbre des fichiers »** : sans effet quand la vue n'était pas affichée ; elles ouvrent maintenant la vue d'abord (vérifié : panneau fermé → vue Git ouverte).
+- **Nombre d'onglets d'un workspace replié** : exposé aux lecteurs d'écran par le nom du chevron (« Afficher les 3 onglets de gd »).
+- **Journal** : bascule renommée « Avertissements et erreurs » (elle montre les deux), compteur « 7 sur 213 messages » quand le filtre est actif, clés de liste indépendantes du filtre (les lignes ne sont plus recréées à chaque bascule).
+- **Push en échec après un commit réussi** : le bandeau de la raison est désormais orange et en `status`, comme l'avertissement de la barre de statut, au lieu du rouge d'une erreur.
+- **Documentation** : filtre du journal, message « Session restaurée » détaillé, compteur des workspaces repliés et nuance Staged du Ctrl + clic ajoutés à la spec ; `FRONTEND_ARCHITECTURE.md` complété (journal, entrées de palette).
+- **Non corrigé, noté** : sous une jonction ou un lecteur `subst` qui pointe vers un *sous-dossier* du dépôt, la racine d'affichage de l'itération 73 retombe sur la racine réelle ; « Afficher dans l'arbre » et « Voir les modifications » y échouent encore (limite connue ajoutée).
+- Vérifié : lint, build ; dans l'instance de dev, journal filtré « 7 sur 213 messages », palette avec panneau fermé.
+
 ## Reste à faire et idées
 
 ### À décider par toi
@@ -761,6 +775,7 @@ Suite de l'itération 79 : les remontées d'erreur génériques de l'hôte affic
   - après un redimensionnement, l'invite repliée peut se redessiner de travers jusqu'à la commande suivante.
 - **Copie de sortie et navigation entre commandes** : Windows PowerShell et PowerShell 7 seulement, pas CMD ni Git Bash. Une invite qui s'écrit elle-même par `Write-Host` au lieu de renvoyer son texte fausserait la hauteur annoncée.
 - **Liens de fichiers** : depuis l'itération 44, un chemin absolu avec des espaces dans ses dossiers est lié ; un nom de fichier ou un chemin relatif avec espaces ne l'est toujours pas, ni un chemin replié sur deux lignes, et un chemin dont un dossier contient une extension suivie d'une espace (`Node.js Apps`, `ASP.NET Core`) n'est souligné que jusqu'à ce point (le Ctrl + clic ouvre quand même le fichier complet s'il existe, itération 63).
+- **Jonction ou `subst` vers un sous-dossier du dépôt** : la racine d'affichage (itération 73) ne sait pas relier un dossier logique dont le nom diffère du dossier réel ; « Afficher dans l'arbre » et « Voir les modifications » y échouent (il faudrait comparer des chemins relatifs au dossier suivi).
 - **Clignotement de la barre des tâches** (itération 38) : la commande est bien reçue par l'hôte, mais le clignotement lui-même ne s'observe pas par le débogage distant ; à confirmer à l'usage.
 - **Messages d'erreur imprévus** : une vingtaine de chemins d'erreur de l'hôte affichent `exception.Message` tel quel. Les exceptions levées par Dock sont en français, mais une exception imprévue du framework .NET (entrée / sortie, lancement de processus) apparaîtrait en anglais ; traduites en français depuis l'itération 80 pour les exceptions d'entrée / sortie ; restent en anglais les éventuelles exceptions imprévues d'autres familles (réseau, processus hors terminaux).
 - **Commit et push, push en échec** : corrigé à l'itération 74 (commit gardé, message vidé, avertissement « Push impossible »).

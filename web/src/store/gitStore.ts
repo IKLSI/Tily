@@ -20,6 +20,7 @@ export interface GitFileTarget {
 interface GitFailure {
   message: string
   output?: string
+  warning?: boolean
 }
 
 interface GitRejection {

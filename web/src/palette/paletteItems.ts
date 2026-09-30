@@ -2,7 +2,8 @@ import { longestWaitingFirst, waitedFor, waitingPanes } from '../agents/agentSum
 import { bridge } from '../bridge/bridge'
 import type { GitContext, ShellProfile } from '../bridge/messages'
 import { Command, revealWorkspacePanel, runCommand } from '../keyboard/shortcuts'
-import { activePane, activeTab, activeWorkspace, FAVORITES_MAX, folderName, isLeaf, panesOf, type Pane, type Session } from '../model/session'
+import { activePane, activeTab, activeWorkspace, FAVORITES_MAX, folderName, isLeaf, panesOf, RightPanelView, type Pane, type Session } from '../model/session'
+import { openPanelView } from '../panel/rightPanel'
 import { refreshFolders } from '../explorer/fileExplorerActions'
 import { refreshRepository } from '../git/gitRequests'
 import { useAgentStore } from '../store/agentStore'
@@ -37,6 +38,11 @@ const FAVORITES_FULL_NOTICE = `Pas plus de ${FAVORITES_MAX} favoris : retirez un
 const ATTENTION_PREFIX = 'attention-'
 const MOVE_TAB_PREFIX = 'move-tab-'
 const JOIN_TAB_PREFIX = 'join-tab-'
+
+const showAndRun = (view: RightPanelView, run: () => void): void => {
+  openPanelView(view)
+  run()
+}
 
 const command = (id: string, label: string, run: () => void, hint?: string): PaletteItem => ({ id, kind: PaletteKind.Command, label, hint, favorite: false, run })
 
@@ -95,8 +101,8 @@ const commandItems = (session: Session, shells: ShellProfile[]): PaletteItem[] =
       command('open-explorer', 'Ouvrir le dossier du pane actif dans l’explorateur', () => openPaneFolder(paneId, OpenTarget.Explorer)),
       command('copy-branch', 'Copier la branche Git du pane actif', () => copyPaneBranch(paneId)),
       command('collapse-files', 'Tout replier dans l’arbre des fichiers', () => useExplorerStore.getState().collapseUnder(activePane(tab).path)),
-      command('refresh-files', 'Actualiser l’arbre des fichiers', refreshFolders, 'F5 dans l’arbre'),
-      command('refresh-git', 'Actualiser la vue Git', refreshRepository, 'F5 dans la vue Git'),
+      command('refresh-files', 'Actualiser l’arbre des fichiers', () => showAndRun(RightPanelView.Files, refreshFolders), 'F5 dans l’arbre'),
+      command('refresh-git', 'Actualiser la vue Git', () => showAndRun(RightPanelView.Git, refreshRepository), 'F5 dans la vue Git'),
     )
     const context = useHostStore.getState().contexts[paneId]
     if (context?.worktreeRoot) {
