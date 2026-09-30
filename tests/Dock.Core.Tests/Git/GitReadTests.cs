@@ -205,6 +205,20 @@ public sealed class GitReadTests : IDisposable
     }
 
     [Fact]
+    public void ReadDiff_WhenFileNotUtf8_ThenNoPatchToCopy()
+    {
+        var file = Path.Combine(_sandbox.Work, "ansi.txt");
+        File.WriteAllBytes(file, [0x63, 0x61, 0x66, 0xE9, 0x0A]);
+        _sandbox.Git("add", "ansi.txt");
+        _sandbox.Git("commit", "-q", "-m", "Base");
+        File.WriteAllBytes(file, [0x74, 0x68, 0xE9, 0x0A]);
+
+        var diff = GitDiffReader.Read(_sandbox.Repository, new GitDiffRequestModel(GitDiffSource.Unstaged, "ansi.txt", null, null, false));
+
+        Assert.Equal((1, null), (diff.Hunks.Count, diff.Patch));
+    }
+
+    [Fact]
     public void ReadDiff_WhenTruncated_ThenNoPatchToCopy()
     {
         _sandbox.Write("long.txt", string.Concat(Enumerable.Range(0, GitDiffParser.MaxLines + 1).Select(index => $"{index}\n")));

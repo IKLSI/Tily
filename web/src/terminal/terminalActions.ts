@@ -120,14 +120,18 @@ export const copyPaneSelection = (paneId: string): void => {
   }
 }
 
-export const pasteIntoPane = (paneId: string): void => {
+export const pasteTextIntoPane = (paneId: string, text: string): void => {
   const terminal = terminalRegistry.get(paneId)?.terminal
-  if (terminal) {
-    void navigator.clipboard
-      .readText()
-      .then((text) => pasteGuarded(paneId, terminal, text))
-      .catch(reportFailure(PASTE_FAILED))
+  if (terminal && text.length > 0) {
+    pasteGuarded(paneId, terminal, text)
   }
+}
+
+export const pasteIntoPane = (paneId: string): void => {
+  void navigator.clipboard
+    .readText()
+    .then((text) => pasteTextIntoPane(paneId, text))
+    .catch(reportFailure(PASTE_FAILED))
 }
 
 export const hasPaneAgent = (paneId: string): boolean => paneId in useAgentStore.getState().agents

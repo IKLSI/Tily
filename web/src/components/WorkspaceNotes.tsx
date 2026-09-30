@@ -8,10 +8,11 @@ import { SECTION_TITLE } from './rightPanelStyles'
 
 const NOTE_ID = 'workspace-note'
 const LINE_BREAK = '\n'
+const TRAILING_LINE_BREAKS = /[\r\n]+$/
 
 const noteTextToSend = (value: string, start: number, end: number): string => {
   if (start !== end) {
-    return value.slice(start, end)
+    return value.slice(start, end).replace(TRAILING_LINE_BREAKS, '')
   }
   const lineStart = value.lastIndexOf(LINE_BREAK, start - 1) + 1
   const lineEnd = value.indexOf(LINE_BREAK, start)

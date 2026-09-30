@@ -446,6 +446,18 @@ Les erreurs de `dotnet build`, `tsc` ou PowerShell citent des chemins absolus co
 - Vérifié : 11 cas passés à `findFileLinks` (erreur `dotnet build` avec deux chemins, `At C:\…\My Scripts\build.ps1:12`, `Program Files (x86)`, URL, prompt PowerShell non lié, phrase ambiguë…) ; 440 tests dont deux nouveaux pour le repli ; dans l'instance de dev, Ctrl + clic sur `…\Temp\dock essai\cible.txt:2:1` affiché par PowerShell → l'éditeur reçoit `-g "…\dock essai\cible.txt:2:1"`.
 - **Convention proposée** de la section 8 de la spec mise à jour ; limite connue du journal réduite.
 
+### 45. Corrections de la cinquième relecture (collage, notes, palette, diff)
+
+Une relecture indépendante des itérations 37 à 43 a relevé 2 défauts moyens et 3 mineurs, tous corrigés ici.
+
+- **Notes, Ctrl + Entrée sur une ligne sélectionnée entière** (moyen) : la sélection finissait par un saut de ligne, que le garde-fou du collage ne compte pas comme une ligne de plus ; la commande s'exécutait donc aussitôt. Les sauts de ligne finaux de la sélection sont retirés : la commande attend Entrée, comme promis.
+- **Maj + Inser contournait la confirmation du collage multi-ligne** (moyen) : xterm.js laisse passer Maj + Inser, et le collage natif du navigateur allait droit au shell. Un écouteur `paste` posé en capture sur chaque terminal fait maintenant passer tout collage natif (Maj + Inser, menu Édition du système) par le même garde-fou. Ctrl + V annule déjà le collage natif : pas de double collage (vérifié).
+- **Ctrl + P sous un dialogue de confirmation** (mineur) : la palette s'ouvrait cachée sous « Coller N lignes ? », les confirmations Git ou de suppression, et Entrée y lançait une commande invisible. Ctrl + P est ignoré tant qu'un de ces dialogues est ouvert (`confirmationOpen`, réutilisé par `modalOpen`).
+- **Diff copié d'un fichier hors UTF-8** (mineur) : un `.ps1` en Windows-1252 donnait un patch aux caractères remplacés, refusé par `git apply`. L'hôte ne fournit plus de `patch` quand le décodage a perdu des caractères ; le bouton est grisé avec « Fichier hors UTF-8 : le diff copié ne s'appliquerait pas ».
+- **Contrat du pont** (mineur) : `appearance{fontSize}` d'`app.hello`, `configuredBase?` du plan de worktree et les clés `updates` / `appearance` de l'export ajoutés à `docs/BACKEND_ARCHITECTURE.md`.
+- Non retenu : Leader puis 8 en AZERTY belge sort le pane (8 y donne `!`), compromis voulu à l'itération 39 ; bornes 8 / 14 / 32 recopiées côté web pour la liste des tailles, l'hôte restant l'arbitre.
+- Vérifié : 441 tests (dont un fichier Windows-1252 sans `patch`) ; dans l'instance de dev, événement `paste` natif de deux lignes → dialogue ; Ctrl + P pendant le dialogue → pas de palette, focus sur « Coller et exécuter » ; sélection « echo note-selection⏎ » puis Ctrl + Entrée → collée sans être exécutée ; Ctrl + V et Ctrl + Maj + V → un seul collage chacun.
+
 ## Reste à faire et idées
 
 ### À décider par toi

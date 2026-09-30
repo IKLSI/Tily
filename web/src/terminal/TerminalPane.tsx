@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useRef, type MouseEvent } from 'react'
 import type { Pane } from '../model/session'
 import { handleTerminalKey } from '../keyboard/shortcuts'
 import { useUiStore } from '../store/uiStore'
-import { copyPaneSelection, focusPane, hasPaneAgent, hasPaneSelection, insertAgentLineBreak, isMouseTrackedByProgram, isPaneOnAlternateScreen, pasteIntoPane } from './terminalActions'
+import { copyPaneSelection, focusPane, hasPaneAgent, hasPaneSelection, insertAgentLineBreak, isMouseTrackedByProgram, isPaneOnAlternateScreen, pasteIntoPane, pasteTextIntoPane } from './terminalActions'
 import { terminalRegistry } from './terminalRegistry'
 
 interface TerminalPaneProps {
@@ -14,6 +14,7 @@ interface TerminalPaneProps {
 
 const MOUSE_RIGHT_BUTTON = 2
 const PANE_SELECTOR = '[data-pane-id]'
+const PLAIN_TEXT = 'text/plain'
 
 export function TerminalPane({ pane, active, onFocus, onContextMenu }: TerminalPaneProps) {
   const hostRef = useRef<HTMLDivElement>(null)
@@ -39,9 +40,18 @@ export function TerminalPane({ pane, active, onFocus, onContextMenu }: TerminalP
         insertAgentLineBreak: () => insertAgentLineBreak(paneId),
         usesAlternateScreen: () => isPaneOnAlternateScreen(paneId),
       })
+    const handleNativePaste = (event: ClipboardEvent) => {
+      event.preventDefault()
+      event.stopPropagation()
+      pasteTextIntoPane(paneId, event.clipboardData?.getData(PLAIN_TEXT) ?? '')
+    }
+    host.addEventListener('paste', handleNativePaste, true)
     const observer = new ResizeObserver(() => handle.fit.fit())
     observer.observe(host)
-    return () => observer.disconnect()
+    return () => {
+      host.removeEventListener('paste', handleNativePaste, true)
+      observer.disconnect()
+    }
   }, [pane.id])
 
   useEffect(() => {

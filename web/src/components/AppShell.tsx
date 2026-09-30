@@ -164,9 +164,14 @@ const handleCancelGit = (): void => {
   restoreFocus()
 }
 
+const confirmationOpen = (): boolean => {
+  const { settingsOpen, closeConfirmation } = useUiStore.getState()
+  return settingsOpen || closeConfirmation !== null || useExplorerStore.getState().deleteRequest !== null || useGitStore.getState().confirmation !== null || usePasteStore.getState().request !== null || worktreeModalOpen()
+}
+
 const modalOpen = (): boolean => {
-  const { settingsOpen, closeConfirmation, paletteOpen, projectPickerOpen } = useUiStore.getState()
-  return settingsOpen || paletteOpen || projectPickerOpen || closeConfirmation !== null || useExplorerStore.getState().deleteRequest !== null || useGitStore.getState().confirmation !== null || usePasteStore.getState().request !== null || worktreeModalOpen()
+  const { paletteOpen, projectPickerOpen } = useUiStore.getState()
+  return paletteOpen || projectPickerOpen || confirmationOpen()
 }
 
 const panelActions: WorkspacePanelActions = {
@@ -243,8 +248,7 @@ export function AppShell({ session }: AppShellProps) {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      const { settingsOpen: settingsShown, closeConfirmation: confirmationShown } = useUiStore.getState()
-      if (!event.defaultPrevented && event.ctrlKey && !event.altKey && event.key.toLowerCase() === 'p' && !settingsShown && !confirmationShown) {
+      if (!event.defaultPrevented && event.ctrlKey && !event.altKey && event.key.toLowerCase() === 'p' && !confirmationOpen()) {
         event.preventDefault()
         openPalette()
       }

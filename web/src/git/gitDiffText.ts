@@ -10,7 +10,10 @@ export const copyDiffTip = (diff: GitDiff | null): string => {
   if (canCopyDiff(diff)) {
     return 'Copier le diff (format unifié, applicable par git apply)'
   }
-  return diff?.truncated ? 'Diff tronqué à l’affichage : copie impossible' : 'Aucun diff texte à copier'
+  if (diff?.truncated) {
+    return 'Diff tronqué à l’affichage : copie impossible'
+  }
+  return diff && !diff.binary && diff.hunks.length > 0 ? 'Fichier hors UTF-8 : le diff copié ne s’appliquerait pas' : 'Aucun diff texte à copier'
 }
 
 export const copyDiff = (diff: GitDiff | null): void => {

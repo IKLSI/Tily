@@ -21,6 +21,7 @@ public static class GitDiffReader
 
     private const int BinaryProbeBytes = 8000;
     private const char Separator = '\u001f';
+    private const char UndecodedCharacter = '�';
     private static readonly string[] DiffOptions = ["--no-ext-diff", "--no-color", "--src-prefix=a/", "--dst-prefix=b/", "-U3", "-M"];
 
     public static GitDiffModel Read(GitRepository repository, GitDiffRequestModel request)
@@ -76,7 +77,7 @@ public static class GitDiffReader
         source == GitDiffSource.Staged ? ["diff", "--cached", .. DiffOptions, "--", .. paths] : ["diff", .. DiffOptions, "--", .. paths];
 
     private static GitDiffModel Copyable(GitDiffModel diff, string raw) =>
-        diff.Binary || diff.Truncated || diff.Hunks.Count == 0 ? diff : diff with { Patch = raw };
+        diff.Binary || diff.Truncated || diff.Hunks.Count == 0 || raw.Contains(UndecodedCharacter) ? diff : diff with { Patch = raw };
 
     private static GitDiffModel Selectable(GitDiffModel diff, string raw) =>
         diff.Binary || diff.Hunks.Count == 0 ? diff : diff with { Fingerprint = Fingerprint(raw) };
