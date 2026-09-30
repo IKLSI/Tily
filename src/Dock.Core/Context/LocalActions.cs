@@ -8,6 +8,8 @@ public static class LocalActions
 {
     public const string ExplorerExecutable = "explorer.exe";
 
+    private static readonly HashSet<string> LocalDocumentExtensions = new(StringComparer.OrdinalIgnoreCase) { ".html", ".htm", ".pdf", ".png", ".jpg", ".jpeg", ".gif", ".svg", ".webp", ".txt", ".md" };
+
     public static void OpenInExplorer(string path)
     {
         RequireDirectory(path);
@@ -69,8 +71,37 @@ public static class LocalActions
         Launch(new ProcessStartInfo(editorCommand, EditorLocation.CommandLine(arguments)) { UseShellExecute = true, WindowStyle = ProcessWindowStyle.Hidden }, $"L’éditeur « {editorCommand} » n’a pas pu être lancé");
     }
 
-    public static void OpenLink(string url) =>
+    public static void OpenLink(string url)
+    {
+        if (Uri.TryCreate(url, UriKind.Absolute, out var uri) && uri.IsFile)
+        {
+            Launch(new ProcessStartInfo(RequireLocalDocument(uri)) { UseShellExecute = true }, "Fichier non ouvert");
+            return;
+        }
+
         Launch(new ProcessStartInfo(RequireWebLink(url).AbsoluteUri) { UseShellExecute = true }, "Lien non ouvert");
+    }
+
+    public static string RequireLocalDocument(Uri uri)
+    {
+        var path = uri.LocalPath;
+        if (uri.IsUnc)
+        {
+            throw new InvalidOperationException($"Lien non ouvert : un fichier réseau ne s’ouvre pas depuis un lien file: ({path}).");
+        }
+
+        if (!File.Exists(path))
+        {
+            throw new InvalidOperationException($"Fichier introuvable : {path}");
+        }
+
+        if (!LocalDocumentExtensions.Contains(Path.GetExtension(path)))
+        {
+            throw new InvalidOperationException($"Lien non ouvert : seuls les pages HTML, PDF, images et fichiers texte locaux s’ouvrent depuis un lien file: ({Path.GetFileName(path)}).");
+        }
+
+        return path;
+    }
 
     private static void Launch(ProcessStartInfo start, string failure)
     {

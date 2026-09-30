@@ -31,6 +31,7 @@ const RESTORE_SEPARATORS: Record<RestoreKind, string> = {
   [RestoreKind.Tab]: '\r\n\x1b[2m── Onglet rouvert : ancien texte ci-dessus, nouveau terminal ci-dessous ──\x1b[0m\r\n',
   [RestoreKind.Session]: '\r\n\x1b[2m── Session restaurée — nouvelle session : ancien texte ci-dessus, aucun processus n’a été relancé ──\x1b[0m\r\n',
 }
+const LINK_PATTERN = /(?:https?|HTTPS?|file|FILE):\/{2,3}[^\s"'!*(){}|\\^<>`]*[^\s"':,.!?{}|\\^~[\]`()<>]/
 const FONT_FAMILY = '"CaskaydiaCove Nerd Font Mono", "Cascadia Mono", "Cascadia Code", Consolas, "Symbols Nerd Font Mono", monospace'
 
 enum Renderer {
@@ -212,7 +213,7 @@ const createHandle = (pane: Pane): TerminalHandle => {
   terminal.loadAddon(serializer)
   terminal.loadAddon(new Unicode11Addon())
   terminal.loadAddon(new ClipboardAddon())
-  terminal.loadAddon(new WebLinksAddon(openLinkOnCtrlClick))
+  terminal.loadAddon(new WebLinksAddon(openLinkOnCtrlClick, { urlRegex: LINK_PATTERN }))
   terminal.unicode.activeVersion = '11'
   const handle: TerminalHandle = { paneId: pane.id, terminal, fit, serializer, renderer: Renderer.Dom, shownAt: 0, started: false, unackedChars: 0, dirty: true, chunks: [] }
   terminal.onData((data) => bridge.send({ type: 'terminal.input', pane: pane.id, data }))

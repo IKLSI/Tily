@@ -1062,6 +1062,13 @@ Point laissé par la treizième relecture : deux workspaces du même nom (deux �
 - Vérifié dans l’instance de dev : clic → sélecteur « Rechercher un commit » ouvert, focus dans le champ. Lint et build au vert.
 - Dernière itération de la nuit (réveil de l’utilisateur).
 
+### 118. Liens `file:///` vers une page locale (au réveil)
+
+Signalé au réveil : un lien `file:///…/page.html` affiché dans le terminal n’était ni souligné ni ouvrable, alors que ces liens servent justement à ouvrir les pages HTML produites par l’agent.
+
+- Le terminal reconnaît `file:///` comme les liens web ; Ctrl + clic ouvre le fichier dans son application par défaut s’il est local, existe et est une page HTML, un PDF, une image ou un fichier texte (`.html`, `.htm`, `.pdf`, `.png`, `.jpg`, `.jpeg`, `.gif`, `.svg`, `.webp`, `.txt`, `.md`). Un exécutable, un script, un autre type, un fichier réseau ou introuvable n’est jamais ouvert et la barre de statut l’explique.
+- 3 tests ajoutés (`RequireLocalDocument`) ; 470 tests au vert. Convention de la section 8 et scénario R28 de la spec mis à jour.
+
 ## Reste à faire et idées
 
 ### À décider par toi
