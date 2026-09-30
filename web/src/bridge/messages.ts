@@ -158,6 +158,8 @@ export interface PaneAgent {
   state: AgentState
   message?: string
   detail?: string
+  interrupted?: boolean
+  sessionId?: string
 }
 
 export type HostToWebMessage =

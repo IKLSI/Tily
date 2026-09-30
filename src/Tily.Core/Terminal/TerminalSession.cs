@@ -54,24 +54,29 @@ public sealed class TerminalSession : IDisposable
 
     public IReadOnlyList<int> JobProcessIds() => _job.ProcessIds();
 
-    public IReadOnlyList<string> ActiveProcessNames()
+    public IReadOnlyList<string> ActiveProcessNames() => NamesOf(ActiveProcesses());
+
+    public static IReadOnlyList<string> NamesOf(IEnumerable<ActiveProcessModel> processes) =>
+        new SortedSet<string>(processes.Select(process => process.Name), StringComparer.OrdinalIgnoreCase).ToList();
+
+    public IReadOnlyList<ActiveProcessModel> ActiveProcesses()
     {
         if (HasExited || Volatile.Read(ref _closed) == 1)
         {
-            return Array.Empty<string>();
+            return Array.Empty<ActiveProcessModel>();
         }
 
-        var names = new SortedSet<string>(StringComparer.OrdinalIgnoreCase);
+        var processes = new List<ActiveProcessModel>();
         foreach (var processId in _job.ProcessIds())
         {
             var name = processId == ProcessId ? null : ProcessNameOf(processId);
             if (name is not null)
             {
-                names.Add(name);
+                processes.Add(new ActiveProcessModel(processId, name));
             }
         }
 
-        return names.ToList();
+        return processes;
     }
 
     public void Write(ReadOnlySpan<byte> data)

@@ -96,6 +96,23 @@ public sealed class AgentMonitorTests : IDisposable
     }
 
     [Fact]
+    public void Resolve_WhenRegistryIdleAfterWorkingState_ThenAgentIsInterrupted()
+    {
+        var claudeDirectory = Path.Combine(_directory, "claude");
+        Directory.CreateDirectory(Path.Combine(claudeDirectory, "sessions"));
+        var statePath = _states.FilePathFor("pane-a");
+        File.WriteAllText(statePath, "{ \"agent\": \"claude\", \"state\": \"working\" }");
+        File.SetLastWriteTimeUtc(statePath, DateTime.UtcNow.AddSeconds(-30));
+        var idleSince = DateTimeOffset.UtcNow.AddSeconds(-10).ToUnixTimeMilliseconds();
+        File.WriteAllText(Path.Combine(claudeDirectory, "sessions", "4242.json"), $"{{ \"pid\": 4242, \"sessionId\": \"3f2c8a51-6d0e-4b7a-9c1f-2e5d7a9b0c14\", \"status\": \"idle\", \"statusUpdatedAt\": {idleSince} }}");
+        var monitor = new AgentMonitor(_states, new ClaudeSessionRegistry(claudeDirectory, _ => null));
+
+        var agent = monitor.Resolve([new PaneProbeModel("pane-a", DateTime.UtcNow.AddMinutes(-1), ["claude"], [4242])]).Single();
+
+        Assert.Equal((AgentState.Done, true), (agent.State, agent.Interrupted));
+    }
+
+    [Fact]
     public void Clear_WhenFilesExist_ThenRemovesThemAll()
     {
         File.WriteAllText(_states.FilePathFor("pane-1"), "{}");
