@@ -3,7 +3,7 @@ import { useGitStore, type GitFileTarget } from '../store/gitStore'
 import { StatusLevel, useHostStore } from '../store/hostStore'
 import { refocusGitIfLost } from './gitFocus'
 import { clearRefSelection } from './gitRefSelection'
-import { closeDrawer, loadUntilRevealed, reloadDiff, retryFailedDetails, selectWorkingTree, takeRetry } from './gitRequests'
+import { closeDrawer, loadUntilRevealed, reloadDiff, retryFailedDetails, selectWorkingTree, takeInitialized, takeRetry } from './gitRequests'
 
 const COMMIT_OPERATION = 'git.commit'
 const AUTO_FETCH_OPERATION = 'git.autoFetch'
@@ -31,6 +31,13 @@ const finishBusy = (operation: string): void => {
 export const receiveGitState = (path: string, state: GitState | undefined, error: string | undefined, displayRoot: string | undefined): void => {
   const previous = useGitStore.getState().state
   useGitStore.getState().receiveState(path, state ?? null, error ?? null, displayRoot ?? null)
+  if (takeInitialized(path)) {
+    if (state) {
+      useHostStore.getState().setStatus(`Dépôt Git initialisé dans ${state.root}${state.head.branch ? ` (branche ${state.head.branch})` : ''}.`)
+    } else if (error) {
+      useHostStore.getState().setStatus(error, StatusLevel.Error)
+    }
+  }
   if (state && state.conflicts.length > 0 && (previous?.conflicts.length ?? 0) === 0) {
     selectWorkingTree()
   }

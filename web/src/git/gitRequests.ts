@@ -62,7 +62,18 @@ export const followRepository = (path: string): void => {
 
 export const refreshRepository = (): void => bridge.send({ type: 'git.refresh' })
 
+let initializing: string | null = null
+
+export const takeInitialized = (path: string): boolean => {
+  const initialized = initializing === path
+  if (initialized) {
+    initializing = null
+  }
+  return initialized
+}
+
 export const initializeRepository = (path: string): void => {
+  initializing = path
   bridge.send({ type: 'git.init', path })
   useHostStore.getState().setStatus(`Initialisation d’un dépôt Git dans ${path}…`)
 }

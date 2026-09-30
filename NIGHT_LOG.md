@@ -938,6 +938,13 @@ Hors d’un dépôt, la vue Git disait seulement « Aucun dépôt Git » : pour 
 - Douzième relecture indépendante (itérations 96 à 102) lancée en arrière-plan.
 - **Convention proposée** en section 11 de la spec ; contrat du pont complété.
 
+### 104. Confirmation après « Initialiser un dépôt Git ici »
+
+Suite de l’itération 103 : après le clic, la barre de statut restait sur « Initialisation d’un dépôt Git dans … … », comme si l’opération n’était pas finie.
+
+- À l’arrivée de l’état du nouveau dépôt, la barre de statut affiche « Dépôt Git initialisé dans … (branche master) » ; en cas d’échec, le message d’erreur, en rouge.
+- Vérifié dans l’instance de dev sur un dossier neuf. Lint et build au vert.
+
 ## Reste à faire et idées
 
 ### À décider par toi
