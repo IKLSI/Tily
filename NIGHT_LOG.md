@@ -1012,6 +1012,14 @@ Déplacer un onglet vers un autre workspace n’était possible que par la palet
 - Vérifié dans l’instance de dev : menu à 10 entrées, « Déplacer vers « gd » » → gd passe de 3 à 4 onglets et devient actif. Lint et build au vert.
 - Spec (section 6) et architecture front complétées.
 
+### 112. Mêmes entrées dans le menu d’un onglet du panneau des workspaces
+
+Suite de l’itération 111 : le menu d’une ligne d’onglet du panneau des workspaces n’avait ni « Déplacer vers « workspace » » ni « Copier le chemin », alors que les deux menus d’onglet proposaient jusque-là les mêmes actions.
+
+- Les deux entrées, regroupées dans `tabMenuItems.ts`, sont partagées par les deux menus.
+- Vérifié dans l’instance de dev : menu d’une ligne d’onglet à 10 entrées, dont « Déplacer vers « gd » » et « Copier le chemin ». Lint et build au vert.
+- Spec (section 6) et architecture front complétées.
+
 ## Reste à faire et idées
 
 ### À décider par toi

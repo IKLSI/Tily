@@ -1,9 +1,9 @@
 import { isManuallyNamed, type Session } from '../model/session'
 import { useSessionStore } from '../store/sessionStore'
-import { copyPanePath } from '../terminal/contextActions'
 import type { ActionMenuItem } from './ActionMenu'
 import { FloatingMenu } from './FloatingMenu'
 import { MenuShortcut } from './MenuShortcut'
+import { tabTransferItems } from './tabMenuItems'
 
 export interface TabMenuRequest {
   tabId: string
@@ -30,29 +30,13 @@ interface TabContextMenuProps {
   onDismiss: () => void
 }
 
-const moveItems = (session: Session | null, tabId: string): ActionMenuItem[] => {
-  const workspaces = session?.workspaces ?? []
-  const source = workspaces.find((workspace) => workspace.tabs.some((tab) => tab.id === tabId))
-  return workspaces
-    .filter((workspace) => workspace !== source)
-    .map((workspace) => ({ id: `move-to-${workspace.id}`, label: `Déplacer vers « ${workspace.name} »`, run: () => useSessionStore.getState().moveTab(tabId, workspace.id) }))
-}
-
-const copyTabPath = (session: Session | null, tabId: string): void => {
-  const paneId = session?.workspaces.flatMap((workspace) => workspace.tabs).find((tab) => tab.id === tabId)?.active
-  if (paneId) {
-    copyPanePath(paneId)
-  }
-}
-
 const itemsFor = ({ tabId }: TabMenuRequest, position: number, count: number, manual: boolean, session: Session | null, actions: TabMenuActions): ActionMenuItem[] => [
   { id: 'rename', label: 'Renommer', detail: <MenuShortcut keys="F2" />, run: () => actions.rename(tabId) },
   { id: 'auto-name', label: 'Reprendre le nom du dossier', disabled: !manual, run: () => useSessionStore.getState().resetTabName(tabId) },
   { id: 'duplicate', label: 'Dupliquer l’onglet', run: () => actions.duplicate(tabId) },
   { id: 'move-left', label: 'Déplacer à gauche', detail: <MenuShortcut keys="Alt + ←" />, disabled: position <= 0, run: () => actions.shift(tabId, -1) },
   { id: 'move-right', label: 'Déplacer à droite', detail: <MenuShortcut keys="Alt + →" />, disabled: position < 0 || position >= count - 1, run: () => actions.shift(tabId, 1) },
-  ...moveItems(session, tabId),
-  { id: 'copy-path', label: 'Copier le chemin', run: () => copyTabPath(session, tabId) },
+  ...tabTransferItems(session, tabId),
   { id: 'close', label: 'Fermer l’onglet', detail: <MenuShortcut keys="Clic milieu" />, run: () => actions.close(tabId) },
   { id: 'close-others', label: 'Fermer les autres onglets', disabled: count <= 1, run: () => actions.closeOthers(tabId) },
   { id: 'close-right', label: 'Fermer les onglets à droite', disabled: position < 0 || position >= count - 1, run: () => actions.closeToRight(tabId) },
