@@ -652,6 +652,14 @@ Dans le message de commit, Ctrl + Entrée faisait « Commit », mais « Commit e
 - Vérifié dans l'instance de dev sans rien commiter ni pousser : fichier de test stagé dans le dépôt de test, messages vers l'hôte interceptés, Ctrl + Maj + Entrée → `git.commit` avec `push: true` capturé et non transmis ; fichier désindexé ensuite.
 - Vérifié aussi : tous les boutons de l'interface ont un nom accessible (aucun bouton à icône seule sans `aria-label`). L'idée de masquer `.git` dans l'arbre des fichiers a été écartée : la spec retient explicitement « tout est affiché, `.git` et fichiers cachés compris ».
 
+### 70. Palette : tout replier et actualiser
+
+Les gestes ajoutés aux itérations 53, 66 et 67 n'étaient pas dans la palette, où l'on cherche d'abord une action dont on ne connaît pas le raccourci.
+
+- Trois entrées pour l'onglet actif : « Tout replier dans l'arbre des fichiers », « Actualiser l'arbre des fichiers » (indice « F5 dans l'arbre ») et « Actualiser la vue Git » (indice « F5 dans la vue Git »).
+- Vérifié dans l'instance de dev : dossier `docs` déplié, Ctrl + P, « Tout replier », Entrée → plus aucun dossier déplié.
+- Une huitième relecture indépendante (itérations 61 à 69) tourne en parallèle.
+
 ## Reste à faire et idées
 
 ### À décider par toi

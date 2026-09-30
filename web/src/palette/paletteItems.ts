@@ -2,8 +2,11 @@ import { longestWaitingFirst, waitedFor, waitingPanes } from '../agents/agentSum
 import { bridge } from '../bridge/bridge'
 import type { GitContext, ShellProfile } from '../bridge/messages'
 import { Command, revealWorkspacePanel, runCommand } from '../keyboard/shortcuts'
-import { activeTab, activeWorkspace, FAVORITES_MAX, folderName, isLeaf, panesOf, type Pane, type Session } from '../model/session'
+import { activePane, activeTab, activeWorkspace, FAVORITES_MAX, folderName, isLeaf, panesOf, type Pane, type Session } from '../model/session'
+import { refreshFolders } from '../explorer/fileExplorerActions'
+import { refreshRepository } from '../git/gitRequests'
 import { useAgentStore } from '../store/agentStore'
+import { useExplorerStore } from '../store/explorerStore'
 import { useHostStore } from '../store/hostStore'
 import { useSessionStore } from '../store/sessionStore'
 import { RenameOrigin, useUiStore } from '../store/uiStore'
@@ -91,6 +94,9 @@ const commandItems = (session: Session, shells: ShellProfile[]): PaletteItem[] =
       command('open-editor', 'Ouvrir le dossier du pane actif dans l’éditeur', () => openPaneFolder(paneId, OpenTarget.Editor)),
       command('open-explorer', 'Ouvrir le dossier du pane actif dans l’explorateur', () => openPaneFolder(paneId, OpenTarget.Explorer)),
       command('copy-branch', 'Copier la branche Git du pane actif', () => copyPaneBranch(paneId)),
+      command('collapse-files', 'Tout replier dans l’arbre des fichiers', () => useExplorerStore.getState().collapseUnder(activePane(tab).path)),
+      command('refresh-files', 'Actualiser l’arbre des fichiers', refreshFolders, 'F5 dans l’arbre'),
+      command('refresh-git', 'Actualiser la vue Git', refreshRepository, 'F5 dans la vue Git'),
     )
     const context = useHostStore.getState().contexts[paneId]
     if (context?.worktreeRoot) {
