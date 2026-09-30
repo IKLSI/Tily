@@ -25,6 +25,7 @@ export enum IconName {
   Push = 'push',
   Refresh = 'refresh',
   Remote = 'remote',
+  Search = 'search',
   Sidebar = 'sidebar',
   Stash = 'stash',
   Switch = 'switch',

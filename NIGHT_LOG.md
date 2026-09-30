@@ -8,7 +8,7 @@ Version HTML de ce journal, avec un sommaire des itérations : `file:///C:/Users
 
 ## En bref
 
-114 itérations, dont 13 relectures indépendantes suivies de leurs corrections ; 467 tests .NET au vert à la dernière vérification. Scénarios de recette R40 à R44 ajoutés à la spec pour essayer à la main les nouveautés. Les décisions qui te reviennent sont listées en fin de journal, sous « À décider par toi ».
+117 itérations, dont 13 relectures indépendantes suivies de leurs corrections ; 467 tests .NET au vert à la dernière vérification. Scénarios de recette R40 à R44 ajoutés à la spec pour essayer à la main les nouveautés. Les décisions qui te reviennent sont listées en fin de journal, sous « À décider par toi ».
 
 - **Terminaux et panes** : égaliser les panes, sortir un pane dans un nouvel onglet ou le déplacer vers un autre onglet ou workspace, échanger deux panes, aller à l’onglet N (Leader puis chiffre), taille du texte (Paramètres et palette), effacer l’historique de défilement, confirmation avant un collage de plusieurs lignes, en-tête lisible dans les panes étroits ; menus d’onglet avec « Déplacer vers « workspace » » et « Copier le chemin ».
 - **Commandes** : copier la sortie de la dernière commande, naviguer de commande en commande (Alt + PgUp / PgDn), fin d’une commande longue signalée sur l’onglet, le workspace, la barre de statut et la barre des tâches, Ctrl + clic sur un chemin de fichier (avec ligne et colonne) pour l’ouvrir dans l’éditeur.
@@ -1053,6 +1053,14 @@ Point laissé par la treizième relecture : deux workspaces du même nom (deux �
 - Comme pour les onglets (itération 88), un nom partagé est suivi de la position du workspace dans le panneau : « gd (workspace 3) », dans les entrées de navigation et de déplacement de la palette et dans les menus d’onglet (`distinctWorkspaceName`).
 - Vérifié sur la fonction elle-même (trois workspaces dont deux « gd » → « gd (workspace 1) », « Général », « gd (workspace 3) »). Lint et build au vert.
 - Spec (section 9) complétée.
+
+### 117. Bouton de recherche de commit dans la barre du graphe
+
+« Rechercher un commit dans le graphe… » (itération 102) n’était accessible que par la palette, donc peu visible.
+
+- Bouton loupe dans la barre du graphe Git, à côté du choix « Toutes / Courante » ; il ouvre la même recherche, et reste inactif tant que l’historique n’est pas chargé. Nouvelle icône `Search`.
+- Vérifié dans l’instance de dev : clic → sélecteur « Rechercher un commit » ouvert, focus dans le champ. Lint et build au vert.
+- Dernière itération de la nuit (réveil de l’utilisateur).
 
 ## Reste à faire et idées
 

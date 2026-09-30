@@ -1,5 +1,6 @@
 import { useShallow } from 'zustand/react/shallow'
 import { GitHistoryScope, type GitState } from '../bridge/gitMessages'
+import { canSearchCommits, openCommitPicker } from '../git/commitSearch'
 import { setHistoryScope } from '../git/gitRequests'
 import { hideGitGraph } from '../panel/rightPanel'
 import { useGitStore } from '../store/gitStore'
@@ -11,6 +12,12 @@ interface GitGraphToolbarProps {
   state: GitState
   referencesShown: boolean
   onToggleReferences: () => void
+}
+
+const handleSearch = (): void => {
+  if (canSearchCommits()) {
+    openCommitPicker()
+  }
 }
 
 const SCOPES: { scope: GitHistoryScope; label: string; tip: string }[] = [
@@ -56,6 +63,9 @@ export function GitGraphToolbar({ state, referencesShown, onToggleReferences }: 
       </span>
       {!history && <span className="shrink-0 text-[11px] text-dock-muted">Chargement de l’historique…</span>}
       <span className="flex-1" />
+      <button type="button" className={PANEL_HEADER_BUTTON} aria-label="Rechercher un commit" data-tip="Rechercher un commit par message, SHA, auteur ou branche" aria-disabled={!history || history.commits.length === 0} onClick={handleSearch}>
+        <Icon name={IconName.Search} />
+      </button>
       <div role="radiogroup" aria-label="Branches affichées" className="flex shrink-0 rounded-md bg-dock-paper p-[2px]">
         {SCOPES.map(renderScope)}
       </div>

@@ -19,6 +19,12 @@ const SHAPES: Record<IconName, ReactNode> = {
     </>
   ),
   [IconName.Check]: <path d="M2.5 6.3 5 8.8l4.5-5.3" />,
+  [IconName.Search]: (
+    <>
+      <circle cx="5.2" cy="5.2" r="3.2" />
+      <path d="M7.6 7.6 10.5 10.5" />
+    </>
+  ),
   [IconName.Chevron]: <path d="M4.5 2.5 8 6l-3.5 3.5" />,
   [IconName.Close]: <path d="M3 3l6 6M9 3 3 9" />,
   [IconName.CollapseAll]: <path d="M3.5 1.8 6 4.3l2.5-2.5M3.5 10.2 6 7.7l2.5 2.5" />,
