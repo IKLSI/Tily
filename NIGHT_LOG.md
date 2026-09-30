@@ -1020,6 +1020,14 @@ Suite de l’itération 111 : le menu d’une ligne d’onglet du panneau des wo
 - Vérifié dans l’instance de dev : menu d’une ligne d’onglet à 10 entrées, dont « Déplacer vers « gd » » et « Copier le chemin ». Lint et build au vert.
 - Spec (section 6) et architecture front complétées.
 
+### 113. Scénarios de recette pour les nouveautés de la nuit
+
+La matrice de recette (section 17 de la spec) s’arrêtait à R39 : aucun scénario ne couvrait les fonctionnalités ajoutées cette nuit, alors que ce sont elles qui demandent un essai à la main avant validation.
+
+- Cinq scénarios ajoutés, R40 à R44, sans renuméroter les précédents : panes (égaliser, échanger, sortir et ramener, effacer l’historique, panes étroits), commandes (fin en arrière-plan, sortie copiée, navigation, Ctrl + clic sur un chemin), sélecteur de fichiers (y compris sous-modules, dépôts imbriqués et parcours hors dépôt), vue Git (Revert, diff copié, commit et push refusé, recherche de commit, initialisation), session abîmée.
+- Chacun renvoie aux conventions proposées qu’il vérifie.
+- Treizième relecture indépendante (itérations 103 à 112) lancée en arrière-plan ; ses corrections suivront.
+
 ## Reste à faire et idées
 
 ### À décider par toi
