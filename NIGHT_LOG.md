@@ -576,6 +576,16 @@ Même défaut que l'itération 59 dans le formulaire « Créer un worktree » : 
 - Vérifié dans l'instance de dev : Leader puis N, clic à côté → fermé ; Leader puis N, « feat/essai », clic à côté → formulaire gardé ; Échap → fermé.
 - Convention de la section 14 de la spec étendue à ce formulaire.
 
+### 61. Afficher un fichier modifié dans l'arbre des fichiers
+
+Depuis la vue Git, rien ne permettait de retrouver un fichier modifié dans l'arbre des fichiers (pour voir ses voisins, le renommer, en créer un à côté) : il fallait déplier les dossiers à la main.
+
+- Le menu d'un fichier modifié (sélection unique, fichier non supprimé) propose « Afficher dans l'arbre des fichiers » : la vue Fichiers s'ouvre, les dossiers parents se déplient, le fichier est sélectionné et reçoit le focus dès que sa ligne est chargée. Hors du dossier affiché par l'arbre, un message l'explique.
+- Au passage, deux espaces manquants après `=` rétablis (`openWorkspaceNotes`, `renewPaneIds`), perdus lors d'éditions de cette nuit.
+- Vérifié dans l'instance de dev : menu de `docs/TESTING.md` → vue Fichiers, `docs` déplié, `TESTING.md` sélectionné et focalisé (le premier essai laissait le focus sur `.git`, corrigé par une attente de la ligne).
+- La barre d'invite Git (nom de branche, tag, stash) a été vérifiée : elle ne se ferme que par Annuler ou Échap, pas de perte de saisie. Une septième relecture (itérations 52 à 60) tourne en parallèle.
+- **Convention proposée** en section 4 de la spec.
+
 ## Reste à faire et idées
 
 ### À décider par toi

@@ -232,7 +232,7 @@ export const equalizeNode = (node: SplitNode): SplitNode => {
   return a === node.a && b === node.b && ratio === node.ratio ? node : { ...node, ratio, a, b }
 }
 
-const renewPaneIds =(node: SplitNode, paneIds: Record<string, string>): SplitNode => {
+const renewPaneIds = (node: SplitNode, paneIds: Record<string, string>): SplitNode => {
   if (isLeaf(node)) {
     const id = newId()
     paneIds[node.pane.id] = id
