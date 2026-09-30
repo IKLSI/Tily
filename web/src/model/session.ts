@@ -132,6 +132,9 @@ export const notePreview = (note: string | undefined): string => {
   return line.length > NOTE_PREVIEW_CHARS ? `${line.slice(0, NOTE_PREVIEW_CHARS - 1)}…` : line
 }
 
+export const distinctWorkspaceName = (workspaces: Workspace[], workspace: Workspace): string =>
+  workspaces.some((other) => other !== workspace && other.name === workspace.name) ? `${workspace.name} (workspace ${workspaces.indexOf(workspace) + 1})` : workspace.name
+
 export const mergedNote = (note: string | undefined, movedFrom: string, moved: string): string =>
   (note ? `${note}\n\n${movedFrom} :\n${moved}` : moved).slice(0, NOTE_MAX_CHARS)
 

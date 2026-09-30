@@ -281,7 +281,7 @@ Les splits peuvent être imbriqués. L’action de fermeture d’un pane retire 
 
 **Convention proposée.** L’étoile d’une commande (clic ou Ctrl + Entrée) la marque comme favorite et la place en tête de la palette. Seules les commandes en portent une : ni les entrées de navigation, ni « Rejoindre », ni « Rouvrir l’onglet fermé ». Au plus 50 favoris ; au-delà, la palette demande d’en retirer un.
 
-**Convention proposée.** Quand plusieurs onglets d’un même workspace portent le même nom (par défaut celui de leur dossier), leurs entrées de navigation et celles de leurs panes précisent leur position dans la barre d’onglets : « repo (onglet 3) ».
+**Convention proposée.** Quand plusieurs onglets d’un même workspace portent le même nom (par défaut celui de leur dossier), leurs entrées de navigation et celles de leurs panes précisent leur position dans la barre d’onglets : « repo (onglet 3) ». De même, deux workspaces homonymes sont distingués par leur position dans le panneau (« gd (workspace 3) ») dans la palette et dans les entrées « Déplacer vers » des menus d’onglet.
 
 ### Touche Leader
 

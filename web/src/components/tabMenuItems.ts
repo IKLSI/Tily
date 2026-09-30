@@ -1,4 +1,4 @@
-import type { Session } from '../model/session'
+import { distinctWorkspaceName, type Session } from '../model/session'
 import { useSessionStore } from '../store/sessionStore'
 import { copyPanePath } from '../terminal/contextActions'
 import type { ActionMenuItem } from './ActionMenu'
@@ -16,7 +16,7 @@ export const tabTransferItems = (session: Session | null, tabId: string): Action
   return [
     ...workspaces
       .filter((workspace) => workspace !== source)
-      .map((workspace) => ({ id: `move-to-${workspace.id}`, label: `Déplacer vers « ${workspace.name} »`, run: () => useSessionStore.getState().moveTab(tabId, workspace.id) })),
+      .map((workspace) => ({ id: `move-to-${workspace.id}`, label: `Déplacer vers « ${distinctWorkspaceName(workspaces, workspace)} »`, run: () => useSessionStore.getState().moveTab(tabId, workspace.id) })),
     { id: 'copy-path', label: 'Copier le chemin', run: () => copyTabPath(session, tabId) },
   ]
 }

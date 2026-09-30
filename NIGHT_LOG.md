@@ -1036,7 +1036,7 @@ Treizième relecture indépendante (itérations 104 à 112), lancée à l’ité
 - **Alt + Entrée bloqué sur « Chargement de l’aperçu… »** pour un fichier sans aperçu (`.ts`, `.cs`, `.js`…) : l’hôte levait une erreur au lieu de répondre. Il renvoie désormais un aperçu en erreur, « Aperçu indisponible pour ce type de fichier : … « Ouvrir dans l’éditeur » l’ouvre dans l’éditeur. », sans badge de type trompeur. Test mis à jour.
 - **Note perdue en déplaçant le dernier onglet d’un workspace** (par le menu, la palette ou le glisser-déposer) : le workspace vidé disparaissait avec sa note, sans retour possible. Sa note est maintenant ajoutée à la fin de celle du workspace cible, sous son nom (bornée à la taille maximale d’une note).
 - **Dépôt refusé par Git pris pour « aucun dépôt »** (propriété douteuse, `.git` invalide) : la vue proposait « Initialiser un dépôt Git ici », qui pouvait créer un `.git` imbriqué et laissait la barre de statut sur « Initialisation… ». La vue affiche maintenant l’erreur de Git (« Dépôt Git illisible dans … : … », nouveau `GitRepository.AccessProblem`), l’initialisation la refuse, un dépôt créé mais illisible est signalé, et le drapeau d’initialisation est oublié quand on change de dossier. 2 tests ajoutés.
-- Mineurs : « En bref » mis à jour (114 itérations, Paramètres, menus d’onglet) ; README (aperçu depuis le sélecteur) ; contrat hôte précisé sur l’échec de la copie de secours. Laissés : le focus n’était pas rendu après une action du menu d’onglet (corrigé à l’itération 115) ; Alt + Entrée n’a été essayé que par frappes injectées, à confirmer au clavier réel ; deux workspaces homonymes donnent deux entrées indiscernables, comme dans la palette.
+- Mineurs : « En bref » mis à jour (114 itérations, Paramètres, menus d’onglet) ; README (aperçu depuis le sélecteur) ; contrat hôte précisé sur l’échec de la copie de secours. Laissés : le focus n’était pas rendu après une action du menu d’onglet (corrigé à l’itération 115) ; Alt + Entrée n’a été essayé que par frappes injectées, à confirmer au clavier réel ; deux workspaces homonymes donnaient deux entrées indiscernables (corrigé à l’itération 116).
 - Vérifié dans l’instance de dev (Alt + Entrée sur `terminalRegistry.ts` → message dans l’aperçu) ; 467 tests au vert.
 
 ### 115. Focus rendu au terminal après une action du menu d’onglet
@@ -1045,6 +1045,14 @@ Point laissé par la treizième relecture : après « Copier le chemin », « D�
 
 - Après l’action, si plus rien n’a le focus, il revient au terminal actif (`focusActivePaneIfLost`) ; une action qui prend elle-même le focus, comme « Renommer », le garde.
 - Vérifié dans l’instance de dev : « Copier le chemin » → focus dans le terminal ; « Renommer » → focus dans le champ du nom. Lint et build au vert.
+
+### 116. Workspaces homonymes distingués
+
+Point laissé par la treizième relecture : deux workspaces du même nom (deux « gd », par exemple) donnaient deux « Déplacer vers « gd » » identiques dans les menus d’onglet, et deux « Workspace · gd » dans la palette.
+
+- Comme pour les onglets (itération 88), un nom partagé est suivi de la position du workspace dans le panneau : « gd (workspace 3) », dans les entrées de navigation et de déplacement de la palette et dans les menus d’onglet (`distinctWorkspaceName`).
+- Vérifié sur la fonction elle-même (trois workspaces dont deux « gd » → « gd (workspace 1) », « Général », « gd (workspace 3) »). Lint et build au vert.
+- Spec (section 9) complétée.
 
 ## Reste à faire et idées
 
