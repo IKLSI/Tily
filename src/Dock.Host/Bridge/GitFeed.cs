@@ -181,7 +181,7 @@ public sealed class GitFeed : IDisposable
 
         if (postState)
         {
-            _post(new { type = "git.state", path, state });
+            _post(new { type = "git.state", path, state, displayRoot = GitPathMarks.DisplayRootFrom(_runner, path, location.Root) });
         }
         else if (announceUnchanged)
         {

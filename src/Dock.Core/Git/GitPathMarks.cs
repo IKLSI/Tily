@@ -42,6 +42,19 @@ public static class GitPathMarks
         return root;
     }
 
+    public static string DisplayRootFrom(GitRunner runner, string folder, string root)
+    {
+        try
+        {
+            var output = runner.Run(folder, ["rev-parse", "--show-prefix"]);
+            return output.Succeeded ? DisplayRoot(folder, output.Output.Trim(), root) : root;
+        }
+        catch (Exception exception) when (exception is GitCommandException or System.ComponentModel.Win32Exception or IOException or InvalidOperationException)
+        {
+            return root;
+        }
+    }
+
     private static int Precedence(GitChangeKind kind) => kind switch
     {
         GitChangeKind.Untracked or GitChangeKind.Deleted => 2,

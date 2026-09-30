@@ -38,7 +38,9 @@ const handleKeyDown = (event: KeyboardEvent<HTMLElement>) => {
   } else if (event.key === 'Escape') {
     handleEscape()
   } else if (event.key === 'F5') {
-    refreshRepository()
+    if (!event.repeat) {
+      refreshRepository()
+    }
   } else {
     return
   }

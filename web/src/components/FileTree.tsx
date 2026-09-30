@@ -172,7 +172,9 @@ export function FileTree({ root, rows, expanded, selectedPath, renamingPath, dra
     } else if (event.key === 'Escape') {
       focusActivePane()
     } else if (event.key === 'F5') {
-      refreshFolders()
+      if (!event.repeat) {
+        refreshFolders()
+      }
     } else if (typed) {
       jumpToTyped(typed)
     } else if (!current || !entry) {
@@ -250,7 +252,7 @@ export function FileTree({ root, rows, expanded, selectedPath, renamingPath, dra
           )
         })}
       </div>
-      {menu && <FileContextMenu request={menu} changed={Boolean(menu.entry && gitMarks.get(markKey(menu.entry.path)))} actions={menuActions} onDismiss={handleDismissMenu} />}
+      {menu && <FileContextMenu request={menu} changed={Boolean(menu.entry && gitMarks.get(markKey(menu.entry.path)) && !gitMarks.get(markKey(menu.entry.path))?.conflicted)} actions={menuActions} onDismiss={handleDismissMenu} />}
     </>
   )
 }

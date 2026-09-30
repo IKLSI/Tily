@@ -101,7 +101,7 @@ export default function App() {
       bridge.on('files.renamed', (message) => receiveRenamed(message.path, message.target)),
       bridge.on('files.deleted', (message) => receiveDeleted(message.path)),
       bridge.on('preview.loaded', receivePreview),
-      bridge.on('git.state', (message) => receiveGitState(message.path, message.state, message.error)),
+      bridge.on('git.state', (message) => receiveGitState(message.path, message.state, message.error, message.displayRoot)),
       bridge.on('git.changed', (message) => receiveGitChanged(message.path)),
       bridge.on('git.history', (message) => receiveGitHistory(message.history, message.error)),
       bridge.on('git.diff', (message) => receiveGitDiff(message.request, message.result, message.error)),

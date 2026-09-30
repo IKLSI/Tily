@@ -28,9 +28,9 @@ const finishBusy = (operation: string): void => {
   }
 }
 
-export const receiveGitState = (path: string, state: GitState | undefined, error: string | undefined): void => {
+export const receiveGitState = (path: string, state: GitState | undefined, error: string | undefined, displayRoot: string | undefined): void => {
   const previous = useGitStore.getState().state
-  useGitStore.getState().receiveState(path, state ?? null, error ?? null)
+  useGitStore.getState().receiveState(path, state ?? null, error ?? null, displayRoot ?? null)
   if (state && state.conflicts.length > 0 && (previous?.conflicts.length ?? 0) === 0) {
     selectWorkingTree()
   }

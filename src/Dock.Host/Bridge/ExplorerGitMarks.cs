@@ -102,18 +102,7 @@ public sealed class ExplorerGitMarks : IDisposable
         }
     }
 
-    private string DisplayRootOf(string folder, GitLocationModel location)
-    {
-        try
-        {
-            var output = _runner.Run(folder, ["rev-parse", "--show-prefix"]);
-            return output.Succeeded ? GitPathMarks.DisplayRoot(folder, output.Output.Trim(), location.Root) : location.Root;
-        }
-        catch (Exception exception) when (IsGitFailure(exception))
-        {
-            return location.Root;
-        }
-    }
+    private string DisplayRootOf(string folder, GitLocationModel location) => GitPathMarks.DisplayRootFrom(_runner, folder, location.Root);
 
     private void PostMarks()
     {

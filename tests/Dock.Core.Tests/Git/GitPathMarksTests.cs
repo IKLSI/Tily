@@ -93,4 +93,27 @@ public sealed class GitPathMarksTests
             [new GitPathMarkModel(Path.Combine(sandbox.Work, "suivi.txt"), GitChangeKind.Modified, false), new GitPathMarkModel(Path.Combine(sandbox.Work, "neuf", "fichier.md"), GitChangeKind.Untracked, false)],
             marks.OrderBy(mark => mark.Kind).ToList());
     }
+
+    [Fact]
+    public void DisplayRootFrom_WhenFolderIsNested_ThenGivesRootAsSeenFromFolder()
+    {
+        using var sandbox = new GitSandbox();
+        var nested = Path.Combine(sandbox.Work, "src", "web");
+        Directory.CreateDirectory(nested);
+
+        var root = GitPathMarks.DisplayRootFrom(sandbox.Runner, nested, @"C:\ailleurs");
+
+        Assert.Equal(sandbox.Work, root);
+    }
+
+    [Fact]
+    public void DisplayRootFrom_WhenFolderOutsideRepository_ThenFallsBack()
+    {
+        var folder = Directory.CreateTempSubdirectory("dock-hors-depot-").FullName;
+
+        var root = GitPathMarks.DisplayRootFrom(new GitRunner(), folder, @"C:\repli");
+
+        Directory.Delete(folder);
+        Assert.Equal(@"C:\repli", root);
+    }
 }

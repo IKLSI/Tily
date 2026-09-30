@@ -28,6 +28,7 @@ const commitBlocker = (state: GitState, busy: string | null, message: string, am
 }
 
 const SUBJECT_MAX = 72
+const GRAPHEMES = new Intl.Segmenter('fr', { granularity: 'grapheme' })
 const LINE_BREAK = '\n'
 
 const subjectTip = (length: number): string =>
@@ -45,7 +46,7 @@ export function GitCommitBox({ state, busy }: GitCommitBoxProps) {
   const blocker = commitBlocker(state, busy, message, amend)
   const pushBlocked = blocker ?? pushBlocker(state)
   const commitLabel = amend ? 'Amend' : 'Commit'
-  const subjectLength = [...message.split(LINE_BREAK)[0].trim()].length
+  const subjectLength = [...GRAPHEMES.segment(message.split(LINE_BREAK)[0].trim())].length
 
   const handleMessageChange = (event: ChangeEvent<HTMLTextAreaElement>) => useGitStore.getState().setMessage(event.target.value)
   const handleAmendChange = (event: ChangeEvent<HTMLInputElement>) => {

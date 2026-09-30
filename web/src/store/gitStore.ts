@@ -84,6 +84,7 @@ interface GitViewState {
   path: string
   resolved: string
   state: GitState | null
+  displayRoot: string | null
   error: string | null
   graphOpen: boolean
   history: GitHistory | null
@@ -115,7 +116,7 @@ interface GitViewState {
   changeSelection: GitSelection
   refSelection: GitSelection
   follow: (path: string) => void
-  receiveState: (path: string, state: GitState | null, error: string | null) => void
+  receiveState: (path: string, state: GitState | null, error: string | null, displayRoot: string | null) => void
   setGraphOpen: (graphOpen: boolean) => void
   receiveHistory: (history: GitHistory, error: string | null) => void
   requestHistory: (scope: GitHistoryScope, count: number) => void
@@ -157,6 +158,7 @@ export const useGitStore = create<GitViewState>()((set) => ({
   path: '',
   resolved: '',
   state: null,
+  displayRoot: null,
   error: null,
   graphOpen: true,
   history: null,
@@ -182,7 +184,7 @@ export const useGitStore = create<GitViewState>()((set) => ({
   changeSelection: emptySelection,
   refSelection: emptySelection,
   follow: (path) => set({ path }),
-  receiveState: (path, state, error) =>
+  receiveState: (path, state, error, displayRoot) =>
     set((current) => {
       if (current.path !== path) {
         return current
@@ -193,8 +195,8 @@ export const useGitStore = create<GitViewState>()((set) => ({
       const message = state ? (kept[state.root] ?? '') : ''
       const drafts = state ? draftsWith(kept, state.root, '') : kept
       return sameRepository
-        ? { state, error, resolved: path }
-        : { state, error, resolved: path, history: null, historyError: null, historyCount: HISTORY_PAGE, reveal: null, message, drafts, amend: false, prompt: null, rejection: null, failure: null, menu: null, drag: null, changeSelection: emptySelection, refSelection: emptySelection, ...noSelection }
+        ? { state, error, displayRoot, resolved: path }
+        : { state, error, displayRoot, resolved: path, history: null, historyError: null, historyCount: HISTORY_PAGE, reveal: null, message, drafts, amend: false, prompt: null, rejection: null, failure: null, menu: null, drag: null, changeSelection: emptySelection, refSelection: emptySelection, ...noSelection }
     }),
   setGraphOpen: (graphOpen) => set({ graphOpen }),
   receiveHistory: (history, historyError) => set((current) => (current.state?.root === history.root ? { history, historyError } : current)),

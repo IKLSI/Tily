@@ -170,7 +170,7 @@ export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZ
             type="button"
             className="flex max-w-[35%] min-w-0 shrink cursor-pointer items-center gap-1 rounded font-mono text-dock-muted hover:text-dock-ink @max-[520px]:hidden"
             data-tip={`${gitSummary(context)} · Clic : vue Git (Ctrl + Maj + G)`}
-            aria-label="Ouvrir la vue Git"
+            aria-label={`${branchLabel} : ouvrir la vue Git`}
             onClick={handleOpenGit}
           >
             <BranchIcon />

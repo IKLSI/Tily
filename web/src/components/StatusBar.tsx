@@ -55,7 +55,7 @@ export function StatusBar() {
           <span className="truncate py-1 [text-box:trim-both_cap_alphabetic]">{busy ? busyLabel(busy, busyRefs) : status.text}</span>
         </button>
         <span role="status" className="sr-only">
-          {busy ? busyLabel(busy, busyRefs) : status.text}
+          {status.text}
         </span>
         {status.at && !spinning && (
           <time dateTime={status.at} data-tip={`Message du ${entryFullDate(status)}`} className="shrink-0 px-3 text-dock-muted tabular-nums">

@@ -675,6 +675,21 @@ Dans le panneau des workspaces, un workspace replié ne montrait que son nom : c
 - Vérifié dans l'instance de dev : « gd » replié → « 3 ».
 - Vérifié au passage avec 16 onglets ouverts : la barre d'onglets défile et estompe déjà le bord qui cache des onglets ; rien à corriger.
 
+### 73. Corrections de la huitième relecture (jonctions, minuteries, accessibilité, docs)
+
+Une relecture indépendante des itérations 61 à 69 a relevé sept défauts mineurs et un écart de documentation, sans faille de sécurité ; tous corrigés.
+
+- **Jonction ou lecteur `subst`** : l'arbre affiche le chemin logique, Git renvoie le chemin réel ; « Afficher dans l'arbre » répondait « hors du dossier » et « Voir les modifications » ne trouvait rien. L'hôte joint désormais à `git.state` la racine vue depuis le dossier suivi (`displayRoot`, calcul factorisé dans `GitPathMarks.DisplayRootFrom` et partagé avec les marques de l'arbre), et le web compare les chemins depuis cette racine.
+- **« Voir les modifications » sur un fichier en conflit** : proposé mais sans diff possible (les conflits sont listés à part) ; l'entrée n'est plus proposée pour un fichier marqué « ! ».
+- **État Git périmé** : en venant de la vue Fichiers, le premier essai lisait l'ancien état Git et pouvait ouvrir le diff Staged au lieu d'Unstaged ; il attend maintenant un état frais.
+- **Minuteries de réessai** : un compteur de génération annule l'essai précédent (deux clics rapprochés n'ouvrent plus le premier fichier en dernier), et le focus n'est plus donné à l'arbre si l'utilisateur est reparti taper dans un terminal.
+- **F5 maintenu** : n'empile plus des dizaines d'actualisations (répétitions de la touche ignorées).
+- **Accessibilité** : la région `status` ne réannonce plus un ancien message après un fetch automatique (elle ne reprend que les nouveaux messages) ; le bouton de branche a pour nom « night-session : ouvrir la vue Git », qui contient le texte visible (commande vocale).
+- **Compteur de la première ligne** : compté en graphèmes (`Intl.Segmenter`), un gitmoji composé comme ♻️ compte pour un.
+- **Docs** : `FRONTEND_ARCHITECTURE.md` décrit `openPanelView`, `revealInFileTree`, `showFileChanges`, les brouillons et `committing`, F5, Ctrl + Maj + Entrée et la région `status` ; contrat `git.state` complété ; F5 et Ctrl + Maj + Entrée ajoutés à la spec (section 4).
+- Non traité, noté : si « Commit et push » réussit le commit mais que le push échoue autrement qu'en « refusé » (réseau), le message reste affiché comme si rien n'avait été commité (défaut antérieur à cette nuit, que Ctrl + Maj + Entrée rend plus fréquent).
+- Vérifié : 445 tests (dont deux pour `DisplayRootFrom`) ; dans l'instance de dev, « Voir les modifications » sur `README.md` → diff Unstaged, « Afficher dans l'arbre » sur `docs/TESTING.md` → sélectionné et focalisé.
+
 ## Reste à faire et idées
 
 ### À décider par toi
@@ -697,6 +712,7 @@ Dans le panneau des workspaces, un workspace replié ne montrait que son nom : c
 - **Copie de sortie et navigation entre commandes** : Windows PowerShell et PowerShell 7 seulement, pas CMD ni Git Bash. Une invite qui s'écrit elle-même par `Write-Host` au lieu de renvoyer son texte fausserait la hauteur annoncée.
 - **Liens de fichiers** : depuis l'itération 44, un chemin absolu avec des espaces dans ses dossiers est lié ; un nom de fichier ou un chemin relatif avec espaces ne l'est toujours pas, ni un chemin replié sur deux lignes, et un chemin dont un dossier contient une extension suivie d'une espace (`Node.js Apps`, `ASP.NET Core`) n'est souligné que jusqu'à ce point (le Ctrl + clic ouvre quand même le fichier complet s'il existe, itération 63).
 - **Clignotement de la barre des tâches** (itération 38) : la commande est bien reçue par l'hôte, mais le clignotement lui-même ne s'observe pas par le débogage distant ; à confirmer à l'usage.
+- **Commit et push, push en échec** : si le commit réussit mais que le push échoue autrement qu'en « refusé » (réseau), le message reste affiché comme si rien n'avait été commité (défaut antérieur, relevé à l'itération 73).
 - **Diff copié** : un fichier UTF-8 qui contient réellement le caractère de remplacement U+FFFD est traité comme mal décodé et n'est pas copiable (rarissime).
 
 ### Idées

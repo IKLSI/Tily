@@ -98,6 +98,8 @@ Ces valeurs sont des références de réalisation, pas des contraintes de taille
 
 **Convention proposée.** La branche affichée dans l’en-tête d’un terminal est un bouton : un clic ouvre la vue Git sur le dépôt de ce terminal, en ouvrant le panneau de droite au besoin.
 
+**Convention proposée.** F5 actualise l’arbre des fichiers quand le focus y est, et la vue Git quand le focus est dans la vue Git (une touche maintenue ne relance pas l’actualisation en boucle). Dans le message de commit, Ctrl + Entrée lance « Commit » et Ctrl + Maj + Entrée « Commit et push », avec les mêmes garde-fous que les boutons.
+
 **Convention proposée.** Dans un dépôt Git, l’arbre des fichiers montre l’état de chaque fichier comme la vue Git : nom coloré et lettre à droite (M modifié, A ajouté, D supprimé, R renommé, U non suivi, ! en conflit ; libellé en infobulle), l’état du répertoire de travail l’emportant sauf pour un fichier ajouté ou renommé puis modifié, qui garde A ou R. Un dossier qui contient des modifications porte un point de la couleur de sa modification la plus marquante (conflit, puis fichier non suivi ou supprimé, puis ajout ou renommage, puis modification). L’état suit le dépôt en direct, y compris après une commande tapée au terminal. Hors dépôt, rien ne s’affiche.
 
 **Convention proposée.** Au renommage d’un fichier, seul son nom avant la dernière extension est sélectionné, comme dans l’Explorateur Windows : taper un nouveau nom garde l’extension. Un dossier ou un nom qui commence par un point est sélectionné en entier.

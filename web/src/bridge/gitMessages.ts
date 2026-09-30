@@ -241,7 +241,7 @@ export interface GitSettings {
 }
 
 export type GitHostMessage =
-  | { type: 'git.state'; path: string; state?: GitState; error?: string }
+  | { type: 'git.state'; path: string; state?: GitState; error?: string; displayRoot?: string }
   | { type: 'git.changed'; path: string }
   | { type: 'git.history'; history: GitHistory; error?: string }
   | { type: 'git.diff'; request: number; result?: GitDiff; error?: string }
