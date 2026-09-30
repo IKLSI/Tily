@@ -21,8 +21,9 @@ export const startAttentionNotifier = (): (() => void) =>
       return isNew
     })
     const done = panesInState(session, state.agents, AgentState.Done)
-    const justFinished = done.filter((pane) => !finished.has(pane.paneId) && !state.agents[pane.paneId].interrupted)
-    finished = new Set(done.map((pane) => pane.paneId))
+    const completed = done.filter((pane) => !state.agents[pane.paneId].interrupted)
+    const justFinished = completed.filter((pane) => !finished.has(pane.paneId))
+    finished = new Set(completed.map((pane) => pane.paneId))
     const { contexts } = useHostStore.getState()
     const raise = (pane: WaitingPane, kind: AttentionKind) => {
       const notice = attentionNotice(pane, state.agents[pane.paneId], contexts[pane.paneId]?.branch)

@@ -4,11 +4,15 @@ public sealed class ClaudeCodeAdapter : IAgentAdapter
 {
     public const string InterruptedMessage = "Interrompu.";
 
-    private readonly ClaudeSessionRegistry? _registry;
+    public static readonly TimeSpan InterruptionGrace = TimeSpan.FromSeconds(3);
 
-    public ClaudeCodeAdapter(ClaudeSessionRegistry? registry = null)
+    private readonly ClaudeSessionRegistry? _registry;
+    private readonly Func<DateTime> _clock;
+
+    public ClaudeCodeAdapter(ClaudeSessionRegistry? registry = null, Func<DateTime>? clock = null)
     {
         _registry = registry;
+        _clock = clock ?? (() => DateTime.UtcNow);
     }
 
     public string Id => "claude";
@@ -26,11 +30,12 @@ public sealed class ClaudeCodeAdapter : IAgentAdapter
             : agent with { SessionId = session.SessionId, SessionDirectory = session.Directory, TranscriptPath = _registry!.TranscriptPathFor(session) };
     }
 
-    private static PaneAgentModel Reconcile(PaneAgentModel agent, AgentStateModel reported, ClaudeSessionModel? session)
+    private PaneAgentModel Reconcile(PaneAgentModel agent, AgentStateModel reported, ClaudeSessionModel? session)
     {
         var interrupted = reported.State is AgentState.Working or AgentState.Waiting
             && session is { Status: ClaudeSessionStatus.Idle, StatusUpdatedAtUtc: { } idleSince }
-            && idleSince > reported.UpdatedAtUtc;
+            && idleSince > reported.UpdatedAtUtc
+            && _clock() - idleSince >= InterruptionGrace;
         return interrupted
             ? agent with { State = AgentState.Done, Message = InterruptedMessage, Detail = null, Interrupted = true }
             : agent;

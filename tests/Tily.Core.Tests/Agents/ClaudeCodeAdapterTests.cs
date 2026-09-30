@@ -37,6 +37,17 @@ public sealed class ClaudeCodeAdapterTests : IDisposable
     }
 
     [Fact]
+    public void Detect_WhenRegistryIdleForLessThanGrace_ThenHookStateKept()
+    {
+        WriteRegistry("idle", HookWrittenAt.AddSeconds(5));
+        var adapter = new ClaudeCodeAdapter(new ClaudeSessionRegistry(_directory, processId => processId == ProcessId ? ProcessStart : null), clock: () => HookWrittenAt.AddSeconds(6));
+
+        var state = adapter.Detect(Probe(), Reported(AgentState.Working))?.State;
+
+        Assert.Equal(AgentState.Working, state);
+    }
+
+    [Fact]
     public void Detect_WhenRegistryIdleBeforeHookState_ThenHookStateKept()
     {
         WriteRegistry("idle", HookWrittenAt.AddSeconds(-5));
