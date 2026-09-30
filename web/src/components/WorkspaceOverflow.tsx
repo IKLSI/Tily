@@ -3,6 +3,9 @@ import { alertStateCounts, stateBreakdown, workspaceStateCounts, type AgentMap }
 import type { Workspace } from '../model/session'
 import { ActionMenu, type ActionMenuItem } from './ActionMenu'
 import { WorkspaceStatus } from './WorkspaceStatus'
+import { CommandNoticeIcon } from './CommandNoticeIcon'
+import { useCommandStore } from '../store/commandStore'
+import { workspaceCommandNotice } from '../terminal/commandNotices'
 
 interface WorkspaceOverflowProps {
   workspaces: Workspace[]
@@ -18,6 +21,9 @@ export function WorkspaceOverflow({ workspaces, agents, onSelect }: WorkspaceOve
   const openAtPressRef = useRef(false)
   const count = workspaces.length
   const alerts = alertStateCounts(workspaces, agents)
+  const notices = useCommandStore((state) => state.notices)
+  const workspaceNotices = workspaces.map((workspace) => workspaceCommandNotice(workspace, notices))
+  const overflowNotice = workspaceNotices.find((notice) => notice && !notice.success) ?? workspaceNotices.find(Boolean)
   const breakdown = stateBreakdown(alerts)
   const label = breakdown ? `${countLabel(count)} · ${breakdown}` : countLabel(count)
 
@@ -38,10 +44,15 @@ export function WorkspaceOverflow({ workspaces, agents, onSelect }: WorkspaceOve
     setOpen(false)
     buttonRef.current?.focus()
   }, [])
-  const items: ActionMenuItem[] = workspaces.map((workspace) => ({
+  const items: ActionMenuItem[] = workspaces.map((workspace, index) => ({
     id: workspace.id,
     label: workspace.name,
-    detail: <WorkspaceStatus counts={workspaceStateCounts(workspace, agents)} />,
+    detail: (
+      <span className="flex items-center gap-1.5">
+        {workspaceNotices[index] && <CommandNoticeIcon notice={workspaceNotices[index]} />}
+        <WorkspaceStatus counts={workspaceStateCounts(workspace, agents)} />
+      </span>
+    ),
     run: () => {
       setOpen(false)
       onSelect(workspace.id)
@@ -62,6 +73,7 @@ export function WorkspaceOverflow({ workspaces, agents, onSelect }: WorkspaceOve
         onClick={handleClick}
       >
         +{count}
+        {overflowNotice && <CommandNoticeIcon notice={overflowNotice} />}
         <WorkspaceStatus counts={alerts} />
       </button>
       {open && <ActionMenu label="Autres workspaces" items={items} align="right" onClose={handleClose} />}

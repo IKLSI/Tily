@@ -1,11 +1,13 @@
 import { memo, useCallback, useEffect, useState, type MouseEvent } from 'react'
 import { OpenTarget, type ShellProfile } from '../bridge/messages'
-import { SplitAxis, type Pane } from '../model/session'
+import { RightPanelView, SplitAxis, type Pane } from '../model/session'
+import { openPanelView } from '../panel/rightPanel'
 import { useAgentStore } from '../store/agentStore'
 import { useHostStore } from '../store/hostStore'
 import { usePaneStore } from '../store/paneStore'
 import { copyPaneBranch, copyPanePath, gitSummary, openPaneFolder, queryContext } from '../terminal/contextActions'
-import { copyPaneSelection, focusPane, hasPaneSelection, pasteIntoPane, selectAllInPane, setPaneTerminalTabbable } from '../terminal/terminalActions'
+import { clearPaneScrollback, copyLastCommandOutput, copyPaneSelection, focusPane, hasPaneSelection, pasteIntoPane, selectAllInPane, setPaneTerminalTabbable } from '../terminal/terminalActions'
+import { movePaneToNewTab } from '../terminal/tabLifecycle'
 import { TerminalPane } from '../terminal/TerminalPane'
 import { AgentBadge } from './AgentBadge'
 import { PaneOverlay } from './PaneOverlay'
@@ -29,6 +31,7 @@ interface PaneViewProps {
 const HEADER_BUTTON = 'flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded hover:bg-dock-green-hover hover:text-dock-ink'
 const BUTTON_SELECTOR = 'button'
 const SINGLE_CLICK = 1
+const SECONDARY_BUTTON = `${HEADER_BUTTON} @max-[280px]:hidden`
 const MUTED_BUTTON = 'opacity-40 hover:bg-transparent hover:text-dock-muted'
 const ICON_SIZE = 12
 const ICON_PROPS = { width: ICON_SIZE, height: ICON_SIZE, viewBox: '0 0 12 12', fill: 'none', stroke: 'currentColor', strokeWidth: 1.2, strokeLinecap: 'round', strokeLinejoin: 'round' } as const
@@ -54,6 +57,12 @@ const FolderIcon = () => (
 )
 
 const DETACHED_LABEL = 'HEAD détachée'
+const LAST_FOLDER = /^(.+?)([\\/][^\\/]+[\\/]?)$/
+
+const pathParts = (path: string): { parent: string; folder: string } => {
+  const match = LAST_FOLDER.exec(path)
+  return match ? { parent: match[1], folder: match[2] } : { parent: '', folder: path }
+}
 
 const BranchIcon = () => (
   <svg {...ICON_PROPS} aria-hidden="true">
@@ -100,6 +109,7 @@ export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZ
   }, [pane.id, covered])
 
   const handleHeaderMouseDown = () => onFocus(pane.id)
+  const handleOpenGit = () => openPanelView(RightPanelView.Git)
   const handleHeaderDoubleClick = (event: MouseEvent) => {
     if (!(event.target instanceof Element && event.target.closest(BUTTON_SELECTOR))) {
       onToggleZoom(pane.id)
@@ -134,15 +144,19 @@ export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZ
   }, [pane.id])
   const menuActions: TerminalMenuActions = {
     copy: () => copyPaneSelection(pane.id),
+    copyLastOutput: () => copyLastCommandOutput(pane.id),
     paste: () => pasteIntoPane(pane.id),
     selectAll: () => selectAllInPane(pane.id),
+    clearScrollback: () => clearPaneScrollback(pane.id),
     splitSideBySide: handleSplitSideBySide,
     splitTopBottom: handleSplitTopBottom,
     toggleZoom: handleToggleZoom,
+    moveToNewTab: () => movePaneToNewTab(pane.id),
     close: handleClose,
   }
   const branchTitle = context?.branch ? `Copier la branche « ${context.branch} »` : gitSummary(context)
   const branchLabel = context?.branch ?? (context?.detachedHead ? DETACHED_LABEL : null)
+  const { parent, folder } = pathParts(pane.path)
 
   return (
     <section
@@ -155,34 +169,41 @@ export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZ
         onMouseDown={handleHeaderMouseDown}
         onDoubleClick={handleHeaderDoubleClick}
       >
-        <span className="mr-1 font-semibold text-dock-ink">{pane.shell}</span>
+        <span className="mr-1 min-w-[2em] truncate font-semibold text-dock-ink">{pane.shell}</span>
         {agent && <AgentBadge agent={agent} />}
-        <span className="min-w-0 flex-1 truncate font-mono text-dock-green" data-tip={pane.path}>
-          {pane.path}
+        <span className="flex min-w-0 flex-1 font-mono whitespace-nowrap text-dock-green" data-tip={pane.path}>
+          {parent && <span className="min-w-[1.2em] truncate">{parent}</span>}
+          <span className={parent ? 'max-w-[calc(100%_-_1.2em)] shrink-0 truncate' : 'truncate'}>{folder}</span>
         </span>
         {branchLabel && (
-          <span className="flex max-w-[35%] min-w-0 shrink items-center gap-1 font-mono text-dock-muted @max-[520px]:hidden" data-tip={gitSummary(context)}>
+          <button
+            type="button"
+            className="flex max-w-[35%] min-w-0 shrink cursor-pointer items-center gap-1 rounded font-mono text-dock-muted hover:text-dock-ink @max-[520px]:hidden"
+            data-tip={`${gitSummary(context)} · Clic : vue Git (Ctrl + Maj + G)`}
+            aria-label={`${branchLabel} : ouvrir la vue Git`}
+            onClick={handleOpenGit}
+          >
             <BranchIcon />
             <span className="truncate py-1 [text-box:trim-both_cap_alphabetic]">{branchLabel}</span>
-          </span>
+          </button>
         )}
-        <button type="button" className={HEADER_BUTTON} data-tip={`Copier le chemin ${pane.path}`} aria-label="Copier le chemin" onClick={handleCopyPath}>
+        <button type="button" className={SECONDARY_BUTTON} data-tip={`Copier le chemin ${pane.path}`} aria-label="Copier le chemin" onClick={handleCopyPath}>
           <CopyIcon />
         </button>
-        <button type="button" className={HEADER_BUTTON} data-tip="Ouvrir dans l’éditeur" aria-label="Ouvrir dans l’éditeur" onClick={handleOpenEditor}>
+        <button type="button" className={SECONDARY_BUTTON} data-tip="Ouvrir dans l’éditeur" aria-label="Ouvrir dans l’éditeur" onClick={handleOpenEditor}>
           <EditorIcon />
         </button>
-        <button type="button" className={HEADER_BUTTON} data-tip="Ouvrir dans l’explorateur" aria-label="Ouvrir dans l’explorateur" onClick={handleOpenExplorer}>
+        <button type="button" className={SECONDARY_BUTTON} data-tip="Ouvrir dans l’explorateur" aria-label="Ouvrir dans l’explorateur" onClick={handleOpenExplorer}>
           <FolderIcon />
         </button>
-        <button type="button" className={`${HEADER_BUTTON} ${context?.branch ? '' : MUTED_BUTTON}`} data-tip={branchTitle} aria-label="Copier la branche Git" aria-disabled={!context?.branch} onClick={handleCopyBranch}>
+        <button type="button" className={`${SECONDARY_BUTTON} ${context?.branch ? '' : MUTED_BUTTON}`} data-tip={branchTitle} aria-label="Copier la branche Git" aria-disabled={!context?.branch} onClick={handleCopyBranch}>
           <BranchIcon />
         </button>
-        <span className="mx-1 h-3 w-px bg-dock-line" aria-hidden="true" />
-        <button type="button" className={HEADER_BUTTON} data-tip="Split côte à côte" aria-label="Split côte à côte" onClick={ignoringRepeatedClicks(handleSplitSideBySide)}>
+        <span className="mx-1 h-3 w-px bg-dock-line @max-[280px]:hidden" aria-hidden="true" />
+        <button type="button" className={HEADER_BUTTON} data-tip="Split côte à côte (Ctrl + Maj + D)" aria-label="Split côte à côte" onClick={ignoringRepeatedClicks(handleSplitSideBySide)}>
           <SplitIcon horizontal />
         </button>
-        <button type="button" className={HEADER_BUTTON} data-tip="Split haut / bas" aria-label="Split haut / bas" onClick={ignoringRepeatedClicks(handleSplitTopBottom)}>
+        <button type="button" className={HEADER_BUTTON} data-tip="Split haut / bas (Ctrl + Maj + H)" aria-label="Split haut / bas" onClick={ignoringRepeatedClicks(handleSplitTopBottom)}>
           <SplitIcon horizontal={false} />
         </button>
         {zoomed && (
@@ -190,7 +211,7 @@ export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZ
             <UnzoomIcon />
           </button>
         )}
-        <button type="button" className={`${HEADER_BUTTON} hover:text-dock-error`} data-tip="Fermer le pane" aria-label="Fermer le pane" onClick={ignoringRepeatedClicks(handleClose)}>
+        <button type="button" className={`${HEADER_BUTTON} hover:text-dock-error`} data-tip="Fermer le pane (Ctrl + Maj + X)" aria-label="Fermer le pane" onClick={ignoringRepeatedClicks(handleClose)}>
           <CloseIcon />
         </button>
       </header>

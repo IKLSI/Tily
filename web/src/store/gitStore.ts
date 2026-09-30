@@ -20,6 +20,7 @@ export interface GitFileTarget {
 interface GitFailure {
   message: string
   output?: string
+  warning?: boolean
 }
 
 interface GitRejection {
@@ -84,6 +85,7 @@ interface GitViewState {
   path: string
   resolved: string
   state: GitState | null
+  displayRoot: string | null
   error: string | null
   graphOpen: boolean
   history: GitHistory | null
@@ -107,13 +109,15 @@ interface GitViewState {
   confirmation: GitConfirmation | null
   prompt: GitPrompt | null
   message: string
+  drafts: Record<string, string>
+  committing: string | null
   amend: boolean
   drag: GitDrag | null
   menu: GitMenuRequest | null
   changeSelection: GitSelection
   refSelection: GitSelection
   follow: (path: string) => void
-  receiveState: (path: string, state: GitState | null, error: string | null) => void
+  receiveState: (path: string, state: GitState | null, error: string | null, displayRoot: string | null) => void
   setGraphOpen: (graphOpen: boolean) => void
   receiveHistory: (history: GitHistory, error: string | null) => void
   requestHistory: (scope: GitHistoryScope, count: number) => void
@@ -132,6 +136,8 @@ interface GitViewState {
   setPrompt: (prompt: GitPrompt | null) => void
   setMessage: (message: string) => void
   setAmend: (amend: boolean, message: string) => void
+  startCommit: (root: string) => void
+  finishCommit: () => void
   setDrag: (drag: GitDrag | null) => void
   openMenu: (menu: GitMenuRequest | null) => void
   setChangeSelection: (changeSelection: GitSelection) => void
@@ -144,10 +150,16 @@ const closedDrawer = { file: null, diff: null, diffError: null, diffSelection: e
 const noSelection = { ...closedDrawer, commit: null, details: null, detailsError: null }
 const emptySelection: GitSelection = { keys: new Set(), anchor: null }
 
+const draftsWith = (drafts: Record<string, string>, root: string, message: string): Record<string, string> => {
+  const rest = Object.fromEntries(Object.entries(drafts).filter(([key]) => key !== root))
+  return message.trim().length > 0 ? { ...rest, [root]: message } : rest
+}
+
 export const useGitStore = create<GitViewState>()((set) => ({
   path: '',
   resolved: '',
   state: null,
+  displayRoot: null,
   error: null,
   graphOpen: true,
   history: null,
@@ -165,21 +177,27 @@ export const useGitStore = create<GitViewState>()((set) => ({
   confirmation: null,
   prompt: null,
   message: '',
+  drafts: {},
+  committing: null,
   amend: false,
   drag: null,
   menu: null,
   changeSelection: emptySelection,
   refSelection: emptySelection,
   follow: (path) => set({ path }),
-  receiveState: (path, state, error) =>
+  receiveState: (path, state, error, displayRoot) =>
     set((current) => {
       if (current.path !== path) {
         return current
       }
       const sameRepository = Boolean(state && current.state?.root === state.root)
+      const leaving = current.state
+      const kept = leaving && (!current.amend || current.message !== leaving.lastMessage) ? draftsWith(current.drafts, leaving.root, current.message) : current.drafts
+      const message = state ? (kept[state.root] ?? '') : ''
+      const drafts = state ? draftsWith(kept, state.root, '') : kept
       return sameRepository
-        ? { state, error, resolved: path }
-        : { state, error, resolved: path, history: null, historyError: null, historyCount: HISTORY_PAGE, reveal: null, message: '', amend: false, prompt: null, rejection: null, failure: null, menu: null, drag: null, changeSelection: emptySelection, refSelection: emptySelection, ...noSelection }
+        ? { state, error, displayRoot, resolved: path }
+        : { state, error, displayRoot, resolved: path, history: null, historyError: null, historyCount: HISTORY_PAGE, reveal: null, message, drafts, amend: false, prompt: null, rejection: null, failure: null, menu: null, drag: null, changeSelection: emptySelection, refSelection: emptySelection, ...noSelection }
     }),
   setGraphOpen: (graphOpen) => set({ graphOpen }),
   receiveHistory: (history, historyError) => set((current) => (current.state?.root === history.root ? { history, historyError } : current)),
@@ -210,6 +228,13 @@ export const useGitStore = create<GitViewState>()((set) => ({
   setPrompt: (prompt) => set({ prompt }),
   setMessage: (message) => set({ message }),
   setAmend: (amend, message) => set({ amend, message }),
+  startCommit: (committing) => set({ committing }),
+  finishCommit: () =>
+    set((current) =>
+      !current.committing || current.state?.root === current.committing
+        ? { committing: null, amend: false, message: '' }
+        : { committing: null, drafts: draftsWith(current.drafts, current.committing, '') },
+    ),
   setDrag: (drag) => set({ drag }),
   openMenu: (menu) => set({ menu }),
   setChangeSelection: (changeSelection) => set({ changeSelection }),

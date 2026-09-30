@@ -233,6 +233,7 @@ export interface GitDiff {
   notes: string[]
   hunks: GitDiffHunk[]
   fingerprint?: string
+  patch?: string | null
 }
 
 export interface GitSettings {
@@ -240,12 +241,12 @@ export interface GitSettings {
 }
 
 export type GitHostMessage =
-  | { type: 'git.state'; path: string; state?: GitState; error?: string }
+  | { type: 'git.state'; path: string; state?: GitState; error?: string; displayRoot?: string }
   | { type: 'git.changed'; path: string }
   | { type: 'git.history'; history: GitHistory; error?: string }
   | { type: 'git.diff'; request: number; result?: GitDiff; error?: string }
   | { type: 'git.details'; request: number; result?: GitCommitDetails; error?: string }
-  | { type: 'git.done'; operation: string; message: string; warning: boolean }
+  | { type: 'git.done'; operation: string; message: string; warning: boolean; output?: string }
   | { type: 'git.failed'; operation: string; message: string; output?: string; code?: GitFailureCode }
   | { type: 'git.pushRejected'; operation: string; branch: string; message: string; output: string }
   | { type: 'git.autoFetchStarted'; path: string }
@@ -254,6 +255,7 @@ export type GitHostMessage =
 export type GitWebMessage =
   | { type: 'git.watch'; path: string }
   | { type: 'git.refresh' }
+  | { type: 'git.init'; path: string }
   | { type: 'git.history'; scope: GitHistoryScope; count: number }
   | { type: 'git.diff'; path: string; request: number; source: GitDiffSource; file: string; oldFile?: string; commit?: string; untracked: boolean }
   | { type: 'git.details'; path: string; request: number; commit: string }
@@ -265,6 +267,7 @@ export type GitWebMessage =
   | { type: 'git.pull' | 'git.fetch' | 'git.continue' | 'git.undo'; path: string }
   | { type: 'git.merge' | 'git.rebase'; path: string; reference: string }
   | { type: 'git.cherryPick'; path: string; commit: string }
+  | { type: 'git.revert'; path: string; commit: string }
   | { type: 'git.reset'; path: string; commit: string; mode: GitResetMode; confirmed: boolean }
   | { type: 'git.switch'; path: string; reference: string; target: GitSwitchTarget }
   | { type: 'git.branchCreate'; path: string; name: string; reference?: string; checkout: boolean }

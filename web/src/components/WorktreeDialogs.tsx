@@ -8,13 +8,13 @@ import { WorktreeDialog } from './WorktreeDialog'
 import { WorktreePicker } from './WorktreePicker'
 import { WorktreeRemoveDialog } from './WorktreeRemoveDialog'
 
-const handleSelect = (kind: WorktreePickerKind, project: Project): void => {
+const handleSelect = (kind: WorktreePickerKind, project: Project, inActiveWorkspace: boolean): void => {
   if (kind === WorktreePickerKind.Source) {
     openWorktreeDialog(project.path)
     return
   }
   useWorktreeStore.getState().setPicker(null)
-  openWorktree(project.path)
+  openWorktree(project.path, inActiveWorkspace)
 }
 
 export function WorktreeDialogs() {

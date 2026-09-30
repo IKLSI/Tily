@@ -5,6 +5,9 @@ import type { Workspace } from '../model/session'
 import { InlineNameEditor } from './InlineNameEditor'
 import { TruncatedName } from './TruncatedName'
 import { WorkspaceStatus } from './WorkspaceStatus'
+import { CommandNoticeIcon } from './CommandNoticeIcon'
+import { useCommandStore } from '../store/commandStore'
+import { workspaceCommandNotice } from '../terminal/commandNotices'
 import type { HeaderWorkspaceActions } from './workspaceStrip'
 
 interface HeaderWorkspaceItemProps {
@@ -25,6 +28,7 @@ const stateOf = (active: boolean): string => (active ? 'bg-dock-green-soft text-
 
 export function HeaderWorkspaceItem({ workspace, siblings, counts, agents, active, shown, renaming, currentPaneId, actions }: HeaderWorkspaceItemProps) {
   const { id, name, tabs } = workspace
+  const commandNotice = useCommandStore((state) => workspaceCommandNotice(workspace, state.notices))
 
   const handleSelect = () => actions.select(id)
   const handleRename = () => actions.startRename(id)
@@ -64,6 +68,7 @@ export function HeaderWorkspaceItem({ workspace, siblings, counts, agents, activ
           <TruncatedName name={name} siblings={siblings} />
         </button>
       )}
+      {commandNotice && <CommandNoticeIcon notice={commandNotice} />}
       <WorkspaceStatus counts={counts} onJoin={handleJoin} />
     </div>
   )

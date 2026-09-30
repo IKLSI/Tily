@@ -1,5 +1,8 @@
 import { GitChangeKind, type GitState } from '../bridge/gitMessages'
 import type { ActionMenuItem } from '../components/ActionMenu'
+import { insertPathInActivePane } from '../explorer/fileExplorerActions'
+import { revealInFileTree } from '../panel/rightPanel'
+import { useGitStore } from '../store/gitStore'
 import { absolutePath, fileName } from './gitLabels'
 import { promptStashFiles } from './gitRefActions'
 import { copyToClipboard, discardChanges, ignoreFiles, openInEditor, resolveConflicts, stageChanges, unstageChanges, withOldPaths } from './gitRequests'
@@ -37,7 +40,8 @@ export const changeMenuLabel = (rows: GitChangeRow[]): string => (rows.length ==
 
 export const changeMenu = (rows: GitChangeRow[], state: GitState): ActionMenuItem[] => {
   const { conflicts, staged, unstaged } = selectedChanges(rows)
-  const editable = unique(rows.filter((row) => row.change?.kind !== GitChangeKind.Deleted).map(rowPath))
+  const deletedOnDisk = new Set(state.unstaged.filter((change) => change.kind === GitChangeKind.Deleted).map((change) => change.path))
+  const editable = unique(rows.filter((row) => row.change?.kind !== GitChangeKind.Deleted && !deletedOnDisk.has(rowPath(row))).map(rowPath))
   const stashable = unique(withOldPaths([...staged, ...unstaged]))
   const untracked = unstaged.filter((change) => change.kind === GitChangeKind.Untracked).map((change) => change.path)
   const paths = unique(rows.map(rowPath))
@@ -60,6 +64,17 @@ export const changeMenu = (rows: GitChangeRow[], state: GitState): ActionMenuIte
     },
     untracked.length > 0 && { id: 'ignore', label: byCount(untracked.length, 'Ajouter au .gitignore', `Ajouter ${untracked.length} fichiers au .gitignore`), run: () => ignoreFiles(untracked) },
     { id: 'copy', label: byCount(paths.length, 'Copier le chemin', `Copier les ${paths.length} chemins`), run: () => copyToClipboard(copied, byCount(paths.length, 'Chemin copié.', `${paths.length} chemins copiés.`)) },
+    editable.length === 1 && { id: 'reveal', label: 'Afficher dans l’arbre des fichiers', run: () => revealInFileTree(absolutePath(useGitStore.getState().displayRoot ?? state.root, editable[0])) },
+    editable.length > 0 && {
+      id: 'insert',
+      label: byCount(editable.length, 'Insérer le chemin dans le terminal', `Insérer les ${editable.length} chemins dans le terminal`),
+      run: () => editable.forEach((path) => insertPathInActivePane(absolutePath(state.root, path))),
+    },
+    {
+      id: 'copy-relative',
+      label: byCount(paths.length, 'Copier le chemin relatif', `Copier les ${paths.length} chemins relatifs`),
+      run: () => copyToClipboard(paths.join('\n'), byCount(paths.length, 'Chemin relatif copié.', `${paths.length} chemins relatifs copiés.`)),
+    },
   ]
   return items.filter((item): item is ActionMenuItem => item !== false)
 }

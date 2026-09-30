@@ -14,6 +14,7 @@ const BUSY_LABELS: Record<string, (ref: string | null, count: number) => string>
   'git.merge': (ref) => `Merge de ${quoted(ref)} en cours…`,
   'git.rebase': (ref) => `Rebase sur ${quoted(ref)} en cours…`,
   'git.cherryPick': () => 'Cherry-pick en cours…',
+  'git.revert': () => 'Revert en cours…',
   'git.reset': () => 'Reset en cours…',
   'git.switch': (ref) => `Checkout de ${quoted(ref)} en cours…`,
   'git.branchCreate': () => 'Création de la branche…',

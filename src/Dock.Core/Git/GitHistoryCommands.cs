@@ -38,6 +38,23 @@ public static class GitHistoryCommands
             $"Cherry-pick de {GitRepository.Short(sha)} sur « {branch ?? "HEAD"} » terminé.", "Le cherry-pick a échoué.", "Cherry-pick interrompu");
     }
 
+    public static GitOutcomeModel Revert(GitRepository repository, string? commit)
+    {
+        var sha = repository.RequireCommit(commit);
+        repository.RequireNoOperation();
+        var before = repository.HeadSha() ?? throw new GitCommandException("Aucun commit sur la branche courante.", string.Empty);
+        var branch = repository.CurrentBranch();
+        var isMerge = GitHistoryReader.Parents(repository.Read("rev-list", "--parents", "-n", "1", sha).Trim()).Count > 2;
+        var output = isMerge ? repository.Run("revert", "--no-edit", "-m", "1", sha) : repository.Run("revert", "--no-edit", sha);
+        if (!output.Succeeded && repository.Operation() is null && repository.HeadSha() == before && IsClean(repository.Status()))
+        {
+            return new GitOutcomeModel($"Rien à défaire : les modifications de {GitRepository.Short(sha)} sont déjà absentes de « {branch ?? "HEAD"} ».");
+        }
+
+        return Conclude(repository, output, new GitUndoRecordModel { Kind = GitUndoKind.Revert, Label = $"Revert de {GitRepository.Short(sha)}", HeadBefore = before, BranchBefore = branch },
+            $"Revert de {GitRepository.Short(sha)} sur « {branch ?? "HEAD"} » terminé.", "Le revert a échoué.", "Revert interrompu");
+    }
+
     public static GitOutcomeModel Reset(GitRepository repository, string? commit, string? mode, bool confirmed)
     {
         var sha = repository.RequireCommit(commit);
@@ -72,6 +89,9 @@ public static class GitHistoryCommands
         };
         return new GitOutcomeModel($"Reset {mode} de « {branch ?? "HEAD"} » vers {GitRepository.Short(sha)} terminé.", Undo: record);
     }
+
+    private static bool IsClean(GitStatusModel status) =>
+        status.Staged.Count == 0 && status.Conflicts.Count == 0 && status.Unstaged.All(change => change.Kind == GitChangeKind.Untracked);
 
     private static GitOutcomeModel Conclude(GitRepository repository, GitOutputModel output, GitUndoRecordModel pending, string success, string failure, string interrupted)
     {

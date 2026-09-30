@@ -3,7 +3,7 @@ import { useShallow } from 'zustand/react/shallow'
 import { focusActivePane } from '../explorer/fileExplorerActions'
 import { focusGitGraph } from '../git/gitFocus'
 import { plural } from '../git/gitLabels'
-import { followRepository } from '../git/gitRequests'
+import { followRepository, initializeRepository, refreshRepository } from '../git/gitRequests'
 import { RightPanelView } from '../model/session'
 import { togglePanelView } from '../panel/rightPanel'
 import { useGitStore } from '../store/gitStore'
@@ -12,7 +12,7 @@ import { GitChangesView } from './GitChangesView'
 import { GitCommitDetail } from './GitCommitDetail'
 import { GitHeader } from './GitHeader'
 import { GitPromptBar } from './GitPromptBar'
-import { SECTION_TITLE } from './rightPanelStyles'
+import { GIT_SECONDARY, SECTION_TITLE } from './rightPanelStyles'
 
 interface GitPanelProps {
   folder: string
@@ -37,6 +37,10 @@ const handleKeyDown = (event: KeyboardEvent<HTMLElement>) => {
     togglePanelView(RightPanelView.Files, true)
   } else if (event.key === 'Escape') {
     handleEscape()
+  } else if (event.key === 'F5') {
+    if (!event.repeat) {
+      refreshRepository()
+    }
   } else {
     return
   }
@@ -63,10 +67,16 @@ export function GitPanel({ folder }: GitPanelProps) {
   const renderContent = () => {
     if (!state) {
       const loading = resolved !== folder
+      const handleInitialize = () => initializeRepository(folder)
       return (
         <div className="flex flex-col gap-[6px] px-[12px] py-[8px] text-[12px]">
           <p className="text-dock-ink">{loading ? 'Lecture du dépôt Git…' : 'Aucun dépôt Git'}</p>
           {!loading && <p className="break-all text-dock-muted">{error ?? `Le dossier du pane actif n’appartient à aucun dépôt : ${folder}`}</p>}
+          {!loading && !error && folder && (
+            <button type="button" className={`${GIT_SECONDARY} self-start`} data-tip="git init dans le dossier du pane actif" onClick={handleInitialize}>
+              Initialiser un dépôt Git ici
+            </button>
+          )}
         </div>
       )
     }

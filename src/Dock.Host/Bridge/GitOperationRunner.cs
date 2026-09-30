@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using Dock.Core.Git;
+using Dock.Core.StatusLog;
 
 namespace Dock.Host.Bridge;
 
@@ -42,6 +43,7 @@ public sealed class GitOperationRunner
             "git.merge" => repository => GitHistoryCommands.Merge(repository, command.Reference),
             "git.rebase" => repository => GitHistoryCommands.Rebase(repository, command.Reference),
             "git.cherryPick" => repository => GitHistoryCommands.CherryPick(repository, command.Commit),
+            "git.revert" => repository => GitHistoryCommands.Revert(repository, command.Commit),
             "git.reset" => repository => GitHistoryCommands.Reset(repository, command.Commit, command.Mode, command.Confirmed),
             "git.switch" => repository => GitBranchCommands.Switch(repository, command.Reference, command.Target),
             "git.branchCreate" => repository => GitBranchCommands.Create(repository, command.Name, command.Reference, command.Checkout),
@@ -79,7 +81,7 @@ public sealed class GitOperationRunner
             repository = _open(command.Path);
             var outcome = action(repository);
             Journal.Apply(repository.Root, outcome);
-            _post(new { type = "git.done", operation = command.Type, message = outcome.Message, warning = outcome.Warning });
+            _post(new { type = "git.done", operation = command.Type, message = outcome.Message, warning = outcome.Warning, output = outcome.Output });
         }
         catch (GitPushRejectedException rejected)
         {
@@ -92,7 +94,7 @@ public sealed class GitOperationRunner
         }
         catch (Exception exception)
         {
-            _post(new { type = "git.failed", operation = command.Type, message = exception.Message });
+            _post(new { type = "git.failed", operation = command.Type, message = UserErrorMessage.Of(exception) });
         }
         finally
         {
@@ -150,7 +152,14 @@ public sealed class GitOperationRunner
         }
 
         Journal.Apply(repository.Root, committed);
-        return new GitOutcomeModel($"{committed.Message} {Push(repository, false, false).Message}");
+        try
+        {
+            return new GitOutcomeModel($"{committed.Message} {Push(repository, false, false).Message}");
+        }
+        catch (GitCommandException failure) when (failure is not GitPushRejectedException)
+        {
+            return new GitOutcomeModel($"{committed.Message} Push impossible : {failure.Message}", true, Output: failure.Output.Length > 0 ? failure.Output : null);
+        }
     }
 
     private GitOutcomeModel Push(GitRepository repository, bool force, bool confirmed)

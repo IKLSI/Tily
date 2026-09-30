@@ -19,6 +19,38 @@ public sealed class GitReadTests : IDisposable
     }
 
     [Fact]
+    public void AccessProblem_WhenOutsideOrInsideRepository_ThenNone()
+    {
+        var folder = Path.Combine(_sandbox.Root, "hors dépôt");
+        Directory.CreateDirectory(folder);
+
+        Assert.Null(GitRepository.AccessProblem(_sandbox.Runner, folder));
+        Assert.Null(GitRepository.AccessProblem(_sandbox.Runner, _sandbox.Work));
+    }
+
+    [Fact]
+    public void AccessProblem_WhenGitFileInvalid_ThenGivesGitDetails()
+    {
+        var folder = Path.Combine(_sandbox.Root, "dépôt abîmé");
+        Directory.CreateDirectory(folder);
+        File.WriteAllText(Path.Combine(folder, ".git"), "n'importe quoi");
+
+        var problem = GitRepository.AccessProblem(_sandbox.Runner, folder);
+
+        Assert.Contains("invalid gitfile format", problem);
+    }
+
+    [Fact]
+    public void Run_WhenFolderMissing_ThenFailsInFrench()
+    {
+        var missing = Path.Combine(_sandbox.Root, "disparu");
+
+        var failure = Assert.Throws<GitCommandException>(() => _sandbox.Runner.Run(missing, ["status"]));
+
+        Assert.Equal($"Dossier introuvable : {missing}", failure.Message);
+    }
+
+    [Fact]
     public void Locate_WhenNestedFolder_ThenReturnsRoot()
     {
         _sandbox.Commit("Premier", ("src/web/app.ts", "a"));
@@ -180,6 +212,52 @@ public sealed class GitReadTests : IDisposable
         Assert.Equal(["deux", "trois"], staged.Hunks[0].Lines.Where(line => line.Kind != GitDiffLineKind.Context).Select(line => line.Text));
         Assert.Equal(["trois", "quatre"], unstaged.Hunks[0].Lines.Where(line => line.Kind != GitDiffLineKind.Context).Select(line => line.Text));
         Assert.Equal([(1, "x"), (2, "y")], untracked.Hunks[0].Lines.Select(line => (line.New ?? 0, line.Text)));
+    }
+
+    [Fact]
+    public void ReadDiff_WhenRenamedAndDeleted_ThenPatchAppliesWithGit()
+    {
+        _sandbox.Commit("Base", ("ancien.txt", "un\ndeux\ntrois\n"), ("parti.txt", "p\n"));
+        _sandbox.Git("mv", "ancien.txt", "nouveau.txt");
+        _sandbox.Write("nouveau.txt", "un\ndeux\nquatre\n");
+        _sandbox.Git("rm", "-q", "parti.txt");
+        _sandbox.Git("add", "nouveau.txt");
+        var renamed = GitDiffReader.Read(_sandbox.Repository, new GitDiffRequestModel(GitDiffSource.Staged, "nouveau.txt", "ancien.txt", null, false));
+        var deleted = GitDiffReader.Read(_sandbox.Repository, new GitDiffRequestModel(GitDiffSource.Staged, "parti.txt", null, null, false));
+        _sandbox.Git("reset", "-q", "--hard");
+        var patchFile = Path.Combine(_sandbox.Root, "copie.patch");
+
+        foreach (var patch in new[] { renamed.Patch, deleted.Patch })
+        {
+            File.WriteAllText(patchFile, patch);
+            _sandbox.Git("apply", patchFile);
+        }
+
+        Assert.Equal((false, "un\ndeux\nquatre\n", false), (_sandbox.Exists("ancien.txt"), _sandbox.Read("nouveau.txt"), _sandbox.Exists("parti.txt")));
+    }
+
+    [Fact]
+    public void ReadDiff_WhenFileNotUtf8_ThenNoPatchToCopy()
+    {
+        var file = Path.Combine(_sandbox.Work, "ansi.txt");
+        File.WriteAllBytes(file, [0x63, 0x61, 0x66, 0xE9, 0x0A]);
+        _sandbox.Git("add", "ansi.txt");
+        _sandbox.Git("commit", "-q", "-m", "Base");
+        File.WriteAllBytes(file, [0x74, 0x68, 0xE9, 0x0A]);
+
+        var diff = GitDiffReader.Read(_sandbox.Repository, new GitDiffRequestModel(GitDiffSource.Unstaged, "ansi.txt", null, null, false));
+
+        Assert.Equal((1, null), (diff.Hunks.Count, diff.Patch));
+    }
+
+    [Fact]
+    public void ReadDiff_WhenTruncated_ThenNoPatchToCopy()
+    {
+        _sandbox.Write("long.txt", string.Concat(Enumerable.Range(0, GitDiffParser.MaxLines + 1).Select(index => $"{index}\n")));
+
+        var diff = GitDiffReader.Read(_sandbox.Repository, new GitDiffRequestModel(GitDiffSource.Unstaged, "long.txt", null, null, true));
+
+        Assert.Equal((true, null), (diff.Truncated, diff.Patch));
     }
 
     [Fact]

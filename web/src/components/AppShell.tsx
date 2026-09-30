@@ -16,24 +16,30 @@ import { useExplorerStore } from '../store/explorerStore'
 import { focusGitPanel, takeFocusFromCoveredTerminals } from '../git/gitFocus'
 import { openWorkspaceNotes, toggleRightPanel } from '../panel/rightPanel'
 import { useGitStore } from '../store/gitStore'
+import { usePasteStore } from '../store/pasteStore'
 import { worktreeModalOpen } from '../store/worktreeStore'
+import { filePickerOpen } from '../store/filePickerStore'
+import { commitPickerOpen } from '../store/commitPickerStore'
 import { changePaneShell, dismissPaneState, restartPane, restartPaneIn } from '../terminal/paneLifecycle'
 import { closeOtherTabsKeepingText, closePaneKeepingText, closeTabKeepingText, closeWorkspaceKeepingText, duplicateTabKeepingLayout, restoreClosedTab } from '../terminal/tabLifecycle'
 import { focusPane, joinPane } from '../terminal/terminalActions'
 import { togglePaneZoom, useEndZoomWhenPaneChanges, zoomedPaneOf } from '../terminal/paneZoom'
 import { AttentionToasts } from './AttentionToasts'
 import { CloseConfirmDialog } from './CloseConfirmDialog'
+import { PasteConfirmDialog } from './PasteConfirmDialog'
 import { CommandPalette } from './CommandPalette'
 import { DeleteConfirmDialog } from './DeleteConfirmDialog'
 import { EmptyState } from './EmptyState'
 import { GitConfirmDialog } from './GitConfirmDialog'
 import { GitContextMenu } from './GitContextMenu'
-import { FilePreviewDrawer } from './FilePreviewDrawer'
+import { LazyFilePreview } from './LazyFilePreview'
 import { GitDiffDrawer } from './GitDiffDrawer'
 import { GitGraphView } from './GitGraphView'
 import { Header } from './Header'
 import { HeaderWorkspaces } from './HeaderWorkspaces'
 import { ProjectPicker } from './ProjectPicker'
+import { FilePicker } from './FilePicker'
+import { CommitPicker } from './CommitPicker'
 import { RightPanel } from './RightPanel'
 import { SettingsDialog } from './SettingsDialog'
 import { SidebarResizer } from './SidebarResizer'
@@ -162,9 +168,14 @@ const handleCancelGit = (): void => {
   restoreFocus()
 }
 
+const confirmationOpen = (): boolean => {
+  const { settingsOpen, closeConfirmation } = useUiStore.getState()
+  return settingsOpen || closeConfirmation !== null || useExplorerStore.getState().deleteRequest !== null || useGitStore.getState().confirmation !== null || usePasteStore.getState().request !== null || worktreeModalOpen() || filePickerOpen() || commitPickerOpen()
+}
+
 const modalOpen = (): boolean => {
-  const { settingsOpen, closeConfirmation, paletteOpen, projectPickerOpen } = useUiStore.getState()
-  return settingsOpen || paletteOpen || projectPickerOpen || closeConfirmation !== null || useExplorerStore.getState().deleteRequest !== null || useGitStore.getState().confirmation !== null || worktreeModalOpen()
+  const { paletteOpen, projectPickerOpen } = useUiStore.getState()
+  return paletteOpen || projectPickerOpen || confirmationOpen()
 }
 
 const panelActions: WorkspacePanelActions = {
@@ -193,7 +204,7 @@ const panelActions: WorkspacePanelActions = {
 }
 
 export function AppShell({ session }: AppShellProps) {
-  const { selectTab, selectPane, toggleSidebar, setSidebarWidth, setExplorerWidth, newWorkspace, newTab, moveTab, shiftTab, setSplitRatio } = useSessionStore.getState()
+  const { selectTab, selectPane, toggleSidebar, setSidebarWidth, setExplorerWidth, newWorkspace, newTab, newTabAt, moveTab, shiftTab, setSplitRatio } = useSessionStore.getState()
   const { leaderActive, shells, projects, projectsRoot, projectsError, settingsSnapshot, pickedPath, importedPreferences } = useHostStore(
     useShallow((state) => ({
       leaderActive: state.leaderActive,
@@ -241,8 +252,7 @@ export function AppShell({ session }: AppShellProps) {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      const { settingsOpen: settingsShown, closeConfirmation: confirmationShown } = useUiStore.getState()
-      if (!event.defaultPrevented && event.ctrlKey && !event.altKey && event.key.toLowerCase() === 'p' && !settingsShown && !confirmationShown) {
+      if (!event.defaultPrevented && event.ctrlKey && !event.altKey && event.key.toLowerCase() === 'p' && !confirmationOpen()) {
         event.preventDefault()
         openPalette()
       }
@@ -298,9 +308,13 @@ export function AppShell({ session }: AppShellProps) {
     closeProjectPicker()
     focusActivePane()
   }
-  const handleSelectProject = (project: Project) => {
+  const handleSelectProject = (project: Project, inActiveWorkspace: boolean) => {
     closeProjectPicker()
-    newWorkspace(project.name, project.path, DEFAULT_SHELL)
+    if (inActiveWorkspace && activeWorkspace(session)) {
+      newTabAt(project.path, DEFAULT_SHELL)
+    } else {
+      newWorkspace(project.name, project.path, DEFAULT_SHELL)
+    }
   }
   const handleDismissAttention = (paneId: string) => useAgentStore.getState().acknowledge(paneId)
   const handleToggleSidebar = () => {
@@ -342,7 +356,7 @@ export function AppShell({ session }: AppShellProps) {
           <SplitView key={currentTab.id} node={zoomedPane ? { pane: zoomedPane } : currentTab.tree} zoomed={zoomedPane !== undefined} onToggleZoom={togglePaneZoom} activePaneId={currentTab.active} onFocus={selectPane} onClose={closePaneKeepingText} onSplit={handleSplit} onResize={handleResize} shells={availableShells} onRestart={restartPane} onRestartIn={restartPaneIn} onChangeShell={changePaneShell} onDismissState={dismissPaneState} />
           {graphShown && <GitGraphView layout={session.gitGraph} />}
           {gitShown && <GitDiffDrawer />}
-          {filesShown && <FilePreviewDrawer />}
+          {filesShown && <LazyFilePreview />}
           {gitShown && <GitContextMenu />}
         </div>
       </>
@@ -390,6 +404,8 @@ export function AppShell({ session }: AppShellProps) {
         )}
       </div>
       <AttentionToasts waiting={waiting} onJoin={handleJoinPane} onDismiss={handleDismissAttention} />
+      <FilePicker />
+      <CommitPicker />
       {projectPickerOpen && <ProjectPicker projects={projects} root={projectsRoot} error={projectsError} onClose={handleCloseProjectPicker} onSelect={handleSelectProject} />}
       {settingsOpen && <SettingsDialog snapshot={settingsSnapshot} pickedPath={pickedPath} imported={importedPreferences} onClose={handleCloseSettings} onSave={handleSaveSettings} onPick={handlePickPath} onExport={handleExportPreferences} onImport={handleImportPreferences} onInstallHooks={handleInstallHooks} onRemoveHooks={handleRemoveHooks} onTestNotification={handleTestNotification} />}
       {paletteOpen && <CommandPalette session={session} shells={availableShells} onClose={handleClosePalette} onRun={handleRunPaletteItem} onToggleFavorite={toggleFavoriteCommand} />}
@@ -397,6 +413,7 @@ export function AppShell({ session }: AppShellProps) {
       <WorktreeDialogs />
       {gitConfirmation && <GitConfirmDialog confirmation={gitConfirmation} onConfirm={handleConfirmGit} onCancel={handleCancelGit} />}
       {closeConfirmation && <CloseConfirmDialog confirmation={closeConfirmation} onConfirm={confirmClose} onCancel={handleCancelClose} />}
+      <PasteConfirmDialog />
       <Tooltip />
       <StatusBar />
     </div>

@@ -121,4 +121,4 @@ public sealed record GitHistoryModel(string Root, GitHistoryScope Scope, IReadOn
 
 public sealed record GitCommitDetailsModel(string Sha, IReadOnlyList<string> Parents, string Author, string Email, long Date, string Message, IReadOnlyList<GitFileChangeModel> Files);
 
-public sealed record GitOutcomeModel(string Message, bool Warning = false, GitUndoRecordModel? Undo = null, bool ClearUndo = false);
+public sealed record GitOutcomeModel(string Message, bool Warning = false, GitUndoRecordModel? Undo = null, bool ClearUndo = false, string? Output = null);

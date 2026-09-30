@@ -2,10 +2,15 @@ import { Fragment, useCallback, useEffect, useRef, useState, type KeyboardEvent,
 import { useShallow } from 'zustand/react/shallow'
 import type { ShellProfile } from '../bridge/messages'
 import { tabAgents } from '../agents/agentSummary'
-import { DEFAULT_SHELL, type Workspace } from '../model/session'
+import { activePane, DEFAULT_SHELL, paneCountLabel, panesOf, type Workspace } from '../model/session'
 import { useAgentStore } from '../store/agentStore'
 import { useUiStore } from '../store/uiStore'
 import { AgentStateIcon } from './AgentStateIcon'
+import { CommandNoticeIcon } from './CommandNoticeIcon'
+import { tabCommandNotice } from '../terminal/commandNotices'
+import { useCommandStore } from '../store/commandStore'
+import { closeTabsToRightKeepingText } from '../terminal/tabLifecycle'
+import { focusActivePaneIfLost } from '../explorer/fileExplorerActions'
 import { Icon } from './Icon'
 import { IconName } from './iconName'
 import { InlineNameEditor } from './InlineNameEditor'
@@ -72,8 +77,10 @@ export function TabBar({ workspace, shells, renamingTabId, panelOpen, onTogglePa
   const [fade, setFade] = useState<StripFade>(NO_FADE)
   const addButtonRef = useRef<HTMLButtonElement>(null)
   const stripRef = useRef<HTMLDivElement>(null)
+  const pressedEmptyRef = useRef(false)
   const { draggingTabId, tabDropTarget } = useUiStore(useShallow((state) => ({ draggingTabId: state.draggingTabId, tabDropTarget: state.tabDropTarget })))
   const agents = useAgentStore((state) => state.agents)
+  const commandNotices = useCommandStore((state) => state.notices)
   const activeIndex = workspace.tabs.findIndex((tab) => tab.id === workspace.active)
 
   const updateFade = (strip: HTMLElement) => {
@@ -96,6 +103,17 @@ export function TabBar({ workspace, shells, renamingTabId, panelOpen, onTogglePa
   }, [workspace.active, workspace.tabs.length, activeIndex])
 
   const handleNewDefault = () => onNew(DEFAULT_SHELL)
+  const isEmptyArea = (event: MouseEvent<HTMLDivElement>) => event.target === event.currentTarget || event.target === stripRef.current
+  const handleBarMouseDown = (event: MouseEvent<HTMLDivElement>) => {
+    if (event.detail === 1) {
+      pressedEmptyRef.current = isEmptyArea(event)
+    }
+  }
+  const handleEmptyDoubleClick = (event: MouseEvent<HTMLDivElement>) => {
+    if (pressedEmptyRef.current && isEmptyArea(event)) {
+      handleNewDefault()
+    }
+  }
   const handleContextMenu = (event: MouseEvent) => {
     event.preventDefault()
     setMenuOpen(true)
@@ -115,8 +133,11 @@ export function TabBar({ workspace, shells, renamingTabId, panelOpen, onTogglePa
     onNew(shellId)
   }
   const tabMenuPosition = tabMenu ? workspace.tabs.findIndex((tab) => tab.id === tabMenu.tabId) : -1
-  const tabMenuActions: TabMenuActions = { rename: onStartRename, shift: onShift, duplicate: onDuplicate, close: onClose, closeOthers: onCloseOthers }
-  const handleRunTabMenu = useCallback(() => setTabMenu(null), [])
+  const tabMenuActions: TabMenuActions = { rename: onStartRename, shift: onShift, duplicate: onDuplicate, close: onClose, closeOthers: onCloseOthers, closeToRight: closeTabsToRightKeepingText }
+  const handleRunTabMenu = useCallback(() => {
+    setTabMenu(null)
+    requestAnimationFrame(focusActivePaneIfLost)
+  }, [])
   const handleDismissTabMenu = useCallback(() => {
     const returnFocus = tabMenu?.returnFocus
     setTabMenu(null)
@@ -137,12 +158,13 @@ export function TabBar({ workspace, shells, renamingTabId, panelOpen, onTogglePa
   const dropLine = (targeted: boolean) => `h-6 w-0.5 shrink-0 rounded ${targeted ? 'bg-dock-focus' : 'bg-transparent'}`
 
   return (
-    <div data-drop-workspace={workspace.id} className="flex shrink-0 items-center gap-0.5 px-2 pt-1 select-none">
+    <div data-drop-workspace={workspace.id} className="flex shrink-0 items-center gap-0.5 px-2 pt-1 select-none" onMouseDown={handleBarMouseDown} onDoubleClick={handleEmptyDoubleClick}>
       <div ref={stripRef} role="tablist" className="flex min-w-0 items-center gap-0.5 overflow-x-auto [scrollbar-width:none]" style={{ maskImage: maskOf(fade) }} onWheel={handleWheel} onScroll={handleStripScroll}>
         {workspace.tabs.map((tab) => {
           const active = tab.id === workspace.active
           const targeted = isDropTarget(tabDropTarget, workspace.id, tab.id)
           const agentSummary = tabAgents(tab, agents)
+          const commandNotice = tabCommandNotice(tab, commandNotices)
           const handleSelect = () => onSelect(tab.id)
           const handleStartRename = () => onStartRename(tab.id)
           const handleClose = () => onClose(tab.id)
@@ -191,14 +213,14 @@ export function TabBar({ workspace, shells, renamingTabId, panelOpen, onTogglePa
                     type="button"
                     role="tab"
                     aria-selected={active}
-                    data-tip={`${tab.name} · Double-clic pour renommer, glisser pour déplacer`}
+                    data-tip={`${tab.name} · ${activePane(tab).path} · ${paneCountLabel(panesOf(tab.tree).length)} · Double-clic pour renommer, glisser pour déplacer`}
                     className="flex min-w-0 flex-1 cursor-pointer items-center gap-1.5 px-3 py-2 text-left text-xs"
                     onClick={handleSelect}
                     onDoubleClick={handleStartRename}
                     onPointerDown={handlePointerDown}
                     onKeyDown={handleTabKeyDown}
                   >
-                    {agentSummary && <AgentStateIcon state={agentSummary.state} tip={agentSummary.tip} />}
+                    {agentSummary ? <AgentStateIcon state={agentSummary.state} tip={agentSummary.tip} /> : commandNotice && <CommandNoticeIcon notice={commandNotice} />}
                     <span className="min-w-0 truncate">{tab.name}</span>
                   </button>
                 )}
@@ -218,7 +240,7 @@ export function TabBar({ workspace, shells, renamingTabId, panelOpen, onTogglePa
           aria-haspopup="menu"
           aria-expanded={menuOpen}
           className="cursor-pointer rounded px-2 py-1 text-base hover:bg-dock-green-hover"
-          data-tip="Nouvel onglet PowerShell (clic droit : choisir le shell)"
+          data-tip="Nouvel onglet PowerShell (Ctrl + Maj + T ; clic droit : choisir le shell ; double-clic dans l’espace vide de la barre : nouvel onglet)"
           onClick={handleNewDefault}
           onContextMenu={handleContextMenu}
           onKeyDown={handleAddKeyDown}

@@ -19,6 +19,7 @@ public sealed class SettingsService
     private readonly NotificationSettingsRepository _notifications;
     private readonly GitSettingsRepository _git;
     private readonly UpdateSettingsRepository _updates;
+    private readonly AppearanceSettingsRepository _appearance;
 
     public SettingsService(string directory)
     {
@@ -29,6 +30,7 @@ public sealed class SettingsService
         _notifications = new NotificationSettingsRepository(directory);
         _git = new GitSettingsRepository(directory);
         _updates = new UpdateSettingsRepository(directory);
+        _appearance = new AppearanceSettingsRepository(directory);
     }
 
     public SettingsModel Load()
@@ -43,7 +45,8 @@ public sealed class SettingsService
             Notifications = _notifications.Load(),
             Worktrees = projects.Worktrees ?? WorktreeSettingsModel.Default,
             Git = _git.Load(),
-            Updates = _updates.Load()
+            Updates = _updates.Load(),
+            Appearance = _appearance.Load()
         };
     }
 
@@ -92,6 +95,7 @@ public sealed class SettingsService
         settings.Worktrees = (settings.Worktrees ?? WorktreeSettingsModel.Default).Normalized();
         settings.Git ??= GitSettingsModel.Default;
         settings.Updates ??= UpdateSettingsModel.Default;
+        settings.Appearance = (settings.Appearance ?? AppearanceSettingsModel.Default).Clamped();
         _shells.Save(settings.Shells);
         _editor.Save(new EditorSettingsModel(settings.Editor));
         _persistence.Save(settings.Persistence);
@@ -99,7 +103,15 @@ public sealed class SettingsService
         _notifications.Save(settings.Notifications);
         _git.Save(settings.Git);
         _updates.Save(settings.Updates);
+        _appearance.Save(settings.Appearance);
         return result;
+    }
+
+    public AppearanceSettingsModel SaveAppearance(AppearanceSettingsModel appearance)
+    {
+        var clamped = appearance.Clamped();
+        _appearance.Save(clamped);
+        return clamped;
     }
 
     public void Export(SettingsModel settings, string filePath) =>
@@ -147,7 +159,8 @@ public sealed class SettingsService
             Notifications = (document.Notifications ?? NotificationSettingsModel.Default).Normalized(),
             Worktrees = (document.Worktrees ?? WorktreeSettingsModel.Default).Normalized(),
             Git = document.Git ?? GitSettingsModel.Default,
-            Updates = document.Updates ?? UpdateSettingsModel.Default
+            Updates = document.Updates ?? UpdateSettingsModel.Default,
+            Appearance = (document.Appearance ?? AppearanceSettingsModel.Default).Clamped()
         };
         var validation = Validate(settings);
         return validation.IsValid
@@ -163,9 +176,11 @@ public sealed class SettingsService
             .Select(profile => new ShellSettingModel(profile.Id, profile.Name, defaults[profile.Id], paths.ExecutableFor(profile.Id) ?? string.Empty, profile.Available))
             .ToList();
         var warnings = shells.Where(shell => !shell.Available).Select(shell => $"Le shell « {shell.Name} » est introuvable : {(shell.Configured.Length > 0 ? shell.Configured : shell.DefaultExecutable)}").ToList();
-        if (Path.IsPathRooted(settings.Editor) && !File.Exists(settings.Editor))
+        if (!string.IsNullOrWhiteSpace(settings.Editor) && !CommandLocator.Exists(settings.Editor))
         {
-            warnings.Add($"La commande de l’éditeur est introuvable : {settings.Editor}");
+            warnings.Add(Path.IsPathRooted(settings.Editor.Trim().Trim('"'))
+                ? $"La commande de l’éditeur est introuvable : {settings.Editor}"
+                : $"La commande de l’éditeur est introuvable : « {settings.Editor} » n’est ni dans le PATH ni parmi les applications enregistrées");
         }
 
         if (settings.Notifications.UsesFile && !File.Exists(settings.Notifications.Sound))
@@ -197,7 +212,8 @@ public sealed class SettingsService
             ["projects"] = _projects.FilePath,
             ["notifications"] = _notifications.FilePath,
             ["git"] = _git.FilePath,
-            ["updates"] = _updates.FilePath
+            ["updates"] = _updates.FilePath,
+            ["appearance"] = _appearance.FilePath
         };
         return new SettingsSnapshotModel(settings, shells, files, warnings);
     }

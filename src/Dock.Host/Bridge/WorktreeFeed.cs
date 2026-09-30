@@ -1,5 +1,6 @@
 using Dock.Core.Git;
 using Dock.Core.Settings;
+using Dock.Core.StatusLog;
 using Dock.Core.Worktrees;
 
 namespace Dock.Host.Bridge;
@@ -104,7 +105,7 @@ public sealed class WorktreeFeed
         }
         catch (Exception exception) when (exception is GitCommandException or IOException or UnauthorizedAccessException)
         {
-            _post(new { type = "worktrees.failed", operation, step = WorktreeSteps.Verification, message = exception.Message, output = (exception as GitCommandException)?.Output is { Length: > 0 } output ? output : null });
+            _post(new { type = "worktrees.failed", operation, step = WorktreeSteps.Verification, message = UserErrorMessage.Of(exception), output = (exception as GitCommandException)?.Output is { Length: > 0 } output ? output : null });
         }
     }
 

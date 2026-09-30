@@ -62,9 +62,9 @@ export function GitBanners({ state, busy }: GitBannersProps) {
         </div>
       )}
       {failure && (
-        <div role="alert" className={`${BANNER} border-dock-error/50`}>
+        <div role={failure.warning ? 'status' : 'alert'} className={`${BANNER} ${failure.warning ? 'border-dock-warning/50' : 'border-dock-error/50'}`}>
           <div className="flex items-start gap-[6px]">
-            <span className="min-w-0 flex-1 text-dock-error">{failure.message}</span>
+            <span className={`min-w-0 flex-1 ${failure.warning ? 'text-dock-warning' : 'text-dock-error'}`}>{failure.message}</span>
             <button type="button" className={ROW_ACTION} aria-label="Masquer" data-tip="Masquer" onClick={handleDismissFailure}>
               <Icon name={IconName.Close} size={10} />
             </button>

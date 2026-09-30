@@ -3,7 +3,7 @@ import { useGitStore, type GitFileTarget } from '../store/gitStore'
 import { StatusLevel, useHostStore } from '../store/hostStore'
 import { refocusGitIfLost } from './gitFocus'
 import { clearRefSelection } from './gitRefSelection'
-import { closeDrawer, loadUntilRevealed, reloadDiff, retryFailedDetails, selectWorkingTree, takeRetry } from './gitRequests'
+import { closeDrawer, loadUntilRevealed, reloadDiff, retryFailedDetails, selectWorkingTree, takeInitialized, takeRetry } from './gitRequests'
 
 const COMMIT_OPERATION = 'git.commit'
 const AUTO_FETCH_OPERATION = 'git.autoFetch'
@@ -28,9 +28,16 @@ const finishBusy = (operation: string): void => {
   }
 }
 
-export const receiveGitState = (path: string, state: GitState | undefined, error: string | undefined): void => {
+export const receiveGitState = (path: string, state: GitState | undefined, error: string | undefined, displayRoot: string | undefined): void => {
   const previous = useGitStore.getState().state
-  useGitStore.getState().receiveState(path, state ?? null, error ?? null)
+  useGitStore.getState().receiveState(path, state ?? null, error ?? null, displayRoot ?? null)
+  if (takeInitialized(path)) {
+    if (state) {
+      useHostStore.getState().setStatus(`Dépôt Git initialisé dans ${state.root}${state.head.branch ? ` (branche ${state.head.branch})` : ''}.`)
+    } else if (error) {
+      useHostStore.getState().setStatus(error, StatusLevel.Error)
+    }
+  }
   if (state && state.conflicts.length > 0 && (previous?.conflicts.length ?? 0) === 0) {
     selectWorkingTree()
   }
@@ -68,12 +75,12 @@ export const receiveGitAutoFetchStarted = (path: string): void => {
 
 export const receiveGitAutoFetchEnded = (): void => finishBusy(AUTO_FETCH_OPERATION)
 
-export const receiveGitDone = (operation: string, message: string, warning: boolean): void => {
+export const receiveGitDone = (operation: string, message: string, warning: boolean, output: string | undefined): void => {
   finishBusy(operation)
   const store = useGitStore.getState()
   takeRetry(operation)
   if (operation === COMMIT_OPERATION) {
-    store.setAmend(false, '')
+    store.finishCommit()
   }
   if (operation === COMMIT_OPERATION || operation === 'git.push') {
     store.setRejection(null)
@@ -84,6 +91,9 @@ export const receiveGitDone = (operation: string, message: string, warning: bool
   }
   if (operation === 'git.refsDelete') {
     clearRefSelection()
+  }
+  if (output) {
+    store.setFailure({ message, output, warning })
   }
   useHostStore.getState().setStatus(message, warning ? StatusLevel.Warning : StatusLevel.Info)
 }
@@ -103,7 +113,7 @@ export const receiveGitPushRejected = (operation: string, branch: string, messag
   finishBusy(operation)
   const store = useGitStore.getState()
   if (operation === COMMIT_OPERATION) {
-    store.setAmend(false, '')
+    store.finishCommit()
   }
   store.setRejection({ branch, message, output })
   useHostStore.getState().setStatus(message, StatusLevel.Warning)

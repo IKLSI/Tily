@@ -47,8 +47,14 @@ public sealed class BridgeCommandModel
     public GitHunkSelectionModel[]? Selection { get; init; }
     public int Cols { get; init; }
     public int Rows { get; init; }
+    public int Line { get; init; }
+    public int Column { get; init; }
+    public string? Alternative { get; init; }
+    public int AlternativeLine { get; init; }
+    public int AlternativeColumn { get; init; }
     public int Chars { get; init; }
     public int Count { get; init; }
+    public int FontSize { get; init; }
     public int Index { get; init; }
     public int Request { get; init; }
     public bool Amend { get; init; }

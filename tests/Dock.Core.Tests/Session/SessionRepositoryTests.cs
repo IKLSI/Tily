@@ -76,6 +76,43 @@ public sealed class SessionRepositoryTests : IDisposable
     }
 
     [Fact]
+    public void Load_WhenFileEmptiedAfterTwoSaves_ThenRestoresPreviousSave()
+    {
+        var repository = new SessionRepository(_directory);
+        var first = SessionFactory.Initial();
+        first.Workspaces[0].Name = "Avant-dernier";
+        repository.Save(first);
+        var second = SessionFactory.Initial();
+        second.Workspaces[0].Name = "Dernier";
+        repository.Save(second);
+        File.WriteAllText(repository.FilePath, string.Empty);
+
+        var loaded = repository.Load();
+
+        Assert.Equal("Avant-dernier", loaded.Session!.Workspaces[0].Name);
+        Assert.Contains("L’avant-dernier enregistrement de la session a été restauré.", loaded.Error);
+        Assert.Single(Directory.GetFiles(_directory, "session.corrompu-*.json"));
+    }
+
+    [Fact]
+    public void Save_WhenPreviousCopyReadOnly_ThenStillWritesTheSession()
+    {
+        var repository = new SessionRepository(_directory);
+        repository.Save(SessionFactory.Initial());
+        var previous = Path.Combine(_directory, SessionRepository.PreviousFileName);
+        File.WriteAllText(previous, "{}");
+        File.SetAttributes(previous, FileAttributes.ReadOnly);
+        var session = SessionFactory.Initial();
+        session.Workspaces[0].Name = "Après";
+
+        var result = repository.Save(session);
+        File.SetAttributes(previous, FileAttributes.Normal);
+
+        Assert.True(result.IsValid);
+        Assert.Equal("Après", repository.Load().Session!.Workspaces[0].Name);
+    }
+
+    [Fact]
     public void Load_WhenSessionInvalid_ThenQuarantinesItWithTheValidationError()
     {
         var repository = new SessionRepository(_directory);

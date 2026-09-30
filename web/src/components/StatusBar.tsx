@@ -1,10 +1,11 @@
+import { useEffect, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { busyLabel } from '../git/gitBusy'
 import { useGitStore } from '../store/gitStore'
 import { StatusLevel, useHostStore } from '../store/hostStore'
 import { useStatusLogStore } from '../store/statusLogStore'
 import { useWorktreeStore } from '../store/worktreeStore'
-import { toggleStatusLog } from '../statusLog/statusLogActions'
+import { entryFullDate, entryTime, toggleStatusLog } from '../statusLog/statusLogActions'
 import { Icon } from './Icon'
 import { IconName } from './iconName'
 import { Spinner } from './Spinner'
@@ -16,13 +17,24 @@ const STATUS_CLASSES: Record<StatusLevel, string> = {
   [StatusLevel.Error]: 'text-dock-error',
 }
 
+const untilTomorrow = (): number => {
+  const now = new Date()
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).getTime() - now.getTime()
+}
+
 export function StatusBar() {
+  const [day, setDay] = useState(0)
   const status = useHostStore((state) => state.status)
   const unsaved = useHostStore((state) => state.unsaved)
   const { busy, busyRefs } = useGitStore(useShallow((state) => ({ busy: state.busy, busyRefs: state.busyRefs })))
   const worktreeBusy = useWorktreeStore((state) => state.busy !== null)
   const logOpen = useStatusLogStore((state) => state.open)
   const spinning = Boolean(busy) || worktreeBusy
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDay(day + 1), untilTomorrow())
+    return () => clearTimeout(timer)
+  }, [day])
 
   return (
     <>
@@ -42,6 +54,14 @@ export function StatusBar() {
           {spinning && <Spinner size={10} className="shrink-0 text-dock-green" />}
           <span className="truncate py-1 [text-box:trim-both_cap_alphabetic]">{busy ? busyLabel(busy, busyRefs) : status.text}</span>
         </button>
+        <span role="status" className="sr-only">
+          {status.text}
+        </span>
+        {status.at && !spinning && (
+          <time dateTime={status.at} data-tip={`Message du ${entryFullDate(status)}`} className="shrink-0 px-3 text-dock-muted tabular-nums">
+            {entryTime(status, new Date())}
+          </time>
+        )}
         {unsaved && (
           <span className="shrink-0 px-3 text-dock-error" data-tip="La dernière sauvegarde a échoué : la session restera en l’état d’avant tant qu’une écriture ne réussit pas.">
             Non enregistré

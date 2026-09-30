@@ -72,13 +72,44 @@ public sealed class FilePreviewTests : IDisposable
     }
 
     [Fact]
-    public void Read_WhenTypeNotPreviewable_ThenRefusesInFrench()
+    public void Read_WhenImage_ThenReturnsLocalAddressWithVersion()
+    {
+        var path = Write("capture d’écran.png", [0x89, 0x50, 0x4E, 0x47]);
+
+        var preview = FilePreview.Read(path);
+
+        Assert.Equal($"{PreviewAddress.BaseUrlOf(path)}capture%20d%E2%80%99%C3%A9cran.png?v={File.GetLastWriteTimeUtc(path).Ticks}", preview.Content);
+    }
+
+    [Fact]
+    public void Read_WhenImageAddress_ThenHostResolvesSameFile()
+    {
+        var path = Write("logo.png", [0x89, 0x50, 0x4E, 0x47]);
+
+        var resolved = PreviewAddress.PathOf(FilePreview.Read(path).Content);
+
+        Assert.Equal(path, resolved);
+    }
+
+    [Fact]
+    public void Read_WhenImageMissing_ThenReportsInFrench()
+    {
+        var path = Path.Combine(_root, "absente.png");
+
+        var preview = FilePreview.Read(path);
+
+        Assert.Equal($"Le fichier n’existe plus : {path}", preview.Error);
+    }
+
+    [Fact]
+    public void Read_WhenTypeNotPreviewable_ThenExplainsInFrenchWithoutContent()
     {
         var path = Write("Program.cs", Encoding.UTF8.GetBytes("class A {}"));
 
-        var exception = Assert.Throws<InvalidOperationException>(() => FilePreview.Read(path));
+        var preview = FilePreview.Read(path);
 
-        Assert.Equal("Aperçu indisponible pour ce type de fichier : Program.cs", exception.Message);
+        Assert.Equal("Aperçu indisponible pour ce type de fichier : Program.cs. « Ouvrir dans l’éditeur » l’ouvre dans l’éditeur.", preview.Error);
+        Assert.Empty(preview.Content);
     }
 
     private string Write(string name, byte[] bytes)

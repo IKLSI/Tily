@@ -53,14 +53,33 @@ export const copyToClipboard = (text: string, done: string): void => {
     .catch(() => useHostStore.getState().setStatus('Copie dans le presse-papiers impossible.', StatusLevel.Error))
 }
 
+let initializing: string | null = null
+
 export const followRepository = (path: string): void => {
   if (useGitStore.getState().path !== path) {
+    if (initializing !== path) {
+      initializing = null
+    }
     useGitStore.getState().follow(path)
     bridge.send({ type: 'git.watch', path })
   }
 }
 
 export const refreshRepository = (): void => bridge.send({ type: 'git.refresh' })
+
+export const takeInitialized = (path: string): boolean => {
+  const initialized = initializing === path
+  if (initialized) {
+    initializing = null
+  }
+  return initialized
+}
+
+export const initializeRepository = (path: string): void => {
+  initializing = path
+  bridge.send({ type: 'git.init', path })
+  useHostStore.getState().setStatus(`Initialisation d’un dépôt Git dans ${path}…`)
+}
 
 export const setHistoryScope = (scope: GitHistoryScope): void => {
   useGitStore.getState().requestHistory(scope, HISTORY_PAGE)
@@ -172,7 +191,10 @@ export const discardChanges = (changes: GitFileChange[], total: number): void =>
 }
 
 export const commitChanges = (push: boolean): void => {
-  const { message, amend } = useGitStore.getState()
+  const { message, amend, state, startCommit } = useGitStore.getState()
+  if (state) {
+    startCommit(state.root)
+  }
   withRoot((path) => ({ type: 'git.commit', path, message, amend, push }))
 }
 

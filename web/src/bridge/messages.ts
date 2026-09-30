@@ -1,5 +1,5 @@
 import type { Session } from '../model/session'
-import type { GitHostMessage, GitSettings, GitWebMessage } from './gitMessages'
+import type { GitChangeKind, GitHostMessage, GitSettings, GitWebMessage } from './gitMessages'
 import type { PreviewHostMessage, PreviewKind, PreviewWebMessage } from './previewMessages'
 import type { StatusLogEntry, StatusLogHostMessage, StatusLogWebMessage } from './statusLogMessages'
 import type { UpdateHostMessage, UpdateSettings, UpdateWebMessage } from './updateMessages'
@@ -41,11 +41,21 @@ export interface FileEntry {
   preview?: PreviewKind
 }
 
+export interface GitPathMark {
+  path: string
+  kind: GitChangeKind
+  conflicted: boolean
+}
+
 export interface GitContext {
   isRepository: boolean
   branch: string | null
   detachedHead: boolean
   worktreeRoot?: string
+}
+
+export interface AppearanceSettings {
+  fontSize: number
 }
 
 export interface PersistenceSettings {
@@ -85,6 +95,7 @@ export interface Settings {
   worktrees: WorktreeSettings
   git: GitSettings
   updates: UpdateSettings
+  appearance: AppearanceSettings
 }
 
 interface ShellSetting {
@@ -150,7 +161,8 @@ export interface PaneAgent {
 }
 
 export type HostToWebMessage =
-  | { type: 'app.hello'; version: string; session: Session; shells: ShellProfile[]; home: string; text: Record<string, string>; persistence: PersistenceSettings; statusLog: StatusLogEntry[]; recovery?: string }
+  | { type: 'appearance.changed'; fontSize: number }
+  | { type: 'app.hello'; version: string; session: Session; shells: ShellProfile[]; home: string; text: Record<string, string>; persistence: PersistenceSettings; appearance: AppearanceSettings; statusLog: StatusLogEntry[]; recovery?: string }
   | { type: 'app.closing'; activity: PaneActivity[] }
   | { type: 'session.saved' }
   | { type: 'session.saveFailed'; message: string }
@@ -170,8 +182,10 @@ export type HostToWebMessage =
   | { type: 'context.result'; pane: string; path: string; git: GitContext }
   | { type: 'files.listed'; path: string; entries: FileEntry[]; total: number; error?: string }
   | { type: 'files.created'; path: string }
+  | { type: 'files.gitMarks'; root: string | null; marks: GitPathMark[] }
   | { type: 'files.renamed'; path: string; target: string }
   | { type: 'files.deleted'; path: string }
+  | { type: 'files.searched'; path: string; root: string; files: string[]; changed: string[]; truncated: boolean; error?: string }
   | { type: 'error'; pane?: string; message: string }
   | GitHostMessage
   | PreviewHostMessage
@@ -185,10 +199,12 @@ export type WebToHostMessage =
   | { type: 'text.save'; text: Record<string, string>; keep: string[] }
   | { type: 'settings.get' }
   | { type: 'settings.save'; settings: Settings }
+  | { type: 'appearance.fontSize'; fontSize: number }
   | { type: 'settings.export' }
   | { type: 'settings.import' }
   | { type: 'attention.raise'; pane: string; kind: AttentionKind; title: string; body: string; location: string }
   | { type: 'attention.test'; pane: string; kind: AttentionKind; notifications: NotificationSettings }
+  | { type: 'attention.flash' }
   | { type: 'agents.installHooks' }
   | { type: 'agents.removeHooks' }
   | { type: 'dialog.pick'; field: string; target: PickTarget }
@@ -207,7 +223,9 @@ export type WebToHostMessage =
   | { type: 'files.watch'; paths: string[] }
   | { type: 'files.refresh' }
   | { type: 'files.open'; path: string }
+  | { type: 'files.openAt'; path: string; cwd?: string; line: number; column: number; alternative?: string; alternativeLine?: number; alternativeColumn?: number }
   | { type: 'files.reveal'; path: string }
+  | { type: 'files.search'; path: string }
   | { type: 'files.create'; path: string; name: string; kind: EntryKind }
   | { type: 'files.rename'; path: string; parent: string; name: string }
   | { type: 'files.delete'; path: string; parent: string }

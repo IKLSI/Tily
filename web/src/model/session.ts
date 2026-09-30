@@ -132,6 +132,12 @@ export const notePreview = (note: string | undefined): string => {
   return line.length > NOTE_PREVIEW_CHARS ? `${line.slice(0, NOTE_PREVIEW_CHARS - 1)}…` : line
 }
 
+export const distinctWorkspaceName = (workspaces: Workspace[], workspace: Workspace): string =>
+  workspaces.some((other) => other !== workspace && other.name === workspace.name) ? `${workspace.name} (workspace ${workspaces.indexOf(workspace) + 1})` : workspace.name
+
+export const mergedNote = (note: string | undefined, movedFrom: string, moved: string): string =>
+  (note ? `${note}\n\n${movedFrom} :\n${moved}` : moved).slice(0, NOTE_MAX_CHARS)
+
 export const isLeaf = (node: SplitNode): node is SplitLeaf => 'pane' in node
 
 const newId = (): string => crypto.randomUUID().replace(/-/g, '')
@@ -144,10 +150,11 @@ export const folderName = (path: string): string => {
 
 export const createPane = (path: string, shell: string): Pane => ({ id: newId(), path, shell })
 
-export const createTab = (path: string, shell: string): Tab => {
-  const pane = createPane(path, shell)
-  return { id: newId(), name: folderName(path) || shell, manual: false, active: pane.id, tree: { pane } }
-}
+export const tabNameFor = (tab: Tab, paneId: string, path: string): string => (!tab.manual && tab.active === paneId ? folderName(path) || tab.name : tab.name)
+
+export const tabOfPane = (pane: Pane): Tab => ({ id: newId(), name: folderName(pane.path) || pane.shell, manual: false, active: pane.id, tree: { pane } })
+
+export const createTab = (path: string, shell: string): Tab => tabOfPane(createPane(path, shell))
 
 export const createWorkspace = (name: string, path: string, shell: string): Workspace => {
   const tab = createTab(path, shell)
@@ -183,6 +190,23 @@ export const updatePane = (node: SplitNode, paneId: string, patch: Partial<Pane>
 export const splitLeaf = (node: SplitNode, paneId: string, axis: SplitAxis, pane: Pane): SplitNode =>
   replaceNode(node, paneId, (leaf): SplitNode => ({ axis, ratio: SPLIT_RATIO_DEFAULT, a: leaf, b: { pane } }))
 
+const swappedLeaf = (leaf: SplitLeaf, first: Pane, second: Pane): SplitLeaf => {
+  if (leaf.pane.id === first.id) {
+    return { pane: second }
+  }
+  return leaf.pane.id === second.id ? { pane: first } : leaf
+}
+
+const mapLeaves = (node: SplitNode, map: (leaf: SplitLeaf) => SplitLeaf): SplitNode =>
+  isLeaf(node) ? map(node) : { ...node, a: mapLeaves(node.a, map), b: mapLeaves(node.b, map) }
+
+export const swapPanes = (node: SplitNode, firstId: string, secondId: string): SplitNode => {
+  const panes = panesOf(node)
+  const first = panes.find((pane) => pane.id === firstId)
+  const second = panes.find((pane) => pane.id === secondId)
+  return first && second && first !== second ? mapLeaves(node, (leaf) => swappedLeaf(leaf, first, second)) : node
+}
+
 export const setRatioAt = (node: SplitNode, path: SplitPath, ratio: number): SplitNode => {
   if (isLeaf(node)) {
     return node
@@ -192,6 +216,26 @@ export const setRatioAt = (node: SplitNode, path: SplitPath, ratio: number): Spl
     return { ...node, ratio: clampRatio(ratio) }
   }
   return { ...node, [side]: setRatioAt(node[side], rest, ratio) }
+}
+
+const spanAlong = (node: SplitNode, axis: SplitAxis): number => {
+  if (isLeaf(node)) {
+    return 1
+  }
+  const a = spanAlong(node.a, axis)
+  const b = spanAlong(node.b, axis)
+  return node.axis === axis ? a + b : Math.max(a, b)
+}
+
+export const equalizeNode = (node: SplitNode): SplitNode => {
+  if (isLeaf(node)) {
+    return node
+  }
+  const a = equalizeNode(node.a)
+  const b = equalizeNode(node.b)
+  const spanA = spanAlong(a, node.axis)
+  const ratio = clampRatio(spanA / (spanA + spanAlong(b, node.axis)))
+  return a === node.a && b === node.b && ratio === node.ratio ? node : { ...node, ratio, a, b }
 }
 
 const renewPaneIds = (node: SplitNode, paneIds: Record<string, string>): SplitNode => {
@@ -209,6 +253,9 @@ export const cloneTabWithNewIds = (tab: Tab): { tab: Tab; paneIds: Record<string
   return { tab: { ...tab, id: newId(), tree, active: paneIds[tab.active] ?? panesOf(tree)[0].id }, paneIds }
 }
 
+export const isManuallyNamed = (session: Session | null, tabId: string): boolean =>
+  session?.workspaces.some((workspace) => workspace.tabs.some((tab) => tab.id === tabId && tab.manual)) ?? false
+
 export const findWorkspace = (session: Session, workspaceId: string): Workspace | undefined =>
   session.workspaces.find((workspace) => workspace.id === workspaceId)
 
@@ -217,6 +264,15 @@ export const activeWorkspace = (session: Session): Workspace | undefined =>
 
 export const activeTab = (workspace: Workspace): Tab =>
   workspace.tabs.find((tab) => tab.id === workspace.active) ?? workspace.tabs[0]
+
+const countLabel = (count: number, one: string, several: string): string => `${count} ${count === 1 ? one : several}`
+
+export const restoredSessionLabel = (session: Session): string => {
+  const tabs = session.workspaces.reduce((total, workspace) => total + workspace.tabs.length, 0)
+  return session.workspaces.length === 0 ? '' : ` (${countLabel(session.workspaces.length, 'workspace', 'workspaces')}, ${countLabel(tabs, 'onglet', 'onglets')})`
+}
+
+export const paneCountLabel = (count: number): string => (count === 1 ? '1 pane' : `${count} panes`)
 
 export const activePane = (tab: Tab): Pane => panesOf(tab.tree).find((pane) => pane.id === tab.active) ?? panesOf(tab.tree)[0]
 

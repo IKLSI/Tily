@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Dock.Core.Git;
 using Dock.Core.Session;
+using Dock.Core.StatusLog;
 
 namespace Dock.Host.Bridge;
 
@@ -46,6 +47,10 @@ public sealed class GitFeed : IDisposable
             case "git.refresh":
                 _reads.Enqueue(() => Refresh(true, true));
                 break;
+            case "git.init":
+                var folder = command.Path ?? throw new InvalidOperationException("Chemin manquant.");
+                _reads.Enqueue(() => Initialize(folder));
+                break;
             case "git.history":
                 ChangeHistory(command.Scope, command.Count);
                 break;
@@ -79,7 +84,7 @@ public sealed class GitFeed : IDisposable
         }
         catch (GitCommandException exception)
         {
-            _post(new { type = "git.state", path, error = exception.Message });
+            _post(new { type = "git.state", path, error = UserErrorMessage.Of(exception) });
             return;
         }
 
@@ -110,7 +115,7 @@ public sealed class GitFeed : IDisposable
 
         if (location is null)
         {
-            _post(new { type = "git.state", path, error = GitRunner.IsInstalled ? null : MissingGit });
+            _post(new { type = "git.state", path, error = GitRunner.IsInstalled ? Inaccessible(path) : MissingGit });
             return;
         }
 
@@ -120,6 +125,39 @@ public sealed class GitFeed : IDisposable
             _operations.AutoFetch(location.Root);
         }
     }
+
+    private void Initialize(string path)
+    {
+        try
+        {
+            if (Inaccessible(path) is { } problem)
+            {
+                _post(new { type = "git.state", path, error = problem });
+                return;
+            }
+
+            if (GitRepository.Locate(_runner, path) is null)
+            {
+                GitRepository.Require(_runner.Run(path, ["init"]), $"Initialisation d’un dépôt Git impossible dans {path}.");
+            }
+        }
+        catch (GitCommandException exception)
+        {
+            _post(new { type = "git.state", path, error = UserErrorMessage.Of(exception) });
+            return;
+        }
+
+        if (GitRepository.Locate(_runner, path) is null)
+        {
+            _post(new { type = "git.state", path, error = Inaccessible(path) ?? $"Le dépôt créé dans {path} reste illisible par Git." });
+            return;
+        }
+
+        Follow(path);
+    }
+
+    private string? Inaccessible(string path) =>
+        GitRepository.AccessProblem(_runner, path) is { } problem ? $"Dépôt Git illisible dans {path} : {problem}" : null;
 
     public void RefreshSoon() => ScheduleRefresh();
 
@@ -159,7 +197,7 @@ public sealed class GitFeed : IDisposable
         }
         catch (GitCommandException exception)
         {
-            _post(new { type = "git.state", path, error = exception.Message });
+            _post(new { type = "git.state", path, error = UserErrorMessage.Of(exception) });
             return;
         }
 
@@ -181,7 +219,7 @@ public sealed class GitFeed : IDisposable
 
         if (postState)
         {
-            _post(new { type = "git.state", path, state });
+            _post(new { type = "git.state", path, state, displayRoot = GitPathMarks.DisplayRootFrom(_runner, path, location.Root) });
         }
         else if (announceUnchanged)
         {
@@ -202,7 +240,7 @@ public sealed class GitFeed : IDisposable
         }
         catch (GitCommandException exception)
         {
-            _post(new { type = "git.history", history = GitHistoryReader.Empty(repository.Root, scope), error = exception.Message });
+            _post(new { type = "git.history", history = GitHistoryReader.Empty(repository.Root, scope), error = UserErrorMessage.Of(exception) });
         }
     }
 
@@ -226,7 +264,7 @@ public sealed class GitFeed : IDisposable
             }
             catch (Exception exception) when (exception is GitCommandException or IOException or UnauthorizedAccessException)
             {
-                _post(new { type, request = command.Request, error = exception.Message });
+                _post(new { type, request = command.Request, error = UserErrorMessage.Of(exception) });
             }
         });
 

@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, type KeyboardEvent } from 'react'
+import { useLayoutEffect, useRef, useState, type KeyboardEvent } from 'react'
 import { StatusLevel } from '../store/hostStore'
 import { useStatusLogStore } from '../store/statusLogStore'
 import { clearStatusLog, closeStatusLog, copyStatusLog, entryFullDate, entryTime, levelLabel } from '../statusLog/statusLogActions'
@@ -23,6 +23,9 @@ export function StatusLogDrawer() {
   const entries = useStatusLogStore((state) => state.entries)
   const listRef = useRef<HTMLDivElement>(null)
   const pinnedToBottom = useRef(true)
+  const [problemsOnly, setProblemsOnly] = useState(false)
+  const numbered = entries.map((entry, position) => ({ entry, position }))
+  const shown = problemsOnly ? numbered.filter(({ entry }) => entry.level !== StatusLevel.Info) : numbered
   const empty = entries.length === 0
   const now = new Date()
 
@@ -31,7 +34,7 @@ export function StatusLogDrawer() {
     if (list && pinnedToBottom.current) {
       list.scrollTop = list.scrollHeight
     }
-  }, [entries])
+  }, [entries, problemsOnly])
 
   const handleScroll = () => {
     const list = listRef.current
@@ -51,6 +54,7 @@ export function StatusLogDrawer() {
       copyStatusLog()
     }
   }
+  const handleToggleProblems = () => setProblemsOnly((current) => !current)
   const handleClear = () => {
     if (!empty) {
       clearStatusLog()
@@ -67,8 +71,11 @@ export function StatusLogDrawer() {
     >
       <div className="flex h-[32px] shrink-0 items-center gap-[6px] pr-[6px] pl-[12px]">
         <span className={SECTION_TITLE}>Journal</span>
-        <span className="text-[11px] text-dock-muted">{countLabel(entries.length)}</span>
+        <span className="text-[11px] text-dock-muted">{problemsOnly ? `${shown.length} sur ${countLabel(entries.length)}` : countLabel(entries.length)}</span>
         <span className="flex-1" />
+        <button type="button" className={`${TEXT_BUTTON} aria-pressed:bg-dock-green-soft aria-pressed:text-dock-green-deep`} aria-pressed={problemsOnly} data-tip={problemsOnly ? 'Afficher tous les messages' : 'N’afficher que les avertissements et les erreurs'} onClick={handleToggleProblems}>
+          Avertissements et erreurs
+        </button>
         <button type="button" className={TEXT_BUTTON} aria-disabled={empty} data-tip="Copier tout le journal dans le presse-papiers" onClick={handleCopy}>
           Copier
         </button>
@@ -82,10 +89,12 @@ export function StatusLogDrawer() {
       <div ref={listRef} role="log" data-status-log-list="" tabIndex={0} aria-label="Messages" className="min-h-0 flex-1 overflow-y-auto px-[12px] pb-[8px] font-mono text-[11px] leading-[1.6]" onScroll={handleScroll}>
         {empty ? (
           <p className="font-sans text-[12px] text-dock-muted">Aucun message : ceux de la barre de statut s’afficheront ici.</p>
+        ) : shown.length === 0 ? (
+          <p className="font-sans text-[12px] text-dock-muted">Aucun avertissement ni erreur dans le journal.</p>
         ) : (
           <ol>
-            {entries.map((entry, index) => (
-              <li key={`${entry.at}-${index}`} className="flex gap-[10px]">
+            {shown.map(({ entry, position }) => (
+              <li key={`${entry.at}-${position}`} className="flex gap-[10px]">
                 <time dateTime={entry.at} data-tip={entryFullDate(entry)} className="shrink-0 text-dock-muted tabular-nums">
                   {entryTime(entry, now)}
                 </time>

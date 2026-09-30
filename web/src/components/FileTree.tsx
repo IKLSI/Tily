@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent, type MouseEvent } from 'react'
 import { EntryKind, type FileEntry } from '../bridge/messages'
-import { entryRows, RowKind, type TreeRow } from '../explorer/fileTree'
+import { entryRows, relativeEntryPath, RowKind, type TreeRow } from '../explorer/fileTree'
 import {
   copyEntryPath,
   createEntry,
@@ -20,6 +20,8 @@ import { togglePanelView } from '../panel/rightPanel'
 import { closePreview, openPreview } from '../preview/previewActions'
 import { usePreviewStore } from '../store/previewStore'
 import { useExplorerStore, type EntryDraft } from '../store/explorerStore'
+import { markKey } from '../explorer/gitMarks'
+import { showFileChanges } from '../panel/rightPanel'
 import { FileContextMenu, type FileMenuActions } from './FileContextMenu'
 import { FileTreeRow } from './FileTreeRow'
 import { leafIndent, type FileMenuRequest, type FileTreeHandlers } from './fileTreeHandlers'
@@ -83,6 +85,8 @@ const selectAndFocus = (row: TreeRow | undefined): void => {
 
 export function FileTree({ root, rows, expanded, selectedPath, renamingPath, draft, onOpenTerminal }: FileTreeProps) {
   const [menu, setMenu] = useState<FileMenuRequest | null>(null)
+  const gitMarks = useExplorerStore((state) => state.gitMarks)
+  const gitFolderMarks = useExplorerStore((state) => state.gitFolderMarks)
   const treeRef = useRef<HTMLDivElement>(null)
   const entries = entryRows(rows)
   const selectedIndex = entries.findIndex((row) => row.entry?.path === selectedPath)
@@ -114,8 +118,10 @@ export function FileTree({ root, rows, expanded, selectedPath, renamingPath, dra
     rename: startRename,
     remove: requestDelete,
     copyPath: copyEntryPath,
+    copyRelativePath: (path) => copyEntryPath(relativeEntryPath(root, path)),
     insertPath: insertPathInActivePane,
     reveal: revealInExplorer,
+    showChanges: showFileChanges,
     openFolder: openFolderInEditor,
     refresh: refreshFolders,
   }
@@ -165,6 +171,10 @@ export function FileTree({ root, rows, expanded, selectedPath, renamingPath, dra
       closePreview()
     } else if (event.key === 'Escape') {
       focusActivePane()
+    } else if (event.key === 'F5') {
+      if (!event.repeat) {
+        refreshFolders()
+      }
     } else if (typed) {
       jumpToTyped(typed)
     } else if (!current || !entry) {
@@ -181,6 +191,8 @@ export function FileTree({ root, rows, expanded, selectedPath, renamingPath, dra
       } else {
         selectAndFocus(entries.find((row) => row.entry?.path === current.parent))
       }
+    } else if (event.ctrlKey && !event.altKey && event.key.toLowerCase() === 'c') {
+      copyEntryPath(event.shiftKey ? relativeEntryPath(root, entry.path) : entry.path)
     } else if (event.key === 'Enter') {
       activateEntry(entry)
     } else if (event.key === 'F2') {
@@ -220,6 +232,7 @@ export function FileTree({ root, rows, expanded, selectedPath, renamingPath, dra
                 focusable={row.entry.path === focusablePath}
                 expanded={Boolean(expanded[row.entry.path])}
                 renaming={row.entry.path === renamingPath}
+                mark={(row.entry.isDirectory ? gitFolderMarks.get(markKey(row.entry.path)) : undefined) ?? gitMarks.get(markKey(row.entry.path))}
                 handlers={handlers}
               />
             )
@@ -239,7 +252,7 @@ export function FileTree({ root, rows, expanded, selectedPath, renamingPath, dra
           )
         })}
       </div>
-      {menu && <FileContextMenu request={menu} actions={menuActions} onDismiss={handleDismissMenu} />}
+      {menu && <FileContextMenu request={menu} changed={Boolean(menu.entry && gitMarks.get(markKey(menu.entry.path)) && !gitMarks.get(markKey(menu.entry.path))?.conflicted)} actions={menuActions} onDismiss={handleDismissMenu} />}
     </>
   )
 }

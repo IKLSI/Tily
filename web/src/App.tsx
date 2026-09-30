@@ -1,8 +1,9 @@
 import { useEffect } from 'react'
+import { clearSeenCommandNotices } from './terminal/commandNotices'
 import { startAttentionNotifier } from './agents/attentionNotifier'
 import { bridge } from './bridge/bridge'
 import { AppShell } from './components/AppShell'
-import { allPanes } from './model/session'
+import { allPanes, restoredSessionLabel } from './model/session'
 import { useAgentStore } from './store/agentStore'
 import { StatusLevel, useHostStore } from './store/hostStore'
 import { usePaneStore } from './store/paneStore'
@@ -11,7 +12,8 @@ import { useUiStore } from './store/uiStore'
 import { receiveActivity, receiveApplicationClosing } from './terminal/closeGuard'
 import { queryContext, receiveContext } from './terminal/contextActions'
 import { startExternalDrops } from './terminal/externalDrop'
-import { receiveCreated, receiveDeleted, receiveListing, receiveRenamed } from './explorer/fileExplorerActions'
+import { receiveCreated, receiveDeleted, receiveGitMarks, receiveListing, receiveRenamed } from './explorer/fileExplorerActions'
+import { receiveProjectFiles } from './explorer/projectFileActions'
 import { receivePreview } from './preview/previewActions'
 import { receiveGitAutoFetchEnded, receiveGitAutoFetchStarted, receiveGitChanged, receiveGitDetails, receiveGitDiff, receiveGitDone, receiveGitFailed, receiveGitHistory, receiveGitPushRejected, receiveGitState } from './git/gitReceivers'
 import { insertIntoPane, joinPane } from './terminal/terminalActions'
@@ -42,6 +44,7 @@ export default function App() {
         setHello(message.version, message.shells, message.home, message.persistence)
         useStatusLogStore.getState().load(message.statusLog)
         terminalRegistry.configure(message.persistence.linesPerPane)
+        terminalRegistry.setFontSize(message.appearance.fontSize)
         primeSessionText(message.session, message.text)
         void document.fonts.load('14px "Symbols Nerd Font Mono"').then(() => {
           load(message.session)
@@ -50,9 +53,13 @@ export default function App() {
           if (message.recovery) {
             setStatus(message.recovery, StatusLevel.Warning)
           } else {
-            setStatus('Session restaurée : nouveaux shells, aucune commande rejouée.')
+            setStatus(`Session restaurée${restoredSessionLabel(message.session)} : nouveaux shells, aucune commande rejouée.`)
           }
         })
+      }),
+      bridge.on('appearance.changed', (message) => {
+        terminalRegistry.setFontSize(message.fontSize)
+        setStatus(`Taille du texte des terminaux : ${message.fontSize} px`)
       }),
       bridge.on('settings.result', (message) => {
         applySettings({ settings: message.settings, shellSettings: message.shellSettings, files: message.files, warnings: message.warnings, agents: message.agents, notifications: message.notifications }, message.shells, message.persistence)
@@ -60,6 +67,7 @@ export default function App() {
           return
         }
         terminalRegistry.configure(message.persistence.linesPerPane)
+        terminalRegistry.setFontSize(message.settings.appearance.fontSize)
         stopAutosave?.()
         stopAutosave = startTextAutosave(message.persistence.textIntervalSeconds)
         useUiStore.getState().closeSettings()
@@ -94,15 +102,17 @@ export default function App() {
       bridge.on('context.result', (message) => receiveContext(message.pane, message.path, message.git)),
       bridge.on('files.listed', (message) => receiveListing(message.path, message.entries, message.total, message.error)),
       bridge.on('files.created', (message) => receiveCreated(message.path)),
+      bridge.on('files.searched', receiveProjectFiles),
+      bridge.on('files.gitMarks', (message) => receiveGitMarks(message.root, message.marks)),
       bridge.on('files.renamed', (message) => receiveRenamed(message.path, message.target)),
       bridge.on('files.deleted', (message) => receiveDeleted(message.path)),
       bridge.on('preview.loaded', receivePreview),
-      bridge.on('git.state', (message) => receiveGitState(message.path, message.state, message.error)),
+      bridge.on('git.state', (message) => receiveGitState(message.path, message.state, message.error, message.displayRoot)),
       bridge.on('git.changed', (message) => receiveGitChanged(message.path)),
       bridge.on('git.history', (message) => receiveGitHistory(message.history, message.error)),
       bridge.on('git.diff', (message) => receiveGitDiff(message.request, message.result, message.error)),
       bridge.on('git.details', (message) => receiveGitDetails(message.request, message.result, message.error)),
-      bridge.on('git.done', (message) => receiveGitDone(message.operation, message.message, message.warning)),
+      bridge.on('git.done', (message) => receiveGitDone(message.operation, message.message, message.warning, message.output)),
       bridge.on('git.failed', (message) => receiveGitFailed(message.operation, message.message, message.output, message.code)),
       bridge.on('git.pushRejected', (message) => receiveGitPushRejected(message.operation, message.branch, message.message, message.output)),
       bridge.on('git.autoFetchStarted', (message) => receiveGitAutoFetchStarted(message.path)),
@@ -148,6 +158,7 @@ export default function App() {
         return
       }
       const removed = terminalRegistry.disposeMissing(new Set(allPanes(state.session).map((pane) => pane.id)))
+      clearSeenCommandNotices()
       clearTimeout(timer)
       timer = setTimeout(() => {
         bridge.send({ type: 'session.save', session: state.session! })

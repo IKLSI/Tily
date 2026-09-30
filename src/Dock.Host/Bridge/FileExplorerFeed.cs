@@ -1,5 +1,7 @@
 using Dock.Core.Context;
 using Dock.Core.Files;
+using Dock.Core.Git;
+using Dock.Core.StatusLog;
 
 namespace Dock.Host.Bridge;
 
@@ -11,10 +13,13 @@ public sealed class FileExplorerFeed : IDisposable
     private readonly Func<string> _editorCommand;
     private readonly Action<object> _post;
     private readonly BackgroundQueue _queue;
+    private readonly BackgroundQueue _searchQueue;
+    private CancellationTokenSource _search = new();
     private readonly Dictionary<string, FileSystemWatcher?> _watchers = new(StringComparer.Ordinal);
     private readonly HashSet<string> _changed = new(StringComparer.Ordinal);
     private readonly object _sync = new();
     private readonly Timer _changeTimer;
+    private readonly ExplorerGitMarks _gitMarks;
 
     public FileExplorerFeed(nint windowHandle, Func<string> editorCommand, Action<object> post, Action<Exception> onError)
     {
@@ -22,7 +27,9 @@ public sealed class FileExplorerFeed : IDisposable
         _editorCommand = editorCommand;
         _post = post;
         _queue = new BackgroundQueue(onError);
+        _searchQueue = new BackgroundQueue(onError);
         _changeTimer = new Timer(_ => ListChanged());
+        _gitMarks = new ExplorerGitMarks(post, onError);
     }
 
     public void Handle(BridgeCommandModel command)
@@ -34,9 +41,19 @@ public sealed class FileExplorerFeed : IDisposable
                 break;
             case "files.refresh":
                 List(WatchedPaths());
+                _gitMarks.Refresh();
                 break;
             case "files.open":
                 LocalActions.OpenFileInEditor(RequirePath(command), _editorCommand());
+                break;
+            case "files.openAt":
+                var location = RequirePath(command);
+                _queue.Enqueue(() => OpenAt(command.Cwd, location, command.Line, command.Column, command));
+                break;
+            case "files.search":
+                var folder = RequirePath(command);
+                var cancellation = RestartSearch();
+                _searchQueue.Enqueue(() => PostProjectFiles(folder, cancellation));
                 break;
             case "files.reveal":
                 LocalActions.RevealInExplorer(RequirePath(command));
@@ -57,6 +74,7 @@ public sealed class FileExplorerFeed : IDisposable
 
     private void Watch(string[] paths)
     {
+        _gitMarks.Follow(paths.FirstOrDefault() ?? string.Empty);
         List<string> added;
         lock (_sync)
         {
@@ -140,6 +158,51 @@ public sealed class FileExplorerFeed : IDisposable
         _post(new { type = "files.listed", path = listing.Path, entries = listing.Entries, total = listing.Total, error = listing.Error });
     }
 
+    private CancellationToken RestartSearch()
+    {
+        var next = new CancellationTokenSource();
+        var previous = Interlocked.Exchange(ref _search, next);
+        previous.Cancel();
+        previous.Dispose();
+        return next.Token;
+    }
+
+    private void PostProjectFiles(string folder, CancellationToken cancellation)
+    {
+        if (cancellation.IsCancellationRequested)
+        {
+            return;
+        }
+
+        try
+        {
+            var listing = ProjectFiles.List(new GitRunner(), folder, cancellation: cancellation);
+            _post(new { type = "files.searched", path = folder, root = listing.Root, files = listing.Files, changed = listing.Changed, truncated = listing.Truncated });
+        }
+        catch (Exception exception)
+        {
+            if (exception is OperationCanceledException)
+            {
+                return;
+            }
+
+            _post(new { type = "files.searched", path = folder, root = folder, files = Array.Empty<string>(), changed = Array.Empty<string>(), truncated = false, error = UserErrorMessage.Of(exception) });
+        }
+    }
+
+    private void OpenAt(string? folder, string location, int line, int column, BridgeCommandModel command)
+    {
+        if (command.Alternative is { } alternative && EditorLocation.ExistingExactly(folder, alternative, File.Exists) is { } whole)
+        {
+            LocalActions.OpenFileInEditor(whole, _editorCommand(), command.AlternativeLine, command.AlternativeColumn);
+            return;
+        }
+
+        var path = EditorLocation.ResolveExisting(folder, location, File.Exists)
+            ?? throw new InvalidOperationException($"Fichier introuvable : {EditorLocation.Resolve(folder, location)}");
+        LocalActions.OpenFileInEditor(path, _editorCommand(), line, column);
+    }
+
     private void Create(string parent, string? name, string? kind) =>
         _queue.Enqueue(() =>
         {
@@ -173,6 +236,9 @@ public sealed class FileExplorerFeed : IDisposable
     public void Dispose()
     {
         _changeTimer.Dispose();
+        _gitMarks.Dispose();
+        _search.Cancel();
+        _search.Dispose();
         lock (_sync)
         {
             foreach (var watcher in _watchers.Values)

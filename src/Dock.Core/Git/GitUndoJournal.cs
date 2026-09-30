@@ -10,6 +10,7 @@ public enum GitUndoKind
     Pull,
     Rebase,
     CherryPick,
+    Revert,
     ResetSoft,
     ResetMixed,
     ResetHard,

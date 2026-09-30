@@ -4,11 +4,11 @@ public static class GitUndo
 {
     private static readonly HashSet<GitUndoKind> HeadKinds =
     [
-        GitUndoKind.Commit, GitUndoKind.Amend, GitUndoKind.Merge, GitUndoKind.Pull, GitUndoKind.Rebase, GitUndoKind.CherryPick,
+        GitUndoKind.Commit, GitUndoKind.Amend, GitUndoKind.Merge, GitUndoKind.Pull, GitUndoKind.Rebase, GitUndoKind.CherryPick, GitUndoKind.Revert,
         GitUndoKind.ResetSoft, GitUndoKind.ResetMixed, GitUndoKind.ResetHard, GitUndoKind.Switch
     ];
 
-    private static readonly HashSet<GitUndoKind> RewritingKinds = [GitUndoKind.Commit, GitUndoKind.Amend, GitUndoKind.Merge, GitUndoKind.Rebase, GitUndoKind.CherryPick];
+    private static readonly HashSet<GitUndoKind> RewritingKinds = [GitUndoKind.Commit, GitUndoKind.Amend, GitUndoKind.Merge, GitUndoKind.Rebase, GitUndoKind.CherryPick, GitUndoKind.Revert];
 
     public static GitUndoInfoModel? Describe(GitRepository repository, GitUndoRecordModel? record, GitHeadModel head, GitOperationKind? operation)
     {
@@ -45,7 +45,7 @@ public static class GitUndo
             case GitUndoKind.Commit or GitUndoKind.Amend:
                 GitRepository.Require(record.HeadBefore is null ? repository.Run("update-ref", "-d", "HEAD") : repository.Run("reset", "--soft", record.HeadBefore), failure);
                 break;
-            case GitUndoKind.Merge or GitUndoKind.Pull or GitUndoKind.Rebase or GitUndoKind.CherryPick:
+            case GitUndoKind.Merge or GitUndoKind.Pull or GitUndoKind.Rebase or GitUndoKind.CherryPick or GitUndoKind.Revert:
                 GitRepository.Require(repository.Run("reset", "--keep", record.HeadBefore!), $"{failure} Des modifications locales gênent : faites un stash ou un commit.");
                 break;
             case GitUndoKind.ResetSoft:

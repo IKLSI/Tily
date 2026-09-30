@@ -6,7 +6,8 @@ namespace Dock.Core.Files;
 public enum PreviewKind
 {
     [JsonStringEnumMemberName("markdown")] Markdown,
-    [JsonStringEnumMemberName("text")] Text
+    [JsonStringEnumMemberName("text")] Text,
+    [JsonStringEnumMemberName("image")] Image
 }
 
 public static class PreviewTypes
@@ -60,7 +61,12 @@ public static class PreviewTypes
             return PreviewKind.Markdown;
         }
 
-        return TextExtensions.ContainsKey(extension) || TextFileNames.Contains(Path.GetFileName(path)) ? PreviewKind.Text : null;
+        if (TextExtensions.ContainsKey(extension) || TextFileNames.Contains(Path.GetFileName(path)))
+        {
+            return PreviewKind.Text;
+        }
+
+        return ImageContentTypes.ContainsKey(extension) ? PreviewKind.Image : null;
     }
 
     public static string? LanguageOf(string path) =>

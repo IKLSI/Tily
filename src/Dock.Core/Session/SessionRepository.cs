@@ -16,12 +16,16 @@ public sealed class SessionRepository
         DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
     };
 
+    public const string PreviousFileName = "session.previous.json";
+
     private readonly string _filePath;
+    private readonly string _previousPath;
 
     public SessionRepository(string directory)
     {
         Directory.CreateDirectory(directory);
         _filePath = Path.Combine(directory, "session.json");
+        _previousPath = Path.Combine(directory, PreviousFileName);
     }
 
     public string FilePath => _filePath;
@@ -51,7 +55,38 @@ public sealed class SessionRepository
         }
 
         var kept = CorruptedFiles.Quarantine(_filePath);
-        return new SessionLoadResultModel(null, $"La session enregistrée était inutilisable ({reason}) ; copie conservée dans {kept}. Une session de secours a été ouverte.");
+        var previous = LoadPrevious();
+        return previous is null
+            ? new SessionLoadResultModel(null, $"La session enregistrée était inutilisable ({reason}) ; copie conservée dans {kept}. Une session de secours a été ouverte.")
+            : new SessionLoadResultModel(previous, $"La session enregistrée était inutilisable ({reason}) ; copie conservée dans {kept}. L’avant-dernier enregistrement de la session a été restauré.");
+    }
+
+    private void KeepPrevious()
+    {
+        try
+        {
+            if (File.Exists(_filePath))
+            {
+                File.Copy(_filePath, _previousPath, true);
+            }
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            return;
+        }
+    }
+
+    private SessionModel? LoadPrevious()
+    {
+        try
+        {
+            var session = File.Exists(_previousPath) ? JsonSerializer.Deserialize<SessionModel>(File.ReadAllText(_previousPath), JsonOptions) : null;
+            return session is not null && SessionValidator.Validate(session).IsValid ? session : null;
+        }
+        catch (Exception exception) when (exception is JsonException or IOException or UnauthorizedAccessException)
+        {
+            return null;
+        }
     }
 
     public ValidationResultModel Save(SessionModel session)
@@ -62,6 +97,7 @@ public sealed class SessionRepository
             return result;
         }
 
+        KeepPrevious();
         AtomicFile.Write(_filePath, JsonSerializer.Serialize(session, JsonOptions));
         return result;
     }

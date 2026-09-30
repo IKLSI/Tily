@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Diagnostics;
 using Dock.Core.Native;
 
@@ -7,10 +8,12 @@ public static class LocalActions
 {
     public const string ExplorerExecutable = "explorer.exe";
 
+    private static readonly HashSet<string> LocalDocumentExtensions = new(StringComparer.OrdinalIgnoreCase) { ".html", ".htm", ".pdf", ".png", ".jpg", ".jpeg", ".gif", ".svg", ".webp", ".txt", ".md" };
+
     public static void OpenInExplorer(string path)
     {
         RequireDirectory(path);
-        Process.Start(new ProcessStartInfo(ExplorerExecutable) { ArgumentList = { path }, UseShellExecute = false });
+        Launch(new ProcessStartInfo(ExplorerExecutable) { ArgumentList = { path }, UseShellExecute = false }, "L’Explorateur Windows n’a pas pu être lancé");
     }
 
     public static void RevealInExplorer(string path)
@@ -46,35 +49,75 @@ public static class LocalActions
         LaunchEditor(path, editorCommand);
     }
 
-    public static void OpenFileInEditor(string path, string editorCommand)
+    public static void OpenFileInEditor(string path, string editorCommand, int line = 0, int column = 0)
     {
         if (!File.Exists(path))
         {
             throw new InvalidOperationException($"Le fichier n’existe plus : {path}");
         }
 
-        LaunchEditor(path, editorCommand);
+        LaunchEditor(EditorLocation.Arguments(editorCommand, path, line, column), editorCommand);
     }
 
-    private static void LaunchEditor(string path, string editorCommand)
+    private static void LaunchEditor(string path, string editorCommand) => LaunchEditor([path], editorCommand);
+
+    private static void LaunchEditor(IReadOnlyList<string> arguments, string editorCommand)
     {
         if (string.IsNullOrWhiteSpace(editorCommand))
         {
             throw new InvalidOperationException("Aucun éditeur configuré.");
         }
 
-        try
-        {
-            Process.Start(new ProcessStartInfo(editorCommand) { ArgumentList = { path }, UseShellExecute = true, WindowStyle = ProcessWindowStyle.Hidden });
-        }
-        catch (Exception exception) when (exception is System.ComponentModel.Win32Exception or FileNotFoundException)
-        {
-            throw new InvalidOperationException($"L’éditeur « {editorCommand} » n’a pas pu être lancé : {exception.Message}");
-        }
+        Launch(new ProcessStartInfo(editorCommand, EditorLocation.CommandLine(arguments)) { UseShellExecute = true, WindowStyle = ProcessWindowStyle.Hidden }, $"L’éditeur « {editorCommand} » n’a pas pu être lancé");
     }
 
-    public static void OpenLink(string url) =>
-        Process.Start(new ProcessStartInfo(RequireWebLink(url).AbsoluteUri) { UseShellExecute = true });
+    public static void OpenLink(string url)
+    {
+        if (Uri.TryCreate(url, UriKind.Absolute, out var uri) && uri.IsFile)
+        {
+            Launch(new ProcessStartInfo(RequireLocalDocument(uri)) { UseShellExecute = true }, "Fichier non ouvert");
+            return;
+        }
+
+        Launch(new ProcessStartInfo(RequireWebLink(url).AbsoluteUri) { UseShellExecute = true }, "Lien non ouvert");
+    }
+
+    public static string RequireLocalDocument(Uri uri)
+    {
+        var path = uri.LocalPath;
+        if (uri.IsUnc)
+        {
+            throw new InvalidOperationException($"Lien non ouvert : un fichier réseau ne s’ouvre pas depuis un lien file: ({path}).");
+        }
+
+        if (!File.Exists(path))
+        {
+            throw new InvalidOperationException($"Fichier introuvable : {path}");
+        }
+
+        if (!LocalDocumentExtensions.Contains(Path.GetExtension(path)))
+        {
+            throw new InvalidOperationException($"Lien non ouvert : seuls les pages HTML, PDF, images et fichiers texte locaux s’ouvrent depuis un lien file: ({Path.GetFileName(path)}).");
+        }
+
+        return path;
+    }
+
+    private static void Launch(ProcessStartInfo start, string failure)
+    {
+        try
+        {
+            Process.Start(start);
+        }
+        catch (Win32Exception exception)
+        {
+            throw new InvalidOperationException($"{failure} : {new Win32Exception(exception.NativeErrorCode).Message}");
+        }
+        catch (FileNotFoundException exception)
+        {
+            throw new InvalidOperationException($"{failure} : {exception.Message}");
+        }
+    }
 
     public static Uri RequireWebLink(string url)
     {

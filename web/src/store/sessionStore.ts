@@ -1,5 +1,6 @@
 import { current, produce } from 'immer'
 import { create } from 'zustand'
+import { movePaneInto, movePaneOut } from './paneMoves'
 import {
   activePane,
   activeTab,
@@ -9,6 +10,7 @@ import {
   cloneTabWithNewIds,
   createPane,
   createTab,
+  tabNameFor,
   createWorkspace,
   DEFAULT_GIT_GRAPH,
   EXPLORER_DEFAULT,
@@ -16,10 +18,13 @@ import {
   EXPLORER_MIN,
   findWorkspace,
   folderName,
+  mergedNote,
   NOTE_MAX_CHARS,
   panesOf,
   pruneNode,
   setRatioAt,
+  equalizeNode,
+  swapPanes,
   splitLeaf,
   updatePane,
   RightPanelView,
@@ -57,6 +62,7 @@ interface SessionState {
   newTab: (shell: string) => void
   newTabAt: (path: string, shell: string) => void
   renameTab: (tabId: string, name: string) => void
+  resetTabName: (tabId: string) => void
   moveTab: (tabId: string, targetWorkspaceId: string, beforeTabId?: string) => void
   moveActiveTab: (offset: number) => void
   shiftTab: (tabId: string, offset: number) => void
@@ -66,6 +72,10 @@ interface SessionState {
   restoreTab: (position?: number) => { tab: Tab; paneIds: Record<string, string> } | null
   splitPane: (axis: SplitAxis) => void
   setSplitRatio: (tabId: string, path: SplitPath, ratio: number) => void
+  equalizeSplits: (tabId: string) => void
+  swapActivePane: (targetPaneId: string) => void
+  movePaneToNewTab: (paneId: string) => void
+  movePaneToTab: (paneId: string, targetTabId: string) => void
   closePane: (paneId: string) => void
   setPanePath: (paneId: string, path: string) => void
   setPaneShell: (paneId: string, shell: string) => void
@@ -86,7 +96,6 @@ const mutateWorkspace = (session: Session | null, mutate: (workspace: Workspace,
 const mutateTab = (session: Session | null, mutate: (tab: Tab, workspace: Workspace, draft: Session) => void): Session | null =>
   mutateWorkspace(session, (workspace, draft) => mutate(activeTab(workspace), workspace, draft))
 
-const tabNameFor = (tab: Tab, paneId: string, path: string): string => (!tab.manual && tab.active === paneId ? folderName(path) || tab.name : tab.name)
 
 const rightPanelOpen = (session: Session | null): boolean => {
   const workspace = session ? activeWorkspace(session) : undefined
@@ -271,6 +280,17 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
       }),
     })),
 
+  resetTabName: (tabId) =>
+    set((state) => ({
+      session: mutateSession(state.session, (draft) => {
+        const tab = draft.workspaces.flatMap((workspace) => workspace.tabs).find((candidate) => candidate.id === tabId)
+        if (tab) {
+          tab.manual = false
+          tab.name = folderName(activePane(tab).path) || tab.name
+        }
+      }),
+    })),
+
   moveTab: (tabId, targetWorkspaceId, beforeTabId) =>
     set((state) => ({
       session: mutateSession(state.session, (draft) => {
@@ -281,6 +301,9 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
         }
         const [tab] = source.tabs.splice(source.tabs.findIndex((candidate) => candidate.id === tabId), 1)
         if (source.tabs.length === 0 && source !== target) {
+          if (source.note) {
+            target.note = mergedNote(target.note, source.name, source.note)
+          }
           draft.workspaces = draft.workspaces.filter((candidate) => candidate !== source)
         } else if (source.active === tabId && source !== target) {
           source.active = source.tabs[0].id
@@ -416,6 +439,27 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
         }
       }),
     })),
+
+  equalizeSplits: (tabId) =>
+    set((state) => ({
+      session: mutateSession(state.session, (draft) => {
+        const tab = draft.workspaces.flatMap((workspace) => workspace.tabs).find((candidate) => candidate.id === tabId)
+        if (tab) {
+          tab.tree = equalizeNode(tab.tree)
+        }
+      }),
+    })),
+
+  swapActivePane: (targetPaneId) =>
+    set((state) => ({
+      session: mutateTab(state.session, (tab) => {
+        tab.tree = swapPanes(tab.tree, tab.active, targetPaneId)
+      }),
+    })),
+
+  movePaneToNewTab: (paneId) => set((state) => ({ session: mutateSession(state.session, (draft) => movePaneOut(draft, paneId)) })),
+
+  movePaneToTab: (paneId, targetTabId) => set((state) => ({ session: mutateSession(state.session, (draft) => movePaneInto(draft, paneId, targetTabId)) })),
 
   closePane: (paneId) =>
     set((state) => {

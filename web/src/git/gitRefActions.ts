@@ -14,6 +14,8 @@ export const rebaseCurrentOnto = (reference: string): void => withRoot((path) =>
 
 export const cherryPickCommit = (commit: GitCommit): void => withRoot((path) => ({ type: 'git.cherryPick', path, commit: commit.sha }))
 
+export const revertCommit = (commit: GitCommit): void => withRoot((path) => ({ type: 'git.revert', path, commit: commit.sha }))
+
 export const checkoutCommit = (commit: GitCommit): void => withRoot((path) => ({ type: 'git.switch', path, reference: commit.sha, target: GitSwitchTarget.Commit }))
 
 export const resetCurrentTo = (commit: GitCommit, mode: GitResetMode): void => {

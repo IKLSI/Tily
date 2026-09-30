@@ -28,6 +28,7 @@ export interface WorktreePlan {
   localBranches: string[]
   remoteBranches: string[]
   error?: string
+  configuredBase?: string
 }
 
 export interface WorktreeSettings {

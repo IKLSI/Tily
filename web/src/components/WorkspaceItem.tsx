@@ -10,6 +10,9 @@ import { isDropTarget } from './tabDrag'
 import { beginWorkspaceDrag } from './workspaceDrag'
 import { TruncatedName } from './TruncatedName'
 import { WorkspaceStatus } from './WorkspaceStatus'
+import { CommandNoticeIcon } from './CommandNoticeIcon'
+import { useCommandStore } from '../store/commandStore'
+import { workspaceCommandNotice } from '../terminal/commandNotices'
 import { WorkspaceTabRow } from './WorkspaceTabRow'
 import { COLLAPSE_KEY, EXPAND_KEY, isMenuKey, menuRequestFor, MOVE_KEYS, PANEL_CLOSE_BUTTON, PANEL_DROP_LINE, PANEL_NOTE_BUTTON, type PanelMenuRequest, type WorkspacePanelActions } from './workspacePanel'
 
@@ -29,6 +32,8 @@ interface WorkspaceItemProps {
   onOpenMenu: (request: PanelMenuRequest) => void
 }
 
+const tabCountTip = (count: number): string => (count === 1 ? '1 onglet dans ce workspace replié' : `${count} onglets dans ce workspace replié`)
+
 const toggleTip = (expanded: boolean, count: number): string => `${expanded ? 'Replier' : 'Afficher'} ${count === 1 ? 'l’onglet' : `les ${count} onglets`}`
 
 const rowStateOf = (dropInto: boolean, here: boolean): string => {
@@ -41,6 +46,7 @@ const rowStateOf = (dropInto: boolean, here: boolean): string => {
 export const WorkspaceItem = memo(function WorkspaceItem({ workspace, workspaceNames, selected, renaming, renamingTabId, springOpen, agents, draggingTabId, dropTarget, draggingSelf, dropBefore, actions, onOpenMenu }: WorkspaceItemProps) {
   const { id, name, tabs } = workspace
   const expanded = springOpen || (workspace.expanded ?? selected)
+  const commandNotice = useCommandStore((state) => workspaceCommandNotice(workspace, state.notices))
   const here = selected && !expanded
   const tabsId = `workspace-tabs-${id}`
   const currentPaneId = selected ? activeTab(workspace).active : undefined
@@ -108,7 +114,7 @@ export const WorkspaceItem = memo(function WorkspaceItem({ workspace, workspaceN
           type="button"
           aria-expanded={expanded}
           aria-controls={tabsId}
-          aria-label={`${expanded ? 'Replier' : 'Afficher'} les onglets de ${name}`}
+          aria-label={`${expanded ? 'Replier' : 'Afficher'} ${tabs.length === 1 ? 'l’onglet' : `les ${tabs.length} onglets`} de ${name}`}
           data-tip={toggleTip(expanded, tabs.length)}
           className="flex size-[20px] shrink-0 cursor-pointer items-center justify-center rounded text-dock-muted hover:text-dock-ink"
           onClick={handleToggle}
@@ -139,6 +145,12 @@ export const WorkspaceItem = memo(function WorkspaceItem({ workspace, workspaceN
             <Icon name={IconName.Note} size={11} />
           </button>
         )}
+        {!expanded && (
+          <span className="shrink-0 translate-y-px px-[2px] font-mono text-[11px] leading-none text-dock-muted tabular-nums" aria-hidden="true" data-tip={tabCountTip(tabs.length)}>
+            {tabs.length}
+          </span>
+        )}
+        {!expanded && commandNotice && <CommandNoticeIcon notice={commandNotice} />}
         <WorkspaceStatus counts={workspaceStateCounts(workspace, agents)} onJoin={handleJoin} />
         <button type="button" className={PANEL_CLOSE_BUTTON} data-tip="Fermer le workspace" aria-label={`Fermer le workspace ${name}`} onClick={handleClose}>
           <Icon name={IconName.Close} size={10} />

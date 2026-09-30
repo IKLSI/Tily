@@ -1,9 +1,12 @@
 import type { KeyboardEvent, MouseEvent, PointerEvent } from 'react'
 import { nextPaneInState, tabAgents, type AgentMap } from '../agents/agentSummary'
-import { activePane, DEFAULT_SHELL, panesOf, type Tab } from '../model/session'
+import { activePane, DEFAULT_SHELL, paneCountLabel, panesOf, type Tab } from '../model/session'
 import { useHostStore } from '../store/hostStore'
 import { openWorktreeDialog } from '../worktree/worktreeActions'
 import { AgentStateIcon } from './AgentStateIcon'
+import { CommandNoticeIcon } from './CommandNoticeIcon'
+import { useCommandStore } from '../store/commandStore'
+import { commandNoticeTip, tabCommandNotice } from '../terminal/commandNotices'
 import { Icon } from './Icon'
 import { IconName } from './iconName'
 import { InlineNameEditor } from './InlineNameEditor'
@@ -35,17 +38,16 @@ const SHELL_NAMES: Record<string, string> = { pwsh: 'PowerShell 7', cmd: 'Invite
 const WORKTREE_TIP = 'Créer un worktree de ce projet'
 const NO_REPOSITORY_TIP = 'Créer un worktree : le dossier du pane actif de cet onglet n’est pas dans un dépôt Git'
 
-const paneCountLabel = (count: number): string => (count === 1 ? '1 pane' : `${count} panes`)
-
 export function WorkspaceTabRow({ workspaceId, tab, siblings, active, renaming, dragging, dropBefore, currentPaneId, agents, actions, onOpenMenu }: WorkspaceTabRowProps) {
   const summary = tabAgents(tab, agents)
   const pane = activePane(tab)
   const shell = pane.shell
   const inRepository = useHostStore((state) => state.contexts[pane.id]?.isRepository === true)
+  const commandNotice = useCommandStore((state) => tabCommandNotice(tab, state.notices))
   const customShell = shell === DEFAULT_SHELL ? null : shell
-  const tip = [tab.name, customShell && (SHELL_NAMES[customShell] ?? customShell), paneCountLabel(panesOf(tab.tree).length), summary?.tip].filter(Boolean).join(' · ')
+  const tip = [tab.name, pane.path, customShell && (SHELL_NAMES[customShell] ?? customShell), paneCountLabel(panesOf(tab.tree).length), summary?.tip ?? (commandNotice && commandNoticeTip(commandNotice))].filter(Boolean).join(' · ')
   const rowState = active ? 'bg-dock-green-soft text-dock-green-deep' : 'text-dock-ink-soft hover:bg-dock-panel hover:text-dock-ink'
-  const lead = summary ? <AgentStateIcon state={summary.state} tip={summary.tip} /> : <TabLayoutGlyph tree={tab.tree} />
+  const lead = summary ? <AgentStateIcon state={summary.state} tip={summary.tip} /> : commandNotice ? <CommandNoticeIcon notice={commandNotice} /> : <TabLayoutGlyph tree={tab.tree} />
 
   const joinTargetOf = (event: MouseEvent): string | undefined =>
     summary && event.target instanceof Element && event.target.closest(JOIN_TARGET) ? nextPaneInState([tab], agents, summary.state, currentPaneId) : undefined

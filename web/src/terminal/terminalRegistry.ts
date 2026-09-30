@@ -7,7 +7,11 @@ import { ClipboardAddon } from '@xterm/addon-clipboard'
 import { SerializeAddon } from '@xterm/addon-serialize'
 import { WebLinksAddon } from '@xterm/addon-web-links'
 import { bridge } from '../bridge/bridge'
+import { DEFAULT_FONT_SIZE } from '../model/appearance'
 import type { Pane } from '../model/session'
+import { COMMAND_DONE_OSC, receiveCommandDone } from './commandNotices'
+import { trackCommandOutput } from './commandOutput'
+import { registerFileLinks } from './fileLinks'
 
 const ACK_THRESHOLD = 256 * 1024
 const MAX_WEBGL_CONTEXTS = 14
@@ -16,6 +20,7 @@ const CHUNK_SEPARATOR = '\x1b[0m\r\n'
 const SNAPSHOT_SCROLLBACK_LINES = 2000
 const DEFAULT_SCROLLBACK_LINES = 10000
 const NEWLINE = String.fromCharCode(13, 10)
+const ERASE_SCROLLBACK = '\x1b[3J'
 
 export enum RestoreKind {
   Tab = 'tab',
@@ -26,6 +31,7 @@ const RESTORE_SEPARATORS: Record<RestoreKind, string> = {
   [RestoreKind.Tab]: '\r\n\x1b[2m── Onglet rouvert : ancien texte ci-dessus, nouveau terminal ci-dessous ──\x1b[0m\r\n',
   [RestoreKind.Session]: '\r\n\x1b[2m── Session restaurée — nouvelle session : ancien texte ci-dessus, aucun processus n’a été relancé ──\x1b[0m\r\n',
 }
+const LINK_PATTERN = /(?:https?|HTTPS?|file|FILE):\/{2,3}[^\s"'!*(){}|\\^<>`]*[^\s"':,.!?{}|\\^~[\]`()<>]/
 const FONT_FAMILY = '"CaskaydiaCove Nerd Font Mono", "Cascadia Mono", "Cascadia Code", Consolas, "Symbols Nerd Font Mono", monospace'
 
 enum Renderer {
@@ -58,6 +64,7 @@ const handles = new Map<string, TerminalHandle>()
 const primedText = new Map<string, { text: string; kind: RestoreKind }>()
 const initialCommands = new Map<string, string>()
 let scrollbackLines = DEFAULT_SCROLLBACK_LINES
+let fontSize = DEFAULT_FONT_SIZE
 let webglUnavailable = false
 
 const start = (handle: TerminalHandle, pane: Pane): void => {
@@ -195,7 +202,7 @@ const createHandle = (pane: Pane): TerminalHandle => {
     allowProposedApi: true,
     cursorBlink: true,
     fontFamily: FONT_FAMILY,
-    fontSize: 14,
+    fontSize,
     scrollback: scrollbackLines,
     theme: { background: '#121416', foreground: '#cdd1cd', cursor: '#8fb39f', selectionBackground: '#7a9f8b40' },
     linkHandler: { activate: openLinkOnCtrlClick, allowNonHttpProtocols: true },
@@ -206,10 +213,16 @@ const createHandle = (pane: Pane): TerminalHandle => {
   terminal.loadAddon(serializer)
   terminal.loadAddon(new Unicode11Addon())
   terminal.loadAddon(new ClipboardAddon())
-  terminal.loadAddon(new WebLinksAddon(openLinkOnCtrlClick))
+  terminal.loadAddon(new WebLinksAddon(openLinkOnCtrlClick, { urlRegex: LINK_PATTERN }))
   terminal.unicode.activeVersion = '11'
   const handle: TerminalHandle = { paneId: pane.id, terminal, fit, serializer, renderer: Renderer.Dom, shownAt: 0, started: false, unackedChars: 0, dirty: true, chunks: [] }
   terminal.onData((data) => bridge.send({ type: 'terminal.input', pane: pane.id, data }))
+  terminal.parser.registerOscHandler(COMMAND_DONE_OSC, (data) => {
+    receiveCommandDone(pane.id, data)
+    return true
+  })
+  trackCommandOutput(terminal)
+  registerFileLinks(terminal, pane.id)
   terminal.buffer.onBufferChange(() => forgetChunks(handle))
   terminal.onResize(({ cols, rows }) => {
     forgetChunks(handle)
@@ -224,6 +237,23 @@ const createHandle = (pane: Pane): TerminalHandle => {
 export const terminalRegistry = {
   configure(linesPerPane: number): void {
     scrollbackLines = linesPerPane
+  },
+
+  fontSize(): number {
+    return fontSize
+  },
+
+  setFontSize(size: number): void {
+    if (size === fontSize) {
+      return
+    }
+    fontSize = size
+    handles.forEach((handle) => {
+      handle.terminal.options.fontSize = size
+      if (handle.terminal.element?.isConnected) {
+        handle.fit.fit()
+      }
+    })
   },
 
   get(paneId: string): TerminalHandle | undefined {
@@ -323,6 +353,18 @@ export const terminalRegistry = {
   },
   prime(paneId: string, text: string, kind: RestoreKind = RestoreKind.Tab): void {
     primedText.set(paneId, { text, kind })
+  },
+
+  clearScrollback(paneId: string, done: () => void): void {
+    const handle = handles.get(paneId)
+    if (!handle) {
+      return
+    }
+    handle.terminal.write(ERASE_SCROLLBACK, () => {
+      forgetChunks(handle)
+      handle.dirty = true
+      done()
+    })
   },
 
   markExited(paneId: string, code: number): void {

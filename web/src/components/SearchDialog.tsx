@@ -9,18 +9,25 @@ interface SearchDialogProps<T extends SearchItem> {
   items: T[]
   onClose: () => void
   onRun: (item: T) => void
+  onRunAlternate?: (item: T) => void
+  onRunControl?: (item: T) => void
+  onRunAlt?: (item: T) => void
+  footer?: string
   onToggleFavorite?: (item: T) => void
   notice?: string | null
+  maxResults?: number
 }
 
 const RESULT_ID_PREFIX = 'search-result-'
 const LISTBOX_ID = 'search-results'
 
-export function SearchDialog<T extends SearchItem>({ label, placeholder, emptyMessage, items, onClose, onRun, onToggleFavorite, notice }: SearchDialogProps<T>) {
+export function SearchDialog<T extends SearchItem>({ label, placeholder, emptyMessage, items, onClose, onRun, onRunAlternate, onRunControl, onRunAlt, footer, onToggleFavorite, notice, maxResults }: SearchDialogProps<T>) {
   const [query, setQuery] = useState('')
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const listRef = useRef<HTMLDivElement>(null)
-  const filtered = useMemo(() => filterSearchItems(items, query), [items, query])
+  const matching = useMemo(() => filterSearchItems(items, query), [items, query])
+  const filtered = useMemo(() => (maxResults === undefined ? matching : matching.slice(0, maxResults)), [matching, maxResults])
+  const hidden = matching.length - filtered.length
   const selected = Math.max(0, filtered.findIndex((item) => item.id === selectedId))
   const selectedItem = filtered[selected]
 
@@ -48,17 +55,25 @@ export function SearchDialog<T extends SearchItem>({ label, placeholder, emptyMe
       event.preventDefault()
       if (selectedItem && selectedItem.favorite !== undefined) {
         onToggleFavorite?.(selectedItem)
+      } else if (selectedItem) {
+        onRunControl?.(selectedItem)
+      }
+    } else if (event.key === 'Enter' && event.altKey && onRunAlt) {
+      event.preventDefault()
+      if (selectedItem) {
+        onRunAlt(selectedItem)
       }
     } else if (event.key === 'Enter') {
       event.preventDefault()
       if (selectedItem) {
-        onRun(selectedItem)
+        runItem(selectedItem, event.shiftKey)
       }
     } else if (event.key === 'Escape') {
       event.preventDefault()
       onClose()
     }
   }
+  const runItem = (item: T, alternate: boolean) => (alternate && onRunAlternate ? onRunAlternate(item) : onRun(item))
   const handleBackdropPointerDown = (event: PointerEvent<HTMLDivElement>) => {
     if (event.target === event.currentTarget) {
       onClose()
@@ -87,7 +102,7 @@ export function SearchDialog<T extends SearchItem>({ label, placeholder, emptyMe
           {filtered.length === 0 && <p className="px-3 py-2 text-xs text-dock-muted">{emptyMessage}</p>}
           {filtered.map((item, index) => {
             const handleHover = () => setSelectedId(item.id)
-            const handleClick = () => onRun(item)
+            const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => (event.ctrlKey && onRunControl && item.favorite === undefined ? onRunControl(item) : runItem(item, event.shiftKey))
             const handleToggleFavorite = (event: React.MouseEvent<HTMLButtonElement>) => {
               event.stopPropagation()
               onToggleFavorite?.(item)
@@ -123,7 +138,9 @@ export function SearchDialog<T extends SearchItem>({ label, placeholder, emptyMe
               </div>
             )
           })}
+          {hidden > 0 && <p className="px-3 py-2 text-xs text-dock-muted">{hidden === 1 ? '1 autre résultat' : `${hidden} autres résultats`} : précisez la recherche.</p>}
         </div>
+        {footer && <p className="mt-2 border-t border-dock-line px-3 pt-2 text-[11px] text-dock-muted">{footer}</p>}
         <p role="status" className={notice ? 'mt-2 border-t border-dock-line px-3 pt-2 text-xs text-dock-warning' : undefined}>
           {notice}
         </p>

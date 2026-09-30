@@ -27,6 +27,13 @@ const commitBlocker = (state: GitState, busy: string | null, message: string, am
   return message.trim().length === 0 ? 'Saisissez un message de commit' : null
 }
 
+const SUBJECT_MAX = 72
+const GRAPHEMES = new Intl.Segmenter('fr', { granularity: 'grapheme' })
+const LINE_BREAK = '\n'
+
+const subjectTip = (length: number): string =>
+  length > SUBJECT_MAX ? `Première ligne de ${length} caractères : au-delà de ${SUBJECT_MAX}, elle est coupée par la plupart des outils Git` : `Première ligne : ${length} caractères sur ${SUBJECT_MAX} conseillés`
+
 const pushBlocker = (state: GitState): string | null => {
   if (state.head.detached) {
     return 'HEAD détachée : push impossible'
@@ -39,6 +46,7 @@ export function GitCommitBox({ state, busy }: GitCommitBoxProps) {
   const blocker = commitBlocker(state, busy, message, amend)
   const pushBlocked = blocker ?? pushBlocker(state)
   const commitLabel = amend ? 'Amend' : 'Commit'
+  const subjectLength = [...GRAPHEMES.segment(message.split(LINE_BREAK)[0].trim())].length
 
   const handleMessageChange = (event: ChangeEvent<HTMLTextAreaElement>) => useGitStore.getState().setMessage(event.target.value)
   const handleAmendChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -61,7 +69,11 @@ export function GitCommitBox({ state, busy }: GitCommitBoxProps) {
     if (event.key === 'Enter' && event.ctrlKey && !event.nativeEvent.isComposing) {
       event.preventDefault()
       event.stopPropagation()
-      handleCommit()
+      if (event.shiftKey) {
+        handleCommitAndPush()
+      } else {
+        handleCommit()
+      }
     }
   }
 
@@ -77,15 +89,22 @@ export function GitCommitBox({ state, busy }: GitCommitBoxProps) {
         onChange={handleMessageChange}
         onKeyDown={handleKeyDown}
       />
-      <label className="flex items-center gap-[6px] text-[12px] text-dock-ink-soft">
-        <input type="checkbox" checked={amend} disabled={state.head.unborn} onChange={handleAmendChange} />
-        <span className="truncate">Amend du dernier commit</span>
-      </label>
+      <div className="flex items-center gap-[6px]">
+        <label className="flex min-w-0 flex-1 items-center gap-[6px] text-[12px] text-dock-ink-soft">
+          <input type="checkbox" checked={amend} disabled={state.head.unborn} onChange={handleAmendChange} />
+          <span className="truncate">Amend du dernier commit</span>
+        </label>
+        {subjectLength > 0 && (
+          <span className={`shrink-0 font-mono text-[11px] tabular-nums ${subjectLength > SUBJECT_MAX ? 'text-dock-warning' : 'text-dock-muted'}`} data-tip={subjectTip(subjectLength)}>
+            {subjectLength}
+          </span>
+        )}
+      </div>
       <div className="flex gap-[6px]">
         <button type="button" className={`${GIT_PRIMARY} min-w-0 flex-1 truncate`} aria-disabled={blocker !== null} data-tip={blocker ?? `${commitLabel} ${amend ? 'du dernier commit' : `de ${plural(state.stagedTotal, 'fichier staged', 'fichiers staged')}`} (Ctrl + Entrée)`} onClick={handleCommit}>
           {commitLabel}
         </button>
-        <button type="button" className={`${GIT_SECONDARY} min-w-0 flex-1 truncate`} aria-disabled={pushBlocked !== null} data-tip={pushBlocked ?? `${commitLabel} puis push`} onClick={handleCommitAndPush}>
+        <button type="button" className={`${GIT_SECONDARY} min-w-0 flex-1 truncate`} aria-disabled={pushBlocked !== null} data-tip={pushBlocked ?? `${commitLabel} puis push (Ctrl + Maj + Entrée)`} onClick={handleCommitAndPush}>
           {`${commitLabel} et push`}
         </button>
       </div>

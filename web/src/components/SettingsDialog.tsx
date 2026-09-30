@@ -1,7 +1,9 @@
-import { useEffect, useRef, useState, type ChangeEvent, type KeyboardEvent, type PointerEvent } from 'react'
+import { useEffect, useRef, useState, type ChangeEvent, type KeyboardEvent, type MouseEvent, type PointerEvent } from 'react'
 import { AttentionKind, PickTarget, type ImportedPreferences, type NotificationSettings, type PersistenceSettings, type PickedPath, type Settings, type SettingsSnapshot } from '../bridge/messages'
 import type { WorktreeSettings } from '../bridge/worktreeMessages'
+import { revealInExplorer } from '../explorer/fileExplorerActions'
 import { useHostStore } from '../store/hostStore'
+import { AppearanceSettingsSection } from './AppearanceSettingsSection'
 import { keepTabInside } from './focusTrap'
 import { SETTINGS_BROWSE, SETTINGS_BUTTON, SETTINGS_HINT, SETTINGS_INPUT, SETTINGS_INPUT_BASE, SETTINGS_LABEL } from './settingsStyles'
 import { SoundSetting } from './SoundSetting'
@@ -64,6 +66,8 @@ const PRIMARY = `${BUTTON} border-dock-green text-dock-green-deep hover:bg-dock-
 const SECONDARY = `${BUTTON} border-dock-line text-dock-ink hover:bg-dock-green-hover`
 const BROWSE = SETTINGS_BROWSE
 
+const comparable = (settings: Settings): Settings => ({ ...settings, shells: Object.fromEntries(Object.entries(settings.shells).filter(([, path]) => path.trim().length > 0)) })
+
 export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave, onPick, onExport, onImport, onInstallHooks, onRemoveHooks, onTestNotification }: SettingsDialogProps) {
   const version = useHostStore((state) => state.version)
   const [draft, setDraft] = useState<Settings | null>(null)
@@ -73,6 +77,7 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
   const [importSource, setImportSource] = useState<string | null>(null)
   const [importWarnings, setImportWarnings] = useState<string[]>([])
   const [numberTexts, setNumberTexts] = useState<NumberTexts>({})
+  const [closeHeld, setCloseHeld] = useState(false)
   const dialogRef = useRef<HTMLDivElement>(null)
   const numberInputsRef = useRef<Partial<Record<keyof PersistenceSettings, HTMLInputElement | null>>>({})
   if (snapshot !== seenSnapshot) {
@@ -110,8 +115,22 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
     }
   }, [loaded])
 
+  const unsaved = Boolean(draft && snapshot && (importSource !== null || JSON.stringify(comparable(draft)) !== JSON.stringify(comparable(snapshot.settings))))
+  if (closeHeld && !unsaved) {
+    setCloseHeld(false)
+  }
+  const handleBackdropMouseDown = (event: MouseEvent<HTMLDivElement>) => {
+    if (event.target === event.currentTarget && unsaved) {
+      event.preventDefault()
+    }
+  }
   const handleBackdropPointerDown = (event: PointerEvent<HTMLDivElement>) => {
-    if (event.target === event.currentTarget) {
+    if (event.target !== event.currentTarget) {
+      return
+    }
+    if (unsaved) {
+      setCloseHeld(true)
+    } else {
       onClose()
     }
   }
@@ -181,6 +200,12 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
   const handleTestNotification = () => testNotification(AttentionKind.Waiting)
   const handleTestDoneNotification = () => testNotification(AttentionKind.Done)
   const handleAutoCheckChange = (autoCheck: boolean) => updateDraft({ updates: { autoCheck } })
+  const handleFontSizeChange = (fontSize: number) => updateDraft({ appearance: { fontSize } })
+  const handleRevealFiles = () => {
+    if (snapshot) {
+      revealInExplorer(snapshot.files.shells)
+    }
+  }
 
   const renderBody = (settings: Settings, current: SettingsSnapshot) => (
     <>
@@ -220,6 +245,7 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
         })}
         <p className={`${HINT} font-mono`}>{current.files.shells}</p>
       </section>
+      <AppearanceSettingsSection sectionClassName={SECTION} fontSize={settings.appearance.fontSize} file={current.files.appearance} onFontSizeChange={handleFontSizeChange} />
       <section className="flex flex-col gap-2">
         <h3 className={SECTION}>Éditeur</h3>
         <label className="flex flex-col gap-1">
@@ -301,7 +327,7 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
         {!current.notifications.toastAvailable && <p className="text-[11px] text-dock-warning">{`Notification Windows indisponible. Le son et le clignotement restent actifs. ${current.notifications.toastError ?? ''}`}</p>}
         <label className="flex items-center gap-2">
           <input type="checkbox" checked={settings.notifications.taskbarFlash} onChange={handleFlashChange} />
-          <span className={LABEL}>Faire clignoter Dock dans la barre des tâches</span>
+          <span className={LABEL}>Faire clignoter Dock dans la barre des tâches (aussi à la fin d’une commande de plus de 10 s)</span>
         </label>
         <SoundSetting label="Son joué à chaque nouvelle attente" sound={settings.notifications.sound} placeholder="C:\Sons\attention.wav" testTip="Joue le son, fait clignoter la barre des tâches et affiche la notification Windows si elle est disponible, avec les réglages ci-dessus, sans enregistrer" onChange={handleSoundChange} onPick={handlePickSound} onTest={handleTestNotification} />
         <label className="flex items-center gap-2">
@@ -334,7 +360,7 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
   )
 
   return (
-    <div className="absolute inset-0 z-30 flex items-start justify-center bg-dock-paper/60 pt-[6vh]" onPointerDown={handleBackdropPointerDown}>
+    <div className="absolute inset-0 z-30 flex items-start justify-center bg-dock-paper/60 pt-[6vh]" onPointerDown={handleBackdropPointerDown} onMouseDown={handleBackdropMouseDown}>
       <div ref={dialogRef} role="dialog" aria-label="Paramètres" className="flex max-h-[86vh] w-[640px] max-w-[94vw] flex-col rounded-lg border border-dock-line bg-dock-panel shadow-xl" onKeyDown={handleKeyDown}>
         <div className="flex items-center justify-between border-b border-dock-line px-4 py-3">
           <h2 className="text-[15px] font-semibold text-dock-ink">
@@ -353,7 +379,13 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
           <button type="button" className={SECONDARY} data-tip="Écrit la configuration enregistrée (sans les modifications en cours) dans un fichier JSON versionné" onClick={onExport}>
             Exporter…
           </button>
-          <button type="button" className={`${SECONDARY} ml-auto`} onClick={onClose}>
+          <button type="button" className={SECONDARY} aria-disabled={!snapshot} data-tip="Ouvre l’Explorateur Windows sur le dossier des fichiers de réglages, pour les sauvegarder ou les modifier à la main" onClick={handleRevealFiles}>
+            Afficher les fichiers
+          </button>
+          <span role="status" className="ml-auto text-[11px] text-dock-warning">
+            {closeHeld && unsaved ? 'Modifications non enregistrées : Enregistrer, ou Annuler pour les abandonner.' : ''}
+          </span>
+          <button type="button" className={SECONDARY} onClick={onClose}>
             Annuler
           </button>
           <button type="button" className={PRIMARY} aria-disabled={!draft || invalidNumber !== undefined} data-tip={invalidNumber ? `${invalidNumber.label} : entre ${invalidNumber.min} et ${invalidNumber.max}` : 'Écrit les fichiers de réglages et applique immédiatement'} onClick={handleSave}>
