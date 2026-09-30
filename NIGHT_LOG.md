@@ -833,6 +833,17 @@ Dixième relecture indépendante (itérations 83 à 88), lancée à l’itérati
 - Bornes 8 / 14 / 32 de la taille du texte recopiées en trois endroits du web : regroupées dans `model/appearance.ts`.
 - Docs : « (onglet N) » n’est pas toujours le numéro de Leader puis chiffre (qui s’arrête à 9), formulation corrigée ; Ctrl + Maj + Entrée exécute aussi une sélection d’une seule ligne ; le chemin de l’en-tête tronque le dossier parent (et non « par le début ») ; architecture front complétée (entrées de taille du texte, `distinctTabName`, `setFontSize`, raccourcis des notes, badge d’agent) et contrat `appearance.fontSize` précisé.
 
+### 92. Ouvrir un fichier du projet par son nom
+
+Pour ouvrir un fichier précis, il fallait déplier l’arbre dossier par dossier ou taper son chemin dans le terminal. VS Code a Ctrl + P pour ça ; dans Dock, Ctrl + P est la palette.
+
+- Nouvelle entrée de palette « Ouvrir un fichier du projet… » : un sélecteur (le même composant que la palette et le sélecteur de projets) liste les fichiers du dépôt Git du pane actif, suivis et non suivis, sans les ignorés ni les supprimés (`git ls-files` depuis la racine du dépôt) ; hors dépôt, les fichiers du dossier, sans `.git`, `.vs`, `node_modules`, `bin`, `obj` ni les jonctions. Au plus 20 000 fichiers, avec un avertissement au-delà.
+- On filtre en tapant le nom ou le dossier (« term reg » trouve `web\src\terminal\terminalRegistry.ts`) ; seuls les 200 premiers résultats sont affichés, avec le nombre de résultats masqués. Entrée ouvre dans l’éditeur, Maj + Entrée affiche le fichier dans l’arbre des fichiers, Échap rend le focus au terminal.
+- Pont : `files.search {path}` → `files.searched {path, root, files, truncated, error?}`, chemins relatifs à la racine d’affichage (celle de la vue Git, pour rester cohérent sous une jonction).
+- Mesuré avant de choisir la limite : filtrer 20 000 chemins prend 17 à 98 ms selon la requête.
+- Vérifié dans l’instance de dev : 389 fichiers, 200 affichés et « 189 autres résultats », « term reg » → `terminalRegistry.ts` ouvert dans l’éditeur factice avec le chemin complet, Maj + Entrée → ligne sélectionnée et focalisée dans l’arbre. 3 tests ajoutés (dépôt avec fichiers ignorés, supprimés et non suivis ; dossier hors dépôt avec dossiers écartés et troncature ; dossier absent) ; 455 tests au vert.
+- **Convention proposée** en section 4 de la spec ; pas de raccourci direct (point 15 de la section 18).
+
 ## Reste à faire et idées
 
 ### À décider par toi

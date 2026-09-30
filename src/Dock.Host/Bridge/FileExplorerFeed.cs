@@ -1,5 +1,7 @@
 using Dock.Core.Context;
 using Dock.Core.Files;
+using Dock.Core.Git;
+using Dock.Core.StatusLog;
 
 namespace Dock.Host.Bridge;
 
@@ -44,6 +46,10 @@ public sealed class FileExplorerFeed : IDisposable
             case "files.openAt":
                 var location = RequirePath(command);
                 _queue.Enqueue(() => OpenAt(command.Cwd, location, command.Line, command.Column, command));
+                break;
+            case "files.search":
+                var folder = RequirePath(command);
+                _queue.Enqueue(() => PostProjectFiles(folder));
                 break;
             case "files.reveal":
                 LocalActions.RevealInExplorer(RequirePath(command));
@@ -146,6 +152,19 @@ public sealed class FileExplorerFeed : IDisposable
     {
         var listing = FileExplorer.List(path);
         _post(new { type = "files.listed", path = listing.Path, entries = listing.Entries, total = listing.Total, error = listing.Error });
+    }
+
+    private void PostProjectFiles(string folder)
+    {
+        try
+        {
+            var listing = ProjectFiles.List(new GitRunner(), folder);
+            _post(new { type = "files.searched", path = folder, root = listing.Root, files = listing.Files, truncated = listing.Truncated });
+        }
+        catch (Exception exception) when (exception is InvalidOperationException or GitCommandException or IOException or UnauthorizedAccessException or System.ComponentModel.Win32Exception)
+        {
+            _post(new { type = "files.searched", path = folder, root = folder, files = Array.Empty<string>(), truncated = false, error = UserErrorMessage.Of(exception) });
+        }
     }
 
     private void OpenAt(string? folder, string location, int line, int column, BridgeCommandModel command)

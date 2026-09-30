@@ -185,6 +185,7 @@ export type HostToWebMessage =
   | { type: 'files.gitMarks'; root: string | null; marks: GitPathMark[] }
   | { type: 'files.renamed'; path: string; target: string }
   | { type: 'files.deleted'; path: string }
+  | { type: 'files.searched'; path: string; root: string; files: string[]; truncated: boolean; error?: string }
   | { type: 'error'; pane?: string; message: string }
   | GitHostMessage
   | PreviewHostMessage
@@ -224,6 +225,7 @@ export type WebToHostMessage =
   | { type: 'files.open'; path: string }
   | { type: 'files.openAt'; path: string; cwd?: string; line: number; column: number; alternative?: string; alternativeLine?: number; alternativeColumn?: number }
   | { type: 'files.reveal'; path: string }
+  | { type: 'files.search'; path: string }
   | { type: 'files.create'; path: string; name: string; kind: EntryKind }
   | { type: 'files.rename'; path: string; parent: string; name: string }
   | { type: 'files.delete'; path: string; parent: string }

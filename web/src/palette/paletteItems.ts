@@ -6,6 +6,7 @@ import { DEFAULT_FONT_SIZE, MAX_FONT_SIZE, MIN_FONT_SIZE } from '../model/appear
 import { activePane, activeTab, activeWorkspace, FAVORITES_MAX, folderName, isLeaf, panesOf, RightPanelView, type Pane, type Session, type Tab, type Workspace } from '../model/session'
 import { openPanelView } from '../panel/rightPanel'
 import { refreshFolders } from '../explorer/fileExplorerActions'
+import { openFilePicker } from '../explorer/projectFileActions'
 import { refreshRepository } from '../git/gitRequests'
 import { useAgentStore } from '../store/agentStore'
 import { useExplorerStore } from '../store/explorerStore'
@@ -111,6 +112,7 @@ const commandItems = (session: Session, shells: ShellProfile[]): PaletteItem[] =
       command('next-command', 'Descendre à la commande suivante du pane actif', () => runCommand(Command.NextCommand), 'Alt + PgDn'),
       command('copy-last-output', 'Copier la sortie de la dernière commande du pane actif', () => copyLastCommandOutput(paneId)),
       command('clear-scrollback', 'Effacer l’historique de défilement du pane actif', () => clearPaneScrollback(paneId)),
+      command('open-file', 'Ouvrir un fichier du projet…', openFilePicker),
       command('open-editor', 'Ouvrir le dossier du pane actif dans l’éditeur', () => openPaneFolder(paneId, OpenTarget.Editor)),
       command('open-explorer', 'Ouvrir le dossier du pane actif dans l’explorateur', () => openPaneFolder(paneId, OpenTarget.Explorer)),
       command('copy-branch', 'Copier la branche Git du pane actif', () => copyPaneBranch(paneId)),
