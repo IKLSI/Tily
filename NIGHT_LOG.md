@@ -928,6 +928,16 @@ Le graphe liste des centaines de commits sans moyen d’en retrouver un par son 
 - Vérifié dans l’instance de dev : « session.json illisible » → commit f9e3509 sélectionné, centré, détail affiché, focus dans le graphe. Un premier essai laissait le panneau fermé : `showPanelView` ne rouvre pas un panneau fermé, remplacé par `openPanelView`. Lint et build au vert.
 - **Convention proposée** en section 11 de la spec ; architecture front complétée.
 
+### 103. Initialiser un dépôt Git depuis la vue Git
+
+Hors d’un dépôt, la vue Git disait seulement « Aucun dépôt Git » : pour un nouveau projet, il fallait taper `git init` dans le terminal puis revenir.
+
+- Bouton « Initialiser un dépôt Git ici » sous le message : `git init` dans le dossier du pane actif (seulement s’il n’appartient toujours à aucun dépôt), puis la vue suit aussitôt le nouveau dépôt. Pas de bouton quand Git est absent ou qu’une erreur est affichée.
+- Pont : `git.init {path}` ; un échec revient par `git.state {path, error}` en français.
+- Vérifié dans l’instance de dev sur un dossier neuf : `.git` créé, vue Git sur `master` sans commit, « Aucune modification ». Lint et build au vert.
+- Douzième relecture indépendante (itérations 96 à 102) lancée en arrière-plan.
+- **Convention proposée** en section 11 de la spec ; contrat du pont complété.
+
 ## Reste à faire et idées
 
 ### À décider par toi

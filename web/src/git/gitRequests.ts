@@ -62,6 +62,11 @@ export const followRepository = (path: string): void => {
 
 export const refreshRepository = (): void => bridge.send({ type: 'git.refresh' })
 
+export const initializeRepository = (path: string): void => {
+  bridge.send({ type: 'git.init', path })
+  useHostStore.getState().setStatus(`Initialisation d’un dépôt Git dans ${path}…`)
+}
+
 export const setHistoryScope = (scope: GitHistoryScope): void => {
   useGitStore.getState().requestHistory(scope, HISTORY_PAGE)
   bridge.send({ type: 'git.history', scope, count: HISTORY_PAGE })

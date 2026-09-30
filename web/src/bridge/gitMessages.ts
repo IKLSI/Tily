@@ -255,6 +255,7 @@ export type GitHostMessage =
 export type GitWebMessage =
   | { type: 'git.watch'; path: string }
   | { type: 'git.refresh' }
+  | { type: 'git.init'; path: string }
   | { type: 'git.history'; scope: GitHistoryScope; count: number }
   | { type: 'git.diff'; path: string; request: number; source: GitDiffSource; file: string; oldFile?: string; commit?: string; untracked: boolean }
   | { type: 'git.details'; path: string; request: number; commit: string }

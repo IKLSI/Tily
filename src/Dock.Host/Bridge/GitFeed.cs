@@ -47,6 +47,10 @@ public sealed class GitFeed : IDisposable
             case "git.refresh":
                 _reads.Enqueue(() => Refresh(true, true));
                 break;
+            case "git.init":
+                var folder = command.Path ?? throw new InvalidOperationException("Chemin manquant.");
+                _reads.Enqueue(() => Initialize(folder));
+                break;
             case "git.history":
                 ChangeHistory(command.Scope, command.Count);
                 break;
@@ -120,6 +124,24 @@ public sealed class GitFeed : IDisposable
         {
             _operations.AutoFetch(location.Root);
         }
+    }
+
+    private void Initialize(string path)
+    {
+        try
+        {
+            if (GitRepository.Locate(_runner, path) is null)
+            {
+                GitRepository.Require(_runner.Run(path, ["init"]), $"Initialisation d’un dépôt Git impossible dans {path}.");
+            }
+        }
+        catch (GitCommandException exception)
+        {
+            _post(new { type = "git.state", path, error = UserErrorMessage.Of(exception) });
+            return;
+        }
+
+        Follow(path);
     }
 
     public void RefreshSoon() => ScheduleRefresh();
