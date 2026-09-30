@@ -3,7 +3,7 @@ import { clearSeenCommandNotices } from './terminal/commandNotices'
 import { startAttentionNotifier } from './agents/attentionNotifier'
 import { bridge } from './bridge/bridge'
 import { AppShell } from './components/AppShell'
-import { allPanes } from './model/session'
+import { allPanes, restoredSessionLabel } from './model/session'
 import { useAgentStore } from './store/agentStore'
 import { StatusLevel, useHostStore } from './store/hostStore'
 import { usePaneStore } from './store/paneStore'
@@ -52,7 +52,7 @@ export default function App() {
           if (message.recovery) {
             setStatus(message.recovery, StatusLevel.Warning)
           } else {
-            setStatus('Session restaurée : nouveaux shells, aucune commande rejouée.')
+            setStatus(`Session restaurée${restoredSessionLabel(message.session)} : nouveaux shells, aucune commande rejouée.`)
           }
         })
       }),

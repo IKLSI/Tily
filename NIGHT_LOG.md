@@ -660,6 +660,13 @@ Les gestes ajoutés aux itérations 53, 66 et 67 n'étaient pas dans la palette,
 - Vérifié dans l'instance de dev : dossier `docs` déplié, Ctrl + P, « Tout replier », Entrée → plus aucun dossier déplié.
 - Une huitième relecture indépendante (itérations 61 à 69) tourne en parallèle.
 
+### 71. Ce qui a été restauré, dans le message de démarrage
+
+Au lancement, « Session restaurée : nouveaux shells, aucune commande rejouée. » ne disait pas ce qui était revenu ; après un plantage ou une mise à jour, c'est la première chose qu'on veut vérifier.
+
+- Le message indique désormais le nombre de workspaces et d'onglets restaurés : « Session restaurée (2 workspaces, 5 onglets) : nouveaux shells, aucune commande rejouée. » (singulier géré ; rien d'ajouté quand la session est vide).
+- Vérifié dans l'instance de dev : message conforme aux 2 workspaces et 5 onglets de son `session.json`.
+
 ## Reste à faire et idées
 
 ### À décider par toi

@@ -259,6 +259,13 @@ export const activeWorkspace = (session: Session): Workspace | undefined =>
 export const activeTab = (workspace: Workspace): Tab =>
   workspace.tabs.find((tab) => tab.id === workspace.active) ?? workspace.tabs[0]
 
+const countLabel = (count: number, one: string, several: string): string => `${count} ${count === 1 ? one : several}`
+
+export const restoredSessionLabel = (session: Session): string => {
+  const tabs = session.workspaces.reduce((total, workspace) => total + workspace.tabs.length, 0)
+  return session.workspaces.length === 0 ? '' : ` (${countLabel(session.workspaces.length, 'workspace', 'workspaces')}, ${countLabel(tabs, 'onglet', 'onglets')})`
+}
+
 export const paneCountLabel = (count: number): string => (count === 1 ? '1 pane' : `${count} panes`)
 
 export const activePane = (tab: Tab): Pane => panesOf(tab.tree).find((pane) => pane.id === tab.active) ?? panesOf(tab.tree)[0]
