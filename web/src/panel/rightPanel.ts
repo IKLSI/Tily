@@ -88,17 +88,17 @@ const focusRevealedRow = (path: string, attempts: number, generation: number): v
 
 const withBackslashes = (path: string): string => path.replaceAll('/', BACKSLASH).replace(TRAILING_SEPARATORS, '')
 
-export const revealInFileTree = (path: string): void => {
+export const revealInFileTree = (path: string): boolean => {
   const { session } = useSessionStore.getState()
   const workspace = session ? activeWorkspace(session) : undefined
   if (!workspace) {
-    return
+    return false
   }
   const root = withBackslashes(activePane(activeTab(workspace)).path)
   const target = withBackslashes(path)
   if (!target.toLowerCase().startsWith(`${root.toLowerCase()}${BACKSLASH}`)) {
     useHostStore.getState().setStatus(`Fichier hors du dossier affiché par l’arbre des fichiers (${root}) : ${target}`)
-    return
+    return false
   }
   const segments = target.slice(root.length + 1).split(BACKSLASH)
   const explorer = useExplorerStore.getState()
@@ -113,6 +113,7 @@ export const revealInFileTree = (path: string): void => {
   revealGeneration += 1
   const generation = revealGeneration
   setTimeout(() => focusRevealedRow(file, REVEAL_ATTEMPTS, generation), REVEAL_RETRY_MS)
+  return true
 }
 
 const CHANGE_ATTEMPTS = 60

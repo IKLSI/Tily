@@ -43,7 +43,9 @@ export const insertProjectFilePath = (root: string, relative: string): void => {
 
 export const revealProjectFile = (root: string, relative: string): void => {
   useFilePickerStore.getState().close()
-  revealInFileTree(fullPath(root, relative))
+  if (!revealInFileTree(fullPath(root, relative))) {
+    focusActivePane()
+  }
 }
 
 export const receiveProjectFiles = (message: HostMessageOf<'files.searched'>): void =>

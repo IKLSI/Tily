@@ -9,7 +9,7 @@ const MAX_RESULTS = 200
 const LAST_SEPARATOR = /^(.*)\\([^\\]+)$/
 const LOADING = 'Chargement des fichiers…'
 const NO_MATCH = 'Aucun fichier ne correspond à la recherche.'
-const TRUNCATED = 'Trop de fichiers : la liste proposée est incomplète, précisez la recherche ou ouvrez le terminal dans un sous-dossier.'
+const TRUNCATED = 'Trop de fichiers : seuls les 20 000 premiers trouvés sont proposés, les autres ne sont pas dans la liste.'
 const FOOTER = 'Entrée : ouvrir dans l’éditeur · Maj + Entrée : afficher dans l’arbre · Ctrl + Entrée : insérer le chemin dans le terminal'
 
 const CHANGED_HINT = 'modifié'
@@ -19,7 +19,7 @@ const itemOf = (relative: string, changed: boolean): SearchItem => {
   const match = LAST_SEPARATOR.exec(relative)
   const folder = match?.[1]
   const hint = changed ? (folder ? `${CHANGED_HINT}${HINT_SEPARATOR}${folder}` : CHANGED_HINT) : folder
-  return { id: relative, label: match ? match[2] : relative, hint }
+  return { id: relative, label: match ? match[2] : relative, hint, searchText: relative }
 }
 
 const itemsOf = (list: ProjectFileList | null): SearchItem[] => {

@@ -13,6 +13,8 @@ public sealed class FileExplorerFeed : IDisposable
     private readonly Func<string> _editorCommand;
     private readonly Action<object> _post;
     private readonly BackgroundQueue _queue;
+    private readonly BackgroundQueue _searchQueue;
+    private CancellationTokenSource _search = new();
     private readonly Dictionary<string, FileSystemWatcher?> _watchers = new(StringComparer.Ordinal);
     private readonly HashSet<string> _changed = new(StringComparer.Ordinal);
     private readonly object _sync = new();
@@ -25,6 +27,7 @@ public sealed class FileExplorerFeed : IDisposable
         _editorCommand = editorCommand;
         _post = post;
         _queue = new BackgroundQueue(onError);
+        _searchQueue = new BackgroundQueue(onError);
         _changeTimer = new Timer(_ => ListChanged());
         _gitMarks = new ExplorerGitMarks(post, onError);
     }
@@ -49,7 +52,8 @@ public sealed class FileExplorerFeed : IDisposable
                 break;
             case "files.search":
                 var folder = RequirePath(command);
-                _queue.Enqueue(() => PostProjectFiles(folder));
+                var cancellation = RestartSearch();
+                _searchQueue.Enqueue(() => PostProjectFiles(folder, cancellation));
                 break;
             case "files.reveal":
                 LocalActions.RevealInExplorer(RequirePath(command));
@@ -154,14 +158,28 @@ public sealed class FileExplorerFeed : IDisposable
         _post(new { type = "files.listed", path = listing.Path, entries = listing.Entries, total = listing.Total, error = listing.Error });
     }
 
-    private void PostProjectFiles(string folder)
+    private CancellationToken RestartSearch()
     {
+        var next = new CancellationTokenSource();
+        var previous = Interlocked.Exchange(ref _search, next);
+        previous.Cancel();
+        previous.Dispose();
+        return next.Token;
+    }
+
+    private void PostProjectFiles(string folder, CancellationToken cancellation)
+    {
+        if (cancellation.IsCancellationRequested)
+        {
+            return;
+        }
+
         try
         {
-            var listing = ProjectFiles.List(new GitRunner(), folder);
+            var listing = ProjectFiles.List(new GitRunner(), folder, cancellation: cancellation);
             _post(new { type = "files.searched", path = folder, root = listing.Root, files = listing.Files, changed = listing.Changed, truncated = listing.Truncated });
         }
-        catch (Exception exception) when (exception is InvalidOperationException or GitCommandException or IOException or UnauthorizedAccessException or System.ComponentModel.Win32Exception)
+        catch (Exception exception) when (exception is not OperationCanceledException)
         {
             _post(new { type = "files.searched", path = folder, root = folder, files = Array.Empty<string>(), changed = Array.Empty<string>(), truncated = false, error = UserErrorMessage.Of(exception) });
         }
@@ -214,6 +232,8 @@ public sealed class FileExplorerFeed : IDisposable
     {
         _changeTimer.Dispose();
         _gitMarks.Dispose();
+        _search.Cancel();
+        _search.Dispose();
         lock (_sync)
         {
             foreach (var watcher in _watchers.Values)

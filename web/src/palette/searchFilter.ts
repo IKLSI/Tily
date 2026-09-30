@@ -2,6 +2,7 @@ export interface SearchItem {
   id: string
   label: string
   hint?: string
+  searchText?: string
   favorite?: boolean
 }
 
@@ -29,6 +30,7 @@ export const normalize = (text: string): string =>
   text
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\//g, '\\')
     .toLowerCase()
 
 const prepare = (text: string): PreparedText => {
@@ -138,9 +140,10 @@ const tokenScore = (token: string, label: PreparedText, hint: PreparedText): num
 const itemScore = (item: SearchItem, tokens: string[]): number => {
   const label = prepare(item.label)
   const hint = prepare(item.hint ?? '')
+  const searchText = item.searchText === undefined ? null : normalize(item.searchText)
   let total = 0
   for (const token of tokens) {
-    const score = tokenScore(token, label, hint)
+    const score = Math.max(tokenScore(token, label, hint), searchText?.includes(token) ? HINT_CONTAINS_SCORE : NO_MATCH_SCORE)
     if (score === NO_MATCH_SCORE) {
       return NO_MATCH_SCORE
     }

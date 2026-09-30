@@ -892,6 +892,19 @@ Une session illisible était bien mise de côté, mais Dock repartait alors de l
 - Vérifié dans l’instance de dev : `session.json` vidé à la main, redémarrage → 17 onglets restaurés (l’état d’avant le dernier onglet ouvert) et message d’avertissement dans la barre de statut. Test ajouté ; 461 tests au vert.
 - **Convention proposée** en section 13 de la spec ; architecture hôte complétée.
 
+### 99. Corrections de la onzième relecture (sélecteur de fichiers)
+
+Onzième relecture indépendante (itérations 89 à 95), lancée à l’itération 96 : cinq défauts réels, tous sur le sélecteur « Ouvrir un fichier du projet… », et quelques points mineurs.
+
+- **Fichiers absents proposés comme « modifié »** : un fichier indexé puis supprimé du disque (`AD`, aussi `MD`, `RD`, conflit `DD`) restait en tête et Entrée répondait « Le fichier n’existe plus ». Les fichiers modifiés ne sont plus retenus que s’ils sont dans la liste des fichiers présents.
+- **Dépôts imbriqués et sous-modules listés comme des fichiers** (un worktree sous `.claude\worktrees`, par exemple, donnait une entrée `nested\`) : les entrées de dossier et les sous-modules (mode 160000 de `git ls-files --stage`) sont écartés.
+- **Maj + Entrée sur un fichier hors de l’arbre** (pane dans un sous-dossier du dépôt) : le statut le disait, mais le focus restait perdu sur la page. `revealInFileTree` indique maintenant s’il a réussi et le focus revient au terminal sinon ; la spec le précise.
+- **Message de troncature trompeur** (« précisez la recherche » ne retrouve pas un fichier coupé) : « seuls les 20 000 premiers trouvés sont proposés, les autres ne sont pas dans la liste ».
+- **Recherche bloquant l’explorateur** : un parcours hors Git (partage réseau, gros dossier) occupait la file de l’arbre des fichiers et du Ctrl + clic sur les chemins, sans fin ni annulation. La recherche a sa propre file, une nouvelle recherche annule la précédente, et le parcours hors dépôt s’arrête après 3 secondes (liste signalée incomplète).
+- Points mineurs corrigés : un chemin relatif collé (`web/src/App.tsx` ou `web\src\App.tsx`) retrouve son fichier (la recherche compare aussi le chemin complet, `/` et `\` confondus) ; une erreur imprévue répond toujours au sélecteur au lieu de le laisser sur « Chargement… » ; un chemin d’éditeur absolu entre guillemets reçoit le bon avertissement ; « taper modifié les isole » corrigé en « les retrouve » ; le raccourci du sélecteur ajouté au point 15 de la section 18.
+- Écarté après vérification : la bascule « Source » ne survit pas à la fermeture de l’aperçu (le tiroir est démonté quand l’aperçu se ferme). Laissé tel quel : Ctrl + P ne bascule pas vers la palette depuis le sélecteur de fichiers (il est compté parmi les fenêtres modales).
+- Vérifié dans l’instance de dev (« web/src/App.tsx » trouvé, « split haut / bas » toujours trouvé dans la palette) ; 3 tests ajoutés (fichier indexé supprimé, dépôt imbriqué, limite de durée) ; 463 tests au vert.
+
 ## Reste à faire et idées
 
 ### À décider par toi

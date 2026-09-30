@@ -42,6 +42,33 @@ public sealed class ProjectFilesTests : IDisposable
     }
 
     [Fact]
+    public void List_WhenIndexedFileDeletedAndNestedRepository_ThenListsNeither()
+    {
+        _sandbox.Commit("initial", ("a.txt", "a"));
+        _sandbox.Write("indexé.txt", "i");
+        _sandbox.Git("add", "indexé.txt");
+        File.Delete(Path.Combine(_sandbox.Work, "indexé.txt"));
+        _sandbox.Write(@"imbriqué\b.txt", "b");
+        _sandbox.GitIn(Path.Combine(_sandbox.Work, "imbriqué"), "init", "-q");
+
+        var listing = ProjectFiles.List(_sandbox.Runner, _sandbox.Work);
+
+        Assert.Equal(["a.txt"], listing.Files);
+        Assert.Empty(listing.Changed);
+    }
+
+    [Fact]
+    public void List_WhenPlainFolderTakesTooLong_ThenSignalsTruncation()
+    {
+        Directory.CreateDirectory(Path.Combine(_folder, "a"));
+        File.WriteAllText(Path.Combine(_folder, "a", "un.txt"), "x");
+
+        var listing = ProjectFiles.List(new GitRunner(), _folder, diskTimeLimit: TimeSpan.Zero);
+
+        Assert.True(listing.Truncated);
+    }
+
+    [Fact]
     public void List_WhenPlainFolder_ThenSkipsHeavyFoldersAndSignalsTruncation()
     {
         foreach (var path in new[] { @"a\un.txt", @"a\deux.txt", @"node_modules\paquet\index.js", @"bin\Debug\app.dll", "trois.txt" })

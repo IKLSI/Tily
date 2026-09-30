@@ -178,7 +178,7 @@ public sealed class SettingsService
         var warnings = shells.Where(shell => !shell.Available).Select(shell => $"Le shell « {shell.Name} » est introuvable : {(shell.Configured.Length > 0 ? shell.Configured : shell.DefaultExecutable)}").ToList();
         if (!string.IsNullOrWhiteSpace(settings.Editor) && !CommandLocator.Exists(settings.Editor))
         {
-            warnings.Add(Path.IsPathRooted(settings.Editor)
+            warnings.Add(Path.IsPathRooted(settings.Editor.Trim().Trim('"'))
                 ? $"La commande de l’éditeur est introuvable : {settings.Editor}"
                 : $"La commande de l’éditeur est introuvable : « {settings.Editor} » n’est ni dans le PATH ni parmi les applications enregistrées");
         }
