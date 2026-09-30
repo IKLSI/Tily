@@ -200,7 +200,7 @@ const panelActions: WorkspacePanelActions = {
 }
 
 export function AppShell({ session }: AppShellProps) {
-  const { selectTab, selectPane, toggleSidebar, setSidebarWidth, setExplorerWidth, newWorkspace, newTab, moveTab, shiftTab, setSplitRatio } = useSessionStore.getState()
+  const { selectTab, selectPane, toggleSidebar, setSidebarWidth, setExplorerWidth, newWorkspace, newTab, newTabAt, moveTab, shiftTab, setSplitRatio } = useSessionStore.getState()
   const { leaderActive, shells, projects, projectsRoot, projectsError, settingsSnapshot, pickedPath, importedPreferences } = useHostStore(
     useShallow((state) => ({
       leaderActive: state.leaderActive,
@@ -304,9 +304,13 @@ export function AppShell({ session }: AppShellProps) {
     closeProjectPicker()
     focusActivePane()
   }
-  const handleSelectProject = (project: Project) => {
+  const handleSelectProject = (project: Project, inActiveWorkspace: boolean) => {
     closeProjectPicker()
-    newWorkspace(project.name, project.path, DEFAULT_SHELL)
+    if (inActiveWorkspace) {
+      newTabAt(project.path, DEFAULT_SHELL)
+    } else {
+      newWorkspace(project.name, project.path, DEFAULT_SHELL)
+    }
   }
   const handleDismissAttention = (paneId: string) => useAgentStore.getState().acknowledge(paneId)
   const handleToggleSidebar = () => {

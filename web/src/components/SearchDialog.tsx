@@ -9,6 +9,8 @@ interface SearchDialogProps<T extends SearchItem> {
   items: T[]
   onClose: () => void
   onRun: (item: T) => void
+  onRunAlternate?: (item: T) => void
+  footer?: string
   onToggleFavorite?: (item: T) => void
   notice?: string | null
 }
@@ -16,7 +18,7 @@ interface SearchDialogProps<T extends SearchItem> {
 const RESULT_ID_PREFIX = 'search-result-'
 const LISTBOX_ID = 'search-results'
 
-export function SearchDialog<T extends SearchItem>({ label, placeholder, emptyMessage, items, onClose, onRun, onToggleFavorite, notice }: SearchDialogProps<T>) {
+export function SearchDialog<T extends SearchItem>({ label, placeholder, emptyMessage, items, onClose, onRun, onRunAlternate, footer, onToggleFavorite, notice }: SearchDialogProps<T>) {
   const [query, setQuery] = useState('')
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const listRef = useRef<HTMLDivElement>(null)
@@ -52,13 +54,14 @@ export function SearchDialog<T extends SearchItem>({ label, placeholder, emptyMe
     } else if (event.key === 'Enter') {
       event.preventDefault()
       if (selectedItem) {
-        onRun(selectedItem)
+        runItem(selectedItem, event.shiftKey)
       }
     } else if (event.key === 'Escape') {
       event.preventDefault()
       onClose()
     }
   }
+  const runItem = (item: T, alternate: boolean) => (alternate && onRunAlternate ? onRunAlternate(item) : onRun(item))
   const handleBackdropPointerDown = (event: PointerEvent<HTMLDivElement>) => {
     if (event.target === event.currentTarget) {
       onClose()
@@ -87,7 +90,7 @@ export function SearchDialog<T extends SearchItem>({ label, placeholder, emptyMe
           {filtered.length === 0 && <p className="px-3 py-2 text-xs text-dock-muted">{emptyMessage}</p>}
           {filtered.map((item, index) => {
             const handleHover = () => setSelectedId(item.id)
-            const handleClick = () => onRun(item)
+            const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => runItem(item, event.shiftKey)
             const handleToggleFavorite = (event: React.MouseEvent<HTMLButtonElement>) => {
               event.stopPropagation()
               onToggleFavorite?.(item)
@@ -124,6 +127,7 @@ export function SearchDialog<T extends SearchItem>({ label, placeholder, emptyMe
             )
           })}
         </div>
+        {footer && <p className="mt-2 border-t border-dock-line px-3 pt-2 text-[11px] text-dock-muted">{footer}</p>}
         <p role="status" className={notice ? 'mt-2 border-t border-dock-line px-3 pt-2 text-xs text-dock-warning' : undefined}>
           {notice}
         </p>

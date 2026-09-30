@@ -8,7 +8,7 @@ interface ProjectPickerProps {
   root: string
   error: string | null
   onClose: () => void
-  onSelect: (project: Project) => void
+  onSelect: (project: Project, inActiveWorkspace: boolean) => void
 }
 
 interface ProjectItem extends SearchItem {
@@ -22,7 +22,8 @@ const hintOf = (project: Project): string => (project.worktree ? `${WORKTREE_HIN
 
 export function ProjectPicker({ projects, root, error, onClose, onSelect }: ProjectPickerProps) {
   const items = useMemo<ProjectItem[]>(() => projects.map((project) => ({ id: project.path, label: project.name, hint: hintOf(project), project })), [projects])
-  const handleRun = (item: ProjectItem) => onSelect(item.project)
+  const handleRun = (item: ProjectItem) => onSelect(item.project, false)
+  const handleRunInActiveWorkspace = (item: ProjectItem) => onSelect(item.project, true)
 
   return (
     <SearchDialog
@@ -32,6 +33,8 @@ export function ProjectPicker({ projects, root, error, onClose, onSelect }: Proj
       items={items}
       onClose={onClose}
       onRun={handleRun}
+      onRunAlternate={handleRunInActiveWorkspace}
+      footer="Entrée : nouveau workspace · Maj + Entrée : nouvel onglet dans le workspace actif"
     />
   )
 }

@@ -302,6 +302,8 @@ Ce sélecteur recherche des dossiers, pas du texte dans les fichiers. L’interf
 
 **Convention proposée.** Les dossiers de premier niveau de `worktrees` sont listés à part, après les projets, avec la mention « worktree », comme le préfixe `[wt]` du sélecteur WezTerm ; en choisir un ouvre un workspace comme pour un projet. Quand un autre dossier des worktrees est réglé (section 11), c’est lui qui est listé, et il est retiré de la liste des projets s’il se trouve dans le dossier des projets.
 
+**Convention proposée.** Maj + Entrée, ou Maj + clic, sur un projet ou un worktree du sélecteur l’ouvre dans un nouvel onglet du workspace actif au lieu d’un nouveau workspace ; une ligne en bas du sélecteur rappelle les deux gestes.
+
 ## 11. Actions contextuelles et worktrees
 
 Les actions utilisent le **dossier du pane actif**, jamais un hypothétique dossier unique du workspace.

@@ -458,6 +458,15 @@ Une relecture indépendante des itérations 37 à 43 a relevé 2 défauts moyens
 - Non retenu : Leader puis 8 en AZERTY belge sort le pane (8 y donne `!`), compromis voulu à l'itération 39 ; bornes 8 / 14 / 32 recopiées côté web pour la liste des tailles, l'hôte restant l'arbitre.
 - Vérifié : 441 tests (dont un fichier Windows-1252 sans `patch`) ; dans l'instance de dev, événement `paste` natif de deux lignes → dialogue ; Ctrl + P pendant le dialogue → pas de palette, focus sur « Coller et exécuter » ; sélection « echo note-selection⏎ » puis Ctrl + Entrée → collée sans être exécutée ; Ctrl + V et Ctrl + Maj + V → un seul collage chacun.
 
+### 46. Ouvrir un projet dans un onglet du workspace actif
+
+Le sélecteur de projets (Leader puis F) créait toujours un nouveau workspace ; pour travailler sur deux projets liés (un front et son API) dans le même workspace, il fallait ouvrir un onglet puis faire `cd`.
+
+- Maj + Entrée, ou Maj + clic, ouvre le projet (ou le worktree) choisi dans un nouvel onglet du workspace actif, nommé d'après le dossier. Entrée garde son comportement. Une ligne discrète en bas du sélecteur rappelle les deux gestes.
+- `SearchDialog` accepte une action secondaire (`onRunAlternate`) et un pied de page (`footer`) ; la palette n'en utilise pas et ne change pas.
+- Vérifié dans l'instance de dev, dossier des projets pointé temporairement sur le scratchpad : Maj + Entrée sur « xt » → onglet « xt » ajouté et affiché dans le workspace actif ; Entrée sur « gd » → nouveau workspace « gd ».
+- **Convention proposée** en section 10 de la spec ; README mis à jour.
+
 ## Reste à faire et idées
 
 ### À décider par toi
