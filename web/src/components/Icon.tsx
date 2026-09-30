@@ -21,6 +21,12 @@ const SHAPES: Record<IconName, ReactNode> = {
   [IconName.Check]: <path d="M2.5 6.3 5 8.8l4.5-5.3" />,
   [IconName.Chevron]: <path d="M4.5 2.5 8 6l-3.5 3.5" />,
   [IconName.Close]: <path d="M3 3l6 6M9 3 3 9" />,
+  [IconName.Copy]: (
+    <>
+      <rect x="4" y="4" width="6.5" height="6.5" rx="1" />
+      <path d="M8 4V2.5A1 1 0 0 0 7 1.5H2.5a1 1 0 0 0-1 1V7a1 1 0 0 0 1 1H4" />
+    </>
+  ),
   [IconName.Columns]: (
     <>
       <rect x="1.5" y="2" width="9" height="8" rx="1" />

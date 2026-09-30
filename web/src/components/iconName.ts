@@ -4,6 +4,7 @@ export enum IconName {
   Chevron = 'chevron',
   Close = 'close',
   Columns = 'columns',
+  Copy = 'copy',
   Discard = 'discard',
   Editor = 'editor',
   Explorer = 'explorer',

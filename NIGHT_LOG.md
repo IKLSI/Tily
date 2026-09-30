@@ -310,6 +310,15 @@ Le sous-agent a rejoué `commandOutput.ts` avec xterm.js sans interface dans un 
 - **Aperçu d'image** : la taille réelle ne s'applique plus à l'image suivante.
 - Vérifié dans l'instance de dev avec un scénario rejouable (`scen.sh` du scratchpad), avec l'invite normale puis avec une invite qui affiche `10:32:05` à droite par positionnement du curseur. Les 10 copies sont justes : trois sorties longues qui font défiler l'écran (`LONGUE-n` en tête), `ls` (en tête `Directory: …`), et le bloc `if` multiligne (`dans le bloc`).
 
+### 30. Copier le diff d'un fichier
+
+Pour demander à Claude Code de relire une modification, ou pour la reporter ailleurs par `git apply`, il fallait sélectionner le diff à la main dans le volet.
+
+- L'en-tête du volet de diff porte un bouton « Copier le diff ». Il copie le diff du fichier au format unifié, reconstruit depuis les chunks déjà reçus : en-têtes `--- a/…` et `+++ b/…`, lignes `@@`, préfixes ` `, `+`, `-`, et note git standard `\ No newline at end of file`. Il marche pour un fichier Unstaged, Staged, d'un commit ou d'un stash, et reste grisé pour un fichier binaire.
+- Nouvelle icône « copier » dans le jeu d'icônes (celle de l'en-tête des panes).
+- Vérifié dans l'instance de dev, sur `README.md` du clone : le presse-papiers (intercepté) reçoit un diff unifié complet, et la barre de statut affiche « Diff de README.md copié (1 ligne modifiée). ».
+- **Convention proposée** en section 11 de la spec.
+
 ## Reste à faire et idées
 
 ### À décider par toi
