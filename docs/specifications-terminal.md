@@ -92,6 +92,8 @@ Ces valeurs sont des références de réalisation, pas des contraintes de taille
 
 **Convention proposée.** Le menu d’un fichier propose « Ouvrir un terminal dans son dossier », qui ouvre un nouvel onglet dans le dossier parent du fichier, comme « Ouvrir un terminal ici » pour un dossier.
 
+**Convention proposée.** Un bouton « Tout replier » de l’en-tête de l’arbre des fichiers replie tous les dossiers dépliés sous la racine affichée ; il est grisé quand aucun dossier n’est déplié.
+
 **Convention proposée.** Dans un dépôt Git, l’arbre des fichiers montre l’état de chaque fichier comme la vue Git : nom coloré et lettre à droite (M modifié, A ajouté, D supprimé, R renommé, U non suivi, ! en conflit ; libellé en infobulle), l’état du répertoire de travail l’emportant sauf pour un fichier ajouté ou renommé puis modifié, qui garde A ou R. Un dossier qui contient des modifications porte un point de la couleur de sa modification la plus marquante (conflit, puis fichier non suivi ou supprimé, puis ajout ou renommage, puis modification). L’état suit le dépôt en direct, y compris après une commande tapée au terminal. Hors dépôt, rien ne s’affiche.
 
 **Convention proposée.** Au renommage d’un fichier, seul son nom avant la dernière extension est sélectionné, comme dans l’Explorateur Windows : taper un nouveau nom garde l’extension. Un dossier ou un nom qui commence par un point est sélectionné en entier.

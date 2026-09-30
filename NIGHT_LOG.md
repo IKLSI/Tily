@@ -514,6 +514,14 @@ Dans l'arbre des fichiers, seuls les dossiers proposaient « Ouvrir un terminal 
 - **Convention proposée** en section 4 de la spec (la liste « Retenu » du menu n'est pas modifiée).
 - Une sixième relecture indépendante (itérations 44 à 51) tourne en parallèle.
 
+### 53. « Tout replier » dans l'arbre des fichiers
+
+Après avoir fouillé plusieurs sous-dossiers, l'arbre des fichiers restait déplié en profondeur ; il fallait replier chaque dossier à la main.
+
+- Bouton « Tout replier » (deux chevrons qui se rejoignent) dans l'en-tête de l'arbre, entre « Nouveau dossier » et « Actualiser », comme dans VS Code : replie tous les dossiers dépliés sous la racine affichée, sans toucher à ceux d'un autre onglet. Grisé quand rien n'est déplié.
+- Vérifié dans l'instance de dev : 15 lignes, dossier `web` déplié → 27 lignes, « Tout replier » → 15 lignes et bouton grisé.
+- **Convention proposée** en section 4 de la spec.
+
 ## Reste à faire et idées
 
 ### À décider par toi

@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { EntryKind } from '../bridge/messages'
-import { buildFileTree, targetFolder } from '../explorer/fileTree'
+import { buildFileTree, RowKind, targetFolder } from '../explorer/fileTree'
 import { refreshFolders, watchFolders } from '../explorer/fileExplorerActions'
 import { folderName } from '../model/session'
 import { useExplorerStore } from '../store/explorerStore'
@@ -24,6 +24,7 @@ export function FileExplorer({ root, onOpenTerminal }: FileExplorerProps) {
   const { rows, watched } = useMemo(() => buildFileTree(root, listings, expanded, draft), [root, listings, expanded, draft])
   const watchedKey = watched.join(WATCH_SEPARATOR)
   const rootListing = listings[root]
+  const anyExpanded = rows.some((row) => row.kind === RowKind.Entry && row.entry?.isDirectory && expanded[row.entry.path])
   const empty = rootListing !== undefined && !rootListing.error && rootListing.entries.length === 0 && !draft
 
   useEffect(() => {
@@ -32,6 +33,7 @@ export function FileExplorer({ root, onOpenTerminal }: FileExplorerProps) {
   useEffect(() => () => watchFolders([]), [])
 
   const handleNewFile = () => useExplorerStore.getState().startDraft({ parent: targetFolder(rows, selectedPath, root), kind: EntryKind.File })
+  const handleCollapseAll = () => useExplorerStore.getState().collapseUnder(root)
   const handleNewFolder = () => useExplorerStore.getState().startDraft({ parent: targetFolder(rows, selectedPath, root), kind: EntryKind.Folder })
 
   return (
@@ -45,6 +47,9 @@ export function FileExplorer({ root, onOpenTerminal }: FileExplorerProps) {
         </button>
         <button type="button" className={PANEL_HEADER_BUTTON} aria-label="Nouveau dossier" data-tip="Nouveau dossier" onClick={handleNewFolder}>
           <Icon name={IconName.NewFolder} />
+        </button>
+        <button type="button" className={PANEL_HEADER_BUTTON} aria-label="Tout replier" data-tip="Tout replier" aria-disabled={!anyExpanded} onClick={handleCollapseAll}>
+          <Icon name={IconName.CollapseAll} />
         </button>
         <button type="button" className={PANEL_HEADER_BUTTON} aria-label="Actualiser" data-tip="Actualiser" onClick={refreshFolders}>
           <Icon name={IconName.Refresh} />

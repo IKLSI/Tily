@@ -32,6 +32,7 @@ interface ExplorerState {
   setGitMarks: (root: string | null, marks: GitPathMark[]) => void
   setListing: (path: string, listing: DirectoryListing) => void
   setExpanded: (path: string, expanded: boolean) => void
+  collapseUnder: (root: string) => void
   select: (path: string | null) => void
   startRename: (path: string) => void
   stopRename: () => void
@@ -56,6 +57,7 @@ export const useExplorerStore = create<ExplorerState>()((set) => ({
   gitFolderMarks: new Map(),
   setGitMarks: (root, marks) => set({ gitMarks: new Map(marks.map((mark) => [markKey(mark.path), mark])), gitFolderMarks: folderMarksOf(root, marks) }),
   setListing: (path, listing) => set((state) => ({ listings: { ...state.listings, [path]: listing } })),
+  collapseUnder: (root) => set((state) => ({ expanded: Object.fromEntries(Object.entries(state.expanded).filter(([path]) => path === root || !isWithin(path, root))) })),
   setExpanded: (path, expanded) => set((state) => (Boolean(state.expanded[path]) === expanded ? state : { expanded: { ...state.expanded, [path]: expanded } })),
   select: (selectedPath) => set({ selectedPath }),
   startRename: (renamingPath) => set({ renamingPath, draft: null }),
