@@ -844,6 +844,15 @@ Pour ouvrir un fichier précis, il fallait déplier l’arbre dossier par dossie
 - Vérifié dans l’instance de dev : 389 fichiers, 200 affichés et « 189 autres résultats », « term reg » → `terminalRegistry.ts` ouvert dans l’éditeur factice avec le chemin complet, Maj + Entrée → ligne sélectionnée et focalisée dans l’arbre. 3 tests ajoutés (dépôt avec fichiers ignorés, supprimés et non suivis ; dossier hors dépôt avec dossiers écartés et troncature ; dossier absent) ; 455 tests au vert.
 - **Convention proposée** en section 4 de la spec ; pas de raccourci direct (point 15 de la section 18).
 
+### 93. Éditeur introuvable signalé dans les Paramètres
+
+Les Paramètres signalaient un éditeur introuvable seulement pour un chemin absolu. Avec un nom de commande (`code`, `cursor`, faute de frappe comprise), rien n’avertissait : on ne le découvrait qu’au premier « Ouvrir dans l’éditeur », par une erreur.
+
+- Nouveau `CommandLocator` : un nom de commande est cherché comme Windows le ferait, dans chaque dossier du PATH avec les extensions de PATHEXT (`code` → `code.cmd`), puis parmi les applications enregistrées (clés App Paths, pour `notepad++` par exemple). Un chemin relatif avec un dossier n’est pas signalé, faute de dossier de référence.
+- Les Paramètres affichent « La commande de l’éditeur est introuvable : « … » n’est ni dans le PATH ni parmi les applications enregistrées ». C’est un avertissement : l’enregistrement reste possible.
+- Vérifié dans l’instance de dev avec `editeur-inexistant` (avertissement affiché, réglage restauré ensuite) ; `code` est bien trouvé sur ce poste. 4 tests ajoutés ; 459 tests au vert.
+- **Convention proposée** ajoutée en section 14 de la spec.
+
 ## Reste à faire et idées
 
 ### À décider par toi

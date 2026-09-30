@@ -459,6 +459,8 @@ L’export de préférences ne doit pas embarquer implicitement la sortie des te
 
 **Convention proposée.** L’en-tête de l’écran Paramètres affiche la version de Dock (« Dock 1.0.0 »), pour la comparer aux versions publiées ou la citer dans un signalement.
 
+**Convention proposée.** L’écran Paramètres signale un éditeur introuvable : chemin absolu absent, ou nom de commande (`code`, `cursor`…) qui n’est ni dans le PATH, avec les extensions de PATHEXT, ni parmi les applications enregistrées de Windows (App Paths) ; c’est un avertissement, l’enregistrement reste possible.
+
 **Convention proposée.** Un clic hors de l’écran Paramètres le ferme seulement s’il n’a aucune modification en cours ; sinon l’écran reste ouvert et son pied indique « Modifications non enregistrées : Enregistrer, ou Annuler pour les abandonner. ». Échap et Annuler ferment toujours sans enregistrer. Il en va de même pour le formulaire « Créer un worktree » : une fois un nom de nouvelle branche saisi, seuls Échap et Annuler le ferment.
 
 **Retenu (29 septembre 2026).** Le dossier des worktrees et la base par défaut font partie des préférences exportées, sous une clé `worktrees` facultative : un fichier de version 1 qui ne la contient pas reste importable, avec les valeurs par défaut.
