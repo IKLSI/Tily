@@ -505,6 +505,15 @@ Suite de l'itération 50 : l'arbre des fichiers sait insérer un chemin dans le 
 - Le menu d'un ou plusieurs fichiers modifiés de la vue Git propose « Insérer le chemin dans le terminal » : chemin complet de chaque fichier, protégé par l'hôte selon le shell (guillemets simples pour PowerShell et Git Bash, doubles pour CMD) et suivi d'une espace, exactement comme depuis l'arbre des fichiers ou par glisser-déposer. Pratique pour taper `git diff`, `code` ou une commande d'agent puis y ajouter les fichiers.
 - Vérifié dans l'instance de dev : menu de `dossier avec espace/cible.txt` → `'C:\…\repo\dossier avec espace\cible.txt'` inséré après le prompt, non exécuté.
 
+### 52. Ouvrir un terminal dans le dossier d'un fichier
+
+Dans l'arbre des fichiers, seuls les dossiers proposaient « Ouvrir un terminal ici » : pour un fichier repéré au fond d'une arborescence, il fallait remonter à son dossier.
+
+- Le menu d'un fichier propose « Ouvrir un terminal dans son dossier » (nouvel onglet dans le dossier parent), juste après « Ouvrir dans l'éditeur ».
+- Vérifié dans l'instance de dev : menu de `README.md` → nouvel onglet « repo » ouvert et affiché.
+- **Convention proposée** en section 5 de la spec (la liste « Retenu » du menu n'est pas modifiée).
+- Une sixième relecture indépendante (itérations 44 à 51) tourne en parallèle.
+
 ## Reste à faire et idées
 
 ### À décider par toi

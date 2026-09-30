@@ -47,8 +47,10 @@ const itemsFor = ({ entry, parent }: FileMenuRequest, actions: FileMenuActions):
           { id: 'open', label: 'Ouvrir dans l’éditeur', run: () => actions.open(entry) },
         ]
       : [{ id: 'open', label: 'Ouvrir dans l’éditeur', detail: <MenuShortcut keys="Entrée" />, run: () => actions.open(entry) }]
+  const fileTerminalItems: ActionMenuItem[] = entry.isDirectory ? [] : [{ id: 'terminal', label: 'Ouvrir un terminal dans son dossier', run: () => actions.openTerminal(parent) }]
   return [
     ...openItems,
+    ...fileTerminalItems,
     { id: 'new-file', label: 'Nouveau fichier', run: () => actions.newEntry(folder, EntryKind.File) },
     { id: 'new-folder', label: 'Nouveau dossier', run: () => actions.newEntry(folder, EntryKind.Folder) },
     { id: 'rename', label: 'Renommer', detail: <MenuShortcut keys="F2" />, run: () => actions.rename(entry.path) },
