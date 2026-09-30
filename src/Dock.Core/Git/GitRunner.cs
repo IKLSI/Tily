@@ -61,6 +61,11 @@ public sealed partial class GitRunner
 
     private ProcessStartInfo StartInfo(string directory, IEnumerable<string> arguments, GitRunOptionsModel options)
     {
+        if (!Directory.Exists(directory))
+        {
+            throw new GitCommandException($"Dossier introuvable : {directory}", string.Empty);
+        }
+
         var info = new ProcessStartInfo(InstalledGit.Value ?? throw new GitCommandException("Git est introuvable : installez Git pour Windows ou ajoutez git.exe au PATH.", string.Empty))
         {
             WorkingDirectory = directory,

@@ -724,6 +724,14 @@ Le journal de la barre de statut (Ctrl + Maj + L) garde des centaines de message
 - Un bouton bascule « Erreurs seulement » dans l'en-tête du journal n'affiche que les avertissements et les erreurs (« Aucun avertissement ni erreur dans le journal. » s'il n'y en a pas) ; un second clic réaffiche tout. Copier et Effacer portent toujours sur tout le journal.
 - Vérifié dans l'instance de dev : 212 messages → 7 avertissements et erreurs. Le filtre a d'ailleurs fait ressortir un message d'erreur en anglais, corrigé à l'itération suivante.
 
+### 79. Message en français quand le dossier suivi par Git disparaît
+
+Le filtre de l'itération 78 a fait ressortir une erreur en anglais : « An error occurred trying to start process '…git.exe' with working directory '…'. The directory name is invalid. », affichée quand le dossier suivi par la vue Git (ou l'arbre des fichiers) est supprimé pendant que Dock le surveille. Les messages d'erreur doivent être en français.
+
+- `GitRunner` vérifie désormais que le dossier de travail existe avant de lancer Git et lève sinon une `GitCommandException` « Dossier introuvable : … », déjà gérée par tous les appelants (vue Git, marques de l'arbre, racine d'affichage).
+- Vérifié : 446 tests, dont un nouveau (dossier disparu → message français exact) ; aucun appel ne passe volontairement un dossier vide.
+- Noté dans « Reste à faire » : d'autres chemins d'erreur affichent `exception.Message` tel quel ; une exception imprévue du framework (entrée / sortie, processus) y apparaîtrait en anglais.
+
 ## Reste à faire et idées
 
 ### À décider par toi
@@ -746,6 +754,7 @@ Le journal de la barre de statut (Ctrl + Maj + L) garde des centaines de message
 - **Copie de sortie et navigation entre commandes** : Windows PowerShell et PowerShell 7 seulement, pas CMD ni Git Bash. Une invite qui s'écrit elle-même par `Write-Host` au lieu de renvoyer son texte fausserait la hauteur annoncée.
 - **Liens de fichiers** : depuis l'itération 44, un chemin absolu avec des espaces dans ses dossiers est lié ; un nom de fichier ou un chemin relatif avec espaces ne l'est toujours pas, ni un chemin replié sur deux lignes, et un chemin dont un dossier contient une extension suivie d'une espace (`Node.js Apps`, `ASP.NET Core`) n'est souligné que jusqu'à ce point (le Ctrl + clic ouvre quand même le fichier complet s'il existe, itération 63).
 - **Clignotement de la barre des tâches** (itération 38) : la commande est bien reçue par l'hôte, mais le clignotement lui-même ne s'observe pas par le débogage distant ; à confirmer à l'usage.
+- **Messages d'erreur imprévus** : une vingtaine de chemins d'erreur de l'hôte affichent `exception.Message` tel quel. Les exceptions levées par Dock sont en français, mais une exception imprévue du framework .NET (entrée / sortie, lancement de processus) apparaîtrait en anglais ; une traduction centrale des types courants serait à prévoir (itération 79).
 - **Commit et push, push en échec** : corrigé à l'itération 74 (commit gardé, message vidé, avertissement « Push impossible »).
 - **Diff copié** : un fichier UTF-8 qui contient réellement le caractère de remplacement U+FFFD est traité comme mal décodé et n'est pas copiable (rarissime).
 

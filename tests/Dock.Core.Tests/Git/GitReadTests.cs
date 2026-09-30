@@ -19,6 +19,16 @@ public sealed class GitReadTests : IDisposable
     }
 
     [Fact]
+    public void Run_WhenFolderMissing_ThenFailsInFrench()
+    {
+        var missing = Path.Combine(_sandbox.Root, "disparu");
+
+        var failure = Assert.Throws<GitCommandException>(() => _sandbox.Runner.Run(missing, ["status"]));
+
+        Assert.Equal($"Dossier introuvable : {missing}", failure.Message);
+    }
+
+    [Fact]
     public void Locate_WhenNestedFolder_ThenReturnsRoot()
     {
         _sandbox.Commit("Premier", ("src/web/app.ts", "a"));
