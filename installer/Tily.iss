@@ -1,5 +1,5 @@
 ﻿#ifndef AppVersion
-  #define AppVersion "1.7.1"
+  #define AppVersion "2.0.0"
 #endif
 #define AppName "Tily"
 #define AppPublisher "Maxime Razafinjato"
