@@ -29,8 +29,15 @@ public static class EditorLocation
 
         var diffSide = path.Length > 2 && path[0] is 'a' or 'b' && path[1] is '/' or '\\' && !Path.IsPathRooted(path);
         var withoutSide = diffSide ? Resolve(folder, path[2..]) : null;
-        return withoutSide is not null && exists(withoutSide) ? withoutSide : null;
+        return withoutSide is not null && exists(withoutSide) ? withoutSide : AfterSpaces(folder, path).FirstOrDefault(exists);
     }
+
+    private static IEnumerable<string> AfterSpaces(string? folder, string path) =>
+        path.Select((character, index) => (character, index))
+            .Where(pair => pair.character == ' ')
+            .Select(pair => path[(pair.index + 1)..])
+            .Where(suffix => suffix.Length > 0 && suffix[0] != ' ' && (Path.IsPathRooted(suffix) || !string.IsNullOrWhiteSpace(folder)))
+            .Select(suffix => Resolve(folder, suffix));
 
     public static string CommandLine(IEnumerable<string> arguments) => string.Join(' ', arguments.Select(Quote));
 

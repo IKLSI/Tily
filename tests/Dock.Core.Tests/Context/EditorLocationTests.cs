@@ -78,6 +78,22 @@ public sealed class EditorLocationTests
     }
 
     [Fact]
+    public void ResolveExisting_WhenSpacedPathExists_ThenKeepsIt()
+    {
+        var path = EditorLocation.ResolveExisting(@"D:\ailleurs", @"D:\Projets\Projet T\src\a.cs", candidate => candidate == @"D:\Projets\Projet T\src\a.cs");
+
+        Assert.Equal(@"D:\Projets\Projet T\src\a.cs", path);
+    }
+
+    [Fact]
+    public void ResolveExisting_WhenSpacedPathIsSentence_ThenFallsBackToPathAfterSpace()
+    {
+        var path = EditorLocation.ResolveExisting(@"D:\dépôt", @"D:\Projets then src\a.cs", candidate => candidate == @"D:\dépôt\src\a.cs");
+
+        Assert.Equal(@"D:\dépôt\src\a.cs", path);
+    }
+
+    [Fact]
     public void ResolveExisting_WhenNothingExists_ThenReturnsNull()
     {
         var path = EditorLocation.ResolveExisting(@"D:\dépôt", "a/web/x.ts", _ => false);

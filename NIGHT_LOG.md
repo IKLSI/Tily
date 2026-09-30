@@ -437,6 +437,15 @@ Plusieurs onglets portent souvent le même nom (le dossier du projet, « repo »
 - Vérifié dans l'instance de dev : infobulles des trois onglets, puis `cd ..` dans l'un d'eux → son infobulle donne le dossier parent.
 - Polish d'affichage, pas de changement de spec.
 
+### 44. Liens vers les chemins absolus contenant des espaces
+
+Les erreurs de `dotnet build`, `tsc` ou PowerShell citent des chemins absolus comme `D:\Projects\Perso\Projet T\dock-terminal\src\X.cs(12,5)` : ton propre dépôt a une espace dans son chemin, et ces liens ne marchaient pas (limite connue de la section « Reste à faire »).
+
+- Web (`fileLinks.ts`) : un second motif reconnaît un chemin absolu `X:\` dont les dossiers peuvent contenir des espaces (et des parenthèses, pour `Program Files (x86)`), le nom de fichier restant sans espace ; il n'est retenu que s'il contient une espace, et remplace alors les liens plus courts qui le recouvrent.
+- Hôte (`EditorLocation.ResolveExisting`) : si ce chemin n'existe pas, parce qu'une phrase a été prise pour un chemin (« Build D:\Projects then src\file.cs »), la partie qui suit chaque espace est essayée à son tour, depuis le dossier du pane : `src\file.cs` s'ouvre comme avant.
+- Vérifié : 11 cas passés à `findFileLinks` (erreur `dotnet build` avec deux chemins, `At C:\…\My Scripts\build.ps1:12`, `Program Files (x86)`, URL, prompt PowerShell non lié, phrase ambiguë…) ; 440 tests dont deux nouveaux pour le repli ; dans l'instance de dev, Ctrl + clic sur `…\Temp\dock essai\cible.txt:2:1` affiché par PowerShell → l'éditeur reçoit `-g "…\dock essai\cible.txt:2:1"`.
+- **Convention proposée** de la section 8 de la spec mise à jour ; limite connue du journal réduite.
+
 ## Reste à faire et idées
 
 ### À décider par toi
@@ -452,7 +461,7 @@ Plusieurs onglets portent souvent le même nom (le dossier du projet, « repo »
   - un chemin de fichier replié sur deux lignes n'est pas cliquable ;
   - après un redimensionnement, l'invite repliée peut se redessiner de travers jusqu'à la commande suivante.
 - **Copie de sortie et navigation entre commandes** : Windows PowerShell et PowerShell 7 seulement, pas CMD ni Git Bash. Une invite qui s'écrit elle-même par `Write-Host` au lieu de renvoyer son texte fausserait la hauteur annoncée.
-- **Liens de fichiers** : un chemin qui contient des espaces n'est pas lié.
+- **Liens de fichiers** : depuis l'itération 44, un chemin absolu avec des espaces dans ses dossiers est lié ; un nom de fichier ou un chemin relatif avec espaces ne l'est toujours pas, ni un chemin replié sur deux lignes.
 
 ### Idées
 
