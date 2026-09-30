@@ -27,7 +27,7 @@ export function ProjectPicker({ projects, root, error, onClose, onSelect }: Proj
     <SearchDialog
       label="Ouvrir un projet"
       placeholder={`Dossier dans ${root}…`}
-      emptyMessage={error ?? 'Aucun dossier trouvé.'}
+      emptyMessage={error ?? (projects.length === 0 ? `Aucun projet dans ${root} : le dossier des projets se change dans Paramètres (Leader puis ,).` : 'Aucun dossier ne correspond à la recherche.')}
       items={items}
       onClose={onClose}
       onRun={handleRun}

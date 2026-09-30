@@ -328,6 +328,13 @@ J'ai essayé la création de worktree (Leader puis N) sur le clone jetable, sans
 - Vérifié dans l'instance de dev : le formulaire propose maintenant `origin/main`, et l'option `origin/develop` inexistante a disparu de la liste. Aucun worktree n'a été créé.
 - Convention ajoutée au tableau de la section 11 de la spec.
 
+### 32. Sélecteur de projets vide : dire quoi faire
+
+Dans l'instance de dev, le sélecteur de projets (Leader puis F) affichait seulement « Aucun dossier trouvé. ». Le dossier des projets par défaut, `C:\Files\Projects`, ne contient qu'un sous-dossier `worktrees`, exclu de la liste. Le même message servait aussi quand la recherche ne trouvait rien.
+
+- Sans aucun projet : « Aucun projet dans C:\Files\Projects : le dossier des projets se change dans Paramètres (Leader puis ,). ». Si la recherche ne trouve rien : « Aucun dossier ne correspond à la recherche. ». Un dossier introuvable garde son message d'erreur existant.
+- Vérifié dans l'instance de dev pour le premier cas. Pour le second, il aurait fallu créer un dossier dans ton `C:\Files\Projects`, ce que je n'ai pas fait.
+
 ## Reste à faire et idées
 
 ### À décider par toi
