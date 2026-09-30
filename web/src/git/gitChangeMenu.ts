@@ -60,6 +60,11 @@ export const changeMenu = (rows: GitChangeRow[], state: GitState): ActionMenuIte
     },
     untracked.length > 0 && { id: 'ignore', label: byCount(untracked.length, 'Ajouter au .gitignore', `Ajouter ${untracked.length} fichiers au .gitignore`), run: () => ignoreFiles(untracked) },
     { id: 'copy', label: byCount(paths.length, 'Copier le chemin', `Copier les ${paths.length} chemins`), run: () => copyToClipboard(copied, byCount(paths.length, 'Chemin copié.', `${paths.length} chemins copiés.`)) },
+    {
+      id: 'copy-relative',
+      label: byCount(paths.length, 'Copier le chemin relatif', `Copier les ${paths.length} chemins relatifs`),
+      run: () => copyToClipboard(paths.join('\n'), byCount(paths.length, 'Chemin relatif copié.', `${paths.length} chemins relatifs copiés.`)),
+    },
   ]
   return items.filter((item): item is ActionMenuItem => item !== false)
 }

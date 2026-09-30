@@ -17,7 +17,7 @@
 
 ## Fonctionnalités
 
-- **Workspaces libres** : un panneau en arborescence, repliable et redimensionnable, regroupe les workspaces et leurs onglets. Tout se renomme directement sur place, les workspaces se réordonnent, les onglets se dupliquent et se déplacent d’un workspace à l’autre, et un onglet fermé par erreur se rouvre.
+- **Workspaces libres** : un panneau en arborescence, repliable et redimensionnable, regroupe les workspaces et leurs onglets. Tout se renomme directement sur place (un onglet renommé peut reprendre le nom de son dossier), les workspaces se réordonnent, les onglets se dupliquent et se déplacent d’un workspace à l’autre, et un onglet fermé par erreur se rouvre.
 - **Vrais terminaux** : Windows PowerShell par défaut avec votre profil habituel, ses alias et ses fonctions ; PowerShell 7, CMD et Git Bash au clic droit sur « + » ; taille du texte réglable dans Paramètres.
 - **Splits** : plusieurs terminaux côte à côte ou l’un sous l’autre dans le même onglet, redimensionnables et navigables au clavier ; les égaliser, en échanger deux, sortir un terminal dans son propre onglet ou le ramener dans un autre onglet, sans jamais arrêter son processus.
 - **Palette Ctrl + P** : retrouver une commande, un workspace, un onglet ou un terminal en quelques lettres.
@@ -27,10 +27,10 @@
 - **Notes par workspace** : garder des notes en texte brut (tâches, ports, commandes) dans la vue « Notes » du panneau de droite, enregistrées avec la session ; Ctrl + Entrée colle la ligne du curseur dans le terminal actif ; une icône signale les workspaces qui en ont.
 - **Journal des messages** : un clic sur la barre de statut, ou Ctrl + Maj + L, déplie l’historique horodaté de ses messages, conservé d’une session à l’autre.
 - **Branche visible** : l’en-tête de chaque terminal affiche la branche Git de son dossier, mise à jour après chaque commande.
-- **Vue Git** : graphe de l’historique, branches et tags, Stage et commit, Push et Pull, Merge, Rebase, Cherry-pick, Revert, Stash, résolution des conflits et bouton « Annuler », sans taper de commande ; le diff d’un fichier se copie en un clic ; fetch automatique à l’ouverture, désactivable dans les Paramètres.
+- **Vue Git** : graphe de l’historique, branches et tags, Stage et commit, Push et Pull, Merge, Rebase, Cherry-pick, Revert, Stash, résolution des conflits et bouton « Annuler », sans taper de commande ; le diff d’un fichier se copie en un clic, prêt pour `git apply`, et le chemin relatif d’un fichier modifié depuis son menu ; fetch automatique à l’ouverture, désactivable dans les Paramètres.
 - **Worktrees** : lister, ouvrir, créer et supprimer des worktrees Git comme avec `wtr` et `rmwt` (ports de développement libres, `pnpm install` dans le terminal du nouveau workspace, base PostgreSQL ou SQL Server répliquée), depuis la vue Git, la palette, Leader puis N ou l’icône d’arbre du panneau des workspaces.
 - **Suivi de Claude Code** : repérer d’un coup d’œil le workspace et l’onglet où Claude Code travaille, attend une réponse ou a terminé.
-- **Commandes longues** : quand une commande de plus de 10 secondes se termine dans un onglet que vous ne regardez pas (build, tests, installation), l’onglet porte une coche ou une croix rouge en cas d’échec, et la barre de statut l’annonce en citant la commande.
+- **Commandes longues** : quand une commande de plus de 10 secondes se termine dans un onglet que vous ne regardez pas (build, tests, installation), l’onglet porte une coche ou une croix rouge en cas d’échec, et la barre de statut l’annonce en citant la commande ; si Dock n’a pas le focus, il clignote dans la barre des tâches.
 - **Sortie des commandes** : copier la sortie de la dernière commande (menu du terminal ou palette), pour la coller dans un agent, et passer d’une commande à l’autre dans l’historique par Alt + PgUp / PgDn (Windows PowerShell et PowerShell 7).
 - **Liens cliquables** : Ctrl + clic sur un lien affiché dans le terminal l’ouvre dans le navigateur ; Ctrl + clic sur un chemin de fichier (`src/app.ts:12:5`, `Program.cs(42,17)`) l’ouvre dans l’éditeur, à la bonne ligne avec VS Code et ses dérivés.
 - **Glisser-déposer** : déposer un fichier ou un dossier de l’Explorateur Windows, ou une ligne de l’arbre des fichiers de Dock, sur un terminal y insère son chemin.

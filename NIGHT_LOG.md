@@ -492,6 +492,12 @@ La barre de statut garde son dernier message jusqu'au suivant, parfois des heure
 - Vérifié dans l'instance de dev : « Session restaurée… » suivi de `03:41:58`, infobulle « Message du mercredi 30 septembre 2026 à 03:41:58 ».
 - **Convention proposée** en section 4 de la spec (journal des messages).
 
+### 50. Chemin relatif depuis la vue Git, README à jour
+
+- Le menu d'un fichier modifié de la vue Git (un ou plusieurs sélectionnés) propose « Copier le chemin relatif » à côté de « Copier le chemin » : chemins relatifs à la racine du dépôt, un par ligne, à coller dans un agent (`@src/app.ts`) ou une commande, comme dans l'arbre des fichiers.
+- README complété des nouveautés 36 à 49 qui n'y figuraient pas : clignotement de la barre des tâches à la fin d'une commande longue, retour au nom automatique d'un onglet, diff copié applicable par `git apply`, chemin relatif depuis la vue Git.
+- Vérifié : lint et build ; dans l'instance de dev, menu de `docs/TESTING.md` dans la vue Git → « Copier le chemin relatif » copie `docs/TESTING.md` et annonce « Chemin relatif copié. ».
+
 ## Reste à faire et idées
 
 ### À décider par toi
