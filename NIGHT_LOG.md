@@ -697,6 +697,11 @@ Défaut antérieur à la nuit, relevé à l'itération 73 : quand « Commit et p
 - L'hôte termine désormais l'opération comme réussie avec un avertissement : « Commit 0e61d84 créé : « Ajouter b ». Push impossible : … », affiché en orange. Le message de commit est vidé ; le push se relance ensuite par le bouton « Push ». Un push refusé (branche distante en avance) garde son traitement dédié.
 - Vérifié dans l'instance de dev avec un dépôt jetable dont le dépôt distant n'existe pas : fichier stagé, « Ajouter b », Ctrl + Maj + Entrée → commit créé, message vidé, avertissement « Push impossible : Le push a échoué. ». 445 tests verts.
 
+### 75. Build Release vérifié, raccourcis Git au README
+
+- Build `Release` de toute la solution (configuration de l'installeur) après les 74 itérations : réussi, sans aucun avertissement.
+- README : le paragraphe des raccourcis mentionne F5 dans la vue Git, Ctrl + Entrée (commit) et Ctrl + Maj + Entrée (commit puis push) dans le message de commit.
+
 ## Reste à faire et idées
 
 ### À décider par toi
