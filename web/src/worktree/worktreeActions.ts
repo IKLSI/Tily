@@ -88,14 +88,18 @@ export const startWorktreeCreation = (): void => {
   }
 }
 
-export const openWorktree = (path: string): void => {
-  const { session, newWorkspace } = useSessionStore.getState()
+export const openWorktree = (path: string, inActiveWorkspace = false): void => {
+  const { session, newWorkspace, newTabAt } = useSessionStore.getState()
   const existing = session ? panesWithin(session, path)[0] : undefined
   if (existing) {
     joinPane(existing.id)
     return
   }
-  newWorkspace(worktreeTarget(path).name, path, DEFAULT_SHELL)
+  if (inActiveWorkspace) {
+    newTabAt(path, DEFAULT_SHELL)
+  } else {
+    newWorkspace(worktreeTarget(path).name, path, DEFAULT_SHELL)
+  }
 }
 
 export const openCreatedWorktree = (path: string, name: string, install: string | undefined): void => {

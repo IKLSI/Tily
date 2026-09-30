@@ -467,6 +467,15 @@ Le sélecteur de projets (Leader puis F) créait toujours un nouveau workspace ;
 - Vérifié dans l'instance de dev, dossier des projets pointé temporairement sur le scratchpad : Maj + Entrée sur « xt » → onglet « xt » ajouté et affiché dans le workspace actif ; Entrée sur « gd » → nouveau workspace « gd ».
 - **Convention proposée** en section 10 de la spec ; README mis à jour.
 
+### 47. Même geste dans « Ouvrir un worktree »
+
+Suite de l'itération 46, pour la cohérence : le sélecteur « Ouvrir un worktree » de la palette n'avait pas Maj + Entrée.
+
+- Maj + Entrée, ou Maj + clic, ouvre le worktree choisi dans un nouvel onglet du workspace actif ; un worktree déjà ouvert dans un terminal reste simplement rejoint, comme avec Entrée. Même ligne d'aide en bas du sélecteur. Le sélecteur « Créer un worktree depuis… » n'est pas concerné.
+- Au passage, le script de fermeture de l'instance de dev force l'arrêt de la seule instance lancée depuis le dépôt quand une confirmation de fermeture la bloque (elle verrouillait `Dock.Core.dll` et faisait échouer le build) ; ton Dock installé n'est jamais visé.
+- Vérifié dans l'instance de dev (dossier des projets pointé temporairement sur le scratchpad, avec un faux `worktrees\essai-wt`) : Maj + Entrée sur « essai-wt » → onglet « essai-wt » ajouté au workspace actif.
+- **Convention proposée** de la section 10 complétée.
+
 ## Reste à faire et idées
 
 ### À décider par toi
