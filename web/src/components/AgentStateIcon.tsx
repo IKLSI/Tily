@@ -8,11 +8,11 @@ interface AgentStateIconProps {
 }
 
 const STATE_COLOR_CLASSES: Record<AgentState, string> = {
-  [AgentState.Working]: 'text-dock-status-working',
-  [AgentState.Waiting]: 'text-dock-status-waiting',
-  [AgentState.Done]: 'text-dock-status-done',
-  [AgentState.Error]: 'text-dock-status-error',
-  [AgentState.Unknown]: 'text-dock-status-unknown',
+  [AgentState.Working]: 'text-tily-status-working',
+  [AgentState.Waiting]: 'text-tily-status-waiting',
+  [AgentState.Done]: 'text-tily-status-done',
+  [AgentState.Error]: 'text-tily-status-error',
+  [AgentState.Unknown]: 'text-tily-status-unknown',
 }
 
 const ICON_PROPS = { viewBox: '0 0 12 12', fill: 'none', stroke: 'currentColor', strokeWidth: 1.4, strokeLinecap: 'round', strokeLinejoin: 'round' } as const
@@ -25,7 +25,7 @@ const renderShape = (state: AgentState) => {
       return (
         <>
           <circle cx="6" cy="6" r="4.6" fill="currentColor" stroke="none" />
-          <path d="M6 3.4v3M6 8.6v.1" stroke="var(--color-dock-terminal)" />
+          <path d="M6 3.4v3M6 8.6v.1" stroke="var(--color-tily-terminal)" />
         </>
       )
     case AgentState.Done:
@@ -39,7 +39,7 @@ const renderShape = (state: AgentState) => {
       return (
         <>
           <circle cx="6" cy="6" r="4.6" fill="currentColor" stroke="none" />
-          <path d="M4.2 4.2l3.6 3.6M7.8 4.2l-3.6 3.6" stroke="var(--color-dock-terminal)" />
+          <path d="M4.2 4.2l3.6 3.6M7.8 4.2l-3.6 3.6" stroke="var(--color-tily-terminal)" />
         </>
       )
     default:

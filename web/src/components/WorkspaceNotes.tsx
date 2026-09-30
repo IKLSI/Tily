@@ -58,12 +58,12 @@ export function WorkspaceNotes() {
         maxLength={NOTE_MAX_CHARS}
         spellCheck={false}
         placeholder="Notes de ce workspace : tâches, ports, commandes… Enregistrées avec la session. Ctrl + Entrée colle la ligne (ou la sélection) dans le terminal actif, Ctrl + Maj + Entrée la colle et l’exécute."
-        className="min-h-0 flex-1 resize-none rounded border border-dock-line bg-dock-panel px-[10px] py-[8px] font-mono text-[12px] leading-[1.5] text-dock-ink outline-none placeholder:text-dock-muted focus:border-dock-focus"
+        className="min-h-0 flex-1 resize-none rounded border border-tily-line bg-tily-panel px-[10px] py-[8px] font-mono text-[12px] leading-[1.5] text-tily-ink outline-none placeholder:text-tily-muted focus:border-tily-focus"
         onChange={handleChange}
         onKeyDown={handleKeyDown}
         aria-describedby={NOTE_HINT_ID}
       />
-      <p id={NOTE_HINT_ID} className="mt-[6px] shrink-0 text-[11px] leading-[1.4] text-dock-muted">
+      <p id={NOTE_HINT_ID} className="mt-[6px] shrink-0 text-[11px] leading-[1.4] text-tily-muted">
         Ctrl + Entrée : coller dans le terminal · Ctrl + Maj + Entrée : exécuter
       </p>
     </section>

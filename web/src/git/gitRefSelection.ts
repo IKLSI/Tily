@@ -69,7 +69,7 @@ const confirmRefsDeletion = ({ branches, remoteBranches, tags, stashes }: GitSel
   const total = branches.length + remoteBranches.length + tags.length + stashes.length
   const warnings = [
     unmerged > 0 ? `${plural(unmerged, 'branche a', 'branches ont')} des commits sans merge : ils ne seront plus visibles dans le graphe.` : '',
-    remoteBranches.length > 0 ? 'Les branches distantes seront supprimées sur le dépôt distant, pour tous ceux qui les utilisent, sans annulation possible depuis Dock.' : '',
+    remoteBranches.length > 0 ? 'Les branches distantes seront supprimées sur le dépôt distant, pour tous ceux qui les utilisent, sans annulation possible depuis Tily.' : '',
   ].filter(Boolean)
   const lines = [
     ...branches.map((branch) => `Branche ${branch.name}${branch.merged ? '' : ' (sans merge)'}`),

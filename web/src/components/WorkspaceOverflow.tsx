@@ -68,7 +68,7 @@ export function WorkspaceOverflow({ workspaces, agents, onSelect }: WorkspaceOve
         aria-expanded={open}
         aria-label={label}
         data-tip={label}
-        className="flex h-[28px] cursor-pointer items-center gap-[6px] rounded-md px-[8px] text-[13px] text-dock-muted tabular-nums hover:bg-dock-green-hover hover:text-dock-ink"
+        className="flex h-[28px] cursor-pointer items-center gap-[6px] rounded-md px-[8px] text-[13px] text-tily-muted tabular-nums hover:bg-tily-green-hover hover:text-tily-ink"
         onPointerDown={handlePointerDown}
         onClick={handleClick}
       >

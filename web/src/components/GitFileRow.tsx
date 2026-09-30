@@ -24,7 +24,7 @@ export const GitFileRow = memo(function GitFileRow({ row, selected, focusable, h
   const { change, conflict, group } = row
   const path = change?.path ?? conflict?.path ?? ''
   const letter = conflict ? '!' : CHANGE_LETTERS[change?.kind ?? GitChangeKind.Modified]
-  const letterClass = conflict ? 'text-dock-error' : CHANGE_CLASSES[change?.kind ?? GitChangeKind.Modified]
+  const letterClass = conflict ? 'text-tily-error' : CHANGE_CLASSES[change?.kind ?? GitChangeKind.Modified]
   const canEdit = !change || change.kind !== GitChangeKind.Deleted
 
   const handleClick = (event: MouseEvent) => handlers.select(row, selectModeOf(event))
@@ -53,7 +53,7 @@ export const GitFileRow = memo(function GitFileRow({ row, selected, focusable, h
       aria-selected={selected}
       data-git-row={row.key}
       tabIndex={focusable ? 0 : -1}
-      className={`group flex h-[24px] cursor-pointer items-center gap-[6px] pr-[4px] pl-[12px] text-[12px] select-none ${selected ? 'bg-dock-green-soft text-dock-green-deep' : 'text-dock-ink-soft hover:bg-dock-green-hover hover:text-dock-ink'}`}
+      className={`group flex h-[24px] cursor-pointer items-center gap-[6px] pr-[4px] pl-[12px] text-[12px] select-none ${selected ? 'bg-tily-green-soft text-tily-green-deep' : 'text-tily-ink-soft hover:bg-tily-green-hover hover:text-tily-ink'}`}
       onClick={handleClick}
       onDoubleClick={handleDoubleClick}
       onContextMenu={handleContextMenu}
@@ -63,7 +63,7 @@ export const GitFileRow = memo(function GitFileRow({ row, selected, focusable, h
           {letter}
         </span>
         <span className="min-w-0 shrink truncate">{fileName(path)}</span>
-        <span className="min-w-0 flex-1 truncate text-[11px] text-dock-muted" data-tip={path}>
+        <span className="min-w-0 flex-1 truncate text-[11px] text-tily-muted" data-tip={path}>
           {fileFolder(path)}
         </span>
       </span>
@@ -85,7 +85,7 @@ export const GitFileRow = memo(function GitFileRow({ row, selected, focusable, h
         )}
         {group === GitRowGroup.Unstaged && (
           <>
-            <button type="button" tabIndex={-1} className={`${ROW_ACTION} hover:text-dock-error`} aria-label="Abandonner les modifications" data-tip="Abandonner les modifications (Suppr)" onClick={handleDiscard}>
+            <button type="button" tabIndex={-1} className={`${ROW_ACTION} hover:text-tily-error`} aria-label="Abandonner les modifications" data-tip="Abandonner les modifications (Suppr)" onClick={handleDiscard}>
               <Icon name={IconName.Discard} />
             </button>
             <button type="button" tabIndex={-1} className={ROW_STAGE_BUTTON} aria-label="Stage" data-tip="Stage (Espace)" onClick={handleStage}>

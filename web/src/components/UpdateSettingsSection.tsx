@@ -12,27 +12,27 @@ interface UpdateSettingsSectionProps {
   onAutoCheckChange: (autoCheck: boolean) => void
 }
 
-const PRIMARY = `${SETTINGS_BUTTON} border-dock-green text-dock-green-deep hover:bg-dock-green-soft`
+const PRIMARY = `${SETTINGS_BUTTON} border-tily-green text-tily-green-deep hover:bg-tily-green-soft`
 
 const checkedSuffix = (info: UpdateInfo): string => (info.checkedAt ? ` · vérifié à ${formatTime(info.checkedAt)}` : '')
 
 const describe = (info: UpdateInfo | null): { text: string; tone: string } => {
   if (!info || info.status === UpdateStatus.Idle) {
-    return { text: 'Aucune vérification depuis le lancement de Dock.', tone: 'text-dock-muted' }
+    return { text: 'Aucune vérification depuis le lancement de Tily.', tone: 'text-tily-muted' }
   }
   switch (info.status) {
     case UpdateStatus.Checking:
-      return { text: 'Vérification auprès de GitHub…', tone: 'text-dock-muted' }
+      return { text: 'Vérification auprès de GitHub…', tone: 'text-tily-muted' }
     case UpdateStatus.UpToDate:
-      return { text: `Dock ${info.current} est à jour${checkedSuffix(info)}.`, tone: 'text-dock-green' }
+      return { text: `Tily ${info.current} est à jour${checkedSuffix(info)}.`, tone: 'text-tily-green' }
     case UpdateStatus.Downloading:
-      return { text: `Téléchargement de Dock ${info.release?.version ?? ''} : ${downloadPercent(info)} %`, tone: 'text-dock-ink' }
+      return { text: `Téléchargement de Tily ${info.release?.version ?? ''} : ${downloadPercent(info)} %`, tone: 'text-tily-ink' }
     case UpdateStatus.Ready:
-      return { text: `Dock ${info.release?.version ?? ''} est téléchargé et vérifié, prêt à installer.`, tone: 'text-dock-green' }
+      return { text: `Tily ${info.release?.version ?? ''} est téléchargé et vérifié, prêt à installer.`, tone: 'text-tily-green' }
     case UpdateStatus.Failed:
-      return { text: info.error ?? 'La dernière vérification a échoué.', tone: 'text-dock-error' }
+      return { text: info.error ?? 'La dernière vérification a échoué.', tone: 'text-tily-error' }
     default:
-      return { text: `Dock ${info.release?.version ?? ''} est disponible (version actuelle ${info.current})${checkedSuffix(info)}.`, tone: 'text-dock-green' }
+      return { text: `Tily ${info.release?.version ?? ''} est disponible (version actuelle ${info.current})${checkedSuffix(info)}.`, tone: 'text-tily-green' }
   }
 }
 
@@ -49,9 +49,9 @@ export function UpdateSettingsSection({ sectionClassName, autoCheck, file, onAut
         <input type="checkbox" checked={autoCheck} onChange={handleAutoCheckChange} />
         <span className={SETTINGS_LABEL}>Rechercher les nouvelles versions au démarrage puis toutes les 6 heures</span>
       </label>
-      <p className={SETTINGS_HINT}>Dock interroge les releases publiques du dépôt GitHub. Rien n’est téléchargé ni installé sans votre clic sur « Installer et redémarrer ».</p>
+      <p className={SETTINGS_HINT}>Tily interroge les releases publiques du dépôt GitHub. Rien n’est téléchargé ni installé sans votre clic sur « Installer et redémarrer ».</p>
       <span className="flex items-center gap-3">
-        {busy && <Spinner size={11} className="text-dock-green" />}
+        {busy && <Spinner size={11} className="text-tily-green" />}
         <span className={`min-w-0 flex-1 text-[12px] ${tone}`}>{text}</span>
         {info?.release && (
           <button type="button" className={PRIMARY} onClick={showUpdateDialog}>

@@ -2,18 +2,18 @@
 setlocal
 cd /d "%~dp0.."
 
-for /f "delims=" %%v in ('dotnet msbuild src\Dock.Host\Dock.Host.csproj -getProperty:Version -nologo') do set VERSION=%%v
+for /f "delims=" %%v in ('dotnet msbuild src\Tily.Host\Tily.Host.csproj -getProperty:Version -nologo') do set VERSION=%%v
 if "%VERSION%"=="" (
-  echo Version introuvable dans src\Dock.Host\Dock.Host.csproj
+  echo Version introuvable dans src\Tily.Host\Tily.Host.csproj
   exit /b 1
 )
-echo Dock %VERSION%
+echo Tily %VERSION%
 
 echo [1/4] Nettoyage de la publication precedente
 if exist publish rmdir /s /q publish
 
 echo [2/4] Publication autonome win-x64 (Windows App SDK et interface web embarques)
-dotnet publish src\Dock.Host\Dock.Host.csproj -c Release -r win-x64 -p:Platform=x64 --self-contained -o publish || exit /b 1
+dotnet publish src\Tily.Host\Tily.Host.csproj -c Release -r win-x64 -p:Platform=x64 --self-contained -o publish || exit /b 1
 
 echo [3/4] Programme d'installation WebView2 Evergreen
 if not exist installer\MicrosoftEdgeWebview2Setup.exe (
@@ -27,5 +27,5 @@ if not exist "%ISCC%" (
   echo Inno Setup 6 introuvable : installez-le depuis https://jrsoftware.org/isdl.php
   exit /b 1
 )
-"%ISCC%" /Qp /DAppVersion=%VERSION% installer\Dock.iss || exit /b 1
-echo Installeur produit : installer\output\Dock-%VERSION%-setup.exe
+"%ISCC%" /Qp /DAppVersion=%VERSION% installer\Tily.iss || exit /b 1
+echo Installeur produit : installer\output\Tily-%VERSION%-setup.exe

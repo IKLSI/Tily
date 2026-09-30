@@ -28,11 +28,11 @@ interface PaneViewProps {
   onDismissState: (paneId: string) => void
 }
 
-const HEADER_BUTTON = 'flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded hover:bg-dock-green-hover hover:text-dock-ink'
+const HEADER_BUTTON = 'flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded hover:bg-tily-green-hover hover:text-tily-ink'
 const BUTTON_SELECTOR = 'button'
 const SINGLE_CLICK = 1
 const SECONDARY_BUTTON = `${HEADER_BUTTON} @max-[280px]:hidden`
-const MUTED_BUTTON = 'opacity-40 hover:bg-transparent hover:text-dock-muted'
+const MUTED_BUTTON = 'opacity-40 hover:bg-transparent hover:text-tily-muted'
 const ICON_SIZE = 12
 const ICON_PROPS = { width: ICON_SIZE, height: ICON_SIZE, viewBox: '0 0 12 12', fill: 'none', stroke: 'currentColor', strokeWidth: 1.2, strokeLinecap: 'round', strokeLinejoin: 'round' } as const
 
@@ -161,24 +161,24 @@ export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZ
   return (
     <section
       data-pane-id={pane.id}
-      className={`grid h-full min-h-0 grid-cols-1 grid-rows-[24px_1fr] overflow-hidden rounded-md border bg-dock-terminal ${active ? 'border-dock-green' : 'border-dock-line'}`}
+      className={`grid h-full min-h-0 grid-cols-1 grid-rows-[24px_1fr] overflow-hidden rounded-md border bg-tily-terminal ${active ? 'border-tily-green' : 'border-tily-line'}`}
       onFocus={handleFocusWithin}
     >
       <header
-        className="@container flex items-center gap-1 bg-dock-panel px-2 text-[11px] text-dock-muted select-none"
+        className="@container flex items-center gap-1 bg-tily-panel px-2 text-[11px] text-tily-muted select-none"
         onMouseDown={handleHeaderMouseDown}
         onDoubleClick={handleHeaderDoubleClick}
       >
-        <span className="mr-1 min-w-[2em] truncate font-semibold text-dock-ink">{pane.shell}</span>
+        <span className="mr-1 min-w-[2em] truncate font-semibold text-tily-ink">{pane.shell}</span>
         {agent && <AgentBadge agent={agent} />}
-        <span className="flex min-w-0 flex-1 font-mono whitespace-nowrap text-dock-green" data-tip={pane.path}>
+        <span className="flex min-w-0 flex-1 font-mono whitespace-nowrap text-tily-green" data-tip={pane.path}>
           {parent && <span className="min-w-[1.2em] truncate">{parent}</span>}
           <span className={parent ? 'max-w-[calc(100%_-_1.2em)] shrink-0 truncate' : 'truncate'}>{folder}</span>
         </span>
         {branchLabel && (
           <button
             type="button"
-            className="flex max-w-[35%] min-w-0 shrink cursor-pointer items-center gap-1 rounded font-mono text-dock-muted hover:text-dock-ink @max-[520px]:hidden"
+            className="flex max-w-[35%] min-w-0 shrink cursor-pointer items-center gap-1 rounded font-mono text-tily-muted hover:text-tily-ink @max-[520px]:hidden"
             data-tip={`${gitSummary(context)} · Clic : vue Git (Ctrl + Maj + G)`}
             aria-label={`${branchLabel} : ouvrir la vue Git`}
             onClick={handleOpenGit}
@@ -199,7 +199,7 @@ export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZ
         <button type="button" className={`${SECONDARY_BUTTON} ${context?.branch ? '' : MUTED_BUTTON}`} data-tip={branchTitle} aria-label="Copier la branche Git" aria-disabled={!context?.branch} onClick={handleCopyBranch}>
           <BranchIcon />
         </button>
-        <span className="mx-1 h-3 w-px bg-dock-line @max-[280px]:hidden" aria-hidden="true" />
+        <span className="mx-1 h-3 w-px bg-tily-line @max-[280px]:hidden" aria-hidden="true" />
         <button type="button" className={HEADER_BUTTON} data-tip="Split côte à côte (Ctrl + Maj + D)" aria-label="Split côte à côte" onClick={ignoringRepeatedClicks(handleSplitSideBySide)}>
           <SplitIcon horizontal />
         </button>
@@ -207,11 +207,11 @@ export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZ
           <SplitIcon horizontal={false} />
         </button>
         {zoomed && (
-          <button type="button" className={`${HEADER_BUTTON} text-dock-green`} data-tip="Réduire le pane et revoir les autres (Ctrl + Maj + M)" aria-label="Réduire le pane" onClick={handleToggleZoom}>
+          <button type="button" className={`${HEADER_BUTTON} text-tily-green`} data-tip="Réduire le pane et revoir les autres (Ctrl + Maj + M)" aria-label="Réduire le pane" onClick={handleToggleZoom}>
             <UnzoomIcon />
           </button>
         )}
-        <button type="button" className={`${HEADER_BUTTON} hover:text-dock-error`} data-tip="Fermer le pane (Ctrl + Maj + X)" aria-label="Fermer le pane" onClick={ignoringRepeatedClicks(handleClose)}>
+        <button type="button" className={`${HEADER_BUTTON} hover:text-tily-error`} data-tip="Fermer le pane (Ctrl + Maj + X)" aria-label="Fermer le pane" onClick={ignoringRepeatedClicks(handleClose)}>
           <CloseIcon />
         </button>
       </header>

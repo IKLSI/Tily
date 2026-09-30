@@ -75,7 +75,7 @@ export function GitColumnResizer({ side, width, defaultWidth, label, narrowed, o
       onDoubleClick={handleDoubleClick}
       onKeyDown={handleKeyDown}
     >
-      <span className="h-full w-px bg-dock-line group-hover/resizer:w-0.5 group-hover/resizer:bg-dock-green group-focus-visible/resizer:w-0.5 group-focus-visible/resizer:bg-dock-focus" />
+      <span className="h-full w-px bg-tily-line group-hover/resizer:w-0.5 group-hover/resizer:bg-tily-green group-focus-visible/resizer:w-0.5 group-focus-visible/resizer:bg-tily-focus" />
     </span>
   )
 }

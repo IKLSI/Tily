@@ -25,9 +25,9 @@ const ACTIVATION_GUARD_MS = 600
 const ACTIVATION_KEYS = new Set(['Enter', ' '])
 
 const BUTTON = 'cursor-pointer rounded border px-3 py-1.5 text-[12px]'
-const PRIMARY = `${BUTTON} border-dock-green text-dock-green-deep hover:bg-dock-green-soft`
-const SECONDARY = `${BUTTON} border-dock-line text-dock-ink hover:bg-dock-green-hover`
-const DANGER = `${BUTTON} border-dock-line text-dock-muted hover:text-dock-error`
+const PRIMARY = `${BUTTON} border-tily-green text-tily-green-deep hover:bg-tily-green-soft`
+const SECONDARY = `${BUTTON} border-tily-line text-tily-ink hover:bg-tily-green-hover`
+const DANGER = `${BUTTON} border-tily-line text-tily-muted hover:text-tily-error`
 
 export function PaneOverlay({ state, active, shells, onRestart, onRestartIn, onChangeShell, onDismiss, onClose }: PaneOverlayProps) {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -74,10 +74,10 @@ export function PaneOverlay({ state, active, shells, onRestart, onRestartIn, onC
     }
   }
   return (
-    <div ref={overlayRef} role="alert" tabIndex={-1} className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-dock-terminal/90 p-4 text-center" onFocus={handleOverlayFocus} onKeyDownCapture={ignoreHastyActivation} onKeyUpCapture={ignoreHastyActivation}>
-      <p className="text-[13px] font-semibold text-dock-ink">{TITLES[state.kind]}</p>
-      <p className="max-w-full font-mono text-[11px] break-words text-dock-muted">{state.message}</p>
-      {pathMissing && state.fallback && <p className="max-w-full font-mono text-[11px] break-words text-dock-green">{`Repli : ${state.fallback}`}</p>}
+    <div ref={overlayRef} role="alert" tabIndex={-1} className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-tily-terminal/90 p-4 text-center" onFocus={handleOverlayFocus} onKeyDownCapture={ignoreHastyActivation} onKeyUpCapture={ignoreHastyActivation}>
+      <p className="text-[13px] font-semibold text-tily-ink">{TITLES[state.kind]}</p>
+      <p className="max-w-full font-mono text-[11px] break-words text-tily-muted">{state.message}</p>
+      {pathMissing && state.fallback && <p className="max-w-full font-mono text-[11px] break-words text-tily-green">{`Repli : ${state.fallback}`}</p>}
       <div className="flex flex-wrap items-center justify-center gap-2">
         {pathMissing ? (
           <>

@@ -142,19 +142,19 @@ export function GitGraphTable({ state, layout }: GitGraphTableProps) {
       onKeyDown={handleKeyDown}
     >
       <GitGraphHeader layout={shownLayout} stored={layout} onResize={handleResize} onMenu={openColumnsMenu} />
-      {historyError && <p className="px-[12px] py-[4px] text-[12px] text-dock-error">{historyError}</p>}
+      {historyError && <p className="px-[12px] py-[4px] text-[12px] text-tily-error">{historyError}</p>}
       <div className="relative" style={{ height: rowCount * GRAPH_ROW_HEIGHT }}>
         {range.start === 0 && <GitWorkingTreeRow state={state} graph={history?.workingTree ?? SINGLE_NODE} selected={commit === null} layout={shownLayout} onSelect={selectWorkingTree} onMenu={openWorkingTreeMenu} />}
         {commits.slice(firstCommit, lastCommit).map((entry, offset) => (
           <GitGraphRow key={entry.sha} commit={entry} index={firstCommit + offset + 1} selected={entry.sha === commit} head={entry.sha === state.head.sha} layout={shownLayout} remotes={state.remotes} handlers={handlers} />
         ))}
         {hasMore && range.end >= commits.length + 1 && (
-          <div className="absolute inset-x-0 flex items-center px-[12px] text-[11px] text-dock-muted italic" style={{ top: (commits.length + 1) * GRAPH_ROW_HEIGHT, height: GRAPH_ROW_HEIGHT }}>
+          <div className="absolute inset-x-0 flex items-center px-[12px] text-[11px] text-tily-muted italic" style={{ top: (commits.length + 1) * GRAPH_ROW_HEIGHT, height: GRAPH_ROW_HEIGHT }}>
             Chargement des commits suivants…
           </div>
         )}
         {history && commits.length === 0 && !historyError && (
-          <p className="absolute inset-x-0 px-[12px] text-[12px] text-dock-muted italic" style={{ top: GRAPH_ROW_HEIGHT + 6 }}>
+          <p className="absolute inset-x-0 px-[12px] text-[12px] text-tily-muted italic" style={{ top: GRAPH_ROW_HEIGHT + 6 }}>
             Aucun commit pour l’instant.
           </p>
         )}

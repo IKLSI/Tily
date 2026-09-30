@@ -3,7 +3,7 @@ import { allPanes, DEFAULT_SHELL } from '../model/session'
 import { usePaneStore } from '../store/paneStore'
 import { useSessionStore } from '../store/sessionStore'
 
-export const TREE_PATH_TYPE = 'application/x-dock-path'
+export const TREE_PATH_TYPE = 'application/x-tily-path'
 const FILES_TYPE = 'Files'
 const EXTERNAL_TYPES = [FILES_TYPE, 'text/uri-list']
 const NO_DROP = 'none'

@@ -18,8 +18,8 @@ const keepDiffFocus = (event: MouseEvent<HTMLDivElement>) => event.preventDefaul
 
 export function GitDiffSelectionBar({ count, source }: GitDiffSelectionBarProps) {
   return (
-    <div role="toolbar" aria-label="Lignes choisies" className="absolute right-[16px] bottom-[12px] z-10 flex items-center gap-[2px] rounded-lg border border-dock-line bg-dock-panel py-[3px] pr-[3px] pl-[10px] shadow-lg" onMouseDown={keepDiffFocus}>
-      <span className="mr-[6px] text-[12px] whitespace-nowrap text-dock-ink-soft">{plural(count, 'ligne choisie', 'lignes choisies')}</span>
+    <div role="toolbar" aria-label="Lignes choisies" className="absolute right-[16px] bottom-[12px] z-10 flex items-center gap-[2px] rounded-lg border border-tily-line bg-tily-panel py-[3px] pr-[3px] pl-[10px] shadow-lg" onMouseDown={keepDiffFocus}>
+      <span className="mr-[6px] text-[12px] whitespace-nowrap text-tily-ink-soft">{plural(count, 'ligne choisie', 'lignes choisies')}</span>
       {source === GitDiffSource.Staged ? (
         <GitToolButton icon={IconName.Minus} label="Unstage" tip="Unstage des lignes choisies (Espace)" onClick={handleUnstage} />
       ) : (

@@ -4,7 +4,7 @@ import { CHANGE_CLASSES, CHANGE_LABELS, CHANGE_LETTERS } from '../git/gitLabels'
 
 const CONFLICT_LETTER = '!'
 const CONFLICT_LABEL = 'En conflit'
-const CONFLICT_CLASS = 'text-dock-error'
+const CONFLICT_CLASS = 'text-tily-error'
 const FOLDER_LETTER = '•'
 const FOLDER_LABEL = 'Contient des modifications'
 const SEPARATOR = /[\\/]+/

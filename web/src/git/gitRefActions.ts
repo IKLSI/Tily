@@ -103,7 +103,7 @@ export const deleteRemoteBranch = (branch: GitRemoteBranch): void =>
   askConfirmation({
     title: `Supprimer la branche distante « ${branch.name} » ?`,
     body: `La branche « ${branch.branch} » sera supprimée sur ${branch.remote}, pour tous ceux qui l’utilisent.`,
-    detail: 'Cette suppression est publiée : elle ne peut pas être annulée depuis Dock.',
+    detail: 'Cette suppression est publiée : elle ne peut pas être annulée depuis Tily.',
     confirmLabel: 'Supprimer sur le distant',
     run: () => withRoot((path) => ({ type: 'git.remoteBranchDelete', path, reference: branch.name, confirmed: true })),
   })

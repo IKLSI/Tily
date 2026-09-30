@@ -38,16 +38,16 @@ export interface PanelMenuRequest {
 }
 
 export const PANEL_CLOSE_BUTTON =
-  'flex size-[20px] shrink-0 cursor-pointer items-center justify-center rounded text-dock-muted opacity-0 group-hover:opacity-100 focus-visible:opacity-100 hover:bg-dock-green-hover hover:text-dock-error'
+  'flex size-[20px] shrink-0 cursor-pointer items-center justify-center rounded text-tily-muted opacity-0 group-hover:opacity-100 focus-visible:opacity-100 hover:bg-tily-green-hover hover:text-tily-error'
 
 export const PANEL_HOVER_BUTTON =
-  'flex size-[20px] shrink-0 cursor-pointer items-center justify-center rounded text-dock-muted opacity-0 group-hover:opacity-100 focus-visible:opacity-100 hover:bg-dock-green-hover hover:text-dock-ink aria-disabled:cursor-default aria-disabled:text-dock-muted/40 aria-disabled:hover:bg-transparent aria-disabled:hover:text-dock-muted/40'
+  'flex size-[20px] shrink-0 cursor-pointer items-center justify-center rounded text-tily-muted opacity-0 group-hover:opacity-100 focus-visible:opacity-100 hover:bg-tily-green-hover hover:text-tily-ink aria-disabled:cursor-default aria-disabled:text-tily-muted/40 aria-disabled:hover:bg-transparent aria-disabled:hover:text-tily-muted/40'
 
 export const PANEL_NOTE_BUTTON =
-  'flex size-[20px] shrink-0 cursor-pointer items-center justify-center rounded text-dock-muted hover:bg-dock-green-hover hover:text-dock-ink'
+  'flex size-[20px] shrink-0 cursor-pointer items-center justify-center rounded text-tily-muted hover:bg-tily-green-hover hover:text-tily-ink'
 
 export const PANEL_DROP_LINE =
-  'pointer-events-none absolute -top-px right-0 left-0 h-[2px] rounded-full bg-dock-focus before:absolute before:-top-[2px] before:-left-[3px] before:size-[6px] before:rounded-full before:bg-dock-focus'
+  'pointer-events-none absolute -top-px right-0 left-0 h-[2px] rounded-full bg-tily-focus before:absolute before:-top-[2px] before:-left-[3px] before:size-[6px] before:rounded-full before:bg-tily-focus'
 
 export interface MenuPlace {
   position: number

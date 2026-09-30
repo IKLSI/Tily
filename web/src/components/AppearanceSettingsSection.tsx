@@ -28,7 +28,7 @@ export function AppearanceSettingsSection({ sectionClassName, fontSize, file, on
           ))}
         </select>
       </label>
-      <p className="overflow-hidden rounded border border-dock-line bg-dock-terminal px-2 py-1 whitespace-nowrap text-dock-terminal-ink" style={{ fontFamily: SAMPLE_FONT, fontSize }}>
+      <p className="overflow-hidden rounded border border-tily-line bg-tily-terminal px-2 py-1 whitespace-nowrap text-tily-terminal-ink" style={{ fontFamily: SAMPLE_FONT, fontSize }}>
         PS C:\Files\Projects&gt; git status
       </p>
       <p className={SETTINGS_HINT}>S’applique à tous les terminaux ouverts dès l’enregistrement.</p>

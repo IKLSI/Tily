@@ -21,15 +21,15 @@ const LINE_HEIGHT = 18
 const PICK_SELECTOR = '[data-diff-pick]'
 
 const LINE_CLASSES: Record<GitDiffLineKind, string> = {
-  [GitDiffLineKind.Context]: 'text-dock-terminal-ink',
-  [GitDiffLineKind.Added]: 'bg-dock-diff-added text-dock-diff-added-ink',
-  [GitDiffLineKind.Removed]: 'bg-dock-diff-removed text-dock-diff-removed-ink',
-  [GitDiffLineKind.Note]: 'text-dock-muted italic',
+  [GitDiffLineKind.Context]: 'text-tily-terminal-ink',
+  [GitDiffLineKind.Added]: 'bg-tily-diff-added text-tily-diff-added-ink',
+  [GitDiffLineKind.Removed]: 'bg-tily-diff-removed text-tily-diff-removed-ink',
+  [GitDiffLineKind.Note]: 'text-tily-muted italic',
 }
 
 const SELECTED_CLASSES: Partial<Record<GitDiffLineKind, string>> = {
-  [GitDiffLineKind.Added]: 'bg-dock-diff-added-selected text-dock-diff-added-ink shadow-[inset_3px_0_0_var(--color-dock-focus)]',
-  [GitDiffLineKind.Removed]: 'bg-dock-diff-removed-selected text-dock-diff-removed-ink shadow-[inset_3px_0_0_var(--color-dock-focus)]',
+  [GitDiffLineKind.Added]: 'bg-tily-diff-added-selected text-tily-diff-added-ink shadow-[inset_3px_0_0_var(--color-tily-focus)]',
+  [GitDiffLineKind.Removed]: 'bg-tily-diff-removed-selected text-tily-diff-removed-ink shadow-[inset_3px_0_0_var(--color-tily-focus)]',
 }
 
 const LINE_SIGNS: Record<GitDiffLineKind, string> = {
@@ -39,20 +39,20 @@ const LINE_SIGNS: Record<GitDiffLineKind, string> = {
   [GitDiffLineKind.Note]: ' ',
 }
 
-const CURSOR_CLASSES = 'group-focus:outline group-focus:outline-1 group-focus:-outline-offset-1 group-focus:outline-dock-focus'
-const PICK_CLASSES = 'cursor-pointer hover:bg-dock-green-hover/60'
+const CURSOR_CLASSES = 'group-focus:outline group-focus:outline-1 group-focus:-outline-offset-1 group-focus:outline-tily-focus'
+const PICK_CLASSES = 'cursor-pointer hover:bg-tily-green-hover/60'
 const PICK_TIP = 'Choisir la ligne · Maj + clic : jusqu’ici · Ctrl + clic : ajouter ou retirer'
 
 const renderHunk = (row: DiffRow, style: { top: number; height: number }, index: number, selectable: GitDiffSource | null) => {
   if (!selectable || row.hunk === undefined) {
     return (
-      <div key={index} className="absolute left-0 w-max min-w-full bg-dock-panel px-[10px] text-dock-lane-1" style={style}>
+      <div key={index} className="absolute left-0 w-max min-w-full bg-tily-panel px-[10px] text-tily-lane-1" style={style}>
         {row.text}
       </div>
     )
   }
   return (
-    <div key={index} className={`absolute left-0 flex w-max min-w-full bg-dock-panel text-dock-lane-1 ${PICK_CLASSES}`} style={style} data-diff-pick="" data-tip="Choisir le chunk">
+    <div key={index} className={`absolute left-0 flex w-max min-w-full bg-tily-panel text-tily-lane-1 ${PICK_CLASSES}`} style={style} data-diff-pick="" data-tip="Choisir le chunk">
       <GitDiffHunkActions hunk={row.hunk} source={selectable} />
       <span className="pr-[16px] whitespace-pre">{row.text}</span>
     </div>
@@ -66,7 +66,7 @@ const renderRow = (row: DiffRow, index: number, selection: GitDiffSelection, sel
   }
   if (!row.line) {
     return (
-      <div key={index} className="absolute left-0 w-max min-w-full px-[10px] font-sans text-dock-muted italic" style={style}>
+      <div key={index} className="absolute left-0 w-max min-w-full px-[10px] font-sans text-tily-muted italic" style={style}>
         {row.text}
       </div>
     )
@@ -84,8 +84,8 @@ const renderRow = (row: DiffRow, index: number, selection: GitDiffSelection, sel
         </span>
       )}
       <span className={`flex shrink-0 ${pickable ? PICK_CLASSES : ''}`} data-diff-pick={pickable ? '' : undefined} data-tip={pickable ? PICK_TIP : undefined}>
-        <span className="w-[46px] shrink-0 pr-[8px] text-right text-dock-muted select-none">{old ?? ''}</span>
-        <span className="w-[46px] shrink-0 pr-[8px] text-right text-dock-muted select-none">{next ?? ''}</span>
+        <span className="w-[46px] shrink-0 pr-[8px] text-right text-tily-muted select-none">{old ?? ''}</span>
+        <span className="w-[46px] shrink-0 pr-[8px] text-right text-tily-muted select-none">{next ?? ''}</span>
         <span className="w-[16px] shrink-0 select-none">{LINE_SIGNS[kind]}</span>
       </span>
       <span className="pr-[16px] whitespace-pre">{row.text}</span>
@@ -101,7 +101,7 @@ export function GitDiffView({ diff, error, placeholder, selectable }: GitDiffVie
   const { range, handleScroll } = useVirtualRows(containerRef, rows.length, LINE_HEIGHT)
 
   if (error || !diff) {
-    return <p className={`px-[12px] py-[10px] text-[12px] ${error ? 'text-dock-error' : 'text-dock-muted italic'}`}>{error ?? placeholder}</p>
+    return <p className={`px-[12px] py-[10px] text-[12px] ${error ? 'text-tily-error' : 'text-tily-muted italic'}`}>{error ?? placeholder}</p>
   }
 
   const rowAt = (clientY: number): number => {
@@ -235,7 +235,7 @@ export function GitDiffView({ diff, error, placeholder, selectable }: GitDiffVie
         tabIndex={0}
         data-git-diff=""
         aria-label={`Diff de ${diff.path}`}
-        className="group relative min-h-0 flex-1 overflow-auto bg-dock-terminal font-mono text-[12px] leading-[18px] [tab-size:4]"
+        className="group relative min-h-0 flex-1 overflow-auto bg-tily-terminal font-mono text-[12px] leading-[18px] [tab-size:4]"
         onScroll={handleScroll}
         onKeyDown={handleKeyDown}
         onMouseDown={handleMouseDown}

@@ -155,7 +155,7 @@ export function TabBar({ workspace, shells, renamingTabId, panelOpen, onTogglePa
       stripRef.current.scrollLeft += event.deltaY
     }
   }
-  const dropLine = (targeted: boolean) => `h-6 w-0.5 shrink-0 rounded ${targeted ? 'bg-dock-focus' : 'bg-transparent'}`
+  const dropLine = (targeted: boolean) => `h-6 w-0.5 shrink-0 rounded ${targeted ? 'bg-tily-focus' : 'bg-transparent'}`
 
   return (
     <div data-drop-workspace={workspace.id} className="flex shrink-0 items-center gap-0.5 px-2 pt-1 select-none" onMouseDown={handleBarMouseDown} onDoubleClick={handleEmptyDoubleClick}>
@@ -202,7 +202,7 @@ export function TabBar({ workspace, shells, renamingTabId, panelOpen, onTogglePa
               <div
                 data-drop-workspace={workspace.id}
                 data-drop-tab={tab.id}
-                className={`flex min-w-[100px] items-center rounded-t-md border border-b-0 ${active ? 'border-dock-line bg-dock-panel text-dock-green-deep' : 'border-transparent text-dock-muted hover:bg-dock-green-hover'} ${draggingTabId === tab.id ? 'opacity-50' : ''}`}
+                className={`flex min-w-[100px] items-center rounded-t-md border border-b-0 ${active ? 'border-tily-line bg-tily-panel text-tily-green-deep' : 'border-transparent text-tily-muted hover:bg-tily-green-hover'} ${draggingTabId === tab.id ? 'opacity-50' : ''}`}
                 onAuxClick={handleAuxClick}
                 onContextMenu={handleTabContextMenu}
               >
@@ -224,7 +224,7 @@ export function TabBar({ workspace, shells, renamingTabId, panelOpen, onTogglePa
                     <span className="min-w-0 truncate">{tab.name}</span>
                   </button>
                 )}
-                <button type="button" className="shrink-0 cursor-pointer px-2 text-xs hover:text-dock-error" data-tip="Fermer l’onglet" onClick={handleClose}>
+                <button type="button" className="shrink-0 cursor-pointer px-2 text-xs hover:text-tily-error" data-tip="Fermer l’onglet" onClick={handleClose}>
                   ×
                 </button>
               </div>
@@ -239,7 +239,7 @@ export function TabBar({ workspace, shells, renamingTabId, panelOpen, onTogglePa
           type="button"
           aria-haspopup="menu"
           aria-expanded={menuOpen}
-          className="cursor-pointer rounded px-2 py-1 text-base hover:bg-dock-green-hover"
+          className="cursor-pointer rounded px-2 py-1 text-base hover:bg-tily-green-hover"
           data-tip="Nouvel onglet PowerShell (Ctrl + Maj + T ; clic droit : choisir le shell ; double-clic dans l’espace vide de la barre : nouvel onglet)"
           onClick={handleNewDefault}
           onContextMenu={handleContextMenu}
@@ -253,7 +253,7 @@ export function TabBar({ workspace, shells, renamingTabId, panelOpen, onTogglePa
         type="button"
         aria-pressed={panelOpen}
         aria-label={panelOpen ? 'Masquer le panneau de droite' : 'Afficher le panneau de droite'}
-        className={`mb-1 ml-auto flex h-[26px] shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-md px-2 text-xs hover:bg-dock-green-hover hover:text-dock-ink ${panelOpen ? 'text-dock-green-deep' : 'text-dock-muted'}`}
+        className={`mb-1 ml-auto flex h-[26px] shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-md px-2 text-xs hover:bg-tily-green-hover hover:text-tily-ink ${panelOpen ? 'text-tily-green-deep' : 'text-tily-muted'}`}
         data-tip={`${panelOpen ? 'Masquer' : 'Afficher'} le panneau Fichiers / Git / Notes (Ctrl + Maj + E, G ou O)`}
         onClick={onTogglePanel}
       >

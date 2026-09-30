@@ -78,7 +78,7 @@ export function GitCommitBox({ state, busy }: GitCommitBoxProps) {
   }
 
   return (
-    <div className="flex shrink-0 flex-col gap-[6px] border-t border-dock-line px-[10px] py-[8px]">
+    <div className="flex shrink-0 flex-col gap-[6px] border-t border-tily-line px-[10px] py-[8px]">
       <textarea
         value={message}
         rows={3}
@@ -90,12 +90,12 @@ export function GitCommitBox({ state, busy }: GitCommitBoxProps) {
         onKeyDown={handleKeyDown}
       />
       <div className="flex items-center gap-[6px]">
-        <label className="flex min-w-0 flex-1 items-center gap-[6px] text-[12px] text-dock-ink-soft">
+        <label className="flex min-w-0 flex-1 items-center gap-[6px] text-[12px] text-tily-ink-soft">
           <input type="checkbox" checked={amend} disabled={state.head.unborn} onChange={handleAmendChange} />
           <span className="truncate">Amend du dernier commit</span>
         </label>
         {subjectLength > 0 && (
-          <span className={`shrink-0 font-mono text-[11px] tabular-nums ${subjectLength > SUBJECT_MAX ? 'text-dock-warning' : 'text-dock-muted'}`} data-tip={subjectTip(subjectLength)}>
+          <span className={`shrink-0 font-mono text-[11px] tabular-nums ${subjectLength > SUBJECT_MAX ? 'text-tily-warning' : 'text-tily-muted'}`} data-tip={subjectTip(subjectLength)}>
             {subjectLength}
           </span>
         )}

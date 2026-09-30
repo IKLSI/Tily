@@ -12,7 +12,7 @@ interface PendingClose {
   confirmLabel?: string
 }
 
-const APPLICATION_TITLE = 'Quitter Dock ?'
+const APPLICATION_TITLE = 'Quitter Tily ?'
 
 let pending: PendingClose | null = null
 let confirmed: (() => void) | null = null

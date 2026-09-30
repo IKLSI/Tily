@@ -240,13 +240,13 @@ export function FileTree({ root, rows, expanded, selectedPath, renamingPath, dra
           if (row.kind === RowKind.Draft && draft) {
             return (
               <div key={row.key} className="flex h-[22px] items-center gap-[5px] pr-[8px]" style={{ paddingLeft: leafIndent(row.depth) }}>
-                <Icon name={draft.kind === EntryKind.Folder ? IconName.Folder : IconName.File} className="shrink-0 text-dock-muted" />
+                <Icon name={draft.kind === EntryKind.Folder ? IconName.Folder : IconName.File} className="shrink-0 text-tily-muted" />
                 <InlineNameEditor value="" label={draft.kind === EntryKind.Folder ? 'Nom du nouveau dossier' : 'Nom du nouveau fichier'} className="h-[18px] min-w-0 flex-1 text-[12px]" onCommit={handleCommitDraft} onCancel={handleCancelDraft} />
               </div>
             )
           }
           return (
-            <div key={row.key} className="flex h-[22px] items-center truncate pr-[8px] text-[12px] text-dock-muted italic" style={{ paddingLeft: leafIndent(row.depth) }}>
+            <div key={row.key} className="flex h-[22px] items-center truncate pr-[8px] text-[12px] text-tily-muted italic" style={{ paddingLeft: leafIndent(row.depth) }}>
               {row.note}
             </div>
           )

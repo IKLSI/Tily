@@ -12,9 +12,9 @@ import { Spinner } from './Spinner'
 import { STATUS_LOG_ID, StatusLogDrawer } from './StatusLogDrawer'
 
 const STATUS_CLASSES: Record<StatusLevel, string> = {
-  [StatusLevel.Info]: 'text-dock-muted',
-  [StatusLevel.Warning]: 'text-dock-warning',
-  [StatusLevel.Error]: 'text-dock-error',
+  [StatusLevel.Info]: 'text-tily-muted',
+  [StatusLevel.Warning]: 'text-tily-warning',
+  [StatusLevel.Error]: 'text-tily-error',
 }
 
 const untilTomorrow = (): number => {
@@ -39,31 +39,31 @@ export function StatusBar() {
   return (
     <>
       {logOpen && <StatusLogDrawer />}
-      <footer className={`flex h-[24px] shrink-0 items-center border-t border-dock-line bg-dock-paper font-mono text-[11px] ${spinning ? 'text-dock-ink-soft' : STATUS_CLASSES[status.level]}`}>
+      <footer className={`flex h-[24px] shrink-0 items-center border-t border-tily-line bg-tily-paper font-mono text-[11px] ${spinning ? 'text-tily-ink-soft' : STATUS_CLASSES[status.level]}`}>
         <button
           type="button"
           data-status-log-toggle=""
           aria-expanded={logOpen}
           aria-controls={logOpen ? STATUS_LOG_ID : undefined}
-          className="flex h-full min-w-0 flex-1 cursor-pointer items-center gap-[6px] px-3 text-left hover:bg-dock-green-hover"
+          className="flex h-full min-w-0 flex-1 cursor-pointer items-center gap-[6px] px-3 text-left hover:bg-tily-green-hover"
           onClick={toggleStatusLog}
         >
           <span className="flex shrink-0" data-tip={logOpen ? 'Masquer le journal (Ctrl + Maj + L)' : 'Afficher le journal des messages (Ctrl + Maj + L)'}>
-            <Icon name={IconName.Chevron} size={10} className={`text-dock-muted transition-transform ${logOpen ? 'rotate-90' : '-rotate-90'}`} />
+            <Icon name={IconName.Chevron} size={10} className={`text-tily-muted transition-transform ${logOpen ? 'rotate-90' : '-rotate-90'}`} />
           </span>
-          {spinning && <Spinner size={10} className="shrink-0 text-dock-green" />}
+          {spinning && <Spinner size={10} className="shrink-0 text-tily-green" />}
           <span className="truncate py-1 [text-box:trim-both_cap_alphabetic]">{busy ? busyLabel(busy, busyRefs) : status.text}</span>
         </button>
         <span role="status" className="sr-only">
           {status.text}
         </span>
         {status.at && !spinning && (
-          <time dateTime={status.at} data-tip={`Message du ${entryFullDate(status)}`} className="shrink-0 px-3 text-dock-muted tabular-nums">
+          <time dateTime={status.at} data-tip={`Message du ${entryFullDate(status)}`} className="shrink-0 px-3 text-tily-muted tabular-nums">
             {entryTime(status, new Date())}
           </time>
         )}
         {unsaved && (
-          <span className="shrink-0 px-3 text-dock-error" data-tip="La dernière sauvegarde a échoué : la session restera en l’état d’avant tant qu’une écriture ne réussit pas.">
+          <span className="shrink-0 px-3 text-tily-error" data-tip="La dernière sauvegarde a échoué : la session restera en l’état d’avant tant qu’une écriture ne réussit pas.">
             Non enregistré
           </span>
         )}

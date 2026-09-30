@@ -65,8 +65,8 @@ export function GitGraphView({ layout }: GitGraphViewProps) {
   }
 
   return (
-    <section ref={sectionRef} aria-label="Graphe Git" data-git-graph="" className="absolute inset-0 z-10 flex flex-col bg-dock-panel" onKeyDown={handleKeyDown}>
-      {busy && <div aria-hidden="true" className="absolute inset-x-0 top-0 z-10 h-[2px] animate-pulse bg-dock-green" />}
+    <section ref={sectionRef} aria-label="Graphe Git" data-git-graph="" className="absolute inset-0 z-10 flex flex-col bg-tily-panel" onKeyDown={handleKeyDown}>
+      {busy && <div aria-hidden="true" className="absolute inset-x-0 top-0 z-10 h-[2px] animate-pulse bg-tily-green" />}
       <GitGraphToolbar state={state} referencesShown={referencesShown} onToggleReferences={handleToggleReferences} />
       <div className="flex min-h-0 flex-1">
         {referencesShown && (

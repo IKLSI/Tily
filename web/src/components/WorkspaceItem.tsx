@@ -38,9 +38,9 @@ const toggleTip = (expanded: boolean, count: number): string => `${expanded ? 'R
 
 const rowStateOf = (dropInto: boolean, here: boolean): string => {
   if (dropInto) {
-    return 'bg-dock-green-soft shadow-[inset_0_0_0_1px_var(--color-dock-focus)]'
+    return 'bg-tily-green-soft shadow-[inset_0_0_0_1px_var(--color-tily-focus)]'
   }
-  return here ? 'bg-dock-green-soft' : 'hover:bg-dock-panel'
+  return here ? 'bg-tily-green-soft' : 'hover:bg-tily-panel'
 }
 
 export const WorkspaceItem = memo(function WorkspaceItem({ workspace, workspaceNames, selected, renaming, renamingTabId, springOpen, agents, draggingTabId, dropTarget, draggingSelf, dropBefore, actions, onOpenMenu }: WorkspaceItemProps) {
@@ -116,7 +116,7 @@ export const WorkspaceItem = memo(function WorkspaceItem({ workspace, workspaceN
           aria-controls={tabsId}
           aria-label={`${expanded ? 'Replier' : 'Afficher'} ${tabs.length === 1 ? 'l’onglet' : `les ${tabs.length} onglets`} de ${name}`}
           data-tip={toggleTip(expanded, tabs.length)}
-          className="flex size-[20px] shrink-0 cursor-pointer items-center justify-center rounded text-dock-muted hover:text-dock-ink"
+          className="flex size-[20px] shrink-0 cursor-pointer items-center justify-center rounded text-tily-muted hover:text-tily-ink"
           onClick={handleToggle}
         >
           <Icon name={IconName.Chevron} size={10} className={`transition-transform duration-[120ms] ease-out ${expanded ? 'rotate-90' : ''}`} />
@@ -132,7 +132,7 @@ export const WorkspaceItem = memo(function WorkspaceItem({ workspace, workspaceN
             data-row-name={name}
             aria-expanded={expanded}
             data-tip={`${name} · Double-clic pour renommer`}
-            className={`flex h-full min-w-0 flex-1 cursor-pointer items-center text-left text-[13px] font-semibold ${here ? 'text-dock-green-deep' : 'text-dock-ink'}`}
+            className={`flex h-full min-w-0 flex-1 cursor-pointer items-center text-left text-[13px] font-semibold ${here ? 'text-tily-green-deep' : 'text-tily-ink'}`}
             onClick={handleNameClick}
             onDoubleClick={handleRename}
             onKeyDown={handleNameKeyDown}
@@ -146,7 +146,7 @@ export const WorkspaceItem = memo(function WorkspaceItem({ workspace, workspaceN
           </button>
         )}
         {!expanded && (
-          <span className="shrink-0 translate-y-px px-[2px] font-mono text-[11px] leading-none text-dock-muted tabular-nums" aria-hidden="true" data-tip={tabCountTip(tabs.length)}>
+          <span className="shrink-0 translate-y-px px-[2px] font-mono text-[11px] leading-none text-tily-muted tabular-nums" aria-hidden="true" data-tip={tabCountTip(tabs.length)}>
             {tabs.length}
           </span>
         )}
@@ -157,7 +157,7 @@ export const WorkspaceItem = memo(function WorkspaceItem({ workspace, workspaceN
         </button>
       </div>
       {expanded && (
-        <ul id={tabsId} className="relative mb-[4px] pl-[20px] before:absolute before:top-0 before:bottom-[14px] before:left-[12px] before:w-px before:bg-dock-line">
+        <ul id={tabsId} className="relative mb-[4px] pl-[20px] before:absolute before:top-0 before:bottom-[14px] before:left-[12px] before:w-px before:bg-tily-line">
           {tabs.map((tab) => (
             <WorkspaceTabRow
               key={tab.id}

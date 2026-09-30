@@ -33,7 +33,7 @@ export function GitWorkingTreeRow({ state, graph, selected, layout, onSelect, on
       id={graphRowId(WORKING_TREE_KEY)}
       role="option"
       aria-selected={selected}
-      className={`absolute inset-x-0 flex items-center text-[12px] select-none ${selected ? `bg-dock-green-soft ${ROW_FOCUS_OUTLINE}` : 'hover:bg-dock-green-hover'}`}
+      className={`absolute inset-x-0 flex items-center text-[12px] select-none ${selected ? `bg-tily-green-soft ${ROW_FOCUS_OUTLINE}` : 'hover:bg-tily-green-hover'}`}
       style={{ top: 0, height: GRAPH_ROW_HEIGHT }}
       onClick={onSelect}
       onContextMenu={handleContextMenu}
@@ -41,15 +41,15 @@ export function GitWorkingTreeRow({ state, graph, selected, layout, onSelect, on
       <span className="shrink-0" style={{ width: layout.labelsWidth }} />
       <GitGraphCell graph={graph} width={layout.graphWidth} node={GitNodeKind.WorkingTree} labelled={false} />
       <div className="flex min-w-0 flex-1 items-center gap-[10px] overflow-hidden pr-[8px] pl-[11px]">
-        <span className="shrink-0 font-mono text-dock-muted italic" data-tip="Modifications de l’arbre de travail : stage et commit dans le panneau Git">
+        <span className="shrink-0 font-mono text-tily-muted italic" data-tip="Modifications de l’arbre de travail : stage et commit dans le panneau Git">
           {'// WIP'}
         </span>
-        {state.operation && <span className="shrink-0 rounded bg-dock-warning/15 px-[6px] text-[11px] text-dock-warning">{`${OPERATION_LABELS[state.operation]} en cours`}</span>}
-        {renderCount(counts.conflicts, '!', plural(counts.conflicts, 'fichier en conflit', 'fichiers en conflit'), 'text-dock-error')}
-        {renderCount(counts.added, '+', plural(counts.added, 'fichier ajouté ou non suivi', 'fichiers ajoutés ou non suivis'), 'text-dock-green')}
-        {renderCount(counts.modified, '~', plural(counts.modified, 'fichier modifié', 'fichiers modifiés'), 'text-dock-warning')}
-        {renderCount(counts.deleted, '−', plural(counts.deleted, 'fichier supprimé', 'fichiers supprimés'), 'text-dock-error')}
-        {clean && <span className="truncate text-[11px] text-dock-muted">Aucune modification</span>}
+        {state.operation && <span className="shrink-0 rounded bg-tily-warning/15 px-[6px] text-[11px] text-tily-warning">{`${OPERATION_LABELS[state.operation]} en cours`}</span>}
+        {renderCount(counts.conflicts, '!', plural(counts.conflicts, 'fichier en conflit', 'fichiers en conflit'), 'text-tily-error')}
+        {renderCount(counts.added, '+', plural(counts.added, 'fichier ajouté ou non suivi', 'fichiers ajoutés ou non suivis'), 'text-tily-green')}
+        {renderCount(counts.modified, '~', plural(counts.modified, 'fichier modifié', 'fichiers modifiés'), 'text-tily-warning')}
+        {renderCount(counts.deleted, '−', plural(counts.deleted, 'fichier supprimé', 'fichiers supprimés'), 'text-tily-error')}
+        {clean && <span className="truncate text-[11px] text-tily-muted">Aucune modification</span>}
       </div>
     </div>
   )

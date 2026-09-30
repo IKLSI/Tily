@@ -51,14 +51,14 @@ export function GitPromptBar({ prompt }: GitPromptBarProps) {
   }
 
   return (
-    <div className="mx-[8px] mb-[6px] flex flex-col gap-[6px] rounded border border-dock-line bg-dock-panel px-[10px] py-[8px]">
-      <label className="flex flex-col gap-[4px] text-[11px] text-dock-muted">
+    <div className="mx-[8px] mb-[6px] flex flex-col gap-[6px] rounded border border-tily-line bg-tily-panel px-[10px] py-[8px]">
+      <label className="flex flex-col gap-[4px] text-[11px] text-tily-muted">
         <span className="truncate">{prompt.label}</span>
         <input ref={inputRef} type="text" defaultValue={prompt.initial} maxLength={NAME_MAX_LENGTH} spellCheck={false} className={`${GIT_INPUT} font-mono`} onKeyDown={handleKeyDown} />
       </label>
       <div className="flex items-center gap-[6px]">
         {prompt.kind === GitPromptKind.NewBranch ? (
-          <label className="flex min-w-0 flex-1 items-center gap-[6px] text-[12px] text-dock-ink-soft">
+          <label className="flex min-w-0 flex-1 items-center gap-[6px] text-[12px] text-tily-ink-soft">
             <input type="checkbox" checked={checkout} onChange={handleCheckoutChange} />
             <span className="truncate">Checkout après création</span>
           </label>

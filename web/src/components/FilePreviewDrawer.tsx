@@ -90,10 +90,10 @@ export function FilePreviewDrawer() {
   const name = preview?.name ?? folderName(path)
 
   return (
-    <aside aria-label="Aperçu du fichier" data-preview-drawer="" className="absolute inset-y-0 right-0 z-20 flex w-[min(920px,100%)] flex-col border-l border-dock-line bg-dock-panel shadow-2xl" onKeyDown={handleKeyDown}>
-      <header className="flex h-[36px] shrink-0 items-center gap-[8px] border-b border-dock-line pr-[6px] pl-[12px]">
-        {preview && !preview.error && <span className="shrink-0 rounded bg-dock-paper px-[6px] py-[1px] text-[11px] text-dock-muted">{preview.kind === PreviewKind.Image && imageSize ? `${KIND_LABELS[preview.kind]} · ${imageSize}` : KIND_LABELS[preview.kind]}</span>}
-        <span className="min-w-0 flex-1 truncate text-[12px] font-semibold text-dock-ink" data-tip={path}>
+    <aside aria-label="Aperçu du fichier" data-preview-drawer="" className="absolute inset-y-0 right-0 z-20 flex w-[min(920px,100%)] flex-col border-l border-tily-line bg-tily-panel shadow-2xl" onKeyDown={handleKeyDown}>
+      <header className="flex h-[36px] shrink-0 items-center gap-[8px] border-b border-tily-line pr-[6px] pl-[12px]">
+        {preview && !preview.error && <span className="shrink-0 rounded bg-tily-paper px-[6px] py-[1px] text-[11px] text-tily-muted">{preview.kind === PreviewKind.Image && imageSize ? `${KIND_LABELS[preview.kind]} · ${imageSize}` : KIND_LABELS[preview.kind]}</span>}
+        <span className="min-w-0 flex-1 truncate text-[12px] font-semibold text-tily-ink" data-tip={path}>
           {name}
         </span>
         {preview?.kind === PreviewKind.Markdown && !preview.error && (
@@ -104,12 +104,12 @@ export function FilePreviewDrawer() {
           <Icon name={IconName.Close} />
         </button>
       </header>
-      {preview?.truncated && <p className="shrink-0 border-b border-dock-line px-[16px] py-[6px] text-[12px] text-dock-warning">Fichier volumineux : seuls les 2 premiers Mo sont affichés.</p>}
+      {preview?.truncated && <p className="shrink-0 border-b border-tily-line px-[16px] py-[6px] text-[12px] text-tily-warning">Fichier volumineux : seuls les 2 premiers Mo sont affichés.</p>}
       <div ref={bodyRef} tabIndex={0} aria-label={`Contenu de ${name}`} className="min-h-0 flex-1 overflow-auto px-[24px] py-[18px] select-text" onClick={handleContentClick} onAuxClick={preventAuxiliaryOpen}>
         {!preview ? (
-          <p className="text-[12px] text-dock-muted">Chargement de l’aperçu…</p>
+          <p className="text-[12px] text-tily-muted">Chargement de l’aperçu…</p>
         ) : preview.error ? (
-          <p className="text-[12px] text-dock-error">{preview.error}</p>
+          <p className="text-[12px] text-tily-error">{preview.error}</p>
         ) : preview.kind === PreviewKind.Image ? (
           <img
             src={preview.content}
@@ -120,11 +120,11 @@ export function FilePreviewDrawer() {
             onClick={handleToggleActualSize}
           />
         ) : preview.kind === PreviewKind.Markdown && !showSource && html !== null ? (
-          <div className="dock-markdown text-dock-ink" dangerouslySetInnerHTML={{ __html: html }} />
+          <div className="tily-markdown text-tily-ink" dangerouslySetInnerHTML={{ __html: html }} />
         ) : html !== null ? (
-          <pre className="font-mono text-[12.5px] leading-[1.5] whitespace-pre-wrap text-dock-ink" dangerouslySetInnerHTML={{ __html: html }} />
+          <pre className="font-mono text-[12.5px] leading-[1.5] whitespace-pre-wrap text-tily-ink" dangerouslySetInnerHTML={{ __html: html }} />
         ) : (
-          <pre className="font-mono text-[12.5px] leading-[1.5] whitespace-pre-wrap text-dock-ink">{preview.content}</pre>
+          <pre className="font-mono text-[12.5px] leading-[1.5] whitespace-pre-wrap text-tily-ink">{preview.content}</pre>
         )}
       </div>
     </aside>
