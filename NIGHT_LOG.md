@@ -690,6 +690,13 @@ Une relecture indépendante des itérations 61 à 69 a relevé sept défauts min
 - Non traité, noté : si « Commit et push » réussit le commit mais que le push échoue autrement qu'en « refusé » (réseau), le message reste affiché comme si rien n'avait été commité (défaut antérieur à cette nuit, que Ctrl + Maj + Entrée rend plus fréquent).
 - Vérifié : 445 tests (dont deux pour `DisplayRootFrom`) ; dans l'instance de dev, « Voir les modifications » sur `README.md` → diff Unstaged, « Afficher dans l'arbre » sur `docs/TESTING.md` → sélectionné et focalisé.
 
+### 74. « Commit et push » dont le push échoue
+
+Défaut antérieur à la nuit, relevé à l'itération 73 : quand « Commit et push » (ou Ctrl + Maj + Entrée) réussissait le commit mais que le push échouait autrement qu'en « refusé » (réseau, dépôt distant introuvable, authentification), l'hôte signalait un échec global. Le message restait dans la zone de saisie comme si rien n'avait été commité, avec le risque de recommiter.
+
+- L'hôte termine désormais l'opération comme réussie avec un avertissement : « Commit 0e61d84 créé : « Ajouter b ». Push impossible : … », affiché en orange. Le message de commit est vidé ; le push se relance ensuite par le bouton « Push ». Un push refusé (branche distante en avance) garde son traitement dédié.
+- Vérifié dans l'instance de dev avec un dépôt jetable dont le dépôt distant n'existe pas : fichier stagé, « Ajouter b », Ctrl + Maj + Entrée → commit créé, message vidé, avertissement « Push impossible : Le push a échoué. ». 445 tests verts.
+
 ## Reste à faire et idées
 
 ### À décider par toi
@@ -712,7 +719,7 @@ Une relecture indépendante des itérations 61 à 69 a relevé sept défauts min
 - **Copie de sortie et navigation entre commandes** : Windows PowerShell et PowerShell 7 seulement, pas CMD ni Git Bash. Une invite qui s'écrit elle-même par `Write-Host` au lieu de renvoyer son texte fausserait la hauteur annoncée.
 - **Liens de fichiers** : depuis l'itération 44, un chemin absolu avec des espaces dans ses dossiers est lié ; un nom de fichier ou un chemin relatif avec espaces ne l'est toujours pas, ni un chemin replié sur deux lignes, et un chemin dont un dossier contient une extension suivie d'une espace (`Node.js Apps`, `ASP.NET Core`) n'est souligné que jusqu'à ce point (le Ctrl + clic ouvre quand même le fichier complet s'il existe, itération 63).
 - **Clignotement de la barre des tâches** (itération 38) : la commande est bien reçue par l'hôte, mais le clignotement lui-même ne s'observe pas par le débogage distant ; à confirmer à l'usage.
-- **Commit et push, push en échec** : si le commit réussit mais que le push échoue autrement qu'en « refusé » (réseau), le message reste affiché comme si rien n'avait été commité (défaut antérieur, relevé à l'itération 73).
+- **Commit et push, push en échec** : corrigé à l'itération 74 (commit gardé, message vidé, avertissement « Push impossible »).
 - **Diff copié** : un fichier UTF-8 qui contient réellement le caractère de remplacement U+FFFD est traité comme mal décodé et n'est pas copiable (rarissime).
 
 ### Idées

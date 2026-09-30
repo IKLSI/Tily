@@ -151,7 +151,14 @@ public sealed class GitOperationRunner
         }
 
         Journal.Apply(repository.Root, committed);
-        return new GitOutcomeModel($"{committed.Message} {Push(repository, false, false).Message}");
+        try
+        {
+            return new GitOutcomeModel($"{committed.Message} {Push(repository, false, false).Message}");
+        }
+        catch (GitCommandException failure) when (failure is not GitPushRejectedException)
+        {
+            return new GitOutcomeModel($"{committed.Message} Push impossible : {failure.Message}", true);
+        }
     }
 
     private GitOutcomeModel Push(GitRepository repository, bool force, bool confirmed)
