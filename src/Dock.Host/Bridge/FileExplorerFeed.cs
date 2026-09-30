@@ -159,11 +159,11 @@ public sealed class FileExplorerFeed : IDisposable
         try
         {
             var listing = ProjectFiles.List(new GitRunner(), folder);
-            _post(new { type = "files.searched", path = folder, root = listing.Root, files = listing.Files, truncated = listing.Truncated });
+            _post(new { type = "files.searched", path = folder, root = listing.Root, files = listing.Files, changed = listing.Changed, truncated = listing.Truncated });
         }
         catch (Exception exception) when (exception is InvalidOperationException or GitCommandException or IOException or UnauthorizedAccessException or System.ComponentModel.Win32Exception)
         {
-            _post(new { type = "files.searched", path = folder, root = folder, files = Array.Empty<string>(), truncated = false, error = UserErrorMessage.Of(exception) });
+            _post(new { type = "files.searched", path = folder, root = folder, files = Array.Empty<string>(), changed = Array.Empty<string>(), truncated = false, error = UserErrorMessage.Of(exception) });
         }
     }
 

@@ -26,6 +26,22 @@ public sealed class ProjectFilesTests : IDisposable
     }
 
     [Fact]
+    public void List_WhenRepositoryHasChanges_ThenGivesModifiedStagedAndUntrackedButNotDeleted()
+    {
+        _sandbox.Commit("initial", ("a.txt", "a"), ("b.txt", "b"), ("c.txt", "c"), ("d.txt", "d"));
+        _sandbox.Write("a.txt", "modifié");
+        _sandbox.Write("b.txt", "indexé");
+        _sandbox.Git("add", "b.txt");
+        _sandbox.Write("nouveau/n.txt", "n");
+        File.Delete(Path.Combine(_sandbox.Work, "d.txt"));
+
+        var listing = ProjectFiles.List(_sandbox.Runner, _sandbox.Work);
+
+        Assert.Equal(["a.txt", "b.txt", @"nouveau\n.txt"], listing.Changed);
+        Assert.Equal(["a.txt", "b.txt", "c.txt", @"nouveau\n.txt"], listing.Files);
+    }
+
+    [Fact]
     public void List_WhenPlainFolder_ThenSkipsHeavyFoldersAndSignalsTruncation()
     {
         foreach (var path in new[] { @"a\un.txt", @"a\deux.txt", @"node_modules\paquet\index.js", @"bin\Debug\app.dll", "trois.txt" })

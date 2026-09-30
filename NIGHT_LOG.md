@@ -862,6 +862,14 @@ Suite de l’itération 92 : pour citer un fichier à un agent (Claude Code, Cod
 - Vérifié dans l’instance de dev : `notes.md` → chemin inséré à l’invite PowerShell, sélecteur fermé, focus dans le terminal. Lint et build au vert.
 - Spec (section 4) et architecture front complétées.
 
+### 95. Fichiers modifiés en tête du sélecteur de fichiers
+
+Le plus souvent, le fichier qu’on veut rouvrir est l’un de ceux sur lesquels on travaille ; sans recherche tapée, le sélecteur de l’itération 92 listait pourtant tout le dépôt par ordre alphabétique.
+
+- L’hôte joint à la liste les fichiers modifiés, indexés, non suivis ou en conflit (d’après `git status`, sans les fichiers supprimés) ; le sélecteur les place en tête avec « modifié » dans l’indice, devant le dossier. À score égal, la recherche garde cet ordre, et taper « modifié » n’affiche qu’eux.
+- Vérifié dans l’instance de dev : les 6 fichiers modifiés ou non suivis du dépôt de test en tête, puis le reste par ordre alphabétique. Test ajouté (modifié, indexé, non suivi, supprimé) ; 460 tests au vert.
+- Spec (section 4), contrat du pont et architecture front complétés.
+
 ## Reste à faire et idées
 
 ### À décider par toi

@@ -185,7 +185,7 @@ export type HostToWebMessage =
   | { type: 'files.gitMarks'; root: string | null; marks: GitPathMark[] }
   | { type: 'files.renamed'; path: string; target: string }
   | { type: 'files.deleted'; path: string }
-  | { type: 'files.searched'; path: string; root: string; files: string[]; truncated: boolean; error?: string }
+  | { type: 'files.searched'; path: string; root: string; files: string[]; changed: string[]; truncated: boolean; error?: string }
   | { type: 'error'; pane?: string; message: string }
   | GitHostMessage
   | PreviewHostMessage

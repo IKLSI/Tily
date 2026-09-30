@@ -2,7 +2,7 @@ using Dock.Core.Git;
 
 namespace Dock.Core.Files;
 
-public sealed record ProjectFilesModel(string Root, IReadOnlyList<string> Files, bool Truncated);
+public sealed record ProjectFilesModel(string Root, IReadOnlyList<string> Files, IReadOnlyList<string> Changed, bool Truncated);
 
 public static class ProjectFiles
 {
@@ -21,20 +21,30 @@ public static class ProjectFiles
         }
 
         var location = GitRunner.IsInstalled ? GitRepository.Locate(runner, folder) : null;
-        return location is null ? FromDisk(folder, maxFiles) : FromGit(runner, folder, location.Root, maxFiles);
+        return location is null ? FromDisk(folder, maxFiles) : FromGit(runner, folder, location, maxFiles);
     }
 
-    private static ProjectFilesModel FromGit(GitRunner runner, string folder, string root, int maxFiles)
+    private static ProjectFilesModel FromGit(GitRunner runner, string folder, GitLocationModel location, int maxFiles)
     {
+        var root = location.Root;
         var listed = GitRepository.Require(runner.Run(root, ["ls-files", "-z", "--cached", "--others", "--exclude-standard"]), "Liste des fichiers du dépôt impossible.");
         var deleted = runner.Run(root, ["ls-files", "-z", "--deleted"]);
         var gone = deleted.Succeeded ? Entries(deleted.Output).ToHashSet(StringComparer.Ordinal) : [];
         var files = Entries(listed)
             .Where(path => !gone.Contains(path))
             .Distinct(StringComparer.Ordinal)
-            .Select(path => path.Replace(GitSeparator, Path.DirectorySeparatorChar))
+            .Select(WindowsPath)
             .ToList();
-        return Limited(GitPathMarks.DisplayRootFrom(runner, folder, root), files, maxFiles);
+        var status = new GitRepository(runner, location).Status();
+        var changed = status.Staged.Concat(status.Unstaged)
+            .Where(change => change.Kind != GitChangeKind.Deleted)
+            .Select(change => change.Path)
+            .Concat(status.Conflicts.Select(conflict => conflict.Path))
+            .Select(WindowsPath)
+            .Distinct(StringComparer.Ordinal)
+            .Order(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+        return Limited(GitPathMarks.DisplayRootFrom(runner, folder, root), files, changed, maxFiles);
     }
 
     private static ProjectFilesModel FromDisk(string folder, int maxFiles)
@@ -63,14 +73,16 @@ public static class ProjectFiles
             }
         }
 
-        return Limited(root, files, maxFiles);
+        return Limited(root, files, [], maxFiles);
     }
 
-    private static ProjectFilesModel Limited(string root, List<string> files, int maxFiles)
+    private static ProjectFilesModel Limited(string root, List<string> files, IReadOnlyList<string> changed, int maxFiles)
     {
         files.Sort(StringComparer.OrdinalIgnoreCase);
-        return new ProjectFilesModel(root, files.Take(maxFiles).ToList(), files.Count > maxFiles);
+        return new ProjectFilesModel(root, files.Take(maxFiles).ToList(), changed, files.Count > maxFiles);
     }
+
+    private static string WindowsPath(string path) => path.Replace(GitSeparator, Path.DirectorySeparatorChar);
 
     private static IEnumerable<string> Entries(string output) =>
         output.Split(EntrySeparator, StringSplitOptions.RemoveEmptyEntries).Where(entry => entry.Trim().Length > 0);

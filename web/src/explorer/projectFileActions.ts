@@ -47,4 +47,4 @@ export const revealProjectFile = (root: string, relative: string): void => {
 }
 
 export const receiveProjectFiles = (message: HostMessageOf<'files.searched'>): void =>
-  useFilePickerStore.getState().receive(message.path, { root: message.root, files: message.files, truncated: message.truncated, error: message.error ?? null })
+  useFilePickerStore.getState().receive(message.path, { root: message.root, files: message.files, changed: message.changed, truncated: message.truncated, error: message.error ?? null })

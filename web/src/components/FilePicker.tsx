@@ -12,11 +12,23 @@ const NO_MATCH = 'Aucun fichier ne correspond à la recherche.'
 const TRUNCATED = 'Trop de fichiers : la liste proposée est incomplète, précisez la recherche ou ouvrez le terminal dans un sous-dossier.'
 const FOOTER = 'Entrée : ouvrir dans l’éditeur · Maj + Entrée : afficher dans l’arbre · Ctrl + Entrée : insérer le chemin dans le terminal'
 
-const itemsOf = (list: ProjectFileList | null): SearchItem[] =>
-  (list?.files ?? []).map((relative) => {
-    const match = LAST_SEPARATOR.exec(relative)
-    return match ? { id: relative, label: match[2], hint: match[1] } : { id: relative, label: relative }
-  })
+const CHANGED_HINT = 'modifié'
+const HINT_SEPARATOR = ' · '
+
+const itemOf = (relative: string, changed: boolean): SearchItem => {
+  const match = LAST_SEPARATOR.exec(relative)
+  const folder = match?.[1]
+  const hint = changed ? (folder ? `${CHANGED_HINT}${HINT_SEPARATOR}${folder}` : CHANGED_HINT) : folder
+  return { id: relative, label: match ? match[2] : relative, hint }
+}
+
+const itemsOf = (list: ProjectFileList | null): SearchItem[] => {
+  if (!list) {
+    return []
+  }
+  const changed = new Set(list.changed)
+  return [...list.changed.map((relative) => itemOf(relative, true)), ...list.files.filter((relative) => !changed.has(relative)).map((relative) => itemOf(relative, false))]
+}
 
 const emptyMessageOf = (list: ProjectFileList | null): string => {
   if (!list) {

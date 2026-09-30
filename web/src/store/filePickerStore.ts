@@ -3,6 +3,7 @@ import { create } from 'zustand'
 export interface ProjectFileList {
   root: string
   files: string[]
+  changed: string[]
   truncated: boolean
   error: string | null
 }
