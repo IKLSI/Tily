@@ -232,6 +232,9 @@ public sealed class HostBridge : IDisposable
             case "attention.raise":
                 RaiseAttention(RequirePane(command), command);
                 break;
+            case "attention.flash":
+                _notifier.FlashWhenInactive(_settings.Notifications);
+                break;
             case "attention.test":
                 TestAttention(RequirePane(command), command);
                 break;

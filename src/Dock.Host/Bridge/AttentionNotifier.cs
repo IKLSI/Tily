@@ -59,8 +59,7 @@ public sealed class AttentionNotifier : IDisposable
 
         if (settings.TaskbarFlash)
         {
-            var info = new WindowApi.FlashInfo { Size = (uint)System.Runtime.InteropServices.Marshal.SizeOf<WindowApi.FlashInfo>(), WindowHandle = _windowHandle, Flags = WindowApi.FlashTray | WindowApi.FlashTimerNoForeground };
-            WindowApi.FlashWindowEx(ref info);
+            FlashTaskbar();
         }
 
         var usesFile = NotificationSettingsModel.IsWavPath(sound);
@@ -81,6 +80,20 @@ public sealed class AttentionNotifier : IDisposable
         toast.Activated += (_, _) => HandleActivated(paneId);
         _shown[paneId] = toast;
         _toastNotifier.Show(toast);
+    }
+
+    public void FlashWhenInactive(NotificationSettingsModel settings)
+    {
+        if (!WindowActive && settings.TaskbarFlash)
+        {
+            FlashTaskbar();
+        }
+    }
+
+    private void FlashTaskbar()
+    {
+        var info = new WindowApi.FlashInfo { Size = (uint)System.Runtime.InteropServices.Marshal.SizeOf<WindowApi.FlashInfo>(), WindowHandle = _windowHandle, Flags = WindowApi.FlashTray | WindowApi.FlashTimerNoForeground };
+        WindowApi.FlashWindowEx(ref info);
     }
 
     private static XmlDocument BuildContent(IEnumerable<string> lines, string? sound)

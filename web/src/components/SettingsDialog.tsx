@@ -301,7 +301,7 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
         {!current.notifications.toastAvailable && <p className="text-[11px] text-dock-warning">{`Notification Windows indisponible. Le son et le clignotement restent actifs. ${current.notifications.toastError ?? ''}`}</p>}
         <label className="flex items-center gap-2">
           <input type="checkbox" checked={settings.notifications.taskbarFlash} onChange={handleFlashChange} />
-          <span className={LABEL}>Faire clignoter Dock dans la barre des tâches</span>
+          <span className={LABEL}>Faire clignoter Dock dans la barre des tâches (aussi à la fin d’une commande de plus de 10 s)</span>
         </label>
         <SoundSetting label="Son joué à chaque nouvelle attente" sound={settings.notifications.sound} placeholder="C:\Sons\attention.wav" testTip="Joue le son, fait clignoter la barre des tâches et affiche la notification Windows si elle est disponible, avec les réglages ci-dessus, sans enregistrer" onChange={handleSoundChange} onPick={handlePickSound} onTest={handleTestNotification} />
         <label className="flex items-center gap-2">

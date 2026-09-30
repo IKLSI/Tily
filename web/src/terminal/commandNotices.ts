@@ -1,3 +1,4 @@
+import { bridge } from '../bridge/bridge'
 import { activeTab, activeWorkspace, allPanes, panesOf, type Tab, type Workspace } from '../model/session'
 import { useCommandStore, type CommandNotice } from '../store/commandStore'
 import { StatusLevel, useHostStore } from '../store/hostStore'
@@ -75,7 +76,11 @@ export const workspaceCommandNotice = (workspace: Workspace, notices: Record<str
 export const receiveCommandDone = (paneId: string, data: string): void => {
   const notice = parseCommandDone(data)
   const tab = tabOfPane(paneId)
-  if (!notice || !tab || notice.durationMs < NOTICE_MIN_MS || displayedTab()?.id === tab.id) {
+  if (!notice || !tab || notice.durationMs < NOTICE_MIN_MS) {
+    return
+  }
+  bridge.send({ type: 'attention.flash' })
+  if (displayedTab()?.id === tab.id) {
     return
   }
   useCommandStore.getState().notify(paneId, notice)

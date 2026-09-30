@@ -379,6 +379,15 @@ Les notes servent souvent à garder des commandes (ports, scripts, requêtes) : 
 - Vérifié dans l'instance de dev : note « git status --short / echo depuis-les-notes », Ctrl + Entrée sur la 2ᵉ ligne → `echo depuis-les-notes` apparaît après le prompt, non exécuté, focus dans le terminal.
 - **Convention proposée** en section 5 de la spec (« Notes du workspace ») et ligne ajoutée au README.
 
+### 38. Clignotement de la barre des tâches à la fin d'une commande longue
+
+Lancer un build ou des tests puis passer à une autre fenêtre : rien ne signalait la fin, sauf à revenir voir Dock.
+
+- Quand une commande Windows PowerShell ou PowerShell 7 d'au moins 10 secondes se termine et que Dock n'est pas la fenêtre active, Dock clignote dans la barre des tâches, même si la commande tournait dans l'onglet affiché. Pas de réglage en plus : c'est la case « Faire clignoter Dock dans la barre des tâches » des notifications d'agents, dont le libellé le précise désormais. Pas de son ni de notification Windows, pour rester discret.
+- Nouvelle commande de pont `attention.flash` ; l'hôte vérifie lui-même que la fenêtre est inactive et le réglage coché (`AttentionNotifier.FlashWhenInactive`).
+- Vérifié : build et 431 tests verts ; dans l'instance de dev, `attention.flash` est acceptée (une commande inconnue affiche bien « Commande inconnue »). Le clignotement lui-même ne s'observe pas par le débogage distant : à confirmer à l'usage.
+- **Convention proposée** complétée en section 15 de la spec (fin d'une commande longue).
+
 ## Reste à faire et idées
 
 ### À décider par toi
@@ -398,5 +407,4 @@ Les notes servent souvent à garder des commandes (ports, scripts, requêtes) : 
 
 ### Idées
 
-- Fin d'une commande longue : faire clignoter la barre des tâches quand Dock n'a pas le focus, avec un réglage, comme pour les agents.
 - Tests web : aucun encore (décision du 21 septembre). Plusieurs fonctions pures ajoutées cette nuit s'y prêteraient : `findFileLinks`, `equalizeNode`, `swapPanes`, `folderMarksOf`, `relativeEntryPath`, `formatCommandDuration`.
