@@ -54,16 +54,16 @@ const NUMBER_FIELDS: NumberField[] = [
   { key: 'maxTextMebibytes', label: 'Historique global maximal (Mio)', hint: 'Au-delà, les panes les plus récents ne sont plus sauvegardés.', min: 16, max: 2048 },
 ]
 
-const SECTION = 'text-[11px] font-semibold tracking-wide text-dock-muted uppercase'
+const SECTION = 'text-[11px] font-semibold tracking-wide text-tily-muted uppercase'
 const LABEL = SETTINGS_LABEL
 const HINT = SETTINGS_HINT
 const INPUT_BASE = SETTINGS_INPUT_BASE
 const INPUT = SETTINGS_INPUT
-const INVALID_INPUT = `${INPUT_BASE} border-dock-error focus:border-dock-error`
-const INVALID_HINT = 'text-[11px] text-dock-error'
+const INVALID_INPUT = `${INPUT_BASE} border-tily-error focus:border-tily-error`
+const INVALID_HINT = 'text-[11px] text-tily-error'
 const BUTTON = SETTINGS_BUTTON
-const PRIMARY = `${BUTTON} border-dock-green text-dock-green-deep hover:bg-dock-green-soft`
-const SECONDARY = `${BUTTON} border-dock-line text-dock-ink hover:bg-dock-green-hover`
+const PRIMARY = `${BUTTON} border-tily-green text-tily-green-deep hover:bg-tily-green-soft`
+const SECONDARY = `${BUTTON} border-tily-line text-tily-ink hover:bg-tily-green-hover`
 const BROWSE = SETTINGS_BROWSE
 
 const comparable = (settings: Settings): Settings => ({ ...settings, shells: Object.fromEntries(Object.entries(settings.shells).filter(([, path]) => path.trim().length > 0)) })
@@ -209,16 +209,16 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
 
   const renderBody = (settings: Settings, current: SettingsSnapshot) => (
     <>
-      {importSource && <p className="rounded border border-dock-green/50 bg-dock-paper px-3 py-2 text-[12px] text-dock-green">Préférences lues depuis {importSource}. Rien n’est écrit tant que vous n’enregistrez pas ; Enregistrer remplace la configuration actuelle.</p>}
+      {importSource && <p className="rounded border border-tily-green/50 bg-tily-paper px-3 py-2 text-[12px] text-tily-green">Préférences lues depuis {importSource}. Rien n’est écrit tant que vous n’enregistrez pas ; Enregistrer remplace la configuration actuelle.</p>}
       {importWarnings.length > 0 && (
-        <ul className="rounded border border-dock-warning/50 bg-dock-paper px-3 py-2 text-[12px] text-dock-warning">
+        <ul className="rounded border border-tily-warning/50 bg-tily-paper px-3 py-2 text-[12px] text-tily-warning">
           {importWarnings.map((warning) => (
             <li key={warning}>{warning}</li>
           ))}
         </ul>
       )}
       {current.warnings.length > 0 && (
-        <ul className="rounded border border-dock-warning/50 bg-dock-paper px-3 py-2 text-[12px] text-dock-warning">
+        <ul className="rounded border border-tily-warning/50 bg-tily-paper px-3 py-2 text-[12px] text-tily-warning">
           {current.warnings.map((warning) => (
             <li key={warning}>{warning}</li>
           ))}
@@ -234,7 +234,7 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
             <label key={shell.id} className="flex flex-col gap-1">
               <span className="flex items-baseline justify-between">
                 <span className={LABEL}>{shell.name}</span>
-                <span className={`text-[11px] ${shell.available ? 'text-dock-green' : 'text-dock-warning'}`}>{shell.available ? 'Disponible' : 'Introuvable'}</span>
+                <span className={`text-[11px] ${shell.available ? 'text-tily-green' : 'text-tily-warning'}`}>{shell.available ? 'Disponible' : 'Introuvable'}</span>
               </span>
               <span className="flex gap-1">
                 <input type="text" className={INPUT} value={settings.shells[shell.id] ?? ''} placeholder={shell.defaultExecutable} spellCheck={false} onChange={handleChange} />
@@ -319,20 +319,20 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
       </section>
       <section className="flex flex-col gap-2">
         <h3 className={SECTION}>Notifications</h3>
-        <p className={HINT}>Attente : quand un agent a besoin de vous et que Dock n’est pas la fenêtre active ; les cartes dans Dock restent toujours affichées. Fin : chaque fois qu’un agent termine, avec son dernier message.</p>
+        <p className={HINT}>Attente : quand un agent a besoin de vous et que Tily n’est pas la fenêtre active ; les cartes dans Tily restent toujours affichées. Fin : chaque fois qu’un agent termine, avec son dernier message.</p>
         <label className="flex items-center gap-2">
           <input type="checkbox" checked={settings.notifications.windowsToast} disabled={!current.notifications.toastAvailable} onChange={handleToastChange} />
           <span className={LABEL}>Notification Windows (cliquer rejoint le terminal)</span>
         </label>
-        {!current.notifications.toastAvailable && <p className="text-[11px] text-dock-warning">{`Notification Windows indisponible. Le son et le clignotement restent actifs. ${current.notifications.toastError ?? ''}`}</p>}
+        {!current.notifications.toastAvailable && <p className="text-[11px] text-tily-warning">{`Notification Windows indisponible. Le son et le clignotement restent actifs. ${current.notifications.toastError ?? ''}`}</p>}
         <label className="flex items-center gap-2">
           <input type="checkbox" checked={settings.notifications.taskbarFlash} onChange={handleFlashChange} />
-          <span className={LABEL}>Faire clignoter Dock dans la barre des tâches (aussi à la fin d’une commande de plus de 10 s)</span>
+          <span className={LABEL}>Faire clignoter Tily dans la barre des tâches (aussi à la fin d’une commande de plus de 10 s)</span>
         </label>
         <SoundSetting label="Son joué à chaque nouvelle attente" sound={settings.notifications.sound} placeholder="C:\Sons\attention.wav" testTip="Joue le son, fait clignoter la barre des tâches et affiche la notification Windows si elle est disponible, avec les réglages ci-dessus, sans enregistrer" onChange={handleSoundChange} onPick={handlePickSound} onTest={handleTestNotification} />
         <label className="flex items-center gap-2">
           <input type="checkbox" checked={settings.notifications.notifyDone} onChange={handleNotifyDoneChange} />
-          <span className={LABEL}>Notifier quand un agent a terminé, même si Dock est la fenêtre active</span>
+          <span className={LABEL}>Notifier quand un agent a terminé, même si Tily est la fenêtre active</span>
         </label>
         {settings.notifications.notifyDone && <SoundSetting label="Son joué quand un agent a terminé" sound={settings.notifications.doneSound} placeholder="C:\Sons\termine.wav" testTip="Joue le son de fin et affiche la notification de fin, avec les réglages ci-dessus, sans enregistrer" onChange={handleDoneSoundChange} onPick={handlePickDoneSound} onTest={handleTestDoneNotification} />}
         <p className={`${HINT} font-mono`}>{current.files.notifications}</p>
@@ -343,13 +343,13 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
         <p className={`${HINT} font-mono`}>{current.agents.script}</p>
         <p className={HINT}>{`Les états sont écrits dans ${current.agents.stateDirectory} et purgés à chaque nouveau terminal. Les hooks ne sont ajoutés ou retirés de ${current.agents.settingsFile} que sur votre clic ; les autres réglages et hooks de ce fichier sont conservés.`}</p>
         <span className="flex items-center gap-3">
-          <span className={`text-[11px] ${current.agents.hooksInstalled ? 'text-dock-green' : 'text-dock-warning'}`}>{current.agents.hooksInstalled ? 'Hooks installés' : 'Hooks non installés'}</span>
+          <span className={`text-[11px] ${current.agents.hooksInstalled ? 'text-tily-green' : 'text-tily-warning'}`}>{current.agents.hooksInstalled ? 'Hooks installés' : 'Hooks non installés'}</span>
           {current.agents.hooksInstalled ? (
-            <button type="button" className={SECONDARY} data-tip="Retire les hooks Dock de settings.json de Claude Code, sans toucher au reste" onClick={onRemoveHooks}>
+            <button type="button" className={SECONDARY} data-tip="Retire les hooks Tily de settings.json de Claude Code, sans toucher au reste" onClick={onRemoveHooks}>
               Retirer les hooks
             </button>
           ) : (
-            <button type="button" className={PRIMARY} data-tip="Ajoute les hooks Dock dans settings.json de Claude Code (fusion, effet aux prochaines sessions claude)" onClick={onInstallHooks}>
+            <button type="button" className={PRIMARY} data-tip="Ajoute les hooks Tily dans settings.json de Claude Code (fusion, effet aux prochaines sessions claude)" onClick={onInstallHooks}>
               Installer les hooks
             </button>
           )}
@@ -360,19 +360,19 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
   )
 
   return (
-    <div className="absolute inset-0 z-30 flex items-start justify-center bg-dock-paper/60 pt-[6vh]" onPointerDown={handleBackdropPointerDown} onMouseDown={handleBackdropMouseDown}>
-      <div ref={dialogRef} role="dialog" aria-label="Paramètres" className="flex max-h-[86vh] w-[640px] max-w-[94vw] flex-col rounded-lg border border-dock-line bg-dock-panel shadow-xl" onKeyDown={handleKeyDown}>
-        <div className="flex items-center justify-between border-b border-dock-line px-4 py-3">
-          <h2 className="text-[15px] font-semibold text-dock-ink">
+    <div className="absolute inset-0 z-30 flex items-start justify-center bg-tily-paper/60 pt-[6vh]" onPointerDown={handleBackdropPointerDown} onMouseDown={handleBackdropMouseDown}>
+      <div ref={dialogRef} role="dialog" aria-label="Paramètres" className="flex max-h-[86vh] w-[640px] max-w-[94vw] flex-col rounded-lg border border-tily-line bg-tily-panel shadow-xl" onKeyDown={handleKeyDown}>
+        <div className="flex items-center justify-between border-b border-tily-line px-4 py-3">
+          <h2 className="text-[15px] font-semibold text-tily-ink">
             Paramètres
-            {version && <span className="ml-2 text-[12px] font-normal text-dock-muted">{`Dock ${version}`}</span>}
+            {version && <span className="ml-2 text-[12px] font-normal text-tily-muted">{`Tily ${version}`}</span>}
           </h2>
           <span className={HINT}>Ctrl + Entrée enregistre · Échap ferme</span>
         </div>
         <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-4 py-4">
           {draft && snapshot ? renderBody(draft, snapshot) : <p className={HINT}>Chargement des réglages…</p>}
         </div>
-        <div className="flex items-center gap-2 border-t border-dock-line px-4 py-3">
+        <div className="flex items-center gap-2 border-t border-tily-line px-4 py-3">
           <button type="button" className={SECONDARY} data-tip="Lit un fichier de préférences JSON et remplit le formulaire sans rien écrire" onClick={onImport}>
             Importer…
           </button>
@@ -382,7 +382,7 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
           <button type="button" className={SECONDARY} aria-disabled={!snapshot} data-tip="Ouvre l’Explorateur Windows sur le dossier des fichiers de réglages, pour les sauvegarder ou les modifier à la main" onClick={handleRevealFiles}>
             Afficher les fichiers
           </button>
-          <span role="status" className="ml-auto text-[11px] text-dock-warning">
+          <span role="status" className="ml-auto text-[11px] text-tily-warning">
             {closeHeld && unsaved ? 'Modifications non enregistrées : Enregistrer, ou Annuler pour les abandonner.' : ''}
           </span>
           <button type="button" className={SECONDARY} onClick={onClose}>

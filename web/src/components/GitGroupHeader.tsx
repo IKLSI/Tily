@@ -14,7 +14,7 @@ export function GitGroupHeader({ title, count, tip, children }: GitGroupHeaderPr
       <span className={SECTION_TITLE} data-tip={tip}>
         {title}
       </span>
-      {count !== undefined && <span className="text-[11px] text-dock-muted">{count}</span>}
+      {count !== undefined && <span className="text-[11px] text-tily-muted">{count}</span>}
       <span className="flex-1" />
       {children}
     </div>

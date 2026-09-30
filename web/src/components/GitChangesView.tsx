@@ -23,7 +23,7 @@ const KEYBOARD_TIP = 'Entrée : diff · Espace : stage ou unstage · Suppr : aba
 const MENU_OFFSET_PX = 16
 
 const hiddenNote = (shown: number, total: number) =>
-  total > shown ? <p className="py-[2px] pl-[30px] text-[11px] text-dock-muted italic">{`… et ${plural(total - shown, 'autre fichier non affiché', 'autres fichiers non affichés')}`}</p> : null
+  total > shown ? <p className="py-[2px] pl-[30px] text-[11px] text-tily-muted italic">{`… et ${plural(total - shown, 'autre fichier non affiché', 'autres fichiers non affichés')}`}</p> : null
 
 const applySelection = (rows: GitChangeRow[], row: GitChangeRow, mode: GitSelectMode): void => {
   const { changeSelection, setChangeSelection } = useGitStore.getState()
@@ -139,7 +139,7 @@ export function GitChangesView({ state, busy }: GitChangesViewProps) {
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <div role="listbox" aria-label="Modifications du dépôt" aria-multiselectable="true" className="min-h-0 flex-1 overflow-auto py-[4px]" onKeyDown={handleKeyDown}>
-        {empty && <p className="px-[12px] py-[6px] text-[12px] text-dock-muted italic">Aucune modification : l’arbre de travail est propre.</p>}
+        {empty && <p className="px-[12px] py-[6px] text-[12px] text-tily-muted italic">Aucune modification : l’arbre de travail est propre.</p>}
         {state.conflicts.length > 0 && (
           <>
             <GitGroupHeader title="Conflits" count={state.conflicts.length} tip="Ouvrez chaque fichier dans l’éditeur, résolvez-le puis marquez-le résolu" />
@@ -149,7 +149,7 @@ export function GitChangesView({ state, busy }: GitChangesViewProps) {
         {state.unstagedTotal > 0 && (
           <>
             <GitGroupHeader title="Unstaged" count={state.unstagedTotal} tip={KEYBOARD_TIP}>
-              <button type="button" className={`${ROW_ACTION} hover:text-dock-error`} aria-label="Tout abandonner" data-tip="Abandonner toutes les modifications unstaged" onClick={handleDiscardAll}>
+              <button type="button" className={`${ROW_ACTION} hover:text-tily-error`} aria-label="Tout abandonner" data-tip="Abandonner toutes les modifications unstaged" onClick={handleDiscardAll}>
                 <Icon name={IconName.Discard} />
               </button>
               <button type="button" className={ROW_STAGE_BUTTON} aria-label="Stage de tout" data-tip="Stage de tout" onClick={handleStageAll}>

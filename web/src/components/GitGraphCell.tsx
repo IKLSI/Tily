@@ -37,14 +37,14 @@ export function GitGraphCell({ graph, width, node, initials, labelled }: GitGrap
       case GitNodeKind.Merge:
         return <circle cx={x} cy={MIDDLE} r={MERGE_RADIUS} className={laneFill(graph.color)} />
       case GitNodeKind.Stash:
-        return <rect x={x - STASH_SIZE / 2} y={MIDDLE - STASH_SIZE / 2} width={STASH_SIZE} height={STASH_SIZE} rx={3} strokeWidth={1.5} strokeDasharray={DASH} className={`fill-dock-panel ${stroke}`} />
+        return <rect x={x - STASH_SIZE / 2} y={MIDDLE - STASH_SIZE / 2} width={STASH_SIZE} height={STASH_SIZE} rx={3} strokeWidth={1.5} strokeDasharray={DASH} className={`fill-tily-panel ${stroke}`} />
       case GitNodeKind.WorkingTree:
-        return <circle cx={x} cy={MIDDLE} r={NODE_RADIUS} strokeWidth={1.5} strokeDasharray={DASH} className={`fill-dock-panel ${stroke}`} />
+        return <circle cx={x} cy={MIDDLE} r={NODE_RADIUS} strokeWidth={1.5} strokeDasharray={DASH} className={`fill-tily-panel ${stroke}`} />
       default:
         return (
           <>
             <circle cx={x} cy={MIDDLE} r={NODE_RADIUS} className={laneFill(graph.color)} />
-            <text x={x} y={MIDDLE} dy="0.35em" textAnchor="middle" fontSize={8.5} fontWeight={700} className="fill-dock-paper">
+            <text x={x} y={MIDDLE} dy="0.35em" textAnchor="middle" fontSize={8.5} fontWeight={700} className="fill-tily-paper">
               {initials}
             </text>
           </>

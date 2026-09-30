@@ -35,7 +35,7 @@ const restartToInstall = (version: string): void => {
   installRequested = false
   const { session } = useSessionStore.getState()
   const paneIds = session ? allPanes(session).map((pane) => pane.id) : []
-  requestClose(`Installer Dock ${version} et redémarrer ?`, paneIds, () => bridge.send({ type: 'update.apply' }), 'Arrêter et installer')
+  requestClose(`Installer Tily ${version} et redémarrer ?`, paneIds, () => bridge.send({ type: 'update.apply' }), 'Arrêter et installer')
 }
 
 export const installUpdate = (): void => {
@@ -77,9 +77,9 @@ export const closeUpdateDialog = (): void => {
 const reportManualCheck = (info: UpdateInfo): void => {
   const { setStatus } = useHostStore.getState()
   if (info.status === UpdateStatus.UpToDate) {
-    setStatus(`Dock ${info.current} est à jour.`)
+    setStatus(`Tily ${info.current} est à jour.`)
   } else if (info.status === UpdateStatus.Available && info.release) {
-    setStatus(`Dock ${info.release.version} est disponible : bouton « Mise à jour » dans l’en-tête.`)
+    setStatus(`Tily ${info.release.version} est disponible : bouton « Mise à jour » dans l’en-tête.`)
   } else if (info.status === UpdateStatus.Failed && info.error) {
     setStatus(info.error, StatusLevel.Error)
   }

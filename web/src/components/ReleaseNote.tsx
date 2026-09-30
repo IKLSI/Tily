@@ -9,7 +9,7 @@ export function ReleaseNote({ text }: ReleaseNoteProps) {
     <>
       {text.split(CODE_DELIMITER).map((part, index) =>
         index % 2 === 1 ? (
-          <code key={index} className="rounded bg-dock-paper px-1 font-mono text-[11px] text-dock-green-deep">
+          <code key={index} className="rounded bg-tily-paper px-1 font-mono text-[11px] text-tily-green-deep">
             {part}
           </code>
         ) : (

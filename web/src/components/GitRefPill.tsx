@@ -36,7 +36,7 @@ export function GitRefPill({ label, text, color, onMenu, onActivate }: GitRefPil
   const pending = useGitStore((store) => store.busy !== null && store.busyRefs.some((ref) => ref === label.name || label.remotes.includes(ref)))
   const icon = KIND_ICONS[label.kind]
   const interactive = label.kind !== GitRefKind.Head
-  const hoverClass = interactive ? `cursor-pointer hover:text-dock-ink ${laneHoverTint(color, label.current)}` : ''
+  const hoverClass = interactive ? `cursor-pointer hover:text-tily-ink ${laneHoverTint(color, label.current)}` : ''
 
   const handlePointerDown = (event: PointerEvent<HTMLSpanElement>) => {
     if (movable) {
@@ -60,7 +60,7 @@ export function GitRefPill({ label, text, color, onMenu, onActivate }: GitRefPil
       data-git-drop-kind={movable ? label.kind : undefined}
       data-git-drop-name={movable ? label.name : undefined}
       data-tip={refLabelTip(label)}
-      className={`flex h-[20px] min-w-0 shrink items-center gap-[4px] rounded px-[5px] text-[11px] ${laneTint(color, label.current)} ${label.current ? 'font-semibold text-dock-ink' : 'text-dock-ink-soft'} ${dropTarget ? 'outline-2 outline-dock-focus' : ''} ${dragged || pending ? 'opacity-50' : ''} ${hoverClass}`}
+      className={`flex h-[20px] min-w-0 shrink items-center gap-[4px] rounded px-[5px] text-[11px] ${laneTint(color, label.current)} ${label.current ? 'font-semibold text-tily-ink' : 'text-tily-ink-soft'} ${dropTarget ? 'outline-2 outline-tily-focus' : ''} ${dragged || pending ? 'opacity-50' : ''} ${hoverClass}`}
       onPointerDown={handlePointerDown}
       onContextMenu={handleContextMenu}
       onDoubleClick={handleDoubleClick}

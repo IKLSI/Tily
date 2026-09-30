@@ -19,7 +19,7 @@ const bodyOf = (message: string): string => message.split('\n').slice(1).join('\
 export function GitCommitSummary({ details, error, selected, stash }: GitCommitSummaryProps) {
   const [focusPath, setFocusPath] = useState<string | null>(null)
   if (!details) {
-    return <p className={`px-[12px] py-[10px] text-[12px] ${error ? 'text-dock-error' : 'text-dock-muted italic'}`}>{error ?? 'Lecture du commit…'}</p>
+    return <p className={`px-[12px] py-[10px] text-[12px] ${error ? 'text-tily-error' : 'text-tily-muted italic'}`}>{error ?? 'Lecture du commit…'}</p>
   }
   const body = bodyOf(details.message)
   const focusable = details.files.find((change) => change.path === focusPath)?.path ?? details.files.find((change) => change.path === selected?.path)?.path ?? details.files[0]?.path
@@ -51,7 +51,7 @@ export function GitCommitSummary({ details, error, selected, stash }: GitCommitS
         aria-selected={isSelected}
         data-git-row={change.path}
         tabIndex={change.path === focusable ? 0 : -1}
-        className={`flex h-[22px] w-full shrink-0 cursor-pointer items-center gap-[6px] px-[12px] text-left text-[12px] ${isSelected ? 'bg-dock-green-soft text-dock-green-deep' : 'text-dock-ink-soft hover:bg-dock-green-hover hover:text-dock-ink'}`}
+        className={`flex h-[22px] w-full shrink-0 cursor-pointer items-center gap-[6px] px-[12px] text-left text-[12px] ${isSelected ? 'bg-tily-green-soft text-tily-green-deep' : 'text-tily-ink-soft hover:bg-tily-green-hover hover:text-tily-ink'}`}
         onClick={handleSelect}
       >
         <span className="flex min-w-0 flex-1 items-baseline gap-[6px]">
@@ -59,7 +59,7 @@ export function GitCommitSummary({ details, error, selected, stash }: GitCommitS
             {CHANGE_LETTERS[change.kind]}
           </span>
           <span className="min-w-0 shrink truncate">{fileName(change.path)}</span>
-          <span className="min-w-0 flex-1 truncate text-[11px] text-dock-muted">{fileFolder(change.path)}</span>
+          <span className="min-w-0 flex-1 truncate text-[11px] text-tily-muted">{fileFolder(change.path)}</span>
         </span>
       </button>
     )
@@ -67,11 +67,11 @@ export function GitCommitSummary({ details, error, selected, stash }: GitCommitS
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="flex shrink-0 flex-col gap-[6px] border-b border-dock-line px-[12px] py-[8px]">
-        <p className="text-[12.5px] font-semibold break-words text-dock-ink">{subjectOf(details.message)}</p>
-        {body && <pre className="max-h-[160px] overflow-auto font-sans text-[12px] whitespace-pre-wrap text-dock-ink-soft">{body}</pre>}
-        <div className="flex flex-wrap items-center gap-x-[12px] gap-y-[2px] text-[11px] text-dock-muted">
-          <button type="button" className="cursor-pointer font-mono text-dock-green-deep hover:underline" data-tip="Copier le SHA" onClick={handleCopySha}>
+      <div className="flex shrink-0 flex-col gap-[6px] border-b border-tily-line px-[12px] py-[8px]">
+        <p className="text-[12.5px] font-semibold break-words text-tily-ink">{subjectOf(details.message)}</p>
+        {body && <pre className="max-h-[160px] overflow-auto font-sans text-[12px] whitespace-pre-wrap text-tily-ink-soft">{body}</pre>}
+        <div className="flex flex-wrap items-center gap-x-[12px] gap-y-[2px] text-[11px] text-tily-muted">
+          <button type="button" className="cursor-pointer font-mono text-tily-green-deep hover:underline" data-tip="Copier le SHA" onClick={handleCopySha}>
             {details.sha.slice(0, 12)}
           </button>
           <span data-tip={details.email}>{details.author}</span>

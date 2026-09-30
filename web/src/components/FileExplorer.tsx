@@ -38,7 +38,7 @@ export function FileExplorer({ root, onOpenTerminal }: FileExplorerProps) {
 
   return (
     <section aria-label="Explorateur de fichiers" className="flex min-h-0 flex-1 flex-col">
-      <div className="flex h-[30px] shrink-0 items-center gap-[2px] pr-[6px] pl-[12px] text-[11px] font-semibold tracking-[0.06em] text-dock-muted uppercase">
+      <div className="flex h-[30px] shrink-0 items-center gap-[2px] pr-[6px] pl-[12px] text-[11px] font-semibold tracking-[0.06em] text-tily-muted uppercase">
         <span className="min-w-0 flex-1 truncate" data-tip={root}>
           {folderName(root)}
         </span>
@@ -55,7 +55,7 @@ export function FileExplorer({ root, onOpenTerminal }: FileExplorerProps) {
           <Icon name={IconName.Refresh} />
         </button>
       </div>
-      {empty && <p className="px-[12px] py-[6px] text-[12px] text-dock-muted italic">Dossier vide.</p>}
+      {empty && <p className="px-[12px] py-[6px] text-[12px] text-tily-muted italic">Dossier vide.</p>}
       <FileTree root={root} rows={rows} expanded={expanded} selectedPath={selectedPath} renamingPath={renamingPath} draft={draft} onOpenTerminal={onOpenTerminal} />
     </section>
   )

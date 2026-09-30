@@ -140,7 +140,7 @@ export default function App() {
     if (bridge.available) {
       bridge.send({ type: 'app.ready' })
     } else {
-      setStatus('Cette page doit être ouverte dans l’hôte Dock : aucun pont détecté.', StatusLevel.Error)
+      setStatus('Cette page doit être ouverte dans l’hôte Tily : aucun pont détecté.', StatusLevel.Error)
     }
     return () => {
       stopNotifier()
@@ -170,7 +170,7 @@ export default function App() {
   }, [])
 
   if (!session || !connected) {
-    return <div className="flex h-full items-center justify-center text-dock-muted">{status.text}</div>
+    return <div className="flex h-full items-center justify-center text-tily-muted">{status.text}</div>
   }
 
   return <AppShell session={session} />

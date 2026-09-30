@@ -8,48 +8,48 @@
 }
 
 @theme {
-  --color-dock-paper: #17191b;
-  --color-dock-panel: #1e2123;
-  --color-dock-line: #2c3033;
-  --color-dock-ink: #d8dbd7;
-  --color-dock-ink-soft: #a3a9a5;
-  --color-dock-muted: #848b87;
-  --color-dock-green: #7a9f8b;
-  --color-dock-green-deep: #a9c4b4;
-  --color-dock-green-soft: #262d2a;
-  --color-dock-green-hover: #24282a;
-  --color-dock-focus: #8fb39f;
-  --color-dock-terminal: #121416;
-  --color-dock-terminal-ink: #cdd1cd;
-  --color-dock-scrollbar: #3d4346;
-  --color-dock-scrollbar-hover: #555e61;
-  --color-dock-warning: #c9a65f;
-  --color-dock-error: #c98078;
-  --color-dock-status-working: #3fd37c;
-  --color-dock-status-waiting: #f5b83d;
-  --color-dock-status-done: #7ee2b8;
-  --color-dock-status-error: #f07a70;
-  --color-dock-status-unknown: #9aa3a0;
-  --color-dock-diff-added: #1d3025;
-  --color-dock-diff-added-ink: #a8d8b3;
-  --color-dock-diff-removed: #3a2427;
-  --color-dock-diff-removed-ink: #e8aaa3;
-  --color-dock-diff-added-selected: #2b4a37;
-  --color-dock-diff-removed-selected: #573238;
-  --color-dock-lane-0: #7a9f8b;
-  --color-dock-lane-1: #7f9fc9;
-  --color-dock-lane-2: #c9a65f;
-  --color-dock-lane-3: #a98fc9;
-  --color-dock-lane-4: #6fb3b0;
-  --color-dock-lane-5: #c98fa5;
-  --color-dock-lane-6: #9fbf6f;
-  --color-dock-lane-7: #c9906a;
-  --color-dock-syntax-keyword: #c98fa5;
-  --color-dock-syntax-string: #a9c4b4;
-  --color-dock-syntax-number: #c9a65f;
-  --color-dock-syntax-title: #7f9fc9;
-  --color-dock-syntax-attr: #6fb3b0;
-  --color-dock-syntax-comment: #6d746f;
+  --color-tily-paper: #17191b;
+  --color-tily-panel: #1e2123;
+  --color-tily-line: #2c3033;
+  --color-tily-ink: #d8dbd7;
+  --color-tily-ink-soft: #a3a9a5;
+  --color-tily-muted: #848b87;
+  --color-tily-green: #7a9f8b;
+  --color-tily-green-deep: #a9c4b4;
+  --color-tily-green-soft: #262d2a;
+  --color-tily-green-hover: #24282a;
+  --color-tily-focus: #8fb39f;
+  --color-tily-terminal: #121416;
+  --color-tily-terminal-ink: #cdd1cd;
+  --color-tily-scrollbar: #3d4346;
+  --color-tily-scrollbar-hover: #555e61;
+  --color-tily-warning: #c9a65f;
+  --color-tily-error: #c98078;
+  --color-tily-status-working: #3fd37c;
+  --color-tily-status-waiting: #f5b83d;
+  --color-tily-status-done: #7ee2b8;
+  --color-tily-status-error: #f07a70;
+  --color-tily-status-unknown: #9aa3a0;
+  --color-tily-diff-added: #1d3025;
+  --color-tily-diff-added-ink: #a8d8b3;
+  --color-tily-diff-removed: #3a2427;
+  --color-tily-diff-removed-ink: #e8aaa3;
+  --color-tily-diff-added-selected: #2b4a37;
+  --color-tily-diff-removed-selected: #573238;
+  --color-tily-lane-0: #7a9f8b;
+  --color-tily-lane-1: #7f9fc9;
+  --color-tily-lane-2: #c9a65f;
+  --color-tily-lane-3: #a98fc9;
+  --color-tily-lane-4: #6fb3b0;
+  --color-tily-lane-5: #c98fa5;
+  --color-tily-lane-6: #9fbf6f;
+  --color-tily-lane-7: #c9906a;
+  --color-tily-syntax-keyword: #c98fa5;
+  --color-tily-syntax-string: #a9c4b4;
+  --color-tily-syntax-number: #c9a65f;
+  --color-tily-syntax-title: #7f9fc9;
+  --color-tily-syntax-attr: #6fb3b0;
+  --color-tily-syntax-comment: #6d746f;
   --font-sans: 'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif;
   --font-mono: 'CaskaydiaCove Nerd Font Mono', 'Cascadia Mono', 'Cascadia Code', Consolas, 'Symbols Nerd Font Mono', monospace;
 }
@@ -64,8 +64,8 @@ body,
   height: 100%;
   margin: 0;
   overflow: hidden;
-  background: var(--color-dock-paper);
-  color: var(--color-dock-ink);
+  background: var(--color-tily-paper);
+  color: var(--color-tily-ink);
   font-family: var(--font-sans);
   font-size: 13px;
 }
@@ -91,12 +91,12 @@ body,
 ::-webkit-scrollbar-thumb {
   border: 2px solid transparent;
   border-radius: 5px;
-  background: var(--color-dock-scrollbar) padding-box;
+  background: var(--color-tily-scrollbar) padding-box;
 }
 
 ::-webkit-scrollbar-thumb:hover,
 ::-webkit-scrollbar-thumb:active {
-  background-color: var(--color-dock-scrollbar-hover);
+  background-color: var(--color-tily-scrollbar-hover);
 }
 
 button:not([aria-disabled="true"]) {
@@ -109,7 +109,7 @@ html[data-git-dragging] * {
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-dock-focus);
+  outline: 2px solid var(--color-tily-focus);
   outline-offset: -2px;
 }
 
@@ -118,134 +118,134 @@ html[data-git-dragging] * {
 }
 
 [aria-invalid='true']:focus-visible {
-  outline-color: var(--color-dock-error);
+  outline-color: var(--color-tily-error);
 }
 
-.dock-markdown {
+.tily-markdown {
   font-size: 14px;
   line-height: 1.6;
   overflow-wrap: break-word;
 }
 
-.dock-markdown > :first-child {
+.tily-markdown > :first-child {
   margin-top: 0;
 }
 
-.dock-markdown :is(p, ul, ol, blockquote, pre, table, details) {
+.tily-markdown :is(p, ul, ol, blockquote, pre, table, details) {
   margin: 0 0 14px;
 }
 
-.dock-markdown :is(h1, h2, h3, h4, h5, h6) {
+.tily-markdown :is(h1, h2, h3, h4, h5, h6) {
   margin: 24px 0 12px;
-  color: var(--color-dock-ink);
+  color: var(--color-tily-ink);
   font-weight: 600;
   line-height: 1.3;
 }
 
-.dock-markdown :is(h1, h2) {
+.tily-markdown :is(h1, h2) {
   padding-bottom: 6px;
-  border-bottom: 1px solid var(--color-dock-line);
+  border-bottom: 1px solid var(--color-tily-line);
 }
 
-.dock-markdown h1 {
+.tily-markdown h1 {
   font-size: 24px;
 }
 
-.dock-markdown h2 {
+.tily-markdown h2 {
   font-size: 19px;
 }
 
-.dock-markdown h3 {
+.tily-markdown h3 {
   font-size: 16px;
 }
 
-.dock-markdown :is(h4, h5, h6) {
+.tily-markdown :is(h4, h5, h6) {
   font-size: 14px;
 }
 
-.dock-markdown :is(ul, ol) {
+.tily-markdown :is(ul, ol) {
   padding-left: 24px;
 }
 
-.dock-markdown ul {
+.tily-markdown ul {
   list-style: disc;
 }
 
-.dock-markdown ol {
+.tily-markdown ol {
   list-style: decimal;
 }
 
-.dock-markdown li + li {
+.tily-markdown li + li {
   margin-top: 3px;
 }
 
-.dock-markdown li:has(> input[type='checkbox']) {
+.tily-markdown li:has(> input[type='checkbox']) {
   list-style: none;
 }
 
-.dock-markdown input[type='checkbox'] {
+.tily-markdown input[type='checkbox'] {
   margin: 0 6px 0 -18px;
   vertical-align: middle;
-  accent-color: var(--color-dock-green);
+  accent-color: var(--color-tily-green);
 }
 
-.dock-markdown a {
-  color: var(--color-dock-lane-1);
+.tily-markdown a {
+  color: var(--color-tily-lane-1);
   text-decoration: underline;
   text-underline-offset: 2px;
   cursor: pointer;
 }
 
-.dock-markdown blockquote {
+.tily-markdown blockquote {
   padding: 0 12px;
-  border-left: 3px solid var(--color-dock-line);
-  color: var(--color-dock-ink-soft);
+  border-left: 3px solid var(--color-tily-line);
+  color: var(--color-tily-ink-soft);
 }
 
-.dock-markdown hr {
+.tily-markdown hr {
   margin: 20px 0;
   border: 0;
-  border-top: 1px solid var(--color-dock-line);
+  border-top: 1px solid var(--color-tily-line);
 }
 
-.dock-markdown img {
+.tily-markdown img {
   display: inline;
   max-width: 100%;
 }
 
-.dock-markdown :is(code, pre) {
+.tily-markdown :is(code, pre) {
   font-family: var(--font-mono);
   font-size: 12.5px;
 }
 
-.dock-markdown :not(pre) > code {
+.tily-markdown :not(pre) > code {
   padding: 1px 5px;
   border-radius: 4px;
-  background: var(--color-dock-paper);
+  background: var(--color-tily-paper);
 }
 
-.dock-markdown pre {
+.tily-markdown pre {
   overflow-x: auto;
   padding: 10px 12px;
-  border: 1px solid var(--color-dock-line);
+  border: 1px solid var(--color-tily-line);
   border-radius: 6px;
-  background: var(--color-dock-terminal);
+  background: var(--color-tily-terminal);
   line-height: 1.45;
 }
 
-.dock-markdown table {
+.tily-markdown table {
   display: block;
   overflow-x: auto;
   border-collapse: collapse;
 }
 
-.dock-markdown :is(th, td) {
+.tily-markdown :is(th, td) {
   padding: 5px 10px;
-  border: 1px solid var(--color-dock-line);
+  border: 1px solid var(--color-tily-line);
 }
 
-.dock-markdown th {
-  background: var(--color-dock-paper);
+.tily-markdown th {
+  background: var(--color-tily-paper);
   font-weight: 600;
 }
 
@@ -254,20 +254,20 @@ html[data-git-dragging] * {
 .hljs-built_in,
 .hljs-literal,
 .hljs-type {
-  color: var(--color-dock-syntax-keyword);
+  color: var(--color-tily-syntax-keyword);
 }
 
 .hljs-string,
 .hljs-regexp,
 .hljs-addition,
 .hljs-symbol {
-  color: var(--color-dock-syntax-string);
+  color: var(--color-tily-syntax-string);
 }
 
 .hljs-number,
 .hljs-variable,
 .hljs-template-variable {
-  color: var(--color-dock-syntax-number);
+  color: var(--color-tily-syntax-number);
 }
 
 .hljs-title,
@@ -275,22 +275,22 @@ html[data-git-dragging] * {
 .hljs-name,
 .hljs-selector-id,
 .hljs-selector-class {
-  color: var(--color-dock-syntax-title);
+  color: var(--color-tily-syntax-title);
 }
 
 .hljs-attr,
 .hljs-attribute,
 .hljs-property,
 .hljs-meta {
-  color: var(--color-dock-syntax-attr);
+  color: var(--color-tily-syntax-attr);
 }
 
 .hljs-comment,
 .hljs-quote {
-  color: var(--color-dock-syntax-comment);
+  color: var(--color-tily-syntax-comment);
   font-style: italic;
 }
 
 .hljs-deletion {
-  color: var(--color-dock-diff-removed-ink);
+  color: var(--color-tily-diff-removed-ink);
 }

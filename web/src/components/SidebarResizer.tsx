@@ -57,7 +57,7 @@ export function SidebarResizer({ width, min, max, label, defaultWidth, reversed 
       onDoubleClick={handleDoubleClick}
       onKeyDown={handleKeyDown}
     >
-      <div className="h-full w-px bg-dock-line group-hover:w-0.5 group-hover:bg-dock-green group-focus-visible:w-0.5 group-focus-visible:bg-dock-focus" />
+      <div className="h-full w-px bg-tily-line group-hover:w-0.5 group-hover:bg-tily-green group-focus-visible:w-0.5 group-focus-visible:bg-tily-focus" />
     </div>
   )
 }

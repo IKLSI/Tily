@@ -21,14 +21,14 @@ export function UpdateButton() {
     return null
   }
   const failed = info.status === UpdateStatus.Failed
-  const tone = failed ? 'border-dock-warning text-dock-warning' : 'border-dock-green text-dock-green-deep'
+  const tone = failed ? 'border-tily-warning text-tily-warning' : 'border-tily-green text-tily-green-deep'
 
   return (
     <>
       <button
         type="button"
-        className={`flex cursor-pointer items-center gap-1.5 rounded border px-2 py-[3px] hover:bg-dock-green-soft ${tone}`}
-        data-tip={failed && info.error ? info.error : `Dock ${release.version} est disponible (version actuelle ${info.current})`}
+        className={`flex cursor-pointer items-center gap-1.5 rounded border px-2 py-[3px] hover:bg-tily-green-soft ${tone}`}
+        data-tip={failed && info.error ? info.error : `Tily ${release.version} est disponible (version actuelle ${info.current})`}
         onClick={showUpdateDialog}
       >
         {info.status === UpdateStatus.Downloading ? <Spinner size={11} /> : <Icon name={IconName.Fetch} />}

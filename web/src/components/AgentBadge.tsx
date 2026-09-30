@@ -7,11 +7,11 @@ interface AgentBadgeProps {
 }
 
 const STATE_CLASSES: Record<AgentState, string> = {
-  [AgentState.Working]: 'border-dock-status-working text-dock-status-working',
-  [AgentState.Waiting]: 'border-dock-status-waiting text-dock-status-waiting',
-  [AgentState.Done]: 'border-dock-status-done text-dock-status-done',
-  [AgentState.Error]: 'border-dock-status-error text-dock-status-error',
-  [AgentState.Unknown]: 'border-dock-status-unknown text-dock-status-unknown',
+  [AgentState.Working]: 'border-tily-status-working text-tily-status-working',
+  [AgentState.Waiting]: 'border-tily-status-waiting text-tily-status-waiting',
+  [AgentState.Done]: 'border-tily-status-done text-tily-status-done',
+  [AgentState.Error]: 'border-tily-status-error text-tily-status-error',
+  [AgentState.Unknown]: 'border-tily-status-unknown text-tily-status-unknown',
 }
 
 export function AgentBadge({ agent }: AgentBadgeProps) {

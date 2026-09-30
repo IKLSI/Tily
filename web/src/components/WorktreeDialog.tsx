@@ -16,8 +16,8 @@ interface WorktreeDialogProps {
   failure: WorktreeFailure | null
 }
 
-const PRIMARY = `${SETTINGS_BUTTON} flex items-center gap-2 border-dock-green text-dock-green-deep hover:bg-dock-green-soft disabled:cursor-default disabled:opacity-50 disabled:hover:bg-transparent`
-const RADIO_LABEL = 'flex items-center gap-2 text-[12px] text-dock-ink'
+const PRIMARY = `${SETTINGS_BUTTON} flex items-center gap-2 border-tily-green text-tily-green-deep hover:bg-tily-green-soft disabled:cursor-default disabled:opacity-50 disabled:hover:bg-transparent`
+const RADIO_LABEL = 'flex items-center gap-2 text-[12px] text-tily-ink'
 const LOCAL_GROUP = 'Locales'
 const REMOTE_GROUP = 'Distantes'
 
@@ -81,10 +81,10 @@ export function WorktreeDialog({ draft, plan, planPending, busy, failure }: Work
   }
 
   return (
-    <div className="absolute inset-0 z-30 flex items-start justify-center bg-dock-paper/60 pt-[10vh]" onPointerDown={handleBackdropPointerDown} onMouseDown={handleBackdropMouseDown}>
-      <form role="dialog" aria-label="Créer un worktree" className="flex max-h-[80vh] w-[560px] max-w-[94vw] flex-col rounded-lg border border-dock-line bg-dock-panel shadow-xl" onKeyDown={keepTabInside} onSubmit={handleSubmit}>
-        <div className="flex items-center justify-between border-b border-dock-line px-4 py-3">
-          <h2 className="text-[15px] font-semibold text-dock-ink">Créer un worktree</h2>
+    <div className="absolute inset-0 z-30 flex items-start justify-center bg-tily-paper/60 pt-[10vh]" onPointerDown={handleBackdropPointerDown} onMouseDown={handleBackdropMouseDown}>
+      <form role="dialog" aria-label="Créer un worktree" className="flex max-h-[80vh] w-[560px] max-w-[94vw] flex-col rounded-lg border border-tily-line bg-tily-panel shadow-xl" onKeyDown={keepTabInside} onSubmit={handleSubmit}>
+        <div className="flex items-center justify-between border-b border-tily-line px-4 py-3">
+          <h2 className="text-[15px] font-semibold text-tily-ink">Créer un worktree</h2>
           <span className={SETTINGS_HINT}>Entrée crée · Échap ferme</span>
         </div>
         <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 py-4">
@@ -127,7 +127,7 @@ export function WorktreeDialog({ draft, plan, planPending, busy, failure }: Work
           <div className="flex flex-col gap-1">
             <span className={SETTINGS_LABEL}>Dossier</span>
             <span className={`${SETTINGS_HINT} truncate font-mono`}>{plan?.path ?? '—'}</span>
-            {plan?.error && <span className="text-[11px] text-dock-error">{plan.error}</span>}
+            {plan?.error && <span className="text-[11px] text-tily-error">{plan.error}</span>}
           </div>
           <fieldset className="flex flex-col gap-2" disabled={busy}>
             <label className={RADIO_LABEL}>
@@ -142,12 +142,12 @@ export function WorktreeDialog({ draft, plan, planPending, busy, failure }: Work
           </fieldset>
           {failure && <WorktreeFailureDetails failure={failure} />}
         </div>
-        <div className="flex items-center justify-end gap-2 border-t border-dock-line px-4 py-3">
+        <div className="flex items-center justify-end gap-2 border-t border-tily-line px-4 py-3">
           <button type="button" className={SETTINGS_SECONDARY} onClick={closeWorktreeDialog}>
             {busy ? 'Fermer' : 'Annuler'}
           </button>
           <button type="submit" className={PRIMARY} disabled={!canCreate}>
-            {busy && <Spinner size={10} className="text-dock-green" />}
+            {busy && <Spinner size={10} className="text-tily-green" />}
             {busy ? 'Création…' : 'Créer'}
           </button>
         </div>

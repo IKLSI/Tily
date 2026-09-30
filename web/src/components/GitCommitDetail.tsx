@@ -28,16 +28,16 @@ export function GitCommitDetail({ state, busy }: GitCommitDetailProps) {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="flex h-[30px] shrink-0 items-center gap-[8px] border-y border-dock-line pr-[6px] pl-[12px]">
+      <div className="flex h-[30px] shrink-0 items-center gap-[8px] border-y border-tily-line pr-[6px] pl-[12px]">
         <span className={SECTION_TITLE}>{stash ? 'Stash' : 'Commit'}</span>
-        <span className="min-w-0 truncate font-mono text-[11px] text-dock-green-deep">{stash ? `stash@{${stash.index}}` : shortSha(commit)}</span>
+        <span className="min-w-0 truncate font-mono text-[11px] text-tily-green-deep">{stash ? `stash@{${stash.index}}` : shortSha(commit)}</span>
         <span className="flex-1" />
         <button type="button" className={PANEL_HEADER_BUTTON} aria-label="Revenir aux modifications" data-tip="Revenir aux modifications (ligne WIP du graphe)" onClick={selectWorkingTree}>
           <Icon name={IconName.Close} />
         </button>
       </div>
       {stash && (
-        <div className="flex shrink-0 items-center gap-[2px] border-b border-dock-line px-[8px] py-[3px]">
+        <div className="flex shrink-0 items-center gap-[2px] border-b border-tily-line px-[8px] py-[3px]">
           <GitToolButton icon={IconName.Stash} label="Appliquer" tip="Appliquer ce stash en le gardant" disabled={blocked} onClick={handleApply} />
           <GitToolButton icon={IconName.Check} label="Appliquer et supprimer" tip="Appliquer ce stash puis le supprimer" disabled={blocked} onClick={handlePop} />
           <span className="flex-1" />

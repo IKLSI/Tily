@@ -56,7 +56,7 @@ export const FileTreeRow = memo(function FileTreeRow({ entry, parent, depth, sel
       aria-level={depth + 1}
       aria-selected={selected}
       aria-expanded={entry.isDirectory ? expanded : undefined}
-      className={`flex h-[22px] cursor-pointer items-center gap-[5px] pr-[8px] text-[12px] select-none ${selected ? 'bg-dock-green-soft text-dock-green-deep' : 'text-dock-ink-soft hover:bg-dock-green-hover hover:text-dock-ink'}`}
+      className={`flex h-[22px] cursor-pointer items-center gap-[5px] pr-[8px] text-[12px] select-none ${selected ? 'bg-tily-green-soft text-tily-green-deep' : 'text-tily-ink-soft hover:bg-tily-green-hover hover:text-tily-ink'}`}
       style={{ paddingLeft: rowIndent(depth) }}
       onClick={handleClick}
       onDoubleClick={handleDoubleClick}
@@ -64,10 +64,10 @@ export const FileTreeRow = memo(function FileTreeRow({ entry, parent, depth, sel
       draggable={!renaming}
       onDragStart={handleDragStart}
     >
-      <span className="flex w-[12px] shrink-0 justify-center text-dock-muted">
+      <span className="flex w-[12px] shrink-0 justify-center text-tily-muted">
         {entry.isDirectory && <Icon name={IconName.Chevron} size={10} className={expanded ? 'rotate-90' : ''} />}
       </span>
-      <Icon name={entry.isDirectory ? IconName.Folder : IconName.File} className="shrink-0 text-dock-muted" />
+      <Icon name={entry.isDirectory ? IconName.Folder : IconName.File} className="shrink-0 text-tily-muted" />
       {renaming ? (
         <InlineNameEditor value={entry.name} label={`Nouveau nom de ${entry.name}`} className="h-[18px] min-w-0 flex-1 text-[12px]" selectionEnd={renameSelectionEnd(entry)} onCommit={handleCommitRename} onCancel={handlers.cancelRename} />
       ) : (

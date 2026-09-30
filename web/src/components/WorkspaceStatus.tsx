@@ -11,8 +11,8 @@ interface WorkspaceStatusProps {
 const PILL = 'flex h-4 items-center gap-[3px] rounded-full pr-1.5 pl-[3px] text-[11px] leading-none font-semibold tabular-nums'
 
 const PILL_CLASSES: Partial<Record<AgentState, string>> = {
-  [AgentState.Waiting]: 'bg-dock-status-waiting/15 text-dock-status-waiting',
-  [AgentState.Error]: 'bg-dock-status-error/15 text-dock-status-error',
+  [AgentState.Waiting]: 'bg-tily-status-waiting/15 text-tily-status-waiting',
+  [AgentState.Error]: 'bg-tily-status-error/15 text-tily-status-error',
 }
 
 export function WorkspaceStatus({ counts, onJoin }: WorkspaceStatusProps) {

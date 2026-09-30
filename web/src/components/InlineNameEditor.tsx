@@ -50,7 +50,7 @@ export function InlineNameEditor({ value, label, className, selectionEnd, onComm
       defaultValue={value}
       maxLength={NAME_MAX_LENGTH}
       aria-label={label}
-      className={`rounded border border-dock-focus bg-dock-paper px-1 text-dock-ink outline-none ${className}`}
+      className={`rounded border border-tily-focus bg-tily-paper px-1 text-tily-ink outline-none ${className}`}
       onBlur={handleBlur}
       onKeyDown={handleKeyDown}
     />

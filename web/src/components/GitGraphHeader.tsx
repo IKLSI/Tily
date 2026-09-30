@@ -34,7 +34,7 @@ export function GitGraphHeader({ layout, stored, onResize, onMenu }: GitGraphHea
   return (
     <div
       role="row"
-      className="sticky top-0 z-10 flex shrink-0 items-center border-b border-dock-line bg-dock-panel text-[10.5px] font-semibold tracking-[0.06em] text-dock-muted uppercase select-none"
+      className="sticky top-0 z-10 flex shrink-0 items-center border-b border-tily-line bg-tily-panel text-[10.5px] font-semibold tracking-[0.06em] text-tily-muted uppercase select-none"
       style={{ height: GRAPH_HEADER_HEIGHT }}
       onContextMenu={handleContextMenu}
     >

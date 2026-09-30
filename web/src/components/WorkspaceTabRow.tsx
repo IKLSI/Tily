@@ -31,7 +31,7 @@ interface WorkspaceTabRowProps {
 
 const MIDDLE_BUTTON = 1
 const JOIN_TARGET = '[data-join]'
-const LEAD = 'flex w-[14px] shrink-0 justify-center text-dock-muted'
+const LEAD = 'flex w-[14px] shrink-0 justify-center text-tily-muted'
 const SHELL_LABELS: Record<string, string> = { pwsh: 'pwsh', cmd: 'cmd', gitbash: 'bash' }
 const SHELL_NAMES: Record<string, string> = { pwsh: 'PowerShell 7', cmd: 'Invite de commandes', gitbash: 'Git Bash' }
 
@@ -46,7 +46,7 @@ export function WorkspaceTabRow({ workspaceId, tab, siblings, active, renaming, 
   const commandNotice = useCommandStore((state) => tabCommandNotice(tab, state.notices))
   const customShell = shell === DEFAULT_SHELL ? null : shell
   const tip = [tab.name, pane.path, customShell && (SHELL_NAMES[customShell] ?? customShell), paneCountLabel(panesOf(tab.tree).length), summary?.tip ?? (commandNotice && commandNoticeTip(commandNotice))].filter(Boolean).join(' · ')
-  const rowState = active ? 'bg-dock-green-soft text-dock-green-deep' : 'text-dock-ink-soft hover:bg-dock-panel hover:text-dock-ink'
+  const rowState = active ? 'bg-tily-green-soft text-tily-green-deep' : 'text-tily-ink-soft hover:bg-tily-panel hover:text-tily-ink'
   const lead = summary ? <AgentStateIcon state={summary.state} tip={summary.tip} /> : commandNotice ? <CommandNoticeIcon notice={commandNotice} /> : <TabLayoutGlyph tree={tab.tree} />
 
   const joinTargetOf = (event: MouseEvent): string | undefined =>
@@ -100,7 +100,7 @@ export function WorkspaceTabRow({ workspaceId, tab, siblings, active, renaming, 
       <div
         data-drop-workspace={workspaceId}
         data-drop-tab={tab.id}
-        className={`group relative flex h-[28px] items-center rounded-md pr-[2px] pl-[6px] select-none before:absolute before:top-1/2 before:-left-[7px] before:h-px before:w-[6px] before:bg-dock-line ${rowState} ${dragging ? 'opacity-40' : ''}`}
+        className={`group relative flex h-[28px] items-center rounded-md pr-[2px] pl-[6px] select-none before:absolute before:top-1/2 before:-left-[7px] before:h-px before:w-[6px] before:bg-tily-line ${rowState} ${dragging ? 'opacity-40' : ''}`}
         onContextMenu={handleContextMenu}
       >
         {renaming ? (
@@ -126,7 +126,7 @@ export function WorkspaceTabRow({ workspaceId, tab, siblings, active, renaming, 
               {lead}
             </span>
             <TruncatedName name={tab.name} siblings={siblings} className="flex-1" />
-            {customShell && <span className="shrink-0 font-mono text-[10.5px] text-dock-muted @max-[260px]:hidden">{SHELL_LABELS[customShell] ?? customShell}</span>}
+            {customShell && <span className="shrink-0 font-mono text-[10.5px] text-tily-muted @max-[260px]:hidden">{SHELL_LABELS[customShell] ?? customShell}</span>}
           </button>
         )}
         <button type="button" className={PANEL_HOVER_BUTTON} data-tip={inRepository ? WORKTREE_TIP : NO_REPOSITORY_TIP} aria-label={`Créer un worktree depuis l’onglet ${tab.name}`} aria-disabled={!inRepository} onClick={handleCreateWorktree}>

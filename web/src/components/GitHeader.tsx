@@ -13,11 +13,11 @@ interface GitHeaderProps {
   busy: string | null
 }
 
-const HEAD_LABEL = 'flex max-w-max min-w-0 flex-2 items-center gap-[4px] font-mono text-dock-green-deep'
+const HEAD_LABEL = 'flex max-w-max min-w-0 flex-2 items-center gap-[4px] font-mono text-tily-green-deep'
 
 const undoTip = ({ undo }: GitState): string => {
   if (!undo) {
-    return 'Aucune opération faite depuis Dock à annuler'
+    return 'Aucune opération faite depuis Tily à annuler'
   }
   return undo.available ? `Annuler : ${undo.label}` : `Annulation impossible (${undo.reason ?? 'état inconnu'}) : ${undo.label}`
 }
@@ -51,7 +51,7 @@ export function GitHeader({ state, busy }: GitHeaderProps) {
   return (
     <div className="flex shrink-0 flex-col gap-[4px] px-[10px] pb-[6px]">
       <div className="flex min-w-0 items-center gap-[8px] pl-[2px] text-[12px]">
-        <span className="max-w-max min-w-0 flex-1 truncate font-semibold text-dock-ink" data-tip={state.root}>
+        <span className="max-w-max min-w-0 flex-1 truncate font-semibold text-tily-ink" data-tip={state.root}>
           {state.name}
         </span>
         {copiedBranch ? (
@@ -67,7 +67,7 @@ export function GitHeader({ state, busy }: GitHeaderProps) {
           <GitAheadBehind ahead={head.ahead} behind={head.behind} tip={trackingTip} />
         )}
         {!head.upstream && head.branch && !head.unborn && (
-          <span className="shrink-0 text-[11px] text-dock-muted" data-tip="Aucune branche distante suivie : Push la publie">
+          <span className="shrink-0 text-[11px] text-tily-muted" data-tip="Aucune branche distante suivie : Push la publie">
             non publiée
           </span>
         )}

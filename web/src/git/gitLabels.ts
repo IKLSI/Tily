@@ -21,13 +21,13 @@ export const CHANGE_LABELS: Record<GitChangeKind, string> = {
 }
 
 export const CHANGE_CLASSES: Record<GitChangeKind, string> = {
-  [GitChangeKind.Modified]: 'text-dock-warning',
-  [GitChangeKind.Added]: 'text-dock-green',
-  [GitChangeKind.Deleted]: 'text-dock-error',
-  [GitChangeKind.Renamed]: 'text-dock-lane-1',
-  [GitChangeKind.Copied]: 'text-dock-lane-1',
-  [GitChangeKind.TypeChanged]: 'text-dock-lane-3',
-  [GitChangeKind.Untracked]: 'text-dock-green',
+  [GitChangeKind.Modified]: 'text-tily-warning',
+  [GitChangeKind.Added]: 'text-tily-green',
+  [GitChangeKind.Deleted]: 'text-tily-error',
+  [GitChangeKind.Renamed]: 'text-tily-lane-1',
+  [GitChangeKind.Copied]: 'text-tily-lane-1',
+  [GitChangeKind.TypeChanged]: 'text-tily-lane-3',
+  [GitChangeKind.Untracked]: 'text-tily-green',
 }
 
 export const CONFLICT_LABELS: Record<GitConflictKind, string> = {

@@ -7,7 +7,7 @@ interface EmptyStateProps {
   onRestoreTab: () => void
 }
 
-const SECONDARY_BUTTON = 'cursor-pointer rounded border border-dock-line px-3 py-1.5 text-[13px] text-dock-ink hover:bg-dock-green-hover'
+const SECONDARY_BUTTON = 'cursor-pointer rounded border border-tily-line px-3 py-1.5 text-[13px] text-tily-ink hover:bg-tily-green-hover'
 
 export function EmptyState({ canRestore, onNewWorkspace, onOpenProject, onRestoreTab }: EmptyStateProps) {
   const newWorkspaceRef = useRef<HTMLButtonElement>(null)
@@ -19,13 +19,13 @@ export function EmptyState({ canRestore, onNewWorkspace, onOpenProject, onRestor
   }, [])
 
   return (
-    <div className="flex h-full flex-col items-center justify-center gap-4 text-dock-muted">
+    <div className="flex h-full flex-col items-center justify-center gap-4 text-tily-muted">
       <div className="flex flex-col items-center gap-1">
         <p className="text-[15px]">Aucun workspace ouvert.</p>
         <p className="text-[12px]">Créez-en un pour lancer un terminal, ou ouvrez un dossier de projet.</p>
       </div>
       <div className="flex flex-wrap justify-center gap-3">
-        <button ref={newWorkspaceRef} type="button" className="cursor-pointer rounded border border-dock-green px-3 py-1.5 text-[13px] text-dock-green-deep hover:bg-dock-green-soft" data-tip="Créer un workspace avec un terminal dans votre dossier utilisateur (Ctrl + Maj + W)" onClick={onNewWorkspace}>
+        <button ref={newWorkspaceRef} type="button" className="cursor-pointer rounded border border-tily-green px-3 py-1.5 text-[13px] text-tily-green-deep hover:bg-tily-green-soft" data-tip="Créer un workspace avec un terminal dans votre dossier utilisateur (Ctrl + Maj + W)" onClick={onNewWorkspace}>
           Nouveau workspace
         </button>
         <button type="button" className={SECONDARY_BUTTON} data-tip="Ouvrir un workspace dans un dossier de projet (Leader puis F)" onClick={onOpenProject}>

@@ -9,7 +9,7 @@ interface GitDiffHunkActionsProps {
   source: GitDiffSource
 }
 
-const HUNK_BUTTON = 'flex h-[16px] w-[20px] cursor-pointer items-center justify-center rounded text-dock-ink-soft hover:bg-dock-green-hover hover:text-dock-ink'
+const HUNK_BUTTON = 'flex h-[16px] w-[20px] cursor-pointer items-center justify-center rounded text-tily-ink-soft hover:bg-tily-green-hover hover:text-tily-ink'
 
 export function GitDiffHunkActions({ hunk, source }: GitDiffHunkActionsProps) {
   const staged = source === GitDiffSource.Staged

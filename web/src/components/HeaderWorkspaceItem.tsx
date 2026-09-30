@@ -24,7 +24,7 @@ interface HeaderWorkspaceItemProps {
 
 const placementOf = (shown: boolean): string => (shown ? '' : 'invisible absolute top-0 left-0')
 
-const stateOf = (active: boolean): string => (active ? 'bg-dock-green-soft text-dock-green-deep' : 'text-dock-ink-soft hover:bg-dock-green-hover hover:text-dock-ink')
+const stateOf = (active: boolean): string => (active ? 'bg-tily-green-soft text-tily-green-deep' : 'text-tily-ink-soft hover:bg-tily-green-hover hover:text-tily-ink')
 
 export function HeaderWorkspaceItem({ workspace, siblings, counts, agents, active, shown, renaming, currentPaneId, actions }: HeaderWorkspaceItemProps) {
   const { id, name, tabs } = workspace

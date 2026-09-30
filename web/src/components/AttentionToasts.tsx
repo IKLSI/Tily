@@ -25,20 +25,20 @@ export function AttentionToasts({ waiting, onJoin, onDismiss }: AttentionToastsP
         const handleJoin = () => onJoin(pane.paneId)
         const handleDismiss = () => onDismiss(pane.paneId)
         return (
-          <div key={pane.paneId} role="status" className="pointer-events-auto rounded-lg border border-dock-status-waiting/60 bg-dock-panel px-3 py-2.5 text-[12px] shadow-xl">
+          <div key={pane.paneId} role="status" className="pointer-events-auto rounded-lg border border-tily-status-waiting/60 bg-tily-panel px-3 py-2.5 text-[12px] shadow-xl">
             <div className="flex items-center gap-2">
               <AgentStateIcon state={AgentState.Waiting} tip="Une réponse est attendue" />
-              <span className="min-w-0 flex-1 truncate font-semibold text-dock-ink" data-tip={pane.label}>{`${pane.workspaceName} › ${pane.tabName}`}</span>
-              <span aria-hidden="true" className="shrink-0 text-[11px] text-dock-muted">
+              <span className="min-w-0 flex-1 truncate font-semibold text-tily-ink" data-tip={pane.label}>{`${pane.workspaceName} › ${pane.tabName}`}</span>
+              <span aria-hidden="true" className="shrink-0 text-[11px] text-tily-muted">
                 {waitedFor(now - (since[pane.paneId] ?? now))}
               </span>
-              <button type="button" className="shrink-0 cursor-pointer rounded px-1.5 text-[13px] leading-none text-dock-muted hover:bg-dock-green-hover hover:text-dock-ink" aria-label="Ignorer cette notification" data-tip="Ignorer jusqu’au prochain changement d’état" onClick={handleDismiss}>
+              <button type="button" className="shrink-0 cursor-pointer rounded px-1.5 text-[13px] leading-none text-tily-muted hover:bg-tily-green-hover hover:text-tily-ink" aria-label="Ignorer cette notification" data-tip="Ignorer jusqu’au prochain changement d’état" onClick={handleDismiss}>
                 ×
               </button>
             </div>
-            <p className="mt-1.5 line-clamp-3 break-words text-dock-muted">{pane.detail}</p>
+            <p className="mt-1.5 line-clamp-3 break-words text-tily-muted">{pane.detail}</p>
             <div className="mt-2 flex justify-end">
-              <button type="button" className="cursor-pointer rounded border border-dock-status-waiting px-2.5 py-1 text-[12px] text-dock-status-waiting hover:bg-dock-green-hover" onClick={handleJoin}>
+              <button type="button" className="cursor-pointer rounded border border-tily-status-waiting px-2.5 py-1 text-[12px] text-tily-status-waiting hover:bg-tily-green-hover" onClick={handleJoin}>
                 Rejoindre le terminal ↗
               </button>
             </div>

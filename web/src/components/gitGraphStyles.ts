@@ -20,16 +20,16 @@ const GRAPH_LANE_PADDING = 8
 export const WORKING_TREE_KEY = 'wip'
 const MESSAGE_MIN_WIDTH = 200
 const LABELS_FIT_MIN_WIDTH = 88
-export const ROW_FOCUS_OUTLINE = 'group-focus-visible:outline-2 group-focus-visible:-outline-offset-2 group-focus-visible:outline-dock-focus'
+export const ROW_FOCUS_OUTLINE = 'group-focus-visible:outline-2 group-focus-visible:-outline-offset-2 group-focus-visible:outline-tily-focus'
 
-const LANE_STROKES = ['stroke-dock-lane-0', 'stroke-dock-lane-1', 'stroke-dock-lane-2', 'stroke-dock-lane-3', 'stroke-dock-lane-4', 'stroke-dock-lane-5', 'stroke-dock-lane-6', 'stroke-dock-lane-7']
-const LANE_FILLS = ['fill-dock-lane-0', 'fill-dock-lane-1', 'fill-dock-lane-2', 'fill-dock-lane-3', 'fill-dock-lane-4', 'fill-dock-lane-5', 'fill-dock-lane-6', 'fill-dock-lane-7']
-const LANE_BARS = ['bg-dock-lane-0', 'bg-dock-lane-1', 'bg-dock-lane-2', 'bg-dock-lane-3', 'bg-dock-lane-4', 'bg-dock-lane-5', 'bg-dock-lane-6', 'bg-dock-lane-7']
-const LANE_TINTS = ['bg-dock-lane-0/25', 'bg-dock-lane-1/25', 'bg-dock-lane-2/25', 'bg-dock-lane-3/25', 'bg-dock-lane-4/25', 'bg-dock-lane-5/25', 'bg-dock-lane-6/25', 'bg-dock-lane-7/25']
-const LANE_STRONG_TINTS = ['bg-dock-lane-0/45', 'bg-dock-lane-1/45', 'bg-dock-lane-2/45', 'bg-dock-lane-3/45', 'bg-dock-lane-4/45', 'bg-dock-lane-5/45', 'bg-dock-lane-6/45', 'bg-dock-lane-7/45']
+const LANE_STROKES = ['stroke-tily-lane-0', 'stroke-tily-lane-1', 'stroke-tily-lane-2', 'stroke-tily-lane-3', 'stroke-tily-lane-4', 'stroke-tily-lane-5', 'stroke-tily-lane-6', 'stroke-tily-lane-7']
+const LANE_FILLS = ['fill-tily-lane-0', 'fill-tily-lane-1', 'fill-tily-lane-2', 'fill-tily-lane-3', 'fill-tily-lane-4', 'fill-tily-lane-5', 'fill-tily-lane-6', 'fill-tily-lane-7']
+const LANE_BARS = ['bg-tily-lane-0', 'bg-tily-lane-1', 'bg-tily-lane-2', 'bg-tily-lane-3', 'bg-tily-lane-4', 'bg-tily-lane-5', 'bg-tily-lane-6', 'bg-tily-lane-7']
+const LANE_TINTS = ['bg-tily-lane-0/25', 'bg-tily-lane-1/25', 'bg-tily-lane-2/25', 'bg-tily-lane-3/25', 'bg-tily-lane-4/25', 'bg-tily-lane-5/25', 'bg-tily-lane-6/25', 'bg-tily-lane-7/25']
+const LANE_STRONG_TINTS = ['bg-tily-lane-0/45', 'bg-tily-lane-1/45', 'bg-tily-lane-2/45', 'bg-tily-lane-3/45', 'bg-tily-lane-4/45', 'bg-tily-lane-5/45', 'bg-tily-lane-6/45', 'bg-tily-lane-7/45']
 
-const LANE_HOVER_TINTS = ['hover:bg-dock-lane-0/45', 'hover:bg-dock-lane-1/45', 'hover:bg-dock-lane-2/45', 'hover:bg-dock-lane-3/45', 'hover:bg-dock-lane-4/45', 'hover:bg-dock-lane-5/45', 'hover:bg-dock-lane-6/45', 'hover:bg-dock-lane-7/45']
-const LANE_STRONG_HOVER_TINTS = ['hover:bg-dock-lane-0/65', 'hover:bg-dock-lane-1/65', 'hover:bg-dock-lane-2/65', 'hover:bg-dock-lane-3/65', 'hover:bg-dock-lane-4/65', 'hover:bg-dock-lane-5/65', 'hover:bg-dock-lane-6/65', 'hover:bg-dock-lane-7/65']
+const LANE_HOVER_TINTS = ['hover:bg-tily-lane-0/45', 'hover:bg-tily-lane-1/45', 'hover:bg-tily-lane-2/45', 'hover:bg-tily-lane-3/45', 'hover:bg-tily-lane-4/45', 'hover:bg-tily-lane-5/45', 'hover:bg-tily-lane-6/45', 'hover:bg-tily-lane-7/45']
+const LANE_STRONG_HOVER_TINTS = ['hover:bg-tily-lane-0/65', 'hover:bg-tily-lane-1/65', 'hover:bg-tily-lane-2/65', 'hover:bg-tily-lane-3/65', 'hover:bg-tily-lane-4/65', 'hover:bg-tily-lane-5/65', 'hover:bg-tily-lane-6/65', 'hover:bg-tily-lane-7/65']
 
 const pick = (classes: string[], color: number): string => classes[color % classes.length]
 
