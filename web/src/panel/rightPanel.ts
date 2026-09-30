@@ -109,7 +109,7 @@ export const revealInFileTree = (path: string): boolean => {
   }, root)
   const file = `${root}${BACKSLASH}${segments.join(BACKSLASH)}`
   explorer.select(file)
-  showPanelView(RightPanelView.Files)
+  openPanelView(RightPanelView.Files)
   revealGeneration += 1
   const generation = revealGeneration
   setTimeout(() => focusRevealedRow(file, REVEAL_ATTEMPTS, generation), REVEAL_RETRY_MS)

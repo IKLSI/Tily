@@ -95,6 +95,24 @@ public sealed class SessionRepositoryTests : IDisposable
     }
 
     [Fact]
+    public void Save_WhenPreviousCopyReadOnly_ThenStillWritesTheSession()
+    {
+        var repository = new SessionRepository(_directory);
+        repository.Save(SessionFactory.Initial());
+        var previous = Path.Combine(_directory, SessionRepository.PreviousFileName);
+        File.WriteAllText(previous, "{}");
+        File.SetAttributes(previous, FileAttributes.ReadOnly);
+        var session = SessionFactory.Initial();
+        session.Workspaces[0].Name = "Après";
+
+        var result = repository.Save(session);
+        File.SetAttributes(previous, FileAttributes.Normal);
+
+        Assert.True(result.IsValid);
+        Assert.Equal("Après", repository.Load().Session!.Workspaces[0].Name);
+    }
+
+    [Fact]
     public void Load_WhenSessionInvalid_ThenQuarantinesItWithTheValidationError()
     {
         var repository = new SessionRepository(_directory);

@@ -179,8 +179,13 @@ public sealed class FileExplorerFeed : IDisposable
             var listing = ProjectFiles.List(new GitRunner(), folder, cancellation: cancellation);
             _post(new { type = "files.searched", path = folder, root = listing.Root, files = listing.Files, changed = listing.Changed, truncated = listing.Truncated });
         }
-        catch (Exception exception) when (exception is not OperationCanceledException)
+        catch (Exception exception)
         {
+            if (exception is OperationCanceledException)
+            {
+                return;
+            }
+
             _post(new { type = "files.searched", path = folder, root = folder, files = Array.Empty<string>(), changed = Array.Empty<string>(), truncated = false, error = UserErrorMessage.Of(exception) });
         }
     }

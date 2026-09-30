@@ -7,8 +7,8 @@ import { focusGitGraph } from './gitFocus'
 import { revealCommit } from './gitRequests'
 
 export const canSearchCommits = (): boolean => {
-  const { state, history } = useGitStore.getState()
-  return Boolean(state && history && history.commits.length > 0)
+  const { path, resolved, state, history } = useGitStore.getState()
+  return path !== '' && path === resolved && Boolean(state && history && history.commits.length > 0)
 }
 
 export const openCommitPicker = (): void => useCommitPickerStore.getState().setOpen(true)

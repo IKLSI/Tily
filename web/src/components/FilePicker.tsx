@@ -9,7 +9,7 @@ const MAX_RESULTS = 200
 const LAST_SEPARATOR = /^(.*)\\([^\\]+)$/
 const LOADING = 'Chargement des fichiers…'
 const NO_MATCH = 'Aucun fichier ne correspond à la recherche.'
-const TRUNCATED = 'Trop de fichiers : seuls les 20 000 premiers trouvés sont proposés, les autres ne sont pas dans la liste.'
+const TRUNCATED = 'Liste incomplète (plus de 20 000 fichiers, ou parcours hors dépôt arrêté après 3 secondes) : un fichier absent de la liste ne peut pas être trouvé ici.'
 const FOOTER = 'Entrée : ouvrir dans l’éditeur · Maj + Entrée : afficher dans l’arbre · Ctrl + Entrée : insérer le chemin dans le terminal'
 
 const CHANGED_HINT = 'modifié'

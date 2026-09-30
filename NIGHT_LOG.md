@@ -953,6 +953,18 @@ Ctrl + Entrée et Ctrl + Maj + Entrée n’étaient rappelés que dans le texte 
 - Vérifié dans l’instance de dev (pied présent sous la note, 16 px de haut en panneau large). Lint et build au vert.
 - Douzième relecture reçue ; ses corrections font l’objet de l’itération 106.
 
+### 106. Corrections de la douzième relecture
+
+Douzième relecture indépendante (itérations 96 à 102), lancée à l’itération 103 : cinq défauts réels.
+
+- **Recherche de commit sur un historique périmé** : vue Git fermée, la palette proposait encore « Rechercher un commit… » sur l’historique du dernier dépôt affiché, peut-être un autre ; Entrée ouvrait la vue sur le dépôt courant sans rien sélectionner. L’entrée n’est plus proposée que si la vue Git est affichée et à jour (dépôt suivi = dépôt lu).
+- **Erreur anglaise « The operation was canceled. »** quand une recherche de fichiers hors dépôt était annulée par une nouvelle : l’annulation est désormais silencieuse.
+- **Message de troncature faux** quand la limite de 3 secondes coupe le parcours (« 20 000 premiers » alors que la liste en comptait moins) : « Liste incomplète (plus de 20 000 fichiers, ou parcours hors dépôt arrêté après 3 secondes)… ».
+- **Copie de secours bloquante** : si `session.previous.json` était en lecture seule ou verrouillé, plus aucune session ne s’enregistrait (« Non enregistré » permanent, message anglais sur le mauvais fichier). La copie est maintenant facultative : son échec n’empêche pas l’écriture de `session.json`. Test ajouté.
+- **Maj + Entrée du sélecteur de fichiers, panneau fermé** : rien ne s’affichait et le focus était perdu. « Afficher dans l’arbre » ouvre désormais le panneau s’il est fermé (vaut aussi pour la vue Git).
+- Mineurs : la liste du sélecteur de commits n’est plus recalculée quand il est fermé ; architecture front complétée (`searchText`, `/` et `\` confondus dans la recherche). Laissé : un dossier unique de centaines de milliers de fichiers est parcouru en entier avant la vérification de la limite de durée (rare).
+- Vérifié dans l’instance de dev (entrée absente panneau fermé ; Maj + Entrée → panneau ouvert, `notes.md` focalisé dans l’arbre) ; 464 tests au vert.
+
 ## Reste à faire et idées
 
 ### À décider par toi

@@ -61,6 +61,21 @@ public sealed class SessionRepository
             : new SessionLoadResultModel(previous, $"La session enregistrée était inutilisable ({reason}) ; copie conservée dans {kept}. L’avant-dernier enregistrement de la session a été restauré.");
     }
 
+    private void KeepPrevious()
+    {
+        try
+        {
+            if (File.Exists(_filePath))
+            {
+                File.Copy(_filePath, _previousPath, true);
+            }
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            return;
+        }
+    }
+
     private SessionModel? LoadPrevious()
     {
         try
@@ -82,11 +97,7 @@ public sealed class SessionRepository
             return result;
         }
 
-        if (File.Exists(_filePath))
-        {
-            File.Copy(_filePath, _previousPath, true);
-        }
-
+        KeepPrevious();
         AtomicFile.Write(_filePath, JsonSerializer.Serialize(session, JsonOptions));
         return result;
     }

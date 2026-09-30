@@ -24,7 +24,7 @@ const handleRun = (item: SearchItem) => goToCommit(item.id)
 export function CommitPicker() {
   const open = useCommitPickerStore((state) => state.open)
   const { history, name } = useGitStore(useShallow((state) => ({ history: state.history, name: state.state?.name ?? '' })))
-  const items = useMemo(() => (history?.commits ?? []).filter((commit) => !commit.stash).map(itemOf), [history])
+  const items = useMemo(() => (open && history ? history.commits.filter((commit) => !commit.stash).map(itemOf) : []), [open, history])
   if (!open) {
     return null
   }

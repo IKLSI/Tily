@@ -385,7 +385,7 @@ Les actions utilisent le **dossier du pane actif**, jamais un hypothétique doss
 
 **Convention proposée.** Quand le dossier du pane actif n’appartient à aucun dépôt, la vue Git le dit et propose « Initialiser un dépôt Git ici » (`git init` dans ce dossier) ; la vue affiche aussitôt le nouveau dépôt et la barre de statut confirme « Dépôt Git initialisé dans … (branche …) ».
 
-**Convention proposée.** « Rechercher un commit dans le graphe… » (palette, dès qu’un historique est chargé) cherche dans les commits déjà chargés par le graphe (200 au départ, davantage en défilant) par message, SHA, auteur, adresse ou nom de branche ou de tag ; Entrée ouvre la vue Git sur le graphe, sélectionne le commit, le centre et affiche son détail.
+**Convention proposée.** « Rechercher un commit dans le graphe… » (palette, quand la vue Git est affichée et son historique chargé) cherche dans les commits déjà chargés par le graphe (200 au départ, davantage en défilant) par message, SHA, auteur, adresse ou nom de branche ou de tag ; Entrée ouvre la vue Git sur le graphe, sélectionne le commit, le centre et affiche son détail.
 
 **Convention proposée.** Quand la place manque dans le graphe, Date puis Auteur sont masqués à l’affichage pour laisser au moins 200 px au message, sans changer le réglage mémorisé ; ils réapparaissent dès que la place revient. De même, s’il reste moins de 400 px au graphe, la colonne des branches, tags et stash est repliée à l’affichage ; son bouton dans la barre du graphe l’affiche quand même, et elle revient d’elle-même quand la place revient.
 
