@@ -319,6 +319,15 @@ Pour demander à Claude Code de relire une modification, ou pour la reporter ail
 - Vérifié dans l'instance de dev, sur `README.md` du clone : le presse-papiers (intercepté) reçoit un diff unifié complet, et la barre de statut affiche « Diff de README.md copié (1 ligne modifiée). ».
 - **Convention proposée** en section 11 de la spec.
 
+### 31. Base de worktree par défaut absente du dépôt
+
+J'ai essayé la création de worktree (Leader puis N) sur le clone jetable, sans la valider. Le formulaire proposait « depuis origin/develop », la base réglée par défaut, alors que ce dépôt n'a pas de branche `develop` ; sans changer la liste, la création aurait échoué au fetch (« Échec du fetch de origin/develop »).
+
+- Si la base réglée n'existe pas dans le dépôt, localement ni sur le dépôt distant, Dock propose `main` puis `master`, sur le dépôt distant de préférence. Le réglage lui-même ne change pas, et une base choisie explicitement est toujours respectée.
+- 2 tests `WorktreeCreatorTests` : le plan propose `origin/main`, et la création part bien de `origin/main`.
+- Vérifié dans l'instance de dev : le formulaire propose maintenant `origin/main`, et l'option `origin/develop` inexistante a disparu de la liste. Aucun worktree n'a été créé.
+- Convention ajoutée au tableau de la section 11 de la spec.
+
 ## Reste à faire et idées
 
 ### À décider par toi

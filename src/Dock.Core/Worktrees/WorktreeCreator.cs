@@ -10,6 +10,7 @@ public static class WorktreeCreator
     private const string RemotesPrefix = "refs/remotes/";
     private const string RemoteHeadSuffix = "/HEAD";
     private const string PreferredRemote = "origin";
+    private static readonly string[] FallbackBases = ["main", "master"];
     private const string PackageFile = "package.json";
 
     private sealed record ContextModel(GitRepository Main, WorktreeRepositoryModel Info, IReadOnlyList<WorktreeModel> Worktrees);
@@ -28,13 +29,13 @@ public static class WorktreeCreator
             return new WorktreePlanModel(request.Repository, WorktreeTarget.Project(request.Repository), null, null, null, [], [], exception.Message);
         }
 
-        var defaultBase = ResolveBase(settings.DefaultBase, context.Info);
+        var defaultBase = DefaultBaseOf(settings.DefaultBase, context.Info);
         try
         {
             var target = Target(context, request, settings, projectsRoot);
             if (target is not null && request.Mode == WorktreeBranchMode.New)
             {
-                RequireBase(context, BaseOf(request, settings));
+                RequireBase(context, BaseOf(request, settings, context.Info));
             }
 
             return Planned(context, defaultBase, target, null);
@@ -54,7 +55,7 @@ public static class WorktreeCreator
         switch (request.Mode)
         {
             case WorktreeBranchMode.New:
-                var start = RequireBase(context, BaseOf(request, settings));
+                var start = RequireBase(context, BaseOf(request, settings, context.Info));
                 if (RemoteOf(start, context.Info) is { } remote)
                 {
                     progress($"Fetch de {start}…");
@@ -196,8 +197,19 @@ public static class WorktreeCreator
             : throw new WorktreeException($"Base introuvable : « {start} ».", WorktreeSteps.Verification);
     }
 
-    private static string BaseOf(WorktreeRequestModel request, WorktreeSettingsModel settings) =>
-        string.IsNullOrWhiteSpace(request.Base) ? settings.DefaultBase : request.Base;
+    private static string BaseOf(WorktreeRequestModel request, WorktreeSettingsModel settings, WorktreeRepositoryModel info) =>
+        string.IsNullOrWhiteSpace(request.Base) ? DefaultBaseOf(settings.DefaultBase, info) : request.Base;
+
+    private static string DefaultBaseOf(string configured, WorktreeRepositoryModel info)
+    {
+        var resolved = ResolveBase(configured, info);
+        return HasBranch(resolved, info)
+            ? resolved
+            : FallbackBases.Select(branch => ResolveBase(branch, info)).FirstOrDefault(candidate => HasBranch(candidate, info)) ?? resolved;
+    }
+
+    private static bool HasBranch(string branch, WorktreeRepositoryModel info) =>
+        info.RemoteBranches.Contains(branch, StringComparer.Ordinal) || info.LocalBranches.Contains(branch, StringComparer.Ordinal);
 
     private static WorktreePlanModel Planned(ContextModel context, string defaultBase, TargetModel? target, string? error) =>
         new(context.Info.MainRoot, context.Info.Project, target?.Path, target?.LocalBranch, defaultBase, context.Info.LocalBranches, context.Info.RemoteBranches, error);

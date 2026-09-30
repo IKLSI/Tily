@@ -94,6 +94,27 @@ public sealed class WorktreeCreatorTests : IDisposable
     }
 
     [Fact]
+    public void Plan_WhenConfiguredBaseMissing_ThenFallsBackToRemoteMain()
+    {
+        var settings = new WorktreeSettingsModel(_settings.Folder, "absente");
+
+        var plan = WorktreeCreator.Plan(_sandbox.Runner, new WorktreeRequestModel(_sandbox.Work, "feat/vue", WorktreeBranchMode.New, null), settings, _sandbox.Root);
+
+        Assert.Equal("origin/main", plan.DefaultBase);
+    }
+
+    [Fact]
+    public void Create_WhenConfiguredBaseMissing_ThenStartsFromRemoteMain()
+    {
+        var settings = new WorktreeSettingsModel(_settings.Folder, "absente");
+        var main = _sandbox.Git("rev-parse", "origin/main").Trim();
+
+        var creation = WorktreeCreator.Create(_sandbox.Runner, new WorktreeRequestModel(_sandbox.Work, "feat/vue", WorktreeBranchMode.New, null), settings, _sandbox.Root, _ => { });
+
+        Assert.Equal(main, _sandbox.GitIn(creation.Path, "rev-parse", "HEAD").Trim());
+    }
+
+    [Fact]
     public void Create_WhenBaseUnknownOnRemote_ThenFailsOnFetch()
     {
         var failure = Assert.Throws<WorktreeException>(() => Create(new WorktreeRequestModel(_sandbox.Work, "feat/vue", WorktreeBranchMode.New, "origin/inconnue")));
