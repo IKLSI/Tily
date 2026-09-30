@@ -538,6 +538,13 @@ Une relecture indépendante des itérations 44 à 51 a relevé un défaut moyen 
 - Section « Reste à faire et idées » complétée des points ouverts depuis l'itération 38 : réglage éventuel pour couper la confirmation de collage, Leader puis 8 en AZERTY belge, format du chemin relatif copié, taille du texte en convention ; limites connues (liens avec extension dans un dossier, clignotement non observé, U+FFFD) ; idée de tests web étendue.
 - Bilan HTML de la nuit régénéré sur le Bureau.
 
+### 56. Raccourcis sur l'écran vide
+
+L'écran « Aucun workspace ouvert » était le seul endroit sans raccourcis indiqués : un nouvel utilisateur n'y apprenait ni la palette ni le Leader.
+
+- Infobulles des boutons complétées (« Nouveau workspace » : Ctrl + Maj + W ; « Ouvrir un projet… » : Leader puis F) et ligne d'aide discrète sous les boutons : « Ctrl + P ouvre la palette · Ctrl + Espace puis une lettre lance une commande au clavier ».
+- Vérifié dans l'instance de dev : tous les workspaces fermés → écran vide avec la ligne d'aide ; Ctrl + P ouvre la palette et Leader puis F le sélecteur de projets depuis cet écran ; session rouverte ensuite par Ctrl + Maj + Z.
+
 ## Reste à faire et idées
 
 ### À décider par toi

@@ -25,10 +25,10 @@ export function EmptyState({ canRestore, onNewWorkspace, onOpenProject, onRestor
         <p className="text-[12px]">Créez-en un pour lancer un terminal, ou ouvrez un dossier de projet.</p>
       </div>
       <div className="flex flex-wrap justify-center gap-3">
-        <button ref={newWorkspaceRef} type="button" className="cursor-pointer rounded border border-dock-green px-3 py-1.5 text-[13px] text-dock-green-deep hover:bg-dock-green-soft" data-tip="Créer un workspace avec un terminal dans votre dossier utilisateur" onClick={onNewWorkspace}>
+        <button ref={newWorkspaceRef} type="button" className="cursor-pointer rounded border border-dock-green px-3 py-1.5 text-[13px] text-dock-green-deep hover:bg-dock-green-soft" data-tip="Créer un workspace avec un terminal dans votre dossier utilisateur (Ctrl + Maj + W)" onClick={onNewWorkspace}>
           Nouveau workspace
         </button>
-        <button type="button" className={SECONDARY_BUTTON} data-tip="Ouvrir un workspace dans un dossier de projet" onClick={onOpenProject}>
+        <button type="button" className={SECONDARY_BUTTON} data-tip="Ouvrir un workspace dans un dossier de projet (Leader puis F)" onClick={onOpenProject}>
           Ouvrir un projet…
         </button>
         {canRestore && (
@@ -37,6 +37,7 @@ export function EmptyState({ canRestore, onNewWorkspace, onOpenProject, onRestor
           </button>
         )}
       </div>
+      <p className="text-[11px]">Ctrl + P ouvre la palette · Ctrl + Espace puis une lettre lance une commande au clavier</p>
     </div>
   )
 }
