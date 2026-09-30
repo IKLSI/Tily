@@ -72,7 +72,7 @@ Ces valeurs sont des références de réalisation, pas des contraintes de taille
 
 **À décider.** Personnalisation de la police terminal, zoom et comportement aux très petites dimensions. La cible principale reste une fenêtre d’application de bureau.
 
-**Convention proposée.** Taille du texte des terminaux : réglage « Taille du texte (px) » de la section « Terminaux » des Paramètres, de 8 à 32 px, 14 par défaut, avec un aperçu. Elle s’applique à l’enregistrement à tous les terminaux ouverts, qui recalculent leurs colonnes et leurs lignes et les transmettent au shell ; elle est conservée dans `appearance.json` et fait partie des préférences exportées.
+**Convention proposée.** Taille du texte des terminaux : réglage « Taille du texte (px) » de la section « Terminaux » des Paramètres, de 8 à 32 px, 14 par défaut, avec un aperçu. Elle s’applique à l’enregistrement à tous les terminaux ouverts, qui recalculent leurs colonnes et leurs lignes et les transmettent au shell ; elle est conservée dans `appearance.json` et fait partie des préférences exportées. La palette propose aussi « Agrandir le texte des terminaux », « Réduire le texte des terminaux » et « Taille du texte des terminaux par défaut », qui appliquent et enregistrent la nouvelle taille sans ouvrir les Paramètres.
 
 ### Explorateur de fichiers
 

@@ -161,6 +161,7 @@ export interface PaneAgent {
 }
 
 export type HostToWebMessage =
+  | { type: 'appearance.changed'; fontSize: number }
   | { type: 'app.hello'; version: string; session: Session; shells: ShellProfile[]; home: string; text: Record<string, string>; persistence: PersistenceSettings; appearance: AppearanceSettings; statusLog: StatusLogEntry[]; recovery?: string }
   | { type: 'app.closing'; activity: PaneActivity[] }
   | { type: 'session.saved' }
@@ -197,6 +198,7 @@ export type WebToHostMessage =
   | { type: 'text.save'; text: Record<string, string>; keep: string[] }
   | { type: 'settings.get' }
   | { type: 'settings.save'; settings: Settings }
+  | { type: 'appearance.fontSize'; fontSize: number }
   | { type: 'settings.export' }
   | { type: 'settings.import' }
   | { type: 'attention.raise'; pane: string; kind: AttentionKind; title: string; body: string; location: string }

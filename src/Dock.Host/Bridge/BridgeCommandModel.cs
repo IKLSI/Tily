@@ -54,6 +54,7 @@ public sealed class BridgeCommandModel
     public int AlternativeColumn { get; init; }
     public int Chars { get; init; }
     public int Count { get; init; }
+    public int FontSize { get; init; }
     public int Index { get; init; }
     public int Request { get; init; }
     public bool Amend { get; init; }

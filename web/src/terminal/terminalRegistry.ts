@@ -237,6 +237,10 @@ export const terminalRegistry = {
     scrollbackLines = linesPerPane
   },
 
+  fontSize(): number {
+    return fontSize
+  },
+
   setFontSize(size: number): void {
     if (size === fontSize) {
       return

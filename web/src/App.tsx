@@ -56,6 +56,10 @@ export default function App() {
           }
         })
       }),
+      bridge.on('appearance.changed', (message) => {
+        terminalRegistry.setFontSize(message.fontSize)
+        setStatus(`Taille du texte des terminaux : ${message.fontSize} px`)
+      }),
       bridge.on('settings.result', (message) => {
         applySettings({ settings: message.settings, shellSettings: message.shellSettings, files: message.files, warnings: message.warnings, agents: message.agents, notifications: message.notifications }, message.shells, message.persistence)
         if (!message.saved) {

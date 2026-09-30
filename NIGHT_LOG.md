@@ -763,6 +763,15 @@ Les notes servent souvent de pense-bête de commandes (`pnpm dev`, requêtes, sc
 - Écarté cette itération : relier l'arbre et la vue Git sous une jonction vers un sous-dossier du dépôt ; les marques Git de l'arbre ont la même limite, et ne corriger que la vue Git laisserait un comportement incohérent pour un cas rare (limite connue maintenue).
 - **Convention proposée** complétée en section 5 de la spec ; texte d'aide de la note et README mis à jour.
 
+### 84. Agrandir ou réduire le texte depuis la palette
+
+Changer la taille du texte des terminaux (itération 41) demandait d'ouvrir les Paramètres, choisir dans la liste et enregistrer ; le raccourci de zoom rapide reste à décider (point 15 de la section 18).
+
+- La palette propose « Agrandir le texte des terminaux (15 px) », « Réduire le texte des terminaux (13 px) » et « Taille du texte des terminaux par défaut (14 px) », selon la taille courante et les bornes 8 à 32. La taille est appliquée à tous les terminaux, annoncée (« Taille du texte des terminaux : 15 px ») et enregistrée comme le réglage.
+- Pont : `appearance.fontSize {fontSize}` (web → hôte) ; l'hôte borne la valeur, l'écrit dans `appearance.json` et répond `appearance.changed {fontSize}`.
+- Vérifié : 450 tests ; dans l'instance de dev, « Agrandir » → 15 px appliqués et écrits, « par défaut » → 14 px. Banc des 10 scénarios réels de copie de sortie rejoué avant l'itération : toujours justes.
+- **Convention proposée** complétée en section 4 de la spec ; contrat du pont mis à jour.
+
 ## Reste à faire et idées
 
 ### À décider par toi
@@ -792,5 +801,5 @@ Les notes servent souvent de pense-bête de commandes (`pnpm dev`, requêtes, sc
 
 ### Idées
 
-- Zoom rapide du texte (Ctrl + molette, comme Windows Terminal) en plus du réglage de l'itération 41 : raccourci à décider (point 15 de la section 18).
+- Zoom rapide du texte (Ctrl + molette ou Ctrl + =, comme Windows Terminal) : la palette sait agrandir / réduire depuis l'itération 84, seul le raccourci reste à décider (point 15 de la section 18).
 - Tests web : aucun encore (décision du 21 septembre). Plusieurs fonctions pures ajoutées cette nuit s'y prêteraient : `findFileLinks` (le banc de 13 cas des itérations 44 et 54 en serait le point de départ), `equalizeNode`, `swapPanes`, `folderMarksOf`, `relativeEntryPath`, `formatCommandDuration`.

@@ -230,6 +230,9 @@ public sealed class HostBridge : IDisposable
             case "settings.save":
                 SaveSettings(command);
                 break;
+            case "appearance.fontSize":
+                SaveFontSize(command);
+                break;
             case "attention.raise":
                 RaiseAttention(RequirePane(command), command);
                 break;
@@ -385,6 +388,18 @@ public sealed class HostBridge : IDisposable
             notifications = _notifier.Describe(),
             saved
         });
+    }
+
+    private void SaveFontSize(BridgeCommandModel command)
+    {
+        _settings.Appearance = new AppearanceSettingsModel(command.FontSize).Clamped();
+        var result = _settingsService.Save(_settings);
+        if (!result.IsValid)
+        {
+            throw new InvalidOperationException($"Réglages refusés : {result.Error}");
+        }
+
+        Post(new { type = "appearance.changed", fontSize = _settings.Appearance.FontSize });
     }
 
     private void SaveSettings(BridgeCommandModel command)

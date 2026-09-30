@@ -13,6 +13,7 @@ import { useSessionStore } from '../store/sessionStore'
 import { RenameOrigin, useUiStore } from '../store/uiStore'
 import { closeOtherTabsKeepingText, closeTabKeepingText, closeTabsToRightKeepingText, closeWorkspaceKeepingText, duplicateTabKeepingLayout, movePaneToTab, restoreClosedTab, restoreClosedTabAt } from '../terminal/tabLifecycle'
 import { copyLastCommandOutput, joinPane } from '../terminal/terminalActions'
+import { terminalRegistry } from '../terminal/terminalRegistry'
 import { OpenTarget } from '../bridge/messages'
 import { copyPaneBranch, copyPanePath, openPaneFolder } from '../terminal/contextActions'
 import { WorktreePickerKind } from '../store/worktreeStore'
@@ -38,6 +39,21 @@ const FAVORITES_FULL_NOTICE = `Pas plus de ${FAVORITES_MAX} favoris : retirez un
 const ATTENTION_PREFIX = 'attention-'
 const MOVE_TAB_PREFIX = 'move-tab-'
 const JOIN_TAB_PREFIX = 'join-tab-'
+
+const DEFAULT_FONT_SIZE = 14
+const MIN_FONT_SIZE = 8
+const MAX_FONT_SIZE = 32
+
+const requestFontSize = (fontSize: number): void => bridge.send({ type: 'appearance.fontSize', fontSize })
+
+const fontSizeItems = (): PaletteItem[] => {
+  const size = terminalRegistry.fontSize()
+  return [
+    ...(size < MAX_FONT_SIZE ? [command('font-larger', `Agrandir le texte des terminaux (${size + 1} px)`, () => requestFontSize(size + 1))] : []),
+    ...(size > MIN_FONT_SIZE ? [command('font-smaller', `Réduire le texte des terminaux (${size - 1} px)`, () => requestFontSize(size - 1))] : []),
+    ...(size !== DEFAULT_FONT_SIZE ? [command('font-default', `Taille du texte des terminaux par défaut (${DEFAULT_FONT_SIZE} px)`, () => requestFontSize(DEFAULT_FONT_SIZE))] : []),
+  ]
+}
 
 const showAndRun = (view: RightPanelView, run: () => void): void => {
   openPanelView(view)
@@ -101,6 +117,7 @@ const commandItems = (session: Session, shells: ShellProfile[]): PaletteItem[] =
       command('open-explorer', 'Ouvrir le dossier du pane actif dans l’explorateur', () => openPaneFolder(paneId, OpenTarget.Explorer)),
       command('copy-branch', 'Copier la branche Git du pane actif', () => copyPaneBranch(paneId)),
       command('collapse-files', 'Tout replier dans l’arbre des fichiers', () => useExplorerStore.getState().collapseUnder(activePane(tab).path)),
+      ...fontSizeItems(),
       command('refresh-files', 'Actualiser l’arbre des fichiers', () => showAndRun(RightPanelView.Files, refreshFolders), 'F5 dans l’arbre'),
       command('refresh-git', 'Actualiser la vue Git', () => showAndRun(RightPanelView.Git, refreshRepository), 'F5 dans la vue Git'),
     )
