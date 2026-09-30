@@ -32,6 +32,8 @@ interface WorkspaceItemProps {
   onOpenMenu: (request: PanelMenuRequest) => void
 }
 
+const tabCountTip = (count: number): string => (count === 1 ? '1 onglet dans ce workspace replié' : `${count} onglets dans ce workspace replié`)
+
 const toggleTip = (expanded: boolean, count: number): string => `${expanded ? 'Replier' : 'Afficher'} ${count === 1 ? 'l’onglet' : `les ${count} onglets`}`
 
 const rowStateOf = (dropInto: boolean, here: boolean): string => {
@@ -144,7 +146,7 @@ export const WorkspaceItem = memo(function WorkspaceItem({ workspace, workspaceN
           </button>
         )}
         {!expanded && (
-          <span className="shrink-0 px-[2px] font-mono text-[11px] text-dock-muted tabular-nums" aria-hidden="true">
+          <span className="shrink-0 translate-y-px px-[2px] font-mono text-[11px] leading-none text-dock-muted tabular-nums" aria-hidden="true" data-tip={tabCountTip(tabs.length)}>
             {tabs.length}
           </span>
         )}
