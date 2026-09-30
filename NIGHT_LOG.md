@@ -808,6 +808,14 @@ Un onglet prend par défaut le nom de son dossier : trois onglets ouverts dans l
 - Vérifié dans l’instance de dev (16 onglets) : « repo (onglet 1) », « repo (onglet 3) »…, l’onglet « xt » unique sans numéro. Au passage, la barre d’onglets à 16 onglets défile bien et garde l’onglet actif visible.
 - **Convention proposée** ajoutée en section 9 de la spec.
 
+### 89. Échecs de lancement de l’éditeur, de l’Explorateur et des liens en français
+
+Suite de l’itération 80 : quand l’éditeur configuré est introuvable, le message était « L’éditeur « code » n’a pas pu être lancé : An error occurred trying to start process 'code' with working directory… », moitié français, moitié texte anglais de .NET. L’ouverture d’un dossier dans l’Explorateur et celle d’un lien n’étaient pas protégées du tout : leur échec remontait l’exception anglaise telle quelle.
+
+- Les trois lancements passent par un même `Launch` qui garde une phrase française (« L’éditeur « … » n’a pas pu être lancé », « L’Explorateur Windows n’a pas pu être lancé », « Lien non ouvert ») suivie du message système de Windows pour le code d’erreur, localisé par le système (« Le fichier spécifié est introuvable »), à la place du texte de .NET.
+- Écarté : traduire toute `Win32Exception` dans `UserErrorMessage`, car Dock lève lui-même des `Win32Exception` à message français (ConPTY, Job Objects) qu’il faut garder.
+- Test ajouté (éditeur absent : message français, sans « An error occurred ») ; 451 tests au vert.
+
 ## Reste à faire et idées
 
 ### À décider par toi
@@ -831,7 +839,7 @@ Un onglet prend par défaut le nom de son dossier : trois onglets ouverts dans l
 - **Liens de fichiers** : depuis l'itération 44, un chemin absolu avec des espaces dans ses dossiers est lié ; un nom de fichier ou un chemin relatif avec espaces ne l'est toujours pas, ni un chemin replié sur deux lignes, et un chemin dont un dossier contient une extension suivie d'une espace (`Node.js Apps`, `ASP.NET Core`) n'est souligné que jusqu'à ce point (le Ctrl + clic ouvre quand même le fichier complet s'il existe, itération 63).
 - **Jonction ou `subst` vers un sous-dossier du dépôt** : la racine d'affichage (itération 73) ne sait pas relier un dossier logique dont le nom diffère du dossier réel ; « Afficher dans l'arbre », « Voir les modifications » et les marques Git de l'arbre y échouent (il faudrait comparer des chemins relatifs au dossier suivi, dans l'arbre comme dans la vue Git ; écarté à l'itération 83 pour un cas rare).
 - **Clignotement de la barre des tâches** (itération 38) : la commande est bien reçue par l'hôte, mais le clignotement lui-même ne s'observe pas par le débogage distant ; à confirmer à l'usage.
-- **Messages d'erreur imprévus** : les exceptions levées par Dock sont en français, et depuis l'itération 80 celles d'entrée / sortie du framework .NET aussi (phrase française, détail système entre parenthèses). Une exception imprévue d'une autre famille (réseau, lancement de processus hors terminaux) apparaîtrait encore en anglais.
+- **Messages d'erreur imprévus** : les exceptions levées par Dock sont en français, et depuis l'itération 80 celles d'entrée / sortie du framework .NET aussi (phrase française, détail système entre parenthèses). Depuis l'itération 89, les échecs de lancement de l'éditeur, de l'Explorateur et des liens aussi. Une exception imprévue d'une autre famille apparaîtrait encore en anglais.
 - **Commit et push, push en échec** : corrigé à l'itération 74 (commit gardé, message vidé, avertissement « Push impossible »).
 - **Diff copié** : un fichier UTF-8 qui contient réellement le caractère de remplacement U+FFFD est traité comme mal décodé et n'est pas copiable (rarissime).
 
