@@ -1004,6 +1004,14 @@ Les Paramètres affichent le chemin de chaque fichier de réglages, mais pour le
 - Vérifié dans l’instance de dev : bouton présent et actif (sans le cliquer, pour ne pas ouvrir de fenêtre sur le bureau ; l’action est celle, déjà utilisée, de « Afficher dans l’Explorateur Windows » de l’arbre). Lint et build au vert.
 - **Convention proposée** en section 14 de la spec.
 
+### 111. Déplacer un onglet et copier son chemin depuis son menu
+
+Déplacer un onglet vers un autre workspace n’était possible que par la palette ou par glisser-déposer dans le panneau des workspaces ; le menu d’un onglet de la barre ne le proposait pas, ni la copie de son dossier.
+
+- Le menu d’un onglet de la barre propose « Déplacer vers « workspace » » pour chaque autre workspace (même action que la palette : l’onglet part avec ses terminaux et Dock bascule sur le workspace cible) et « Copier le chemin » (dossier de son pane actif).
+- Vérifié dans l’instance de dev : menu à 10 entrées, « Déplacer vers « gd » » → gd passe de 3 à 4 onglets et devient actif. Lint et build au vert.
+- Spec (section 6) et architecture front complétées.
+
 ## Reste à faire et idées
 
 ### À décider par toi
