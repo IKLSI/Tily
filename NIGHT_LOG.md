@@ -616,6 +616,11 @@ L'en-tête de chaque terminal affiche sa branche Git, mais ce n'était qu'un tex
 - Vérifié aussi de bout en bout le correctif de liens de l'itération 63 : `…\Temp\dock.js essai\cible.txt:3:1` affiché par PowerShell, Ctrl + clic sur la partie soulignée → l'éditeur reçoit `-g "…\dock.js essai\cible.txt:3:1"`.
 - **Convention proposée** en section 4 de la spec.
 
+### 65. README à jour des itérations 52 à 64, bilan HTML régénéré
+
+- README complété : diff d'un fichier depuis l'arbre et bouton « Tout replier » (explorateur), clic sur la branche d'un terminal pour ouvrir la vue Git, affichage d'un fichier modifié dans l'arbre et brouillon de commit gardé par dépôt (vue Git).
+- Bilan HTML de la nuit régénéré sur le Bureau.
+
 ## Reste à faire et idées
 
 ### À décider par toi
