@@ -9,7 +9,7 @@ namespace Tily.Host;
 
 public sealed partial class MainWindow : Window
 {
-    private const string VirtualHost = "tily.app";
+    private const string VirtualHost = "tily.example";
     private const string DevServerVariable = "TILY_WEB_DEV_URL";
     private static readonly Color Paper = Color.FromArgb(255, 0x17, 0x19, 0x1B);
     private static readonly Color Ink = Color.FromArgb(255, 0xD8, 0xDB, 0xD7);

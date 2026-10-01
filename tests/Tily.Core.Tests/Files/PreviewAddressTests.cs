@@ -27,7 +27,7 @@ public sealed class PreviewAddressTests
     }
 
     [Theory]
-    [InlineData("https://tily.app/index.html")]
+    [InlineData("https://tily.example/index.html")]
     [InlineData("http://tily.files/C%3A/a.png")]
     [InlineData("https://tily.files/relatif.png")]
     [InlineData("https://tily.files/C%3A/%2E%2E%5Ca.png")]
