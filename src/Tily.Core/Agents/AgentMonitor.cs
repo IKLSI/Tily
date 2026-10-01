@@ -5,10 +5,10 @@ public sealed class AgentMonitor
     private readonly AgentStateRepository _states;
     private readonly IReadOnlyList<IAgentAdapter> _adapters;
 
-    public AgentMonitor(AgentStateRepository states, IReadOnlyList<IAgentAdapter>? adapters = null)
+    public AgentMonitor(AgentStateRepository states, ClaudeSessionRegistry? registry = null)
     {
         _states = states;
-        _adapters = adapters ?? [new ClaudeCodeAdapter(), new CodexAdapter()];
+        _adapters = [new ClaudeCodeAdapter(registry), new CodexAdapter()];
     }
 
     public IReadOnlyList<PaneAgentModel> Resolve(IEnumerable<PaneProbeModel> probes)

@@ -28,7 +28,8 @@ public sealed class AgentStateRepository
     public AgentStateModel? Read(string paneId, DateTime notBeforeUtc)
     {
         var path = FilePathFor(paneId);
-        if (!File.Exists(path) || File.GetLastWriteTimeUtc(path) < notBeforeUtc)
+        var writtenAtUtc = File.Exists(path) ? File.GetLastWriteTimeUtc(path) : DateTime.MinValue;
+        if (writtenAtUtc == DateTime.MinValue || writtenAtUtc < notBeforeUtc)
         {
             return null;
         }
@@ -49,7 +50,7 @@ public sealed class AgentStateRepository
         }
 
         var message = string.IsNullOrWhiteSpace(file.Message) ? null : file.Message.Trim();
-        return new AgentStateModel(file.Agent.Trim().ToLowerInvariant(), state, message, SingleLine(file.Detail));
+        return new AgentStateModel(file.Agent.Trim().ToLowerInvariant(), state, message, SingleLine(file.Detail)) { UpdatedAtUtc = writtenAtUtc };
     }
 
     private static string? SingleLine(string? detail)

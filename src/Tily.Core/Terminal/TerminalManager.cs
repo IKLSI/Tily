@@ -103,8 +103,14 @@ public sealed class TerminalManager : IDisposable
     public IReadOnlyList<PaneProbeModel> Probes() =>
         _sessions.Values
             .Where(session => !session.HasExited)
-            .Select(session => new PaneProbeModel(session.PaneId, session.StartedAtUtc, session.ActiveProcessNames()))
+            .Select(Probe)
             .ToList();
+
+    private static PaneProbeModel Probe(TerminalSession session)
+    {
+        var processes = session.ActiveProcesses();
+        return new PaneProbeModel(session.PaneId, session.StartedAtUtc, TerminalSession.NamesOf(processes), processes.Select(process => process.Id).ToList());
+    }
 
     public TerminalSession Require(string paneId) =>
         _sessions.TryGetValue(paneId, out var session) ? session : throw new InvalidOperationException($"Aucun terminal pour le pane {paneId}.");

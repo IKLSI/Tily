@@ -29,7 +29,7 @@ public sealed class AgentStateFeed : IDisposable
         _states = new AgentStateRepository(dataDirectory);
         _states.Clear();
         Directory.CreateDirectory(_states.Directory);
-        _monitor = new AgentMonitor(_states);
+        _monitor = new AgentMonitor(_states, new ClaudeSessionRegistry(ClaudeSessionRegistry.DefaultDirectory()));
         Hooks = new ClaudeHooksInstaller(ScriptPath);
         _watcher = new FileSystemWatcher(_states.Directory, "*.json") { NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName };
         _watcher.Changed += HandleFileChanged;
