@@ -2,7 +2,10 @@ using System.Text;
 
 namespace Tily.Core.Files;
 
-public sealed record FilePreviewModel(string Path, string Name, PreviewKind Kind, string? Language, string Content, bool Truncated, string BaseUrl, string? Error);
+public sealed record FilePreviewModel(string Path, string Name, PreviewKind Kind, string? Language, string Content, bool Truncated, string BaseUrl, string? Error)
+{
+    public string? Url { get; init; }
+}
 
 public static class FilePreview
 {
@@ -24,7 +27,7 @@ public static class FilePreview
         if (kind == PreviewKind.Image)
         {
             return File.Exists(path)
-                ? empty with { Content = ImageUrl(path) }
+                ? empty with { Content = AddressOf(path) }
                 : empty with { Error = $"Le fichier n’existe plus : {path}" };
         }
 
@@ -34,7 +37,7 @@ public static class FilePreview
             var content = Decode(bytes, truncated);
             return content is null
                 ? empty with { Error = "Fichier binaire : aperçu impossible." }
-                : empty with { Content = content, Truncated = truncated };
+                : empty with { Content = content, Truncated = truncated, Url = kind == PreviewKind.Html ? AddressOf(path) : null };
         }
         catch (Exception exception) when (exception is FileNotFoundException or DirectoryNotFoundException)
         {
@@ -46,7 +49,7 @@ public static class FilePreview
         }
     }
 
-    private static string ImageUrl(string path) =>
+    private static string AddressOf(string path) =>
         $"{PreviewAddress.BaseUrlOf(path)}{Uri.EscapeDataString(System.IO.Path.GetFileName(path))}?v={File.GetLastWriteTimeUtc(path).Ticks}";
 
     private static (byte[] Bytes, bool Truncated) ReadHead(string path)

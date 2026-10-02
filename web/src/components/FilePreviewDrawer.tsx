@@ -3,7 +3,7 @@ import { useShallow } from 'zustand/react/shallow'
 import { PreviewKind, type FilePreview } from '../bridge/previewMessages'
 import { focusFileTree } from '../explorer/fileExplorerActions'
 import { folderName } from '../model/session'
-import { closePreview, followPreviewLink, openPreviewInEditor } from '../preview/previewActions'
+import { closePreview, followPreviewLink, openPreviewInBrowser, openPreviewInEditor } from '../preview/previewActions'
 import { anchorTarget, highlightText, renderMarkdown } from '../preview/renderPreview'
 import { usePreviewStore } from '../store/previewStore'
 import { GitToolButton } from './GitToolButton'
@@ -15,12 +15,18 @@ const KIND_LABELS: Record<PreviewKind, string> = {
   [PreviewKind.Markdown]: 'Markdown',
   [PreviewKind.Text]: 'Texte',
   [PreviewKind.Image]: 'Image',
+  [PreviewKind.Html]: 'HTML',
 }
+
+const PAGE_SANDBOX = 'allow-scripts allow-popups'
+
 
 const handleClose = () => {
   closePreview()
   focusFileTree()
 }
+
+const handleToggleExpanded = () => usePreviewStore.getState().toggleExpanded()
 
 const handleKeyDown = (event: KeyboardEvent<HTMLElement>) => {
   if (event.key === 'Escape') {
@@ -46,8 +52,18 @@ const preventAuxiliaryOpen = (event: MouseEvent<HTMLElement>) => {
 
 const MARKDOWN_LANGUAGE = 'markdown'
 
+const hasSource = (preview: FilePreview | null): boolean =>
+  !preview?.error && (preview?.kind === PreviewKind.Markdown || preview?.kind === PreviewKind.Html)
+
+const pageAddress = (preview: FilePreview | null, source: boolean, anchor: string | null): string | null => {
+  if (!preview?.url || preview.error || preview.kind !== PreviewKind.Html || source) {
+    return null
+  }
+  return anchor ? `${preview.url}#${encodeURIComponent(anchor)}` : preview.url
+}
+
 const renderedHtml = (preview: FilePreview | null, source: boolean): string | null => {
-  if (!preview || preview.error || preview.kind === PreviewKind.Image) {
+  if (!preview || preview.error || preview.kind === PreviewKind.Image || (preview.kind === PreviewKind.Html && !source)) {
     return null
   }
   if (preview.kind === PreviewKind.Markdown) {
@@ -57,11 +73,12 @@ const renderedHtml = (preview: FilePreview | null, source: boolean): string | nu
 }
 
 export function FilePreviewDrawer() {
-  const { path, preview, anchor, anchorRequest } = usePreviewStore(useShallow((store) => ({ path: store.path, preview: store.preview, anchor: store.anchor, anchorRequest: store.anchorRequest })))
+  const { path, preview, anchor, anchorRequest, expanded } = usePreviewStore(useShallow((store) => ({ path: store.path, preview: store.preview, anchor: store.anchor, anchorRequest: store.anchorRequest, expanded: store.expanded })))
   const bodyRef = useRef<HTMLDivElement>(null)
   const [sourcePath, setSourcePath] = useState<string | null>(null)
-  const showSource = preview?.kind === PreviewKind.Markdown && sourcePath === preview.path
+  const showSource = hasSource(preview) && sourcePath === preview?.path
   const html = useMemo(() => renderedHtml(preview, showSource), [preview, showSource])
+  const page = pageAddress(preview, showSource, anchor)
   const handleToggleSource = () => setSourcePath(showSource ? null : (preview?.path ?? null))
   const [image, setImage] = useState<{ src: string; size: string } | null>(null)
   const [actualSource, setActualSource] = useState<string | null>(null)
@@ -90,43 +107,49 @@ export function FilePreviewDrawer() {
   const name = preview?.name ?? folderName(path)
 
   return (
-    <aside aria-label="Aperçu du fichier" data-preview-drawer="" className="absolute inset-y-0 right-0 z-20 flex w-[min(920px,100%)] flex-col border-l border-tily-line bg-tily-panel shadow-2xl" onKeyDown={handleKeyDown}>
+    <aside aria-label="Aperçu du fichier" data-preview-drawer="" className={`absolute inset-y-0 right-0 z-20 flex ${expanded ? 'w-full' : 'w-[min(920px,100%)]'} flex-col border-l border-tily-line bg-tily-panel shadow-2xl`} onKeyDown={handleKeyDown}>
       <header className="flex h-[36px] shrink-0 items-center gap-[8px] border-b border-tily-line pr-[6px] pl-[12px]">
         {preview && !preview.error && <span className="shrink-0 rounded bg-tily-paper px-[6px] py-[1px] text-[11px] text-tily-muted">{preview.kind === PreviewKind.Image && imageSize ? `${KIND_LABELS[preview.kind]} · ${imageSize}` : KIND_LABELS[preview.kind]}</span>}
         <span className="min-w-0 flex-1 truncate text-[12px] font-semibold text-tily-ink" data-tip={path}>
           {name}
         </span>
-        {preview?.kind === PreviewKind.Markdown && !preview.error && (
-          <GitToolButton icon={IconName.File} tip={showSource ? 'Revenir au rendu Markdown' : 'Afficher le texte source du Markdown'} label="Source" pressed={showSource} onClick={handleToggleSource} />
+        {preview && hasSource(preview) && (
+          <GitToolButton icon={IconName.File} tip={showSource ? `Revenir au rendu ${KIND_LABELS[preview.kind]}` : `Afficher le texte source du ${KIND_LABELS[preview.kind]}`} label="Source" pressed={showSource} onClick={handleToggleSource} />
         )}
+        {preview?.kind === PreviewKind.Html && !preview.error && <GitToolButton icon={IconName.Browser} tip="Ouvrir dans le navigateur" onClick={openPreviewInBrowser} />}
         <GitToolButton icon={IconName.Editor} tip="Ouvrir dans l’éditeur" onClick={openPreviewInEditor} />
+        <GitToolButton icon={IconName.Expand} tip={expanded ? 'Revenir à la largeur habituelle' : 'Agrandir l’aperçu à toute la zone des terminaux'} pressed={expanded} onClick={handleToggleExpanded} />
         <button type="button" className={PANEL_HEADER_BUTTON} aria-label="Fermer" data-tip="Fermer (Échap)" onClick={handleClose}>
           <Icon name={IconName.Close} />
         </button>
       </header>
-      {preview?.truncated && <p className="shrink-0 border-b border-tily-line px-[16px] py-[6px] text-[12px] text-tily-warning">Fichier volumineux : seuls les 2 premiers Mo sont affichés.</p>}
-      <div ref={bodyRef} tabIndex={0} aria-label={`Contenu de ${name}`} className="min-h-0 flex-1 overflow-auto px-[24px] py-[18px] select-text" onClick={handleContentClick} onAuxClick={preventAuxiliaryOpen}>
-        {!preview ? (
-          <p className="text-[12px] text-tily-muted">Chargement de l’aperçu…</p>
-        ) : preview.error ? (
-          <p className="text-[12px] text-tily-error">{preview.error}</p>
-        ) : preview.kind === PreviewKind.Image ? (
-          <img
-            src={preview.content}
-            alt={name}
-            data-tip={actualSize ? 'Clic : ajuster à la place disponible' : 'Clic : taille réelle'}
-            className={`mx-auto block object-contain ${actualSize ? 'max-w-none cursor-zoom-out' : 'max-h-full max-w-full cursor-zoom-in'}`}
-            onLoad={handleImageLoad}
-            onClick={handleToggleActualSize}
-          />
-        ) : preview.kind === PreviewKind.Markdown && !showSource && html !== null ? (
-          <div className="tily-markdown text-tily-ink" dangerouslySetInnerHTML={{ __html: html }} />
-        ) : html !== null ? (
-          <pre className="font-mono text-[12.5px] leading-[1.5] whitespace-pre-wrap text-tily-ink" dangerouslySetInnerHTML={{ __html: html }} />
-        ) : (
-          <pre className="font-mono text-[12.5px] leading-[1.5] whitespace-pre-wrap text-tily-ink">{preview.content}</pre>
-        )}
-      </div>
+      {preview?.truncated && (preview.kind !== PreviewKind.Html || showSource) && <p className="shrink-0 border-b border-tily-line px-[16px] py-[6px] text-[12px] text-tily-warning">Fichier volumineux : seuls les 2 premiers Mo sont affichés.</p>}
+      {page !== null ? (
+        <iframe src={page} title={`Rendu de ${name}`} sandbox={PAGE_SANDBOX} referrerPolicy="no-referrer" className="min-h-0 w-full flex-1 border-0 bg-tily-page" />
+      ) : (
+        <div ref={bodyRef} tabIndex={0} aria-label={`Contenu de ${name}`} className="min-h-0 flex-1 overflow-auto px-[24px] py-[18px] select-text" onClick={handleContentClick} onAuxClick={preventAuxiliaryOpen}>
+          {!preview ? (
+            <p className="text-[12px] text-tily-muted">Chargement de l’aperçu…</p>
+          ) : preview.error ? (
+            <p className="text-[12px] text-tily-error">{preview.error}</p>
+          ) : preview.kind === PreviewKind.Image ? (
+            <img
+              src={preview.content}
+              alt={name}
+              data-tip={actualSize ? 'Clic : ajuster à la place disponible' : 'Clic : taille réelle'}
+              className={`mx-auto block object-contain ${actualSize ? 'max-w-none cursor-zoom-out' : 'max-h-full max-w-full cursor-zoom-in'}`}
+              onLoad={handleImageLoad}
+              onClick={handleToggleActualSize}
+            />
+          ) : preview.kind === PreviewKind.Markdown && !showSource && html !== null ? (
+            <div className="tily-markdown text-tily-ink" dangerouslySetInnerHTML={{ __html: html }} />
+          ) : html !== null ? (
+            <pre className="font-mono text-[12.5px] leading-[1.5] whitespace-pre-wrap text-tily-ink" dangerouslySetInnerHTML={{ __html: html }} />
+          ) : (
+            <pre className="font-mono text-[12.5px] leading-[1.5] whitespace-pre-wrap text-tily-ink">{preview.content}</pre>
+          )}
+        </div>
+      )}
     </aside>
   )
 }

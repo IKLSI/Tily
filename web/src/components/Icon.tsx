@@ -18,6 +18,7 @@ const SHAPES: Record<IconName, ReactNode> = {
       <path d="M3 3.7v4.6M9 5.2c0 2-6 1.5-6 3.5" />
     </>
   ),
+  [IconName.Browser]: <path d="M5 2.2H2.6a.8.8 0 0 0-.8.8v6.4a.8.8 0 0 0 .8.8H9a.8.8 0 0 0 .8-.8V7M7.2 1.8h3v3M10.2 1.8 5.6 6.4" />,
   [IconName.Check]: <path d="M2.5 6.3 5 8.8l4.5-5.3" />,
   [IconName.Search]: (
     <>
@@ -47,6 +48,7 @@ const SHAPES: Record<IconName, ReactNode> = {
     </>
   ),
   [IconName.Editor]: <path d="M4 3 1.5 6 4 9M8 3l2.5 3L8 9" />,
+  [IconName.Expand]: <path d="M7.2 1.8h3v3M10.2 1.8 7 5M4.8 10.2h-3v-3M1.8 10.2 5 7" />,
   [IconName.Explorer]: (
     <>
       <rect x="1.5" y="2" width="9" height="8" rx="1" />

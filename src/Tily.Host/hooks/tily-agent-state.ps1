@@ -14,6 +14,53 @@ if ($eventName -eq 'SessionEnd') {
     exit 0
 }
 
+function ConvertFrom-BashPath([string]$path) {
+    if ($path -match '^/([a-zA-Z])(/.*)?$') { $path = $Matches[1].ToUpperInvariant() + ':' + $(if ($Matches[2]) { $Matches[2] } else { '/' }) }
+    elseif ($path -match '^~(/.*)?$') { $path = $HOME + $Matches[1] }
+    return $path -replace '/', '\'
+}
+
+function Resolve-HtmlOpenTarget([string]$command, [string]$workingDirectory) {
+    $match = [regex]::Match($command, '^\s*start(?:\s+(?:""|''''))?\s+(?:"(?<path>[^"]+)"|''(?<path>[^'']+)''|(?<path>[^\s"''&|;<>`$]+))\s*$', 'IgnoreCase')
+    if (-not $match.Success -or $match.Groups['path'].Value -notmatch '\.html?$') { return $null }
+    try {
+        $target = ConvertFrom-BashPath $match.Groups['path'].Value
+        if (-not [System.IO.Path]::IsPathRooted($target)) {
+            if ([string]::IsNullOrWhiteSpace($workingDirectory)) { return $null }
+            $target = [System.IO.Path]::Combine((ConvertFrom-BashPath $workingDirectory), $target)
+        }
+        $target = [System.IO.Path]::GetFullPath($target)
+    } catch { return $null }
+    if (-not (Test-Path -LiteralPath $target -PathType Leaf)) { return $null }
+    return $target
+}
+
+function Submit-PreviewRequest([string]$path) {
+    $requests = Join-Path $dataDirectory 'previews'
+    New-Item -ItemType Directory -Path $requests -Force -ErrorAction Stop | Out-Null
+    $name = "$paneId-$([guid]::NewGuid().ToString('N'))"
+    $temporary = Join-Path $requests "$name.tmp"
+    $json = @{ pane = $paneId; path = $path } | ConvertTo-Json -Compress
+    [System.IO.File]::WriteAllText($temporary, $json, [System.Text.UTF8Encoding]::new($false))
+    Move-Item -LiteralPath $temporary -Destination (Join-Path $requests "$name.json") -Force -ErrorAction Stop
+}
+
+function Write-HookOutput($output) {
+    $bytes = [System.Text.UTF8Encoding]::new($false).GetBytes(($output | ConvertTo-Json -Compress -Depth 4))
+    $stdout = [Console]::OpenStandardOutput()
+    $stdout.Write($bytes, 0, $bytes.Length)
+    $stdout.Flush()
+}
+
+if ($eventName -eq 'PreToolUse' -and $hook.tool_name -eq 'Bash') {
+    $target = Resolve-HtmlOpenTarget ([string]$hook.tool_input.command) ([string]$hook.cwd)
+    if (-not $target) { exit 0 }
+    try { Submit-PreviewRequest $target } catch { exit 0 }
+    $reason = "Tily a ouvert $target dans son aperçu HTML, à côté du terminal : l’utilisateur le relit dans Tily, inutile de l’ouvrir autrement."
+    Write-HookOutput @{ hookSpecificOutput = @{ hookEventName = 'PreToolUse'; permissionDecision = 'deny'; permissionDecisionReason = $reason } }
+    exit 0
+}
+
 function Get-ToolDetail($toolInput) {
     if ($null -eq $toolInput) { return $null }
     if ($toolInput.questions) { return [string]@($toolInput.questions)[0].question }

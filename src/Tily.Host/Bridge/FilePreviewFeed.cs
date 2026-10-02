@@ -26,8 +26,10 @@ public sealed class FilePreviewFeed : IDisposable
 
     public void Attach(CoreWebView2 core)
     {
-        core.AddWebResourceRequestedFilter(PreviewAddress.Filter, CoreWebView2WebResourceContext.Image);
+        core.AddWebResourceRequestedFilter(PreviewAddress.Filter, CoreWebView2WebResourceContext.All, CoreWebView2WebResourceRequestSourceKinds.All);
         core.WebResourceRequested += HandleResourceRequested;
+        core.FrameNavigationStarting += HandleFrameNavigationStarting;
+        core.NewWindowRequested += HandleNewWindowRequested;
     }
 
     public void Handle(BridgeCommandModel command)
@@ -46,8 +48,51 @@ public sealed class FilePreviewFeed : IDisposable
             case "preview.close":
                 Watch(null);
                 break;
+            case "preview.browser":
+                var page = RequirePath(command);
+                _queue.Enqueue(() => LocalActions.OpenLink(new Uri(page).AbsoluteUri));
+                break;
             default:
                 throw new InvalidOperationException($"Commande inconnue : {command.Type}");
+        }
+    }
+
+    private void HandleFrameNavigationStarting(CoreWebView2 sender, CoreWebView2NavigationStartingEventArgs args)
+    {
+        var current = CurrentPath();
+        if (current is not null && string.Equals(PreviewAddress.PathOf(args.Uri), current, StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        args.Cancel = true;
+        if (current is not null && args.IsUserInitiated)
+        {
+            FollowFromPage(current, args.Uri);
+        }
+    }
+
+    private void HandleNewWindowRequested(CoreWebView2 sender, CoreWebView2NewWindowRequestedEventArgs args)
+    {
+        var current = CurrentPath();
+        if (current is not null && args.IsUserInitiated)
+        {
+            FollowFromPage(current, args.Uri);
+        }
+    }
+
+    private void FollowFromPage(string current, string url)
+    {
+        var path = PreviewAddress.PathOf(url);
+        var href = path is null ? url : new Uri(path).AbsoluteUri + new Uri(url).Fragment;
+        _queue.Enqueue(() => Follow(current, href));
+    }
+
+    private string? CurrentPath()
+    {
+        lock (_sync)
+        {
+            return _path;
         }
     }
 
@@ -143,7 +188,7 @@ public sealed class FilePreviewFeed : IDisposable
     private static async void HandleResourceRequested(CoreWebView2 sender, CoreWebView2WebResourceRequestedEventArgs args)
     {
         var path = PreviewAddress.PathOf(args.Request.Uri);
-        var contentType = path is null ? null : PreviewTypes.ImageContentType(path);
+        var contentType = path is null ? null : PreviewTypes.PageResourceContentType(path);
         if (path is null || contentType is null)
         {
             args.Response = NotFound(sender);

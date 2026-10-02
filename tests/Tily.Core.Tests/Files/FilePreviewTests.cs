@@ -21,6 +21,17 @@ public sealed class FilePreviewTests : IDisposable
     }
 
     [Fact]
+    public void Read_WhenHtmlFile_ThenReturnsSourceAndVersionedAddress()
+    {
+        var path = Write("plan de relecture.html", Encoding.UTF8.GetBytes("<h1>Été</h1>"));
+
+        var preview = FilePreview.Read(path);
+
+        Assert.Equal((PreviewKind.Html, "html", "<h1>Été</h1>"), (preview.Kind, preview.Language, preview.Content));
+        Assert.StartsWith($"{PreviewAddress.BaseUrlOf(path)}plan%20de%20relecture.html?v=", preview.Url);
+    }
+
+    [Fact]
     public void Read_WhenUtf16WithBom_ThenDecodesText()
     {
         var path = Write("sortie.log", [.. Encoding.Unicode.GetPreamble(), .. Encoding.Unicode.GetBytes("ligne é")]);
