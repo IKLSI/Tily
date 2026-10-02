@@ -3,7 +3,7 @@ import type { GitChangeKind, GitHostMessage, GitSettings, GitWebMessage } from '
 import type { PreviewHostMessage, PreviewKind, PreviewWebMessage } from './previewMessages'
 import type { StatusLogEntry, StatusLogHostMessage, StatusLogWebMessage } from './statusLogMessages'
 import type { UpdateHostMessage, UpdateSettings, UpdateWebMessage } from './updateMessages'
-import type { WorktreeHostMessage, WorktreeSettings, WorktreeWebMessage } from './worktreeMessages'
+import type { WorktreeHostMessage, WorktreeSettings, WorktreeSources, WorktreeWebMessage } from './worktreeMessages'
 
 export interface ShellProfile {
   id: string
@@ -181,6 +181,8 @@ export type HostToWebMessage =
   | { type: 'agent.states'; panes: PaneAgent[] }
   | { type: 'agent.join'; pane: string }
   | { type: 'projects.listed'; root: string; projects: Project[]; error?: string }
+  | { type: 'projects.repositoriesFound'; request: number; sources: WorktreeSources }
+  | { type: 'projects.repositoryRemembered'; project: string; repository: string }
   | { type: 'context.result'; pane: string; path: string; git: GitContext }
   | { type: 'files.listed'; path: string; entries: FileEntry[]; total: number; error?: string }
   | { type: 'files.created'; path: string }
@@ -219,6 +221,8 @@ export type WebToHostMessage =
   | { type: 'terminal.drop'; pane: string; shell: string }
   | { type: 'terminal.dropPath'; pane: string; shell: string; path: string }
   | { type: 'projects.list' }
+  | { type: 'projects.repositories'; request: number; project: string }
+  | { type: 'projects.rememberRepository'; project: string; repository: string }
   | { type: 'context.query'; pane: string; path: string }
   | { type: 'context.open'; pane: string; path: string; target: OpenTarget }
   | { type: 'link.open'; url: string }

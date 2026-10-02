@@ -1,5 +1,6 @@
 import { bridge } from '../bridge/bridge'
-import { WorktreeBranchMode, WorktreeOperation } from '../bridge/worktreeMessages'
+import { PickTarget } from '../bridge/messages'
+import { WorktreeBranchMode, WorktreeOperation, type WorktreeSources } from '../bridge/worktreeMessages'
 import { focusActivePane } from '../explorer/fileExplorerActions'
 import { activePane, activeTab, activeWorkspace, DEFAULT_SHELL, panesOf } from '../model/session'
 import { useAgentStore } from '../store/agentStore'
@@ -12,6 +13,8 @@ import { terminalRegistry } from '../terminal/terminalRegistry'
 import { panesWithin, removalPanes, worktreeTarget } from './worktreePaths'
 
 const PLAN_DELAY_MS = 250
+
+export const WORKTREE_REPOSITORY_FIELD = 'worktree-repository'
 
 let planTimer: ReturnType<typeof setTimeout> | undefined
 
@@ -31,24 +34,40 @@ const schedulePlan = (delay: number): void => {
   planTimer = setTimeout(() => sendPlan(request), delay)
 }
 
-export const openWorktreeDialog = (repository: string, preset: DraftPreset = {}): void => {
-  const { setPicker, setDraft, setCreateFailure } = useWorktreeStore.getState()
+const openDraft = (folder: string, preset: DraftPreset, source: { path: string } | { project: string }): void => {
+  const { setPicker, setDraft, setCreateFailure, requestSources } = useWorktreeStore.getState()
+  clearTimeout(planTimer)
   setPicker(null)
   setCreateFailure(null)
-  setDraft({ repository, branch: '', mode: WorktreeBranchMode.New, base: '', install: true, database: true, ...preset })
+  setDraft({ project: folder, repository: '', remember: false, branch: '', mode: WorktreeBranchMode.New, base: '', install: true, database: true, ...preset })
+  bridge.send({ type: 'worktrees.sources', request: requestSources(), ...source })
+}
+
+export const openWorktreeDialog = (repository: string, preset: DraftPreset = {}): void => openDraft(repository, preset, { path: repository })
+
+export const openProjectWorktreeDialog = (project: string): void => openDraft(project, {}, { project })
+
+export const applyWorktreeSources = (request: number, sources: WorktreeSources): void => {
+  const store = useWorktreeStore.getState()
+  if (!store.receiveSources(request, sources) || !store.draft) {
+    return
+  }
+  store.setDraft({ ...store.draft, project: sources.project, repository: sources.selected ?? sources.project })
   schedulePlan(0)
 }
 
 export const changeWorktreeDraft = (patch: Partial<WorktreeDraft>): void => {
-  const { draft, setDraft } = useWorktreeStore.getState()
+  const { draft, sources, setDraft } = useWorktreeStore.getState()
   if (!draft) {
     return
   }
   setDraft({ ...draft, ...patch })
-  if ('branch' in patch || 'mode' in patch || 'base' in patch || 'repository' in patch) {
+  if (sources && ('branch' in patch || 'mode' in patch || 'base' in patch || 'repository' in patch)) {
     schedulePlan(PLAN_DELAY_MS)
   }
 }
+
+export const browseWorktreeRepository = (): void => bridge.send({ type: 'dialog.pick', field: WORKTREE_REPOSITORY_FIELD, target: PickTarget.Folder })
 
 export const closeWorktreeDialog = (): void => {
   clearTimeout(planTimer)
@@ -64,7 +83,7 @@ export const submitWorktree = (): void => {
   setCreateFailure(null)
   setBusy(WorktreeOperation.Create)
   useHostStore.getState().setStatus('Création du worktree…')
-  bridge.send({ type: 'worktrees.create', repository: draft.repository, branch: draft.branch, mode: draft.mode, base: draft.base || undefined, install: draft.install, database: draft.database })
+  bridge.send({ type: 'worktrees.create', repository: draft.repository, branch: draft.branch, mode: draft.mode, base: draft.base || undefined, install: draft.install, database: draft.database, project: draft.project, remember: draft.remember })
 }
 
 export const openWorktreePicker = (kind: WorktreePickerKind): void => {

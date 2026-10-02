@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { bridge } from '../bridge/bridge'
-import { PickTarget, type AttentionKind, type NotificationSettings, type Project, type Settings } from '../bridge/messages'
+import { PickTarget, type AttentionKind, type NotificationSettings, type Settings } from '../bridge/messages'
 import { activePane, activeTab, activeWorkspace, DEFAULT_SHELL, EXPLORER_DEFAULT, EXPLORER_MAX, EXPLORER_MIN, findWorkspace, RightPanelView, SIDEBAR_DEFAULT, SIDEBAR_MAX, SIDEBAR_MIN, type Session, type SplitAxis, type SplitPath, type Workspace } from '../model/session'
 import { toggleFavoriteCommand, type PaletteItem } from '../palette/paletteItems'
 import { waitingPanes } from '../agents/agentSummary'
@@ -37,7 +37,7 @@ import { GitDiffDrawer } from './GitDiffDrawer'
 import { GitGraphView } from './GitGraphView'
 import { Header } from './Header'
 import { HeaderWorkspaces } from './HeaderWorkspaces'
-import { ProjectPicker } from './ProjectPicker'
+import { ProjectPickers } from './ProjectPickers'
 import { FilePicker } from './FilePicker'
 import { CommitPicker } from './CommitPicker'
 import { RightPanel } from './RightPanel'
@@ -204,14 +204,11 @@ const panelActions: WorkspacePanelActions = {
 }
 
 export function AppShell({ session }: AppShellProps) {
-  const { selectTab, selectPane, toggleSidebar, setSidebarWidth, setExplorerWidth, newWorkspace, newTab, newTabAt, moveTab, shiftTab, setSplitRatio } = useSessionStore.getState()
-  const { leaderActive, shells, projects, projectsRoot, projectsError, settingsSnapshot, pickedPath, importedPreferences } = useHostStore(
+  const { selectTab, selectPane, toggleSidebar, setSidebarWidth, setExplorerWidth, newTab, moveTab, shiftTab, setSplitRatio } = useSessionStore.getState()
+  const { leaderActive, shells, settingsSnapshot, pickedPath, importedPreferences } = useHostStore(
     useShallow((state) => ({
       leaderActive: state.leaderActive,
       shells: state.shells,
-      projects: state.projects,
-      projectsRoot: state.projectsRoot,
-      projectsError: state.projectsError,
       settingsSnapshot: state.settingsSnapshot,
       pickedPath: state.pickedPath,
       importedPreferences: state.importedPreferences,
@@ -230,7 +227,7 @@ export function AppShell({ session }: AppShellProps) {
       closeConfirmation: state.closeConfirmation,
     })),
   )
-  const { startRenamingWorkspace, startRenamingTab, openPalette, closePalette, closeProjectPicker, openSettings, closeSettings } = useUiStore.getState()
+  const { startRenamingWorkspace, startRenamingTab, openPalette, closePalette, openSettings, closeSettings } = useUiStore.getState()
   const deleteRequest = useExplorerStore((state) => state.deleteRequest)
   const gitConfirmation = useGitStore((state) => state.confirmation)
   const gitGraphReady = useGitStore((state) => state.graphOpen && state.state !== null)
@@ -304,18 +301,6 @@ export function AppShell({ session }: AppShellProps) {
   const handleInstallHooks = () => bridge.send({ type: 'agents.installHooks' })
   const handleRemoveHooks = () => bridge.send({ type: 'agents.removeHooks' })
   const handleTestNotification = (notifications: NotificationSettings, kind: AttentionKind) => bridge.send({ type: 'attention.test', pane: tab?.active ?? '', kind, notifications })
-  const handleCloseProjectPicker = () => {
-    closeProjectPicker()
-    focusActivePane()
-  }
-  const handleSelectProject = (project: Project, inActiveWorkspace: boolean) => {
-    closeProjectPicker()
-    if (inActiveWorkspace && activeWorkspace(session)) {
-      newTabAt(project.path, DEFAULT_SHELL)
-    } else {
-      newWorkspace(project.name, project.path, DEFAULT_SHELL)
-    }
-  }
   const handleDismissAttention = (paneId: string) => useAgentStore.getState().acknowledge(paneId)
   const handleToggleSidebar = () => {
     if (!session.sidebarCollapsed && document.activeElement?.closest('aside')) {
@@ -406,7 +391,7 @@ export function AppShell({ session }: AppShellProps) {
       <AttentionToasts waiting={waiting} onJoin={handleJoinPane} onDismiss={handleDismissAttention} />
       <FilePicker />
       <CommitPicker />
-      {projectPickerOpen && <ProjectPicker projects={projects} root={projectsRoot} error={projectsError} onClose={handleCloseProjectPicker} onSelect={handleSelectProject} />}
+      {projectPickerOpen && <ProjectPickers />}
       {settingsOpen && <SettingsDialog snapshot={settingsSnapshot} pickedPath={pickedPath} imported={importedPreferences} onClose={handleCloseSettings} onSave={handleSaveSettings} onPick={handlePickPath} onExport={handleExportPreferences} onImport={handleImportPreferences} onInstallHooks={handleInstallHooks} onRemoveHooks={handleRemoveHooks} onTestNotification={handleTestNotification} />}
       {paletteOpen && <CommandPalette session={session} shells={availableShells} onClose={handleClosePalette} onRun={handleRunPaletteItem} onToggleFavorite={toggleFavoriteCommand} />}
       {deleteRequest && <DeleteConfirmDialog request={deleteRequest} onConfirm={confirmDelete} onCancel={handleCancelDelete} />}

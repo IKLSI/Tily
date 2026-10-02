@@ -17,7 +17,9 @@ import { receiveProjectFiles } from './explorer/projectFileActions'
 import { receivePreview } from './preview/previewActions'
 import { receiveGitAutoFetchEnded, receiveGitAutoFetchStarted, receiveGitChanged, receiveGitDetails, receiveGitDiff, receiveGitDone, receiveGitFailed, receiveGitHistory, receiveGitPushRejected, receiveGitState } from './git/gitReceivers'
 import { insertIntoPane, joinPane } from './terminal/terminalActions'
-import { receiveWorktreeCreated, receiveWorktreeDone, receiveWorktreeFailed, receiveWorktreePlan, receiveWorktreeProgress } from './worktree/worktreeReceivers'
+import { WORKTREE_REPOSITORY_FIELD } from './worktree/worktreeActions'
+import { PROJECT_REPOSITORY_FIELD, receiveProjectRepositories, receiveProjectRepositoryPicked, receiveProjectRepositoryRemembered } from './project/projectOpenActions'
+import { receiveWorktreeCreated, receiveWorktreeDone, receiveWorktreeFailed, receiveWorktreePlan, receiveWorktreeProgress, receiveWorktreeRepositoryPicked, receiveWorktreeSources } from './worktree/worktreeReceivers'
 import { terminalRegistry } from './terminal/terminalRegistry'
 import { receiveUpdateRestart, receiveUpdateState } from './update/updateActions'
 import { receiveStatusLogCleared, receiveStatusLogEntry, startStatusLog } from './statusLog/statusLogActions'
@@ -74,7 +76,15 @@ export default function App() {
         const warnings = message.warnings.join(' ')
         setStatus(warnings.length > 0 ? `Réglages enregistrés. ${warnings}` : 'Réglages enregistrés et appliqués.', warnings.length > 0 ? StatusLevel.Warning : StatusLevel.Info)
       }),
-      bridge.on('dialog.picked', (message) => setPickedPath({ field: message.field, path: message.path })),
+      bridge.on('dialog.picked', (message) => {
+        if (message.field === WORKTREE_REPOSITORY_FIELD) {
+          receiveWorktreeRepositoryPicked(message.path)
+        } else if (message.field === PROJECT_REPOSITORY_FIELD) {
+          receiveProjectRepositoryPicked(message.path)
+        } else {
+          setPickedPath({ field: message.field, path: message.path })
+        }
+      }),
       bridge.on('settings.exported', (message) => setStatus(`Préférences exportées dans ${message.path}.`)),
       bridge.on('settings.imported', (message) => {
         setImportedPreferences({ settings: message.settings, path: message.path, warnings: message.warnings })
@@ -99,6 +109,8 @@ export default function App() {
       }),
       bridge.on('terminal.pathMissing', (message) => markPathMissing(message.pane, message.path, message.fallback)),
       bridge.on('projects.listed', (message) => setProjects(message.root, message.projects, message.error ?? null)),
+      bridge.on('projects.repositoriesFound', (message) => receiveProjectRepositories(message.request, message.sources)),
+      bridge.on('projects.repositoryRemembered', (message) => receiveProjectRepositoryRemembered(message.project, message.repository)),
       bridge.on('context.result', (message) => receiveContext(message.pane, message.path, message.git)),
       bridge.on('files.listed', (message) => receiveListing(message.path, message.entries, message.total, message.error)),
       bridge.on('files.created', (message) => receiveCreated(message.path)),
@@ -117,6 +129,7 @@ export default function App() {
       bridge.on('git.pushRejected', (message) => receiveGitPushRejected(message.operation, message.branch, message.message, message.output)),
       bridge.on('git.autoFetchStarted', (message) => receiveGitAutoFetchStarted(message.path)),
       bridge.on('git.autoFetchEnded', receiveGitAutoFetchEnded),
+      bridge.on('worktrees.sourcesFound', (message) => receiveWorktreeSources(message.request, message.sources)),
       bridge.on('worktrees.planned', (message) => receiveWorktreePlan(message.request, message.plan)),
       bridge.on('worktrees.progress', (message) => receiveWorktreeProgress(message.operation, message.message)),
       bridge.on('worktrees.created', (message) => receiveWorktreeCreated(message.path, message.name, message.install)),

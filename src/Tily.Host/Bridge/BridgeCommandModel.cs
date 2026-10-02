@@ -32,6 +32,7 @@ public sealed class BridgeCommandModel
     public string? Scope { get; init; }
     public string? Source { get; init; }
     public string? Repository { get; init; }
+    public string? Project { get; init; }
     public string? Branch { get; init; }
     public string? Base { get; init; }
     public string? Command { get; init; }
@@ -66,6 +67,7 @@ public sealed class BridgeCommandModel
     public bool Confirmed { get; init; }
     public bool Install { get; init; }
     public bool Database { get; init; }
+    public bool Remember { get; init; }
     public bool KeepBranch { get; init; }
     public bool DropDatabase { get; init; }
     public JsonElement? Session { get; init; }

@@ -13,6 +13,7 @@ import { togglePaneZoom } from '../terminal/paneZoom'
 import { togglePanelView } from '../panel/rightPanel'
 import { RenameOrigin, useUiStore } from '../store/uiStore'
 import { startWorktreeCreation } from '../worktree/worktreeActions'
+import { openProjectPicker } from '../project/projectOpenActions'
 import { toggleStatusLog } from '../statusLog/statusLogActions'
 import { Command, DIRECT_ARROW_KEYS, DIRECT_LETTER_KEYS, DIRECT_PAGE_KEYS, LEADER_KEYS, LEADER_SHIFT_ARROW_KEYS } from './commands'
 
@@ -198,8 +199,7 @@ export const runCommand = (command: Command): void => {
       useUiStore.getState().openSettings()
       break
     case Command.Projects:
-      bridge.send({ type: 'projects.list' })
-      useUiStore.getState().openProjectPicker()
+      openProjectPicker()
       break
     case Command.ClosePane:
       closePaneKeepingText(currentPaneId())

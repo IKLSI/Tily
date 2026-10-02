@@ -14,6 +14,7 @@ public static class WorktreeSteps
     public const string Removal = "Suppression du worktree";
     public const string Prune = "Prune";
     public const string Branch = "Branche";
+    public const string Repository = "Dépôt par défaut";
 
     public static WorktreeStepModel Ok(string step, string message) => new(step, WorktreeStepStatus.Ok, message);
 

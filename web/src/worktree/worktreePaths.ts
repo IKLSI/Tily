@@ -22,6 +22,13 @@ export const isWithinFolder = (path: string, folder: string): boolean => {
 
 export const sameFolder = (first: string, second: string): boolean => normalize(first) === normalize(second)
 
+export const repositoryLabel = (repository: string, project: string): string => {
+  if (sameFolder(repository, project)) {
+    return folderName(repository)
+  }
+  return isWithinFolder(repository, project) ? repository.slice(project.replace(/[\\/]+$/, '').length + 1) : repository
+}
+
 export const worktreeTarget = (path: string): WorktreeTarget => ({ path, name: folderName(path) })
 
 export const panesWithin = (session: Session, folder: string): Pane[] => allPanes(session).filter((pane) => isWithinFolder(pane.path, folder))
