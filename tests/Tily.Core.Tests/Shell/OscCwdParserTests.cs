@@ -33,6 +33,30 @@ public sealed class OscCwdParserTests
     }
 
     [Fact]
+    public void Feed_WhenOsc7WithHostAndDrivePath_ThenReportsLocalPath()
+    {
+        var parser = new OscCwdParser();
+        string? received = null;
+        parser.CurrentDirectoryChanged += path => received = path;
+
+        parser.Feed(Encoding.UTF8.GetBytes($"{Escape}]7;file://pc-loick/C:/Users/Loick%20B{Escape}\\"));
+
+        Assert.Equal(@"C:\Users\Loick B", received);
+    }
+
+    [Fact]
+    public void Feed_WhenOsc7WithUncPath_ThenReportsUncPath()
+    {
+        var parser = new OscCwdParser();
+        string? received = null;
+        parser.CurrentDirectoryChanged += path => received = path;
+
+        parser.Feed(Encoding.UTF8.GetBytes($"{Escape}]7;file://serveur/partage/dossier{Escape}\\"));
+
+        Assert.Equal(@"\\serveur\partage\dossier", received);
+    }
+
+    [Fact]
     public void Feed_WhenSequenceSplitAcrossChunks_ThenStillReports()
     {
         var parser = new OscCwdParser();
