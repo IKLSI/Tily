@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { WorktreeBranchMode, WorktreeOperation, WorktreePlan } from '../bridge/worktreeMessages'
+import type { WorktreeBranchMode, WorktreeOperation, WorktreePlan, WorktreeSources } from '../bridge/worktreeMessages'
 
 export enum WorktreePickerKind {
   Source = 'source',
@@ -7,7 +7,9 @@ export enum WorktreePickerKind {
 }
 
 export interface WorktreeDraft {
+  project: string
   repository: string
+  remember: boolean
   branch: string
   mode: WorktreeBranchMode
   base: string
@@ -41,6 +43,8 @@ export interface WorktreeRemoval {
 interface WorktreeState {
   picker: WorktreePickerKind | null
   draft: WorktreeDraft | null
+  sourcesRequest: number
+  sources: WorktreeSources | null
   planRequest: number
   planPending: boolean
   plan: WorktreePlan | null
@@ -50,6 +54,8 @@ interface WorktreeState {
   pendingRemoval: WorktreeRemoval | null
   setPicker: (picker: WorktreePickerKind | null) => void
   setDraft: (draft: WorktreeDraft | null) => void
+  requestSources: () => number
+  receiveSources: (request: number, sources: WorktreeSources) => boolean
   requestPlan: () => number
   receivePlan: (request: number, plan: WorktreePlan) => void
   setCreateFailure: (createFailure: WorktreeFailure | null) => void
@@ -61,6 +67,8 @@ interface WorktreeState {
 export const useWorktreeStore = create<WorktreeState>()((set, get) => ({
   picker: null,
   draft: null,
+  sourcesRequest: 0,
+  sources: null,
   planRequest: 0,
   planPending: false,
   plan: null,
@@ -69,7 +77,20 @@ export const useWorktreeStore = create<WorktreeState>()((set, get) => ({
   removal: null,
   pendingRemoval: null,
   setPicker: (picker) => set({ picker }),
-  setDraft: (draft) => set(draft ? { draft } : { draft, plan: null, planPending: false, createFailure: null }),
+  setDraft: (draft) => set(draft ? { draft } : { draft, sources: null, plan: null, planPending: false, createFailure: null }),
+  requestSources: () => {
+    const sourcesRequest = get().sourcesRequest + 1
+    set({ sourcesRequest, sources: null })
+    return sourcesRequest
+  },
+  receiveSources: (request, sources) => {
+    const current = get()
+    if (current.sourcesRequest !== request || !current.draft) {
+      return false
+    }
+    set({ sources })
+    return true
+  },
   requestPlan: () => {
     const planRequest = get().planRequest + 1
     set({ planRequest, planPending: true })

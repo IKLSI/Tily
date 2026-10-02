@@ -15,12 +15,14 @@ public sealed class WorktreeFeed
     private readonly Action _changed;
     private readonly GitRunner _runner = new();
     private readonly WorktreeDatabase _database = new();
+    private readonly WorktreeProjectsRepository _projects;
     private readonly BackgroundQueue _plans;
     private readonly BackgroundQueue _operations;
 
-    public WorktreeFeed(Action<object> post, Func<SettingsModel> settings, Action changed, Action<Exception> onError)
+    public WorktreeFeed(Action<object> post, Func<SettingsModel> settings, Action changed, Action<Exception> onError, string dataDirectory)
     {
         _post = post;
+        _projects = new WorktreeProjectsRepository(dataDirectory);
         _settings = settings;
         _changed = changed;
         _plans = new BackgroundQueue(onError);
@@ -31,6 +33,15 @@ public sealed class WorktreeFeed
     {
         switch (command.Type)
         {
+            case "worktrees.sources":
+                _plans.Enqueue(() => Sources(command));
+                break;
+            case "projects.repositories":
+                _plans.Enqueue(() => ProjectRepositories(command));
+                break;
+            case "projects.rememberRepository":
+                _plans.Enqueue(() => RememberRepository(command));
+                break;
             case "worktrees.plan":
                 _plans.Enqueue(() => Plan(command));
                 break;
@@ -43,6 +54,35 @@ public sealed class WorktreeFeed
             default:
                 throw new InvalidOperationException($"Commande inconnue : {command.Type}");
         }
+    }
+
+    private void Sources(BridgeCommandModel command)
+    {
+        var settings = _settings();
+        var path = command.Project ?? command.Path ?? throw new InvalidOperationException("Dossier manquant.");
+        var sources = WorktreeSources.Resolve(_runner, path, command.Project is not null, settings.ProjectsRoot, settings.Worktrees.FolderFor(settings.ProjectsRoot), _projects.RepositoryOf);
+        _post(new { type = "worktrees.sourcesFound", request = command.Request, sources });
+    }
+
+    private void ProjectRepositories(BridgeCommandModel command)
+    {
+        var settings = _settings();
+        var project = command.Project ?? throw new InvalidOperationException("Projet manquant.");
+        var sources = WorktreeSources.Resolve(_runner, project, true, settings.ProjectsRoot, settings.Worktrees.FolderFor(settings.ProjectsRoot), _projects.RepositoryOf);
+        _post(new { type = "projects.repositoriesFound", request = command.Request, sources });
+    }
+
+    private void RememberRepository(BridgeCommandModel command)
+    {
+        var project = command.Project ?? throw new InvalidOperationException("Projet manquant.");
+        var repository = command.Repository ?? throw new InvalidOperationException("Dépôt manquant.");
+        if (GitRepository.Locate(_runner, repository) is null)
+        {
+            throw new InvalidOperationException($"Aucun dépôt Git dans {repository} : dépôt par défaut non enregistré.");
+        }
+
+        _projects.SaveRepository(project, repository);
+        _post(new { type = "projects.repositoryRemembered", project = WorktreeLister.NormalizePath(project), repository = WorktreeLister.NormalizePath(repository) });
     }
 
     private void Plan(BridgeCommandModel command)
@@ -64,6 +104,11 @@ public sealed class WorktreeFeed
             _post(new { type = "worktrees.created", path = creation.Path, name = creation.Name, branch = creation.Branch, install });
             _changed();
             List<WorktreeStepModel> steps = [.. creation.Steps, ports];
+            if (command.Remember)
+            {
+                steps.Add(Remember(command.Project, creation.MainRoot));
+            }
+
             if (command.Database)
             {
                 Progress(CreateOperation, "Réplication de la base…");
@@ -122,6 +167,19 @@ public sealed class WorktreeFeed
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {
             return WorktreeSteps.Warning(WorktreeSteps.Ports, $"Randomisation des ports ignorée : {exception.Message}");
+        }
+    }
+
+    private WorktreeStepModel Remember(string? project, string repository)
+    {
+        try
+        {
+            _projects.SaveRepository(project ?? string.Empty, repository);
+            return WorktreeSteps.Ok(WorktreeSteps.Repository, $"Dépôt par défaut du projet : {repository}");
+        }
+        catch (Exception exception) when (exception is InvalidOperationException or IOException or UnauthorizedAccessException)
+        {
+            return WorktreeSteps.Warning(WorktreeSteps.Repository, $"Dépôt par défaut non enregistré : {exception.Message}");
         }
     }
 

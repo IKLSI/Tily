@@ -75,7 +75,7 @@ public sealed class HostBridge : IDisposable
         _files = new FileExplorerFeed(windowHandle, () => _settings.Editor, Post, PostBackgroundError);
         _preview = new FilePreviewFeed(() => _settings.Editor, Post, PostBackgroundError);
         _git = new GitFeed(Post, () => _settings.Git.AutoFetch, PostBackgroundError);
-        _worktrees = new WorktreeFeed(Post, () => _settings, _git.RefreshSoon, PostBackgroundError);
+        _worktrees = new WorktreeFeed(Post, () => _settings, _git.RefreshSoon, PostBackgroundError, dataDirectory);
         _updates = new UpdateFeed(Post, ApplicationVersion, dataDirectory);
         ApplySettings(_settings);
         _terminals.OutputReceived += HandleOutput;
@@ -302,6 +302,8 @@ public sealed class HostBridge : IDisposable
             case var type when type.StartsWith("git.", StringComparison.Ordinal):
                 _git.Handle(command);
                 break;
+            case "projects.repositories":
+            case "projects.rememberRepository":
             case var type when type.StartsWith("worktrees.", StringComparison.Ordinal):
                 _worktrees.Handle(command);
                 break;

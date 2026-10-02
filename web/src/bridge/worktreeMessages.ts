@@ -31,12 +31,20 @@ export interface WorktreePlan {
   configuredBase?: string
 }
 
+export interface WorktreeSources {
+  project: string
+  repositories: string[]
+  selected?: string
+  defaultRepository?: string
+}
+
 export interface WorktreeSettings {
   folder: string
   defaultBase: string
 }
 
 export type WorktreeHostMessage =
+  | { type: 'worktrees.sourcesFound'; request: number; sources: WorktreeSources }
   | { type: 'worktrees.planned'; request: number; plan: WorktreePlan }
   | { type: 'worktrees.progress'; operation: WorktreeOperation; message: string }
   | { type: 'worktrees.created'; path: string; name: string; branch: string; install?: string }
@@ -44,6 +52,7 @@ export type WorktreeHostMessage =
   | { type: 'worktrees.failed'; operation: WorktreeOperation; step: string; message: string; output?: string; lockedBy?: string[] }
 
 export type WorktreeWebMessage =
+  | { type: 'worktrees.sources'; request: number; path?: string; project?: string }
   | { type: 'worktrees.plan'; request: number; repository: string; branch: string; mode: WorktreeBranchMode; base?: string }
-  | { type: 'worktrees.create'; repository: string; branch: string; mode: WorktreeBranchMode; base?: string; install: boolean; database: boolean }
+  | { type: 'worktrees.create'; repository: string; branch: string; mode: WorktreeBranchMode; base?: string; install: boolean; database: boolean; project: string; remember: boolean }
   | { type: 'worktrees.remove'; path: string; keepBranch: boolean; dropDatabase: boolean; confirmed: boolean }

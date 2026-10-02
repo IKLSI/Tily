@@ -1,8 +1,9 @@
 import { useEffect, type ChangeEvent, type MouseEvent, type PointerEvent, type SubmitEvent } from 'react'
-import { WorktreeBranchMode, type WorktreePlan } from '../bridge/worktreeMessages'
+import { WorktreeBranchMode, type WorktreePlan, type WorktreeSources } from '../bridge/worktreeMessages'
 import { folderName } from '../model/session'
 import type { WorktreeDraft, WorktreeFailure } from '../store/worktreeStore'
-import { changeWorktreeDraft, closeWorktreeDialog, submitWorktree } from '../worktree/worktreeActions'
+import { browseWorktreeRepository, changeWorktreeDraft, closeWorktreeDialog, submitWorktree } from '../worktree/worktreeActions'
+import { repositoryLabel, sameFolder } from '../worktree/worktreePaths'
 import { keepTabInside } from './focusTrap'
 import { SETTINGS_BUTTON, SETTINGS_HINT, SETTINGS_INPUT, SETTINGS_LABEL, SETTINGS_SECONDARY } from './settingsStyles'
 import { Spinner } from './Spinner'
@@ -10,6 +11,7 @@ import { WorktreeFailureDetails } from './WorktreeFailureDetails'
 
 interface WorktreeDialogProps {
   draft: WorktreeDraft
+  sources: WorktreeSources | null
   plan: WorktreePlan | null
   planPending: boolean
   busy: boolean
@@ -31,6 +33,8 @@ const handleExistingMode = () => changeWorktreeDraft({ mode: WorktreeBranchMode.
 const handleBranchChange = (event: ChangeEvent<HTMLInputElement>) => changeWorktreeDraft({ branch: event.target.value })
 const handleBaseChange = (event: ChangeEvent<HTMLSelectElement>) => changeWorktreeDraft({ base: event.target.value })
 const handleInstallChange = (event: ChangeEvent<HTMLInputElement>) => changeWorktreeDraft({ install: event.target.checked })
+const handleRepositoryChange = (event: ChangeEvent<HTMLSelectElement>) => changeWorktreeDraft({ repository: event.target.value })
+const handleRememberChange = (event: ChangeEvent<HTMLInputElement>) => changeWorktreeDraft({ remember: event.target.checked })
 const handleDatabaseChange = (event: ChangeEvent<HTMLInputElement>) => changeWorktreeDraft({ database: event.target.checked })
 
 const branchOptions = (label: string, branches: string[]) =>
@@ -44,7 +48,7 @@ const branchOptions = (label: string, branches: string[]) =>
     </optgroup>
   )
 
-export function WorktreeDialog({ draft, plan, planPending, busy, failure }: WorktreeDialogProps) {
+export function WorktreeDialog({ draft, sources, plan, planPending, busy, failure }: WorktreeDialogProps) {
   const creating = draft.mode === WorktreeBranchMode.New
   const localBranches = plan?.localBranches ?? []
   const remoteBranches = plan?.remoteBranches ?? []
@@ -53,6 +57,8 @@ export function WorktreeDialog({ draft, plan, planPending, busy, failure }: Work
   const extraBase = [...new Set([baseValue, plan?.configuredBase ?? ''])].filter((base) => base && !remoteBranches.includes(base) && !localBranches.includes(base))
   const canCreate = Boolean(plan?.path) && !plan?.error && !planPending && !busy
   const guarded = creating && draft.branch.trim().length > 0
+  const repositories = sources ? [...new Set([...sources.repositories, draft.repository])].filter(Boolean) : []
+  const differsFromDefault = sources !== null && !sameFolder(draft.repository, sources.defaultRepository ?? '')
   const handleBackdropPointerDown = (event: PointerEvent<HTMLDivElement>) => {
     if (event.target === event.currentTarget && !guarded) {
       closeWorktreeDialog()
@@ -89,9 +95,32 @@ export function WorktreeDialog({ draft, plan, planPending, busy, failure }: Work
         </div>
         <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-4 py-4">
           <div className="flex flex-col gap-1">
-            <span className={SETTINGS_LABEL}>{`Projet : ${plan?.project ?? folderName(draft.repository)}`}</span>
-            <span className={`${SETTINGS_HINT} truncate font-mono`}>{plan?.repository ?? draft.repository}</span>
+            <span className={SETTINGS_LABEL}>{`Projet : ${folderName(draft.project)}`}</span>
+            <span className={`${SETTINGS_HINT} truncate font-mono`}>{draft.project}</span>
           </div>
+          <fieldset className="flex flex-col gap-2" disabled={busy || !sources}>
+            <span className={SETTINGS_LABEL}>Dépôt Git</span>
+            <div className="flex items-center gap-2">
+              <select className={SETTINGS_INPUT} value={draft.repository} aria-label="Dépôt Git du worktree" onChange={handleRepositoryChange}>
+                {!sources && <option value="">Recherche des dépôts…</option>}
+                {repositories.map((repository) => (
+                  <option key={repository} value={repository}>
+                    {repositoryLabel(repository, draft.project)}
+                  </option>
+                ))}
+              </select>
+              <button type="button" className={`${SETTINGS_SECONDARY} shrink-0`} onClick={browseWorktreeRepository}>
+                Parcourir…
+              </button>
+            </div>
+            {plan && !sameFolder(plan.repository, draft.repository) && <span className={`${SETTINGS_HINT} truncate font-mono`}>{plan.repository}</span>}
+            {differsFromDefault && (
+              <label className={RADIO_LABEL}>
+                <input type="checkbox" checked={draft.remember} onChange={handleRememberChange} />
+                Utiliser ce dépôt par défaut pour ce projet
+              </label>
+            )}
+          </fieldset>
           <fieldset className="flex flex-col gap-2" disabled={busy}>
             <label className={RADIO_LABEL}>
               <input type="radio" name="worktree-mode" checked={creating} onChange={handleNewMode} />
