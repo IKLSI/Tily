@@ -6,10 +6,17 @@ namespace Tily.Core.Agents;
 
 public sealed record ClaudeHooksStatusModel(string SettingsFile, bool Installed);
 
+public sealed record ClaudeHookGroupModel(string? Matcher, string? Condition);
+
 public sealed class ClaudeHooksInstaller
 {
     public static readonly IReadOnlyList<string> Events = ["SessionStart", "UserPromptSubmit", "PreToolUse", "PostToolUse", "PermissionRequest", "Notification", "Stop", "StopFailure", "SessionEnd"];
-    private static readonly Dictionary<string, string> Matchers = new() { ["PreToolUse"] = "AskUserQuestion" };
+    public const string PreviewCommandCondition = "Bash(start *)";
+    private static readonly ClaudeHookGroupModel[] DefaultGroups = [new(null, null)];
+    private static readonly Dictionary<string, ClaudeHookGroupModel[]> Groups = new()
+    {
+        ["PreToolUse"] = [new("AskUserQuestion", null), new("Bash", PreviewCommandCondition)]
+    };
     private const int HookTimeoutSeconds = 5;
     private static readonly JsonDocumentOptions ReadOptions = new() { CommentHandling = JsonCommentHandling.Skip, AllowTrailingCommas = true };
     private static readonly JsonSerializerOptions WriteOptions = new() { WriteIndented = true, Encoder = SessionRepository.JsonOptions.Encoder };
@@ -28,7 +35,7 @@ public sealed class ClaudeHooksInstaller
     {
         var root = Read();
         var hooks = root["hooks"] as JsonObject;
-        var installed = hooks is not null && Events.All(eventName => GroupsOf(hooks, eventName).Any(IsTilyGroup));
+        var installed = hooks is not null && Events.All(eventName => GroupsFor(eventName).All(expected => GroupsOf(hooks, eventName).Any(group => IsTilyGroup(group) && Matches(group, expected))));
         return new ClaudeHooksStatusModel(SettingsFile, installed);
     }
 
@@ -46,14 +53,10 @@ public sealed class ClaudeHooksInstaller
                 groups.Remove(group);
             }
 
-            var tilyGroup = new JsonObject();
-            if (Matchers.TryGetValue(eventName, out var matcher))
+            foreach (var expected in GroupsFor(eventName))
             {
-                tilyGroup["matcher"] = matcher;
+                groups.Add(TilyGroup(expected));
             }
-
-            tilyGroup["hooks"] = new JsonArray(TilyHook());
-            groups.Add(tilyGroup);
         }
 
         Write(root);
@@ -107,13 +110,39 @@ public sealed class ClaudeHooksInstaller
         return new ClaudeHooksStatusModel(SettingsFile, false);
     }
 
-    private JsonObject TilyHook() => new()
+    private static ClaudeHookGroupModel[] GroupsFor(string eventName) =>
+        Groups.GetValueOrDefault(eventName) ?? DefaultGroups;
+
+    private JsonObject TilyGroup(ClaudeHookGroupModel expected)
     {
-        ["type"] = "command",
-        ["command"] = "powershell.exe",
-        ["args"] = new JsonArray("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", _scriptPath),
-        ["timeout"] = HookTimeoutSeconds
-    };
+        var group = new JsonObject();
+        if (expected.Matcher is not null)
+        {
+            group["matcher"] = expected.Matcher;
+        }
+
+        var hook = new JsonObject
+        {
+            ["type"] = "command",
+            ["command"] = "powershell.exe",
+            ["args"] = new JsonArray("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", _scriptPath),
+            ["timeout"] = HookTimeoutSeconds
+        };
+        if (expected.Condition is not null)
+        {
+            hook["if"] = expected.Condition;
+        }
+
+        group["hooks"] = new JsonArray(hook);
+        return group;
+    }
+
+    private static bool Matches(JsonObject group, ClaudeHookGroupModel expected) =>
+        TextOf(group["matcher"]) == expected.Matcher
+        && (group["hooks"] as JsonArray)?.OfType<JsonObject>().Any(hook => IsTilyHook(hook) && TextOf(hook["if"]) == expected.Condition) == true;
+
+    private static string? TextOf(JsonNode? node) =>
+        node is JsonValue value && value.TryGetValue<string>(out var text) ? text : null;
 
     private static IEnumerable<JsonObject> GroupsOf(JsonObject hooks, string eventName) =>
         (hooks[eventName] as JsonArray)?.OfType<JsonObject>() ?? [];

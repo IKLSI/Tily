@@ -38,6 +38,7 @@ public sealed class HostBridge : IDisposable
     private readonly AttentionNotifier _notifier;
     private readonly FileExplorerFeed _files;
     private readonly FilePreviewFeed _preview;
+    private readonly PreviewRequestFeed _previewRequests;
     private readonly GitFeed _git;
     private readonly WorktreeFeed _worktrees;
     private readonly UpdateFeed _updates;
@@ -74,6 +75,7 @@ public sealed class HostBridge : IDisposable
         _notifier.Register();
         _files = new FileExplorerFeed(windowHandle, () => _settings.Editor, Post, PostBackgroundError);
         _preview = new FilePreviewFeed(() => _settings.Editor, Post, PostBackgroundError);
+        _previewRequests = new PreviewRequestFeed(dataDirectory, Post);
         _git = new GitFeed(Post, () => _settings.Git.AutoFetch, PostBackgroundError);
         _worktrees = new WorktreeFeed(Post, () => _settings, _git.RefreshSoon, PostBackgroundError, dataDirectory);
         _updates = new UpdateFeed(Post, ApplicationVersion, dataDirectory);
@@ -659,6 +661,7 @@ public sealed class HostBridge : IDisposable
         _notifier.Dispose();
         _files.Dispose();
         _preview.Dispose();
+        _previewRequests.Dispose();
         _git.Dispose();
         foreach (var buffer in _buffers.Values)
         {

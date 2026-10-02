@@ -64,14 +64,77 @@ public sealed class AgentStateHookScriptTests : IDisposable
         Assert.Equal("Terminé : 3 fichiers modifiés.", state["detail"]!.GetValue<string>());
     }
 
+    [Fact]
+    public void Run_WhenClaudeStartsHtmlWithBashPath_ThenRequestsPreviewAndDeniesCommand()
+    {
+        var page = Page("plan de relecture.html");
+        var bashPath = "/" + char.ToLowerInvariant(page[0]) + page[2..].Replace('\\', '/');
+
+        var output = Execute(StartPayload($"start \"\" \"{bashPath}\"", @"C:\Windows"));
+
+        Assert.Equal("deny", JsonNode.Parse(output)!["hookSpecificOutput"]!["permissionDecision"]!.GetValue<string>());
+        Assert.Equal(page, RequestedPaths().Single());
+    }
+
+    [Fact]
+    public void Run_WhenClaudeStartsRelativeHtml_ThenResolvesItFromWorkingDirectory()
+    {
+        var page = Page("plan.html");
+
+        Execute(StartPayload("start plan.html", _directory));
+
+        Assert.Equal(page, RequestedPaths().Single());
+    }
+
+    [Theory]
+    [InlineData("start \"\" \"rapport.pdf\"")]
+    [InlineData("start \"\" \"absent.html\"")]
+    [InlineData("mkdir -p out && start \"\" \"plan.html\"")]
+    public void Run_WhenCommandIsNotASingleHtmlOpening_ThenLetsItRun(string command)
+    {
+        Page("plan.html");
+        Page("rapport.pdf");
+
+        var output = Execute(StartPayload(command, _directory));
+
+        Assert.Equal((string.Empty, 0), (output, RequestedPaths().Count));
+    }
+
+    private string Page(string name)
+    {
+        Directory.CreateDirectory(_directory);
+        var path = Path.Combine(_directory, name);
+        File.WriteAllText(path, "<h1>Plan</h1>");
+        return path;
+    }
+
+    private static string StartPayload(string command, string workingDirectory) =>
+        JsonSerializer.Serialize(new { hook_event_name = "PreToolUse", tool_name = "Bash", cwd = workingDirectory, tool_input = new { command } });
+
+    private List<string> RequestedPaths()
+    {
+        var requests = Path.Combine(_directory, "previews");
+        return Directory.Exists(requests)
+            ? Directory.EnumerateFiles(requests, "*.json").Select(file => JsonNode.Parse(File.ReadAllText(file, Encoding.UTF8))!["path"]!.GetValue<string>()).ToList()
+            : [];
+    }
+
     private JsonNode Run(string payload)
+    {
+        Execute(payload);
+        return JsonNode.Parse(File.ReadAllText(Path.Combine(_directory, "agents", PaneId + ".json"), Encoding.UTF8))!;
+    }
+
+    private string Execute(string payload)
     {
         var start = new ProcessStartInfo("powershell.exe", ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", ScriptPath()])
         {
             RedirectStandardInput = true,
+            RedirectStandardOutput = true,
             UseShellExecute = false,
             CreateNoWindow = true,
-            StandardInputEncoding = new UTF8Encoding(false)
+            StandardInputEncoding = new UTF8Encoding(false),
+            StandardOutputEncoding = new UTF8Encoding(false)
         };
         start.Environment["TILY_PANE_ID"] = PaneId;
         start.Environment["TILY_DATA_DIR"] = _directory;
@@ -79,9 +142,10 @@ public sealed class AgentStateHookScriptTests : IDisposable
         using var process = Process.Start(start)!;
         process.StandardInput.Write(payload);
         process.StandardInput.Close();
+        var output = process.StandardOutput.ReadToEnd();
         Assert.True(process.WaitForExit(TimeSpan.FromSeconds(30)), "Le script du hook n’a pas terminé dans le délai.");
 
-        return JsonNode.Parse(File.ReadAllText(Path.Combine(_directory, "agents", PaneId + ".json"), Encoding.UTF8))!;
+        return output;
     }
 
     private static string ScriptPath()

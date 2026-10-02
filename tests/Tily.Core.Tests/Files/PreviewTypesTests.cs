@@ -14,6 +14,8 @@ public sealed class PreviewTypesTests
     [InlineData(@"C:\app\LICENSE", PreviewKind.Text)]
     [InlineData(@"C:\app\logo.PNG", PreviewKind.Image)]
     [InlineData(@"C:\app\icone.svg", PreviewKind.Image)]
+    [InlineData(@"C:\docs\plan.html", PreviewKind.Html)]
+    [InlineData(@"C:\docs\ancien.HTM", PreviewKind.Html)]
     public void KindOf_WhenFileIsReadable_ThenReturnsItsKind(string path, PreviewKind expected)
     {
         var kind = PreviewTypes.KindOf(path);
@@ -38,6 +40,38 @@ public sealed class PreviewTypesTests
         var language = PreviewTypes.LanguageOf(@"C:\app\docker-compose.yml");
 
         Assert.Equal("yaml", language);
+    }
+
+    [Fact]
+    public void LanguageOf_WhenHtmlFile_ThenReturnsHtml()
+    {
+        var language = PreviewTypes.LanguageOf(@"C:\docs\plan.html");
+
+        Assert.Equal("html", language);
+    }
+
+    [Theory]
+    [InlineData(@"C:\docs\plan.html", "text/html")]
+    [InlineData(@"C:\docs\style.css", "text/css")]
+    [InlineData(@"C:\docs\app.js", "text/javascript")]
+    [InlineData(@"C:\docs\police.woff2", "font/woff2")]
+    [InlineData(@"C:\docs\logo.png", "image/png")]
+    public void PageResourceContentType_WhenPageResource_ThenReturnsItsType(string path, string expected)
+    {
+        var contentType = PreviewTypes.PageResourceContentType(path);
+
+        Assert.Equal(expected, contentType);
+    }
+
+    [Theory]
+    [InlineData(@"C:\docs\secret.txt")]
+    [InlineData(@"C:\docs\donnees.json")]
+    [InlineData(@"C:\docs\outil.exe")]
+    public void PageResourceContentType_WhenOtherFile_ThenReturnsNull(string path)
+    {
+        var contentType = PreviewTypes.PageResourceContentType(path);
+
+        Assert.Null(contentType);
     }
 
     [Fact]

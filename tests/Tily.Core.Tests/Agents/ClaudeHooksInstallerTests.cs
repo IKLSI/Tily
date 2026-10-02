@@ -32,6 +32,29 @@ public sealed class ClaudeHooksInstallerTests : IDisposable
     }
 
     [Fact]
+    public void Install_WhenFileMissing_ThenAddsBashGroupFilteredOnStart()
+    {
+        _installer.Install();
+
+        var bash = JsonNode.Parse(File.ReadAllText(_file))!["hooks"]!["PreToolUse"]![1]!;
+        Assert.Equal("Bash", bash["matcher"]!.GetValue<string>());
+        Assert.Equal(ClaudeHooksInstaller.PreviewCommandCondition, bash["hooks"]![0]!["if"]!.GetValue<string>());
+    }
+
+    [Fact]
+    public void Status_WhenInstalledWithoutBashGroup_ThenFalse()
+    {
+        _installer.Install();
+        var root = JsonNode.Parse(File.ReadAllText(_file))!;
+        root["hooks"]!["PreToolUse"]!.AsArray().RemoveAt(1);
+        File.WriteAllText(_file, root.ToJsonString());
+
+        var status = _installer.Status();
+
+        Assert.False(status.Installed);
+    }
+
+    [Fact]
     public void Install_WhenOtherSettingsExist_ThenPreservesThemAndForeignHooks()
     {
         Directory.CreateDirectory(Path.GetDirectoryName(_file)!);
