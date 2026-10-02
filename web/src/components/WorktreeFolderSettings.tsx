@@ -1,0 +1,58 @@
+import type { ChangeEvent } from 'react'
+import type { WorktreeProjectFolder, WorktreeSettings } from '../bridge/worktreeMessages'
+import { folderName } from '../model/session'
+import { SETTINGS_BROWSE, SETTINGS_HINT, SETTINGS_INPUT, SETTINGS_LABEL, SETTINGS_SECONDARY } from './settingsStyles'
+
+interface WorktreeFolderSettingsProps {
+  worktrees: WorktreeSettings
+  folders: WorktreeProjectFolder[]
+  projectsRoot: string
+  onChange: (patch: Partial<WorktreeSettings>) => void
+  onFoldersChange: (folders: WorktreeProjectFolder[]) => void
+  onPickFolder: () => void
+}
+
+const PATH_SEPARATOR = '\\'
+
+export function WorktreeFolderSettings({ worktrees, folders, projectsRoot, onChange, onFoldersChange, onPickFolder }: WorktreeFolderSettingsProps) {
+  const handleFolderChange = (event: ChangeEvent<HTMLInputElement>) => onChange({ folder: event.target.value })
+
+  return (
+    <>
+      <label className="flex flex-col gap-1">
+        <span className={SETTINGS_LABEL}>Dossier des worktrees</span>
+        <span className="flex gap-1">
+          <input type="text" className={SETTINGS_INPUT} value={worktrees.folder} placeholder={`${projectsRoot}${PATH_SEPARATOR}worktrees`} spellCheck={false} onChange={handleFolderChange} />
+          <button type="button" className={SETTINGS_BROWSE} aria-label="Choisir le dossier des worktrees" data-tip="Choisir le dossier des worktrees" onClick={onPickFolder}>
+            …
+          </button>
+        </span>
+        <span className={SETTINGS_HINT}>Vide : sous-dossier « worktrees » du dossier des projets, comme wtr. Chaque worktree y est créé sous le nom « projet-branche ».</span>
+      </label>
+      {folders.length > 0 && (
+        <div className="flex flex-col gap-1">
+          <span className={SETTINGS_LABEL}>Dossiers des worktrees par projet</span>
+          <ul className="flex flex-col gap-1">
+            {folders.map((entry) => {
+              const handleRemove = () => onFoldersChange(folders.filter((candidate) => candidate !== entry))
+              return (
+                <li key={entry.project} className="flex items-center gap-2">
+                  <span className={`${SETTINGS_LABEL} shrink-0`} data-tip={entry.project}>
+                    {folderName(entry.project)}
+                  </span>
+                  <span className={`${SETTINGS_HINT} min-w-0 flex-1 truncate font-mono`} data-tip={entry.folder}>
+                    {entry.folder}
+                  </span>
+                  <button type="button" className={SETTINGS_SECONDARY} data-tip="Les prochains worktrees de ce projet reviendront au dossier ci-dessus" onClick={handleRemove}>
+                    Retirer
+                  </button>
+                </li>
+              )
+            })}
+          </ul>
+          <span className={SETTINGS_HINT}>Mémorisés à la création d’un worktree, par la case « Mémoriser pour les prochains worktrees ».</span>
+        </div>
+      )}
+    </>
+  )
+}

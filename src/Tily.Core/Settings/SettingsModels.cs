@@ -16,9 +16,13 @@ public sealed class SettingsModel
     public string ProjectsRoot { get; set; } = ProjectCatalog.DefaultRoot;
     public NotificationSettingsModel Notifications { get; set; } = NotificationSettingsModel.Default;
     public WorktreeSettingsModel Worktrees { get; set; } = WorktreeSettingsModel.Default;
+    public List<WorktreeProjectFolderModel> WorktreeFolders { get; set; } = [];
     public GitSettingsModel Git { get; set; } = GitSettingsModel.Default;
     public UpdateSettingsModel Updates { get; set; } = UpdateSettingsModel.Default;
     public AppearanceSettingsModel Appearance { get; set; } = AppearanceSettingsModel.Default;
+
+    public string? WorktreeFolderOf(string? project) =>
+        project is null ? null : WorktreeFolders.FirstOrDefault(entry => WorktreeTarget.SamePath(entry.Project, project))?.Folder;
 }
 
 public sealed record ShellSettingModel(string Id, string Name, string DefaultExecutable, string Configured, bool Available);

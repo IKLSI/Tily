@@ -3,7 +3,7 @@ import type { GitChangeKind, GitHostMessage, GitSettings, GitWebMessage } from '
 import type { PreviewHostMessage, PreviewKind, PreviewWebMessage } from './previewMessages'
 import type { StatusLogEntry, StatusLogHostMessage, StatusLogWebMessage } from './statusLogMessages'
 import type { UpdateHostMessage, UpdateSettings, UpdateWebMessage } from './updateMessages'
-import type { WorktreeHostMessage, WorktreeSettings, WorktreeSources, WorktreeWebMessage } from './worktreeMessages'
+import type { WorktreeHostMessage, WorktreeProjectFolder, WorktreeSettings, WorktreeSources, WorktreeWebMessage } from './worktreeMessages'
 
 export interface ShellProfile {
   id: string
@@ -93,6 +93,7 @@ export interface Settings {
   projectsRoot: string
   notifications: NotificationSettings
   worktrees: WorktreeSettings
+  worktreeFolders: WorktreeProjectFolder[]
   git: GitSettings
   updates: UpdateSettings
   appearance: AppearanceSettings
