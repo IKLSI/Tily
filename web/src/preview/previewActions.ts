@@ -4,16 +4,28 @@ import { activeTab, activeWorkspace, folderName, panesOf, RightPanelView, type S
 import { useHostStore } from '../store/hostStore'
 import { usePreviewStore } from '../store/previewStore'
 import { useSessionStore } from '../store/sessionStore'
+import { guardEdits } from './previewEdit'
 
-export const openPreview = (path: string): void => {
+const showPreview = (path: string): void => {
   usePreviewStore.getState().open(path)
   bridge.send({ type: 'preview.open', path })
 }
 
-export const closePreview = (): void => {
+export const openPreview = (path: string): void => {
+  if (usePreviewStore.getState().path === path) {
+    showPreview(path)
+  } else {
+    guardEdits(() => showPreview(path))
+  }
+}
+
+export const closePreview = (onClosed?: () => void): void => {
   if (usePreviewStore.getState().path !== null) {
-    usePreviewStore.getState().close()
-    bridge.send({ type: 'preview.close' })
+    guardEdits(() => {
+      usePreviewStore.getState().close()
+      bridge.send({ type: 'preview.close' })
+      onClosed?.()
+    })
   }
 }
 

@@ -17,7 +17,7 @@ public sealed class FilePreviewTests : IDisposable
 
         var preview = FilePreview.Read(path);
 
-        Assert.Equal(new FilePreviewModel(path, "README.md", PreviewKind.Markdown, null, "# Titre accentué", false, PreviewAddress.BaseUrlOf(path), null), preview);
+        Assert.Equal(new FilePreviewModel(path, "README.md", PreviewKind.Markdown, null, "# Titre accentué", false, PreviewAddress.BaseUrlOf(path), null) { Version = TextFileWriter.VersionOf(path) }, preview);
     }
 
     [Fact]

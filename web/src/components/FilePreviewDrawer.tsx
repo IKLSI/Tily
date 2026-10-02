@@ -1,11 +1,12 @@
-import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type MouseEvent, type SyntheticEvent } from 'react'
+import { lazy, Suspense, useEffect, useMemo, useRef, useState, type KeyboardEvent, type MouseEvent, type SyntheticEvent } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { PreviewKind, type FilePreview } from '../bridge/previewMessages'
 import { focusFileTree } from '../explorer/fileExplorerActions'
 import { folderName } from '../model/session'
 import { closePreview, followPreviewLink, openPreviewInBrowser, openPreviewInEditor } from '../preview/previewActions'
+import { overwritePreview, reloadPreviewFromDisk, savePreview, startPreviewEdit, stopPreviewEdit } from '../preview/previewEdit'
 import { anchorTarget, highlightText, renderMarkdown } from '../preview/renderPreview'
-import { usePreviewStore } from '../store/previewStore'
+import { editable, editDirty, usePreviewStore } from '../store/previewStore'
 import { GitToolButton } from './GitToolButton'
 import { Icon } from './Icon'
 import { IconName } from './iconName'
@@ -20,16 +21,19 @@ const KIND_LABELS: Record<PreviewKind, string> = {
 
 const PAGE_SANDBOX = 'allow-scripts allow-popups'
 
+const TextEditor = lazy(() => import('./TextEditor').then((module) => ({ default: module.TextEditor })))
 
-const handleClose = () => {
-  closePreview()
-  focusFileTree()
-}
+const BANNER_BUTTON = 'shrink-0 cursor-pointer rounded border border-tily-line px-[8px] py-[1px] text-[12px] text-tily-ink hover:bg-tily-green-hover'
+
+
+const handleClose = () => closePreview(focusFileTree)
+
+const handleSave = () => savePreview()
 
 const handleToggleExpanded = () => usePreviewStore.getState().toggleExpanded()
 
 const handleKeyDown = (event: KeyboardEvent<HTMLElement>) => {
-  if (event.key === 'Escape') {
+  if (event.key === 'Escape' && !event.defaultPrevented) {
     event.preventDefault()
     event.stopPropagation()
     handleClose()
@@ -73,7 +77,7 @@ const renderedHtml = (preview: FilePreview | null, source: boolean): string | nu
 }
 
 export function FilePreviewDrawer() {
-  const { path, preview, anchor, anchorRequest, expanded } = usePreviewStore(useShallow((store) => ({ path: store.path, preview: store.preview, anchor: store.anchor, anchorRequest: store.anchorRequest, expanded: store.expanded })))
+  const { path, preview, anchor, anchorRequest, expanded, edit } = usePreviewStore(useShallow((store) => ({ path: store.path, preview: store.preview, anchor: store.anchor, anchorRequest: store.anchorRequest, expanded: store.expanded, edit: store.edit })))
   const bodyRef = useRef<HTMLDivElement>(null)
   const [sourcePath, setSourcePath] = useState<string | null>(null)
   const showSource = hasSource(preview) && sourcePath === preview?.path
@@ -105,6 +109,9 @@ export function FilePreviewDrawer() {
     return null
   }
   const name = preview?.name ?? folderName(path)
+  const dirty = editDirty(edit)
+  const conflict = edit !== null && edit.version !== preview?.version
+  const editorLanguage = preview?.kind === PreviewKind.Markdown ? MARKDOWN_LANGUAGE : preview?.language
 
   return (
     <aside aria-label="Aperçu du fichier" data-preview-drawer="" className={`absolute inset-y-0 right-0 z-20 flex ${expanded ? 'w-full' : 'w-[min(920px,100%)]'} flex-col border-l border-tily-line bg-tily-panel shadow-2xl`} onKeyDown={handleKeyDown}>
@@ -112,8 +119,17 @@ export function FilePreviewDrawer() {
         {preview && !preview.error && <span className="shrink-0 rounded bg-tily-paper px-[6px] py-[1px] text-[11px] text-tily-muted">{preview.kind === PreviewKind.Image && imageSize ? `${KIND_LABELS[preview.kind]} · ${imageSize}` : KIND_LABELS[preview.kind]}</span>}
         <span className="min-w-0 flex-1 truncate text-[12px] font-semibold text-tily-ink" data-tip={path}>
           {name}
+          {dirty && <span className="ml-[8px] text-[11px] font-normal text-tily-warning">Modifié</span>}
         </span>
-        {preview && hasSource(preview) && (
+        {edit ? (
+          <>
+            <GitToolButton icon={IconName.Check} tip="Enregistrer (Ctrl + S)" label={edit.saving ? 'Enregistrement…' : 'Enregistrer'} disabled={!dirty || edit.saving} onClick={handleSave} />
+            <GitToolButton icon={IconName.Pencil} tip="Quitter l’édition" label="Éditer" pressed onClick={stopPreviewEdit} />
+          </>
+        ) : (
+          editable(preview) && <GitToolButton icon={IconName.Pencil} tip="Modifier le fichier dans Tily" label="Éditer" pressed={false} onClick={startPreviewEdit} />
+        )}
+        {!edit && preview && hasSource(preview) && (
           <GitToolButton icon={IconName.File} tip={showSource ? `Revenir au rendu ${KIND_LABELS[preview.kind]}` : `Afficher le texte source du ${KIND_LABELS[preview.kind]}`} label="Source" pressed={showSource} onClick={handleToggleSource} />
         )}
         {preview?.kind === PreviewKind.Html && !preview.error && <GitToolButton icon={IconName.Browser} tip="Ouvrir dans le navigateur" onClick={openPreviewInBrowser} />}
@@ -123,8 +139,23 @@ export function FilePreviewDrawer() {
           <Icon name={IconName.Close} />
         </button>
       </header>
-      {preview?.truncated && (preview.kind !== PreviewKind.Html || showSource) && <p className="shrink-0 border-b border-tily-line px-[16px] py-[6px] text-[12px] text-tily-warning">Fichier volumineux : seuls les 2 premiers Mo sont affichés.</p>}
-      {page !== null ? (
+      {preview?.truncated && (preview.kind !== PreviewKind.Html || showSource) && <p className="shrink-0 border-b border-tily-line px-[16px] py-[6px] text-[12px] text-tily-warning">Fichier volumineux : seuls les 2 premiers Mo sont affichés, sans modification possible.</p>}
+      {conflict && (
+        <div role="status" className="flex shrink-0 items-center gap-[8px] border-b border-tily-line px-[16px] py-[6px] text-[12px] text-tily-warning">
+          <span className="min-w-0 flex-1 truncate">{preview?.error ?? 'Le fichier a été modifié sur le disque.'}</span>
+          <button type="button" className={BANNER_BUTTON} data-tip="Abandonner mes modifications et reprendre le fichier du disque" onClick={reloadPreviewFromDisk}>
+            Recharger
+          </button>
+          <button type="button" className={BANNER_BUTTON} data-tip="Enregistrer mes modifications à la place de la version du disque" onClick={overwritePreview}>
+            Écraser
+          </button>
+        </div>
+      )}
+      {edit ? (
+        <Suspense fallback={<p className="px-[24px] py-[18px] text-[12px] text-tily-muted">Chargement de l’éditeur…</p>}>
+          <TextEditor key={edit.generation} name={name} language={editorLanguage} />
+        </Suspense>
+      ) : page !== null ? (
         <iframe src={page} title={`Rendu de ${name}`} sandbox={PAGE_SANDBOX} referrerPolicy="no-referrer" className="min-h-0 w-full flex-1 border-0 bg-tily-page" />
       ) : (
         <div ref={bodyRef} tabIndex={0} aria-label={`Contenu de ${name}`} className="min-h-0 flex-1 overflow-auto px-[24px] py-[18px] select-text" onClick={handleContentClick} onAuxClick={preventAuxiliaryOpen}>
