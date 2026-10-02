@@ -1,8 +1,9 @@
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Tily.Core.Shell;
 
-public sealed class OscCwdParser
+public sealed partial class OscCwdParser
 {
     private const byte Escape = 0x1B;
     private const byte Bell = 0x07;
@@ -98,9 +99,18 @@ public sealed class OscCwdParser
         var uri = Encoding.UTF8.GetString(_payload.ToArray());
         if (Uri.TryCreate(uri, UriKind.Absolute, out var parsed) && parsed.IsFile)
         {
-            CurrentDirectoryChanged?.Invoke(parsed.LocalPath);
+            CurrentDirectoryChanged?.Invoke(ToLocalPath(parsed));
         }
     }
+
+    private static string ToLocalPath(Uri uri)
+    {
+        var path = Uri.UnescapeDataString(uri.AbsolutePath);
+        return uri.IsUnc && DrivePath().IsMatch(path) ? path.TrimStart('/').Replace('/', '\\') : uri.LocalPath;
+    }
+
+    [GeneratedRegex("^/[A-Za-z]:/")]
+    private static partial Regex DrivePath();
 
     private enum ParserState
     {
