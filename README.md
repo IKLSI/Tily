@@ -11,6 +11,7 @@
 <p align="center">
   <a href="https://github.com/MaximeRazafinjato/tily/releases/latest"><img src="https://img.shields.io/github/v/release/MaximeRazafinjato/tily" alt="Dernière version"></a>
   <img src="https://img.shields.io/badge/plateforme-Windows%2010%2B-0078d4" alt="Plateforme : Windows 10+">
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/MaximeRazafinjato/tily" alt="Licence : GPL-3.0"></a>
 </p>
 
 ![Tily avec plusieurs workspaces et un onglet découpé en trois terminaux](docs/images/overview.png)
@@ -89,3 +90,7 @@ Aucun droit administrateur n’est nécessaire. Tily vérifie ensuite lui-même 
 | — | Ctrl + Tab / Ctrl + Maj + Tab | Onglet suivant / précédent |
 
 Ctrl + Maj + C et Ctrl + Maj + V copient et collent ; un texte de plusieurs lignes, que PowerShell exécuterait ligne à ligne, demande d’abord confirmation. Un clic droit, ou la touche Menu, ouvre le menu d’un terminal, d’un onglet, d’un workspace ou d’un fichier. Dans le panneau des workspaces, où Ctrl + Maj + B amène le focus quand il l’affiche et d’où Échap le rend au terminal, ↑ et ↓ passent d’une ligne à l’autre, → et ← déplient et replient, F2 renomme et Alt + ↑ / ↓ déplace la ligne. Dans la barre d’onglets, ← et → déplacent le focus d’un onglet à l’autre sans l’afficher (Entrée l’affiche), F2 renomme et Alt + ← / → déplace l’onglet. Dans le panneau des workspaces comme dans l’arbre des fichiers, taper les premières lettres d’un nom y amène. Dans l’arbre des fichiers, Ctrl + C copie le chemin de la ligne sélectionnée, Ctrl + Maj + C son chemin relatif, et F5 actualise, comme dans la vue Git. Un double-clic dans l’espace vide de la barre d’onglets ouvre un nouvel onglet. Dans la vue Git, F5 actualise ; dans le message de commit, Ctrl + Entrée commite et Ctrl + Maj + Entrée commite puis pousse.
+
+## Licence
+
+Copyright (c) 2026 Maxime Razafinjato. Tily est un logiciel libre distribué sous licence [GNU GPL v3](LICENSE) : chacun peut l’utiliser, l’étudier, le modifier et le redistribuer, à condition que toute version redistribuée reste sous la même licence.
