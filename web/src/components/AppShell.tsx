@@ -16,6 +16,7 @@ import { useExplorerStore } from '../store/explorerStore'
 import { focusGitPanel, takeFocusFromCoveredTerminals } from '../git/gitFocus'
 import { openWorkspaceNotes, toggleRightPanel } from '../panel/rightPanel'
 import { useGitStore } from '../store/gitStore'
+import { usePreviewStore } from '../store/previewStore'
 import { usePasteStore } from '../store/pasteStore'
 import { worktreeModalOpen } from '../store/worktreeStore'
 import { filePickerOpen } from '../store/filePickerStore'
@@ -33,6 +34,7 @@ import { EmptyState } from './EmptyState'
 import { GitConfirmDialog } from './GitConfirmDialog'
 import { GitContextMenu } from './GitContextMenu'
 import { LazyFilePreview } from './LazyFilePreview'
+import { UnsavedPreviewDialog } from './UnsavedPreviewDialog'
 import { GitDiffDrawer } from './GitDiffDrawer'
 import { GitGraphView } from './GitGraphView'
 import { Header } from './Header'
@@ -170,7 +172,7 @@ const handleCancelGit = (): void => {
 
 const confirmationOpen = (): boolean => {
   const { settingsOpen, closeConfirmation } = useUiStore.getState()
-  return settingsOpen || closeConfirmation !== null || useExplorerStore.getState().deleteRequest !== null || useGitStore.getState().confirmation !== null || usePasteStore.getState().request !== null || worktreeModalOpen() || filePickerOpen() || commitPickerOpen()
+  return settingsOpen || closeConfirmation !== null || useExplorerStore.getState().deleteRequest !== null || useGitStore.getState().confirmation !== null || usePasteStore.getState().request !== null || worktreeModalOpen() || filePickerOpen() || commitPickerOpen() || usePreviewStore.getState().pendingAction !== null
 }
 
 const modalOpen = (): boolean => {
@@ -230,6 +232,7 @@ export function AppShell({ session }: AppShellProps) {
   const { startRenamingWorkspace, startRenamingTab, openPalette, closePalette, openSettings, closeSettings } = useUiStore.getState()
   const deleteRequest = useExplorerStore((state) => state.deleteRequest)
   const gitConfirmation = useGitStore((state) => state.confirmation)
+  const unsavedPreview = usePreviewStore((state) => state.pendingAction !== null)
   const gitGraphReady = useGitStore((state) => state.graphOpen && state.state !== null)
   const agents = useAgentStore((state) => state.agents)
   const acknowledged = useAgentStore((state) => state.acknowledged)
@@ -399,6 +402,7 @@ export function AppShell({ session }: AppShellProps) {
       {gitConfirmation && <GitConfirmDialog confirmation={gitConfirmation} onConfirm={handleConfirmGit} onCancel={handleCancelGit} />}
       {closeConfirmation && <CloseConfirmDialog confirmation={closeConfirmation} onConfirm={confirmClose} onCancel={handleCancelClose} />}
       <PasteConfirmDialog />
+      {unsavedPreview && <UnsavedPreviewDialog />}
       <Tooltip />
       <StatusBar />
     </div>

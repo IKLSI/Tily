@@ -5,6 +5,8 @@ namespace Tily.Core.Files;
 public sealed record FilePreviewModel(string Path, string Name, PreviewKind Kind, string? Language, string Content, bool Truncated, string BaseUrl, string? Error)
 {
     public string? Url { get; init; }
+
+    public string? Version { get; init; }
 }
 
 public static class FilePreview
@@ -33,11 +35,12 @@ public static class FilePreview
 
         try
         {
+            var version = TextFileWriter.VersionOf(path);
             var (bytes, truncated) = ReadHead(path);
             var content = Decode(bytes, truncated);
             return content is null
                 ? empty with { Error = "Fichier binaire : aperçu impossible." }
-                : empty with { Content = content, Truncated = truncated, Url = kind == PreviewKind.Html ? AddressOf(path) : null };
+                : empty with { Content = content, Truncated = truncated, Url = kind == PreviewKind.Html ? AddressOf(path) : null, Version = version };
         }
         catch (Exception exception) when (exception is FileNotFoundException or DirectoryNotFoundException)
         {

@@ -48,6 +48,11 @@ public sealed class FilePreviewFeed : IDisposable
             case "preview.close":
                 Watch(null);
                 break;
+            case "preview.save":
+                var target = RequirePath(command);
+                var content = command.Content ?? throw new InvalidOperationException("Contenu manquant.");
+                _queue.Enqueue(() => Save(target, content, command.Version, command.Force));
+                break;
             case "preview.browser":
                 var page = RequirePath(command);
                 _queue.Enqueue(() => LocalActions.OpenLink(new Uri(page).AbsoluteUri));
@@ -118,6 +123,20 @@ public sealed class FilePreviewFeed : IDisposable
         var preview = FilePreview.Read(path);
         Watch(path);
         _post(new { type = "preview.loaded", preview, anchor, reload = false });
+    }
+
+    private void Save(string path, string content, string? version, bool force)
+    {
+        var error = TextFileWriter.Save(path, content, version, force);
+        var preview = FilePreview.Read(path);
+        if (error is null)
+        {
+            _post(new { type = "preview.saved", preview });
+        }
+        else
+        {
+            _post(new { type = "preview.saveFailed", preview, message = error });
+        }
     }
 
     private void Reload()

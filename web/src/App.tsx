@@ -15,6 +15,7 @@ import { startExternalDrops } from './terminal/externalDrop'
 import { receiveCreated, receiveDeleted, receiveGitMarks, receiveListing, receiveRenamed } from './explorer/fileExplorerActions'
 import { receiveProjectFiles } from './explorer/projectFileActions'
 import { receivePreview, receivePreviewRequest, startDeferredPreviews } from './preview/previewActions'
+import { receivePreviewSaved, receivePreviewSaveFailed } from './preview/previewEdit'
 import { receiveGitAutoFetchEnded, receiveGitAutoFetchStarted, receiveGitChanged, receiveGitDetails, receiveGitDiff, receiveGitDone, receiveGitFailed, receiveGitHistory, receiveGitPushRejected, receiveGitState } from './git/gitReceivers'
 import { insertIntoPane, joinPane } from './terminal/terminalActions'
 import { WORKTREE_FOLDER_FIELD, WORKTREE_REPOSITORY_FIELD } from './worktree/worktreeActions'
@@ -123,6 +124,8 @@ export default function App() {
       bridge.on('files.deleted', (message) => receiveDeleted(message.path)),
       bridge.on('preview.loaded', receivePreview),
       bridge.on('preview.requested', receivePreviewRequest),
+      bridge.on('preview.saved', receivePreviewSaved),
+      bridge.on('preview.saveFailed', receivePreviewSaveFailed),
       bridge.on('git.state', (message) => receiveGitState(message.path, message.state, message.error, message.displayRoot)),
       bridge.on('git.changed', (message) => receiveGitChanged(message.path)),
       bridge.on('git.history', (message) => receiveGitHistory(message.history, message.error)),
