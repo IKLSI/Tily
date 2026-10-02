@@ -20,7 +20,7 @@ public enum WorktreeStepStatus
 
 public sealed record WorktreeModel(string Path, string? Branch, string? Head, bool IsMain, bool IsDetached, bool Locked, bool Prunable);
 
-public sealed record WorktreeRequestModel(string Repository, string Branch, WorktreeBranchMode Mode, string? Base);
+public sealed record WorktreeRequestModel(string Repository, string Branch, WorktreeBranchMode Mode, string? Base, string? Folder = null);
 
 public sealed record WorktreeRepositoryModel(string MainRoot, string Project, IReadOnlyList<string> LocalBranches, IReadOnlyList<string> RemoteBranches, IReadOnlyList<string> Remotes);
 
@@ -33,7 +33,10 @@ public sealed record WorktreePlanModel(
     IReadOnlyList<string> LocalBranches,
     IReadOnlyList<string> RemoteBranches,
     string? Error,
-    string? ConfiguredBase = null);
+    string? ConfiguredBase = null,
+    string? Folder = null,
+    string? DefaultFolder = null,
+    string? PathPreview = null);
 
 public sealed record WorktreeStepModel(string Step, WorktreeStepStatus Status, string Message);
 

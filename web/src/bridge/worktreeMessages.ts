@@ -29,6 +29,14 @@ export interface WorktreePlan {
   remoteBranches: string[]
   error?: string
   configuredBase?: string
+  folder?: string
+  defaultFolder?: string
+  pathPreview?: string
+}
+
+export interface WorktreeProjectFolder {
+  project: string
+  folder: string
 }
 
 export interface WorktreeSources {
@@ -53,6 +61,6 @@ export type WorktreeHostMessage =
 
 export type WorktreeWebMessage =
   | { type: 'worktrees.sources'; request: number; path?: string; project?: string }
-  | { type: 'worktrees.plan'; request: number; repository: string; branch: string; mode: WorktreeBranchMode; base?: string }
-  | { type: 'worktrees.create'; repository: string; branch: string; mode: WorktreeBranchMode; base?: string; install: boolean; database: boolean; project: string; remember: boolean }
+  | { type: 'worktrees.plan'; request: number; repository: string; branch: string; mode: WorktreeBranchMode; base?: string; project: string; folder?: string }
+  | { type: 'worktrees.create'; repository: string; branch: string; mode: WorktreeBranchMode; base?: string; install: boolean; database: boolean; project: string; remember: boolean; folder?: string; rememberFolder: boolean }
   | { type: 'worktrees.remove'; path: string; keepBranch: boolean; dropDatabase: boolean; confirmed: boolean }

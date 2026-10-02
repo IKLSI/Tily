@@ -20,6 +20,7 @@ public sealed class SettingsService
     private readonly GitSettingsRepository _git;
     private readonly UpdateSettingsRepository _updates;
     private readonly AppearanceSettingsRepository _appearance;
+    private readonly WorktreeProjectsRepository _worktreeProjects;
 
     public SettingsService(string directory)
     {
@@ -31,6 +32,7 @@ public sealed class SettingsService
         _git = new GitSettingsRepository(directory);
         _updates = new UpdateSettingsRepository(directory);
         _appearance = new AppearanceSettingsRepository(directory);
+        _worktreeProjects = new WorktreeProjectsRepository(directory);
     }
 
     public SettingsModel Load()
@@ -44,6 +46,7 @@ public sealed class SettingsService
             ProjectsRoot = projects.Root,
             Notifications = _notifications.Load(),
             Worktrees = projects.Worktrees ?? WorktreeSettingsModel.Default,
+            WorktreeFolders = _worktreeProjects.Folders(),
             Git = _git.Load(),
             Updates = _updates.Load(),
             Appearance = _appearance.Load()
@@ -74,9 +77,15 @@ public sealed class SettingsService
             return ValidationResultModel.Fail($"Le dossier des projets doit être un chemin absolu : {settings.ProjectsRoot}");
         }
 
-        return (settings.Worktrees ?? WorktreeSettingsModel.Default).Error() is { } worktreeError
-            ? ValidationResultModel.Fail(worktreeError)
-            : ValidationResultModel.Ok();
+        if ((settings.Worktrees ?? WorktreeSettingsModel.Default).Error() is { } worktreeError)
+        {
+            return ValidationResultModel.Fail(worktreeError);
+        }
+
+        var relative = NormalizedFolders(settings.WorktreeFolders ?? []).FirstOrDefault(entry => !Path.IsPathRooted(entry.Project) || !Path.IsPathRooted(entry.Folder));
+        return relative is null
+            ? ValidationResultModel.Ok()
+            : ValidationResultModel.Fail($"Le dossier des worktrees de {relative.Project} doit être un chemin absolu : {relative.Folder}");
     }
 
     public ValidationResultModel Save(SettingsModel settings)
@@ -93,6 +102,7 @@ public sealed class SettingsService
         settings.ProjectsRoot = settings.ProjectsRoot.Trim();
         settings.Notifications = settings.Notifications.Normalized();
         settings.Worktrees = (settings.Worktrees ?? WorktreeSettingsModel.Default).Normalized();
+        settings.WorktreeFolders = NormalizedFolders(settings.WorktreeFolders ?? []);
         settings.Git ??= GitSettingsModel.Default;
         settings.Updates ??= UpdateSettingsModel.Default;
         settings.Appearance = (settings.Appearance ?? AppearanceSettingsModel.Default).Clamped();
@@ -100,6 +110,7 @@ public sealed class SettingsService
         _editor.Save(new EditorSettingsModel(settings.Editor));
         _persistence.Save(settings.Persistence);
         _projects.Save(new ProjectsSettingsModel(settings.ProjectsRoot, settings.Worktrees));
+        _worktreeProjects.SaveFolders(settings.WorktreeFolders);
         _notifications.Save(settings.Notifications);
         _git.Save(settings.Git);
         _updates.Save(settings.Updates);
@@ -112,6 +123,15 @@ public sealed class SettingsService
         var clamped = appearance.Clamped();
         _appearance.Save(clamped);
         return clamped;
+    }
+
+    public void RememberWorktreeFolder(SettingsModel settings, string project, string folder)
+    {
+        var others = settings.WorktreeFolders.Where(entry => !WorktreeTarget.SamePath(entry.Project, project));
+        var remembered = WorktreeTarget.SamePath(folder, settings.Worktrees.FolderFor(settings.ProjectsRoot)) ? others : others.Append(new WorktreeProjectFolderModel(project, folder));
+        var folders = NormalizedFolders(remembered.ToList());
+        _worktreeProjects.SaveFolders(folders);
+        settings.WorktreeFolders = folders;
     }
 
     public void Export(SettingsModel settings, string filePath) =>
@@ -158,6 +178,7 @@ public sealed class SettingsService
             ProjectsRoot = document.ProjectsRoot!,
             Notifications = (document.Notifications ?? NotificationSettingsModel.Default).Normalized(),
             Worktrees = (document.Worktrees ?? WorktreeSettingsModel.Default).Normalized(),
+            WorktreeFolders = _worktreeProjects.Folders(),
             Git = document.Git ?? GitSettingsModel.Default,
             Updates = document.Updates ?? UpdateSettingsModel.Default,
             Appearance = (document.Appearance ?? AppearanceSettingsModel.Default).Clamped()
@@ -217,6 +238,13 @@ public sealed class SettingsService
         };
         return new SettingsSnapshotModel(settings, shells, files, warnings);
     }
+
+    private static List<WorktreeProjectFolderModel> NormalizedFolders(IReadOnlyList<WorktreeProjectFolderModel> folders) =>
+        folders
+            .Where(entry => !string.IsNullOrWhiteSpace(entry?.Project) && !string.IsNullOrWhiteSpace(entry.Folder))
+            .Select(entry => new WorktreeProjectFolderModel(WorktreeLister.NormalizePath(entry.Project.Trim()), entry.Folder.Trim()))
+            .DistinctBy(entry => entry.Project, StringComparer.OrdinalIgnoreCase)
+            .ToList();
 
     public static ShellPathsModel ShellPaths(SettingsModel settings) =>
         new(settings.Shells.Where(pair => !string.IsNullOrWhiteSpace(pair.Value)).ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.OrdinalIgnoreCase));

@@ -282,6 +282,63 @@ public sealed class SettingsServiceTests : IDisposable
     }
 
     [Fact]
+    public void RememberWorktreeFolder_ThenLoadKeepsItWithoutTouchingOtherSettings()
+    {
+        var service = new SettingsService(_directory);
+        var settings = service.Load();
+        settings.Worktrees = new WorktreeSettingsModel(@"E:\wt", "main");
+        service.Save(settings);
+
+        service.RememberWorktreeFolder(settings, @"D:\Projets\tily", @"F:\arbres");
+
+        var loaded = service.Load();
+        Assert.Equal((@"E:\wt", "main"), (loaded.Worktrees.Folder, loaded.Worktrees.DefaultBase));
+        Assert.Equal(new WorktreeProjectFolderModel(@"D:\Projets\tily", @"F:\arbres"), Assert.Single(loaded.WorktreeFolders));
+        Assert.Equal(@"F:\arbres", settings.WorktreeFolderOf(@"d:\projets\TILY\"));
+    }
+
+    [Fact]
+    public void RememberWorktreeFolder_WhenFolderIsDefault_ThenForgetsProjectFolder()
+    {
+        var service = new SettingsService(_directory);
+        var settings = service.Load();
+        settings.ProjectsRoot = @"D:\Projets";
+        service.RememberWorktreeFolder(settings, @"D:\Projets\tily", @"F:\arbres");
+
+        service.RememberWorktreeFolder(settings, @"D:\Projets\tily", @"D:\Projets\worktrees\");
+
+        Assert.Empty(service.Load().WorktreeFolders);
+    }
+
+    [Fact]
+    public void Save_WhenProjectFolderRemoved_ThenForgetsItButKeepsRepository()
+    {
+        var service = new SettingsService(_directory);
+        var projects = new WorktreeProjectsRepository(_directory);
+        projects.SaveRepository(@"D:\Projets\tily", @"D:\Projets\tily\app");
+        var settings = service.Load();
+        service.RememberWorktreeFolder(settings, @"D:\Projets\tily", @"F:\arbres");
+
+        settings.WorktreeFolders = [];
+        service.Save(settings);
+
+        Assert.Empty(service.Load().WorktreeFolders);
+        Assert.Equal(@"D:\Projets\tily\app", projects.RepositoryOf(@"D:\Projets\tily"));
+    }
+
+    [Fact]
+    public void Save_WhenProjectFolderRelative_ThenRefusesInFrench()
+    {
+        var service = new SettingsService(_directory);
+        var settings = service.Load();
+        settings.WorktreeFolders = [new WorktreeProjectFolderModel(@"D:\Projets\tily", "relatif")];
+
+        var result = service.Save(settings);
+
+        Assert.Equal(@"Le dossier des worktrees de D:\Projets\tily doit être un chemin absolu : relatif", result.Error);
+    }
+
+    [Fact]
     public void Save_WhenWorktreeFolderRelative_ThenRefuses()
     {
         var service = new SettingsService(_directory);

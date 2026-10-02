@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ChangeEvent, type KeyboardEvent, type MouseEvent, type PointerEvent } from 'react'
 import { AttentionKind, PickTarget, type ImportedPreferences, type NotificationSettings, type PersistenceSettings, type PickedPath, type Settings, type SettingsSnapshot } from '../bridge/messages'
-import type { WorktreeSettings } from '../bridge/worktreeMessages'
+import type { WorktreeProjectFolder, WorktreeSettings } from '../bridge/worktreeMessages'
 import { revealInExplorer } from '../explorer/fileExplorerActions'
 import { useHostStore } from '../store/hostStore'
 import { AppearanceSettingsSection } from './AppearanceSettingsSection'
@@ -8,6 +8,7 @@ import { keepTabInside } from './focusTrap'
 import { SETTINGS_BROWSE, SETTINGS_BUTTON, SETTINGS_HINT, SETTINGS_INPUT, SETTINGS_INPUT_BASE, SETTINGS_LABEL } from './settingsStyles'
 import { SoundSetting } from './SoundSetting'
 import { UpdateSettingsSection } from './UpdateSettingsSection'
+import { WorktreeFolderSettings } from './WorktreeFolderSettings'
 
 interface SettingsDialogProps {
   snapshot: SettingsSnapshot | null
@@ -29,7 +30,6 @@ const PROJECTS_ROOT_FIELD = 'projectsRoot'
 const WORKTREE_FOLDER_FIELD = 'worktreeFolder'
 const SOUND_FIELD = 'notificationSound'
 const DONE_SOUND_FIELD = 'notificationDoneSound'
-const PATH_SEPARATOR = '\\'
 
 interface NumberField {
   key: keyof PersistenceSettings
@@ -181,7 +181,7 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
   )
   const handleEditorChange = (event: ChangeEvent<HTMLInputElement>) => updateDraft({ editor: event.target.value })
   const handleProjectsRootChange = (event: ChangeEvent<HTMLInputElement>) => updateDraft({ projectsRoot: event.target.value })
-  const handleWorktreeFolderChange = (event: ChangeEvent<HTMLInputElement>) => updateWorktrees({ folder: event.target.value })
+  const handleWorktreeFoldersChange = (worktreeFolders: WorktreeProjectFolder[]) => updateDraft({ worktreeFolders })
   const handleDefaultBaseChange = (event: ChangeEvent<HTMLInputElement>) => updateWorktrees({ defaultBase: event.target.value })
   const handleAutoFetchChange = (event: ChangeEvent<HTMLInputElement>) => updateDraft({ git: { autoFetch: event.target.checked } })
   const updateNotifications = (patch: Partial<NotificationSettings>) => setDraft((current) => (current ? { ...current, notifications: { ...current.notifications, ...patch } } : current))
@@ -293,14 +293,7 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
           </span>
           <span className={HINT}>Dossiers de premier niveau listés par le sélecteur de projets, hors « worktrees » et dossiers cachés.</span>
         </label>
-        <label className="flex flex-col gap-1">
-          <span className={LABEL}>Dossier des worktrees</span>
-          <span className="flex gap-1">
-            <input type="text" className={INPUT} value={settings.worktrees.folder} placeholder={`${settings.projectsRoot}${PATH_SEPARATOR}worktrees`} spellCheck={false} onChange={handleWorktreeFolderChange} />
-            {renderBrowse(handlePickWorktreeFolder, 'Choisir le dossier des worktrees')}
-          </span>
-          <span className={HINT}>Vide : sous-dossier « worktrees » du dossier des projets, comme wtr. Chaque worktree y est créé sous le nom « projet-branche ».</span>
-        </label>
+        <WorktreeFolderSettings worktrees={settings.worktrees} folders={settings.worktreeFolders} projectsRoot={settings.projectsRoot} onChange={updateWorktrees} onFoldersChange={handleWorktreeFoldersChange} onPickFolder={handlePickWorktreeFolder} />
         <label className="flex flex-col gap-1">
           <span className={LABEL}>Base par défaut des nouvelles branches</span>
           <input type="text" className={INPUT} value={settings.worktrees.defaultBase} spellCheck={false} onChange={handleDefaultBaseChange} />

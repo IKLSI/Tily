@@ -30,6 +30,7 @@ public static class WorktreeCreator
         }
 
         var defaultBase = DefaultBaseOf(settings.DefaultBase, context);
+        var folder = string.IsNullOrWhiteSpace(request.Folder) ? settings.FolderFor(projectsRoot) : request.Folder.Trim();
         try
         {
             var target = Target(context, request, settings, projectsRoot);
@@ -38,11 +39,11 @@ public static class WorktreeCreator
                 RequireBase(context, BaseOf(request, settings, context));
             }
 
-            return Planned(context, defaultBase, target, null, settings);
+            return Planned(context, defaultBase, target, null, settings, folder);
         }
         catch (Exception exception) when (exception is WorktreeException or GitCommandException)
         {
-            return Planned(context, defaultBase, null, exception.Message, settings);
+            return Planned(context, defaultBase, null, exception.Message, settings, folder);
         }
     }
 
@@ -127,13 +128,26 @@ public static class WorktreeCreator
             WorktreeBranchMode.Remote => TrackingBranch(context, branch),
             _ => ExistingBranch(context, branch)
         };
-        var path = WorktreeTarget.PathFor(settings.FolderFor(projectsRoot), context.Info.Project, local);
+        var path = WorktreeTarget.PathFor(FolderOf(request, settings, projectsRoot), context.Info.Project, local);
         if (Directory.Exists(path) || File.Exists(path))
         {
             throw new WorktreeException($"Le dossier existe déjà : {path}", WorktreeSteps.Verification);
         }
 
         return new TargetModel(path, local);
+    }
+
+    private static string FolderOf(WorktreeRequestModel request, WorktreeSettingsModel settings, string projectsRoot)
+    {
+        if (string.IsNullOrWhiteSpace(request.Folder))
+        {
+            return settings.FolderFor(projectsRoot);
+        }
+
+        var folder = request.Folder.Trim();
+        return Path.IsPathRooted(folder)
+            ? folder
+            : throw new WorktreeException($"Le dossier des worktrees doit être un chemin absolu : {folder}", WorktreeSteps.Verification);
     }
 
     private static string NewBranch(ContextModel context, string branch)
@@ -223,6 +237,6 @@ public static class WorktreeCreator
     private static bool HasBranch(string branch, WorktreeRepositoryModel info) =>
         info.RemoteBranches.Contains(branch, StringComparer.Ordinal) || info.LocalBranches.Contains(branch, StringComparer.Ordinal);
 
-    private static WorktreePlanModel Planned(ContextModel context, string defaultBase, TargetModel? target, string? error, WorktreeSettingsModel settings) =>
-        new(context.Info.MainRoot, context.Info.Project, target?.Path, target?.LocalBranch, defaultBase, context.Info.LocalBranches, context.Info.RemoteBranches, error, ResolveBase(settings.DefaultBase, context.Info));
+    private static WorktreePlanModel Planned(ContextModel context, string defaultBase, TargetModel? target, string? error, WorktreeSettingsModel settings, string folder) =>
+        new(context.Info.MainRoot, context.Info.Project, target?.Path, target?.LocalBranch, defaultBase, context.Info.LocalBranches, context.Info.RemoteBranches, error, ResolveBase(settings.DefaultBase, context.Info), folder, PathPreview: target?.Path ?? Path.Combine(folder, $"{context.Info.Project}-<branche>"));
 }

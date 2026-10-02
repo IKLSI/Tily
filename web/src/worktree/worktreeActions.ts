@@ -1,6 +1,6 @@
 import { bridge } from '../bridge/bridge'
 import { PickTarget } from '../bridge/messages'
-import { WorktreeBranchMode, WorktreeOperation, type WorktreeSources } from '../bridge/worktreeMessages'
+import { WorktreeBranchMode, WorktreeOperation, type WorktreePlan, type WorktreeSources } from '../bridge/worktreeMessages'
 import { focusActivePane } from '../explorer/fileExplorerActions'
 import { activePane, activeTab, activeWorkspace, DEFAULT_SHELL, panesOf } from '../model/session'
 import { useAgentStore } from '../store/agentStore'
@@ -10,11 +10,12 @@ import { useWorktreeStore, WorktreePickerKind, type WorktreeDraft, type Worktree
 import { requestClose } from '../terminal/closeGuard'
 import { joinPane } from '../terminal/terminalActions'
 import { terminalRegistry } from '../terminal/terminalRegistry'
-import { panesWithin, removalPanes, worktreeTarget } from './worktreePaths'
+import { panesWithin, removalPanes, sameFolder, worktreeTarget } from './worktreePaths'
 
 const PLAN_DELAY_MS = 250
 
 export const WORKTREE_REPOSITORY_FIELD = 'worktree-repository'
+export const WORKTREE_FOLDER_FIELD = 'worktree-folder'
 
 let planTimer: ReturnType<typeof setTimeout> | undefined
 
@@ -25,7 +26,7 @@ const sendPlan = (request: number): void => {
   if (!draft || request !== planRequest) {
     return
   }
-  bridge.send({ type: 'worktrees.plan', request, repository: draft.repository, branch: draft.branch, mode: draft.mode, base: draft.base || undefined })
+  bridge.send({ type: 'worktrees.plan', request, repository: draft.repository, branch: draft.branch, mode: draft.mode, base: draft.base || undefined, project: draft.project, folder: draft.folder ?? undefined })
 }
 
 const schedulePlan = (delay: number): void => {
@@ -39,7 +40,7 @@ const openDraft = (folder: string, preset: DraftPreset, source: { path: string }
   clearTimeout(planTimer)
   setPicker(null)
   setCreateFailure(null)
-  setDraft({ project: folder, repository: '', remember: false, branch: '', mode: WorktreeBranchMode.New, base: '', install: true, database: true, ...preset })
+  setDraft({ project: folder, repository: '', remember: false, branch: '', mode: WorktreeBranchMode.New, base: '', folder: null, rememberFolder: false, install: true, database: true, ...preset })
   bridge.send({ type: 'worktrees.sources', request: requestSources(), ...source })
 }
 
@@ -62,18 +63,25 @@ export const changeWorktreeDraft = (patch: Partial<WorktreeDraft>): void => {
     return
   }
   setDraft({ ...draft, ...patch })
-  if (sources && ('branch' in patch || 'mode' in patch || 'base' in patch || 'repository' in patch)) {
+  if (sources && ('branch' in patch || 'mode' in patch || 'base' in patch || 'folder' in patch || 'repository' in patch)) {
     schedulePlan(PLAN_DELAY_MS)
   }
 }
 
 export const browseWorktreeRepository = (): void => bridge.send({ type: 'dialog.pick', field: WORKTREE_REPOSITORY_FIELD, target: PickTarget.Folder })
 
+export const changeWorktreeFolder = (folder: string): void => changeWorktreeDraft({ folder, rememberFolder: true })
+
+export const pickWorktreeFolder = (): void => bridge.send({ type: 'dialog.pick', field: WORKTREE_FOLDER_FIELD, target: PickTarget.Folder })
+
 export const closeWorktreeDialog = (): void => {
   clearTimeout(planTimer)
   useWorktreeStore.getState().setDraft(null)
   focusActivePane()
 }
+
+export const folderChanged = (draft: WorktreeDraft, plan: WorktreePlan | null): boolean =>
+  draft.folder !== null && draft.folder.trim().length > 0 && !sameFolder(draft.folder.trim(), plan?.defaultFolder ?? '')
 
 export const submitWorktree = (): void => {
   const { draft, plan, planPending, busy, setBusy, setCreateFailure } = useWorktreeStore.getState()
@@ -83,7 +91,7 @@ export const submitWorktree = (): void => {
   setCreateFailure(null)
   setBusy(WorktreeOperation.Create)
   useHostStore.getState().setStatus('Création du worktree…')
-  bridge.send({ type: 'worktrees.create', repository: draft.repository, branch: draft.branch, mode: draft.mode, base: draft.base || undefined, install: draft.install, database: draft.database, project: draft.project, remember: draft.remember })
+  bridge.send({ type: 'worktrees.create', repository: draft.repository, branch: draft.branch, mode: draft.mode, base: draft.base || undefined, install: draft.install, database: draft.database, project: draft.project, remember: draft.remember, folder: draft.folder ?? undefined, rememberFolder: draft.rememberFolder && folderChanged(draft, plan) })
 }
 
 export const openWorktreePicker = (kind: WorktreePickerKind): void => {

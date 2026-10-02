@@ -1,11 +1,13 @@
 import { WorktreeOperation, type WorktreePlan } from '../bridge/worktreeMessages'
 import { StatusLevel, useHostStore } from '../store/hostStore'
 import { useWorktreeStore } from '../store/worktreeStore'
-import { applyWorktreeSources, changeWorktreeDraft, openCreatedWorktree } from './worktreeActions'
+import { applyWorktreeSources, changeWorktreeDraft, changeWorktreeFolder, openCreatedWorktree } from './worktreeActions'
 
 export const receiveWorktreeSources = applyWorktreeSources
 
 export const receiveWorktreeRepositoryPicked = (path: string): void => changeWorktreeDraft({ repository: path })
+
+export const receiveWorktreeFolderPicked = (path: string): void => changeWorktreeFolder(path)
 
 export const receiveWorktreePlan = (request: number, plan: WorktreePlan): void => useWorktreeStore.getState().receivePlan(request, plan)
 

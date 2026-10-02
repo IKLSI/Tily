@@ -1,4 +1,5 @@
 using Tily.Core.Projects;
+using Tily.Core.Worktrees;
 using Xunit;
 
 namespace Tily.Core.Tests.Projects;
@@ -54,6 +55,32 @@ public sealed class ProjectCatalogTests : IDisposable
         var list = ProjectCatalog.List(_root, Path.Combine(_root, "arbres"));
 
         Assert.Equal([("projet", false), ("projet-vue", true)], list.Projects.Select(project => (project.Name, project.Worktree)));
+    }
+
+    [Fact]
+    public void List_WhenProjectFolderIsProjectItself_ThenKeepsProjectAndListsOnlyLinkedWorktrees()
+    {
+        var project = Path.Combine(_root, "ASK");
+        Directory.CreateDirectory(Path.Combine(project, "app-starter-kit", ".git"));
+        Directory.CreateDirectory(Path.Combine(project, "app-starter-kit-test"));
+        File.WriteAllText(Path.Combine(project, "app-starter-kit-test", ".git"), "gitdir: ailleurs");
+
+        var list = ProjectCatalog.List(_root, null, [new WorktreeProjectFolderModel(project, project)]);
+
+        Assert.Equal([("ASK", false), ("app-starter-kit-test", true)], list.Projects.Select(entry => (entry.Name, entry.Worktree)));
+    }
+
+    [Fact]
+    public void List_WhenProjectFolderDedicated_ThenHidesItFromProjectsAndListsItsWorktrees()
+    {
+        Directory.CreateDirectory(Path.Combine(_root, "projet"));
+        Directory.CreateDirectory(Path.Combine(_root, "worktrees", "projet-vue"));
+        Directory.CreateDirectory(Path.Combine(_root, "arbres", "projet-api"));
+        File.WriteAllText(Path.Combine(_root, "arbres", "projet-api", ".git"), "gitdir: ailleurs");
+
+        var list = ProjectCatalog.List(_root, null, [new WorktreeProjectFolderModel(Path.Combine(_root, "projet"), Path.Combine(_root, "arbres"))]);
+
+        Assert.Equal([("projet", false), ("projet-vue", true), ("projet-api", true)], list.Projects.Select(entry => (entry.Name, entry.Worktree)));
     }
 
     [Fact]

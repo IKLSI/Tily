@@ -48,6 +48,17 @@ public sealed class WorktreeProjectsRepositoryTests : IDisposable
         Assert.StartsWith("Le dossier du projet et celui du dépôt doivent être des chemins absolus", exception.Message);
     }
 
+    [Fact]
+    public void SaveRepository_WhenFolderSaved_ThenKeepsFolder()
+    {
+        var repository = new WorktreeProjectsRepository(_directory);
+        repository.SaveFolders([new WorktreeProjectFolderModel(@"C:\Projets\App Starter Kit", @"F:\arbres")]);
+
+        repository.SaveRepository(@"C:\Projets\App Starter Kit", @"C:\Projets\App Starter Kit\app");
+
+        Assert.Equal(new WorktreeProjectFolderModel(@"C:\Projets\App Starter Kit", @"F:\arbres"), Assert.Single(repository.Folders()));
+    }
+
     public void Dispose()
     {
         if (Directory.Exists(_directory))

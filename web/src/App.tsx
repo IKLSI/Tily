@@ -17,9 +17,9 @@ import { receiveProjectFiles } from './explorer/projectFileActions'
 import { receivePreview } from './preview/previewActions'
 import { receiveGitAutoFetchEnded, receiveGitAutoFetchStarted, receiveGitChanged, receiveGitDetails, receiveGitDiff, receiveGitDone, receiveGitFailed, receiveGitHistory, receiveGitPushRejected, receiveGitState } from './git/gitReceivers'
 import { insertIntoPane, joinPane } from './terminal/terminalActions'
-import { WORKTREE_REPOSITORY_FIELD } from './worktree/worktreeActions'
+import { WORKTREE_FOLDER_FIELD, WORKTREE_REPOSITORY_FIELD } from './worktree/worktreeActions'
 import { PROJECT_REPOSITORY_FIELD, receiveProjectRepositories, receiveProjectRepositoryPicked, receiveProjectRepositoryRemembered } from './project/projectOpenActions'
-import { receiveWorktreeCreated, receiveWorktreeDone, receiveWorktreeFailed, receiveWorktreePlan, receiveWorktreeProgress, receiveWorktreeRepositoryPicked, receiveWorktreeSources } from './worktree/worktreeReceivers'
+import { receiveWorktreeCreated, receiveWorktreeDone, receiveWorktreeFailed, receiveWorktreePlan, receiveWorktreeProgress, receiveWorktreeFolderPicked, receiveWorktreeRepositoryPicked, receiveWorktreeSources } from './worktree/worktreeReceivers'
 import { terminalRegistry } from './terminal/terminalRegistry'
 import { receiveUpdateRestart, receiveUpdateState } from './update/updateActions'
 import { receiveStatusLogCleared, receiveStatusLogEntry, startStatusLog } from './statusLog/statusLogActions'
@@ -79,6 +79,8 @@ export default function App() {
       bridge.on('dialog.picked', (message) => {
         if (message.field === WORKTREE_REPOSITORY_FIELD) {
           receiveWorktreeRepositoryPicked(message.path)
+        } else if (message.field === WORKTREE_FOLDER_FIELD) {
+          receiveWorktreeFolderPicked(message.path)
         } else if (message.field === PROJECT_REPOSITORY_FIELD) {
           receiveProjectRepositoryPicked(message.path)
         } else {

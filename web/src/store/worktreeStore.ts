@@ -13,6 +13,8 @@ export interface WorktreeDraft {
   branch: string
   mode: WorktreeBranchMode
   base: string
+  folder: string | null
+  rememberFolder: boolean
   install: boolean
   database: boolean
 }
