@@ -35,6 +35,7 @@ public sealed class BridgeCommandModel
     public string? Project { get; init; }
     public string? Branch { get; init; }
     public string? Base { get; init; }
+    public string? Folder { get; init; }
     public string? Command { get; init; }
     public string? Fingerprint { get; init; }
     public string[]? Panes { get; init; }
@@ -65,6 +66,7 @@ public sealed class BridgeCommandModel
     public bool Checkout { get; init; }
     public bool Untracked { get; init; }
     public bool Confirmed { get; init; }
+    public bool RememberFolder { get; init; }
     public bool Install { get; init; }
     public bool Database { get; init; }
     public bool Remember { get; init; }

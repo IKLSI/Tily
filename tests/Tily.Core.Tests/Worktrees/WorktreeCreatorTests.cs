@@ -94,6 +94,43 @@ public sealed class WorktreeCreatorTests : IDisposable
     }
 
     [Fact]
+    public void Plan_WhenFolderChosen_ThenTargetsIt()
+    {
+        var folder = Path.Combine(_sandbox.Root, "ailleurs");
+
+        var plan = Plan(new WorktreeRequestModel(_sandbox.Work, "feat/vue", WorktreeBranchMode.New, null, folder));
+
+        Assert.Equal((folder, Path.Combine(folder, "dépôt avec espaces-vue")), (plan.Folder, plan.Path));
+    }
+
+    [Fact]
+    public void Plan_WhenBranchEmpty_ThenPreviewsFinalFolder()
+    {
+        var plan = Plan(new WorktreeRequestModel(_sandbox.Work, string.Empty, WorktreeBranchMode.New, null));
+
+        Assert.Equal((null, Path.Combine(_settings.Folder, "dépôt avec espaces-<branche>")), (plan.Path, plan.PathPreview));
+    }
+
+    [Fact]
+    public void Plan_WhenFolderRelative_ThenExplainsInFrench()
+    {
+        var plan = Plan(new WorktreeRequestModel(_sandbox.Work, "feat/vue", WorktreeBranchMode.New, null, "relatif"));
+
+        Assert.Equal(("Le dossier des worktrees doit être un chemin absolu : relatif", null), (plan.Error, plan.Path));
+    }
+
+    [Fact]
+    public void Create_WhenFolderChosen_ThenCreatesWorktreeInIt()
+    {
+        var folder = Path.Combine(_sandbox.Root, "ailleurs");
+
+        var creation = Create(new WorktreeRequestModel(_sandbox.Work, "feat/vue", WorktreeBranchMode.New, null, folder));
+
+        Assert.Equal(Path.Combine(folder, "dépôt avec espaces-vue"), creation.Path);
+        Assert.True(Directory.Exists(creation.Path));
+    }
+
+    [Fact]
     public void Plan_WhenConfiguredBaseMissing_ThenFallsBackToRemoteMain()
     {
         var settings = new WorktreeSettingsModel(_settings.Folder, "absente");

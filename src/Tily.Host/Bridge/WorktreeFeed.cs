@@ -12,6 +12,7 @@ public sealed class WorktreeFeed
 
     private readonly Action<object> _post;
     private readonly Func<SettingsModel> _settings;
+    private readonly Action<string, string> _rememberFolder;
     private readonly Action _changed;
     private readonly GitRunner _runner = new();
     private readonly WorktreeDatabase _database = new();
@@ -19,11 +20,12 @@ public sealed class WorktreeFeed
     private readonly BackgroundQueue _plans;
     private readonly BackgroundQueue _operations;
 
-    public WorktreeFeed(Action<object> post, Func<SettingsModel> settings, Action changed, Action<Exception> onError, string dataDirectory)
+    public WorktreeFeed(Action<object> post, Func<SettingsModel> settings, Action<string, string> rememberFolder, Action changed, Action<Exception> onError, string dataDirectory)
     {
         _post = post;
         _projects = new WorktreeProjectsRepository(dataDirectory);
         _settings = settings;
+        _rememberFolder = rememberFolder;
         _changed = changed;
         _plans = new BackgroundQueue(onError);
         _operations = new BackgroundQueue(onError);
@@ -88,7 +90,8 @@ public sealed class WorktreeFeed
     private void Plan(BridgeCommandModel command)
     {
         var settings = _settings();
-        var plan = WorktreeCreator.Plan(_runner, RequestOf(command), settings.Worktrees, settings.ProjectsRoot);
+        var plan = WorktreeCreator.Plan(_runner, RequestOf(command, settings), settings.Worktrees, settings.ProjectsRoot)
+            with { DefaultFolder = settings.WorktreeFolderOf(command.Project) ?? settings.Worktrees.FolderFor(settings.ProjectsRoot) };
         _post(new { type = "worktrees.planned", request = command.Request, plan });
     }
 
@@ -97,7 +100,12 @@ public sealed class WorktreeFeed
         var settings = _settings();
         Run(CreateOperation, () =>
         {
-            var creation = WorktreeCreator.Create(_runner, RequestOf(command), settings.Worktrees, settings.ProjectsRoot, message => Progress(CreateOperation, message));
+            var creation = WorktreeCreator.Create(_runner, RequestOf(command, settings), settings.Worktrees, settings.ProjectsRoot, message => Progress(CreateOperation, message));
+            if (command.RememberFolder && command.Project is { } project)
+            {
+                _rememberFolder(project, Path.GetDirectoryName(creation.Path) ?? creation.Path);
+            }
+
             Progress(CreateOperation, "Randomisation des ports…");
             var ports = Ports(creation.Path);
             var install = WorktreeCreator.InstallCommandFor(creation.Path, command.Install);
@@ -185,8 +193,8 @@ public sealed class WorktreeFeed
 
     private void Progress(string operation, string message) => _post(new { type = "worktrees.progress", operation, message });
 
-    private static WorktreeRequestModel RequestOf(BridgeCommandModel command) =>
-        new(command.Repository ?? string.Empty, command.Branch ?? string.Empty, ModeOf(command.Mode), command.Base);
+    private static WorktreeRequestModel RequestOf(BridgeCommandModel command, SettingsModel settings) =>
+        new(command.Repository ?? string.Empty, command.Branch ?? string.Empty, ModeOf(command.Mode), command.Base, string.IsNullOrWhiteSpace(command.Folder) ? settings.WorktreeFolderOf(command.Project) : command.Folder);
 
     private static WorktreeBranchMode ModeOf(string? mode) => mode switch
     {

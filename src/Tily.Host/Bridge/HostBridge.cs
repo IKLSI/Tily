@@ -9,6 +9,7 @@ using Tily.Core.Settings;
 using Tily.Core.Shell;
 using Tily.Core.StatusLog;
 using Tily.Core.Terminal;
+using Tily.Core.Worktrees;
 using Microsoft.UI.Dispatching;
 using Microsoft.Web.WebView2.Core;
 
@@ -75,7 +76,7 @@ public sealed class HostBridge : IDisposable
         _files = new FileExplorerFeed(windowHandle, () => _settings.Editor, Post, PostBackgroundError);
         _preview = new FilePreviewFeed(() => _settings.Editor, Post, PostBackgroundError);
         _git = new GitFeed(Post, () => _settings.Git.AutoFetch, PostBackgroundError);
-        _worktrees = new WorktreeFeed(Post, () => _settings, _git.RefreshSoon, PostBackgroundError, dataDirectory);
+        _worktrees = new WorktreeFeed(Post, () => _settings, RememberWorktreeFolder, _git.RefreshSoon, PostBackgroundError, dataDirectory);
         _updates = new UpdateFeed(Post, ApplicationVersion, dataDirectory);
         ApplySettings(_settings);
         _terminals.OutputReceived += HandleOutput;
@@ -285,7 +286,7 @@ public sealed class HostBridge : IDisposable
                 Post(new { type = "terminal.activityResult", panes = _terminals.Activity(command.Panes ?? []) });
                 break;
             case "projects.list":
-                ListProjects(_settings.ProjectsRoot, _settings.Worktrees.FolderFor(_settings.ProjectsRoot));
+                ListProjects(_settings.ProjectsRoot, _settings.Worktrees.FolderFor(_settings.ProjectsRoot), _settings.WorktreeFolders);
                 break;
             case "context.query":
                 QueryContext(RequirePane(command), RequirePath(command));
@@ -464,11 +465,24 @@ public sealed class HostBridge : IDisposable
         });
     }
 
-    private void ListProjects(string root, string worktreeFolder) =>
+    private void ListProjects(string root, string worktreeFolder, IReadOnlyList<WorktreeProjectFolderModel> projectFolders) =>
         _queries.Enqueue(() =>
         {
-            var projects = ProjectCatalog.List(root, worktreeFolder);
+            var projects = ProjectCatalog.List(root, worktreeFolder, projectFolders);
             Post(new { type = "projects.listed", root = projects.Root, projects = projects.Projects, error = projects.Error });
+        });
+
+    private void RememberWorktreeFolder(string project, string folder) =>
+        _dispatcher.TryEnqueue(() =>
+        {
+            try
+            {
+                _settingsService.RememberWorktreeFolder(_settings, project, folder);
+            }
+            catch (Exception exception)
+            {
+                PostNow(new { type = "error", message = UserErrorMessage.Of(exception) });
+            }
         });
 
     private void QueryContext(string paneId, string path) =>
