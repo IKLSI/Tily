@@ -45,7 +45,7 @@ export const commandNoticeTip = (notice: CommandNotice): string => {
   return label ? `« ${label} » ${outcome} après ${duration}` : `Commande ${outcome} après ${duration}`
 }
 
-const parseCommandDone = (data: string): CommandNotice | null => {
+export const parseCommandDone = (data: string): CommandNotice | null => {
   const [kind, duration, success, command] = data.split(';')
   const durationMs = Number(duration)
   return kind === DONE_KIND && duration !== '' && Number.isFinite(durationMs) ? { durationMs, success: success === SUCCESS_FLAG, command: decodeCommandText(command) } : null

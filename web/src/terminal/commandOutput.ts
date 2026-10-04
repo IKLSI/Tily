@@ -1,5 +1,5 @@
 import type { IBuffer, IMarker, Terminal } from '@xterm/xterm'
-import { COMMAND_DONE_OSC, decodeCommandText } from './commandNotices'
+import { COMMAND_DONE_OSC, decodeCommandText, parseCommandDone } from './commandNotices'
 
 const CWD_OSC = 7
 const ENTER = '\r'
@@ -10,6 +10,7 @@ const SEPARATOR = ';'
 const NEXT_ROW = 1
 const SAME_ROW = 0
 const MAX_COMMAND_MARKS = 500
+const MAX_FINISHED_COMMANDS = 100
 const CONTEXT_ROWS = 2
 const COMMAND_TAIL_CHARS = 24
 const MIN_SEARCH_TAIL_CHARS = 6
@@ -26,6 +27,8 @@ interface OutputStart {
   marker: IMarker
   offset: number
   command: string
+  cwd: string
+  startedAt: number
 }
 
 interface OutputRange {
@@ -34,16 +37,42 @@ interface OutputRange {
   promptRows: number
 }
 
+export interface FinishedCommand {
+  id: number
+  command: string
+  cwd: string
+  success: boolean
+  durationMs: number
+  finishedAt: number
+}
+
+export interface RunningCommand {
+  command: string
+  cwd: string
+  startedAt: number
+}
+
+interface FinishedRecord {
+  command: FinishedCommand
+  range: OutputRange
+}
+
+type CommandListener = (command: FinishedCommand) => void
+
 interface CommandTrack {
   announcesExecution: boolean
+  integrated: boolean
   prompted: boolean
   running: boolean
   typedStart: IMarker | null
   outputStart: OutputStart | null
   candidate: OutputRange | null
   settling: OutputRange | null
-  last: OutputRange | null
+  finished: FinishedRecord[]
+  nextId: number
   commands: OutputStart[]
+  cwdOf: () => string
+  listeners: Set<CommandListener>
 }
 
 export enum OutputFailure {
@@ -63,7 +92,24 @@ const startOutput = (track: CommandTrack, marker: IMarker | undefined, offset: n
   release(track.candidate)
   track.candidate = null
   track.outputStart?.marker.dispose()
-  track.outputStart = marker ? { marker, offset, command } : null
+  track.outputStart = marker ? { marker, offset, command, cwd: track.cwdOf(), startedAt: Date.now() } : null
+}
+
+const finish = (track: CommandTrack, range: OutputRange, data: string): void => {
+  const done = parseCommandDone(data)
+  const command: FinishedCommand = {
+    id: track.nextId++,
+    command: done?.command || range.start.command,
+    cwd: range.start.cwd,
+    success: done?.success ?? false,
+    durationMs: done?.durationMs ?? Date.now() - range.start.startedAt,
+    finishedAt: Date.now(),
+  }
+  track.finished.push({ command, range })
+  if (track.finished.length > MAX_FINISHED_COMMANDS) {
+    release(track.finished.shift()?.range ?? null)
+  }
+  track.listeners.forEach((listener) => listener(command))
 }
 
 const withoutSpaces = (text: string): string => text.replace(/\s+/g, '')
@@ -124,8 +170,22 @@ export const scrollToCommand = (terminal: Terminal, direction: CommandDirection)
   return true
 }
 
-export const trackCommandOutput = (terminal: Terminal): void => {
-  const track: CommandTrack = { announcesExecution: false, prompted: false, running: false, typedStart: null, outputStart: null, candidate: null, settling: null, last: null, commands: [] }
+export const trackCommandOutput = (terminal: Terminal, cwdOf: () => string): void => {
+  const track: CommandTrack = {
+    announcesExecution: false,
+    integrated: false,
+    prompted: false,
+    running: false,
+    typedStart: null,
+    outputStart: null,
+    candidate: null,
+    settling: null,
+    finished: [],
+    nextId: 1,
+    commands: [],
+    cwdOf,
+    listeners: new Set(),
+  }
   tracks.set(terminal, track)
   terminal.onData((data) => {
     track.settling = null
@@ -157,6 +217,7 @@ export const trackCommandOutput = (terminal: Terminal): void => {
   terminal.parser.registerOscHandler(COMMAND_DONE_OSC, (data) => {
     const [kind, value] = data.split(SEPARATOR)
     const rows = Number(value)
+    track.integrated = true
     if (kind === EXEC_KIND) {
       track.announcesExecution = true
       track.running = true
@@ -176,28 +237,67 @@ export const trackCommandOutput = (terminal: Terminal): void => {
     }
     if (kind === DONE_KIND && track.candidate) {
       rememberCommand(track, terminal, track.candidate.start)
-      release(track.last)
-      track.last = track.candidate
+      finish(track, track.candidate, data)
       track.candidate = null
     }
     return false
   })
 }
 
+export interface CommandTracking {
+  integrated: boolean
+  running: RunningCommand | null
+  finished: FinishedCommand[]
+}
+
+export const commandTracking = (terminal: Terminal): CommandTracking => {
+  const track = tracks.get(terminal)
+  const start = track?.outputStart
+  return {
+    integrated: track?.integrated ?? false,
+    running: track?.integrated && start ? { command: start.command, cwd: start.cwd, startedAt: start.startedAt } : null,
+    finished: track?.finished.map((record) => record.command) ?? [],
+  }
+}
+
+export const nextOutputRow = (terminal: Terminal): number | null => {
+  const track = tracks.get(terminal)
+  if (!track?.integrated) {
+    return null
+  }
+  const buffer = terminal.buffer.normal
+  if (track.outputStart && isLive(track.outputStart.marker)) {
+    return firstOutputRow(buffer, track.outputStart)
+  }
+  return track.typedStart && isLive(track.typedStart) ? track.typedStart.line + NEXT_ROW : buffer.baseY + buffer.cursorY + NEXT_ROW
+}
+
+export const onCommandFinished = (terminal: Terminal, listener: CommandListener): (() => void) => {
+  const listeners = tracks.get(terminal)?.listeners
+  listeners?.add(listener)
+  return () => listeners?.delete(listener)
+}
+
 export type CommandOutput = { text: string } | { failure: OutputFailure }
 
 export const lastCommandOutput = (terminal: Terminal): CommandOutput => {
-  const last = tracks.get(terminal)?.last
-  if (!last) {
-    return { failure: OutputFailure.NoCommand }
-  }
-  const start = last.start.marker
-  if (!last.end || start.isDisposed || last.end.isDisposed || start.line < 0 || last.end.line < 0) {
+  const last = tracks.get(terminal)?.finished.at(-1)
+  return last ? outputOf(terminal, last.range) : { failure: OutputFailure.NoCommand }
+}
+
+export const finishedCommandOutput = (terminal: Terminal, commandId: number): CommandOutput => {
+  const record = tracks.get(terminal)?.finished.find((finished) => finished.command.id === commandId)
+  return record ? outputOf(terminal, record.range) : { failure: OutputFailure.NoCommand }
+}
+
+const outputOf = (terminal: Terminal, range: OutputRange): CommandOutput => {
+  const start = range.start.marker
+  if (!range.end || start.isDisposed || range.end.isDisposed || start.line < 0 || range.end.line < 0) {
     return { failure: OutputFailure.Trimmed }
   }
   const buffer = terminal.buffer.normal
-  const firstRow = firstOutputRow(buffer, last.start)
-  const promptStart = Math.max(firstRow, last.end.line - (last.promptRows - 1))
+  const firstRow = firstOutputRow(buffer, range.start)
+  const promptStart = Math.max(firstRow, range.end.line - (range.promptRows - 1))
   const lines: string[] = []
   for (let row = firstRow; row < promptStart; row++) {
     const line = buffer.getLine(row)

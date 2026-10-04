@@ -1,5 +1,8 @@
 export enum McpTool {
   Layout = 'layout',
+  ReadPane = 'readPane',
+  Commands = 'commands',
+  WaitFor = 'waitFor',
 }
 
 export interface McpServerInfo {

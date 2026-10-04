@@ -115,7 +115,7 @@ public sealed class McpFeed : IDisposable
         try
         {
             _post(new { type = "mcp.request", id, tool = request.Tool, pane = request.Pane, arguments = request.Arguments });
-            response = await answer.Task.WaitAsync(AnswerTimeout, token);
+            response = await answer.Task.WaitAsync(request.Tool == McpWaitFor.Tool ? McpWaitFor.AnswerTimeout(request.Arguments) : AnswerTimeout, token);
         }
         catch (TimeoutException)
         {

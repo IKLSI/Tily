@@ -2,24 +2,26 @@ import { bridge } from '../bridge/bridge'
 import { McpTool } from '../bridge/mcpMessages'
 import type { HostMessageOf } from '../bridge/messages'
 import { useAgentStore } from '../store/agentStore'
-import { useSessionStore } from '../store/sessionStore'
 import { terminalRegistry } from '../terminal/terminalRegistry'
+import { argumentsOf } from './mcpArguments'
+import { listCommands } from './mcpCommands'
 import { layoutOf } from './mcpLayout'
+import { requireSession } from './mcpPanes'
+import { readPane } from './mcpReadPane'
+import { waitFor } from './mcpWaitFor'
 
 type McpRequest = HostMessageOf<'mcp.request'>
-
-const requireSession = () => {
-  const { session } = useSessionStore.getState()
-  if (!session) {
-    throw new Error('La session de Tily n’est pas encore chargée.')
-  }
-  return session
-}
 
 const answer = async (request: McpRequest): Promise<unknown> => {
   switch (request.tool) {
     case McpTool.Layout:
       return layoutOf(requireSession(), useAgentStore.getState().agents, request.pane, (paneId) => terminalRegistry.get(paneId)?.started ?? false)
+    case McpTool.ReadPane:
+      return readPane(argumentsOf(request.arguments))
+    case McpTool.Commands:
+      return listCommands(argumentsOf(request.arguments))
+    case McpTool.WaitFor:
+      return waitFor(argumentsOf(request.arguments))
     default:
       throw new Error(`Outil Tily inconnu : ${request.tool}. Mettez Tily à jour.`)
   }

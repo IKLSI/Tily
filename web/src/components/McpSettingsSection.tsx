@@ -28,7 +28,7 @@ export function McpSettingsSection({ sectionClassName, mcp }: McpSettingsSection
   return (
     <section className="flex flex-col gap-2">
       <h3 className={sectionClassName}>Serveur MCP</h3>
-      <p className={SETTINGS_HINT}>Le serveur MCP « tily » permet à Claude Code, lancé dans un pane, de lire la disposition des workspaces, onglets et panes de cette instance de Tily. Il communique par un canal local réservé à votre compte Windows, jamais par le réseau.</p>
+      <p className={SETTINGS_HINT}>Le serveur MCP « tily » permet à Claude Code, lancé dans un pane, de lire la disposition des workspaces, onglets et panes de cette instance de Tily, le texte de ses terminaux et leurs commandes en échec, et d’attendre qu’un serveur soit prêt. Il communique par un canal local réservé à votre compte Windows, jamais par le réseau.</p>
       <p className={`${SETTINGS_HINT} font-mono`}>{mcp.executable}</p>
       <p className={SETTINGS_HINT}>{`Le serveur n’est déclaré ou retiré de ${mcp.configFile} (niveau utilisateur de Claude Code) que sur votre clic ; les autres serveurs MCP et réglages de ce fichier sont conservés. Effet aux prochaines sessions claude.`}</p>
       {!mcp.available && <p className="text-[11px] text-tily-warning">{`tily-mcp.exe est introuvable à côté de Tily : ${mcp.executable}`}</p>}

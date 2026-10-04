@@ -6,7 +6,7 @@ namespace Tily.Mcp;
 
 internal static class TilyConnection
 {
-    public static async Task<CallToolResult> CallAsync(string tool, JsonElement? arguments, CancellationToken token)
+    public static async Task<CallToolResult> CallAsync(string tool, object? arguments, CancellationToken token)
     {
         var pane = Environment.GetEnvironmentVariable(McpEndpoint.PaneVariable);
         if (string.IsNullOrWhiteSpace(pane))
@@ -15,7 +15,8 @@ internal static class TilyConnection
         }
 
         var pipe = McpEndpoint.PipeName(McpEndpoint.DataDirectoryFromEnvironment());
-        var response = await McpPipeClient.SendAsync(pipe, new McpPipeRequestModel(tool, pane, arguments), McpPipeClient.ConnectTimeout, token);
+        var element = arguments is null ? (JsonElement?)null : JsonSerializer.SerializeToElement(arguments, McpPipe.JsonOptions);
+        var response = await McpPipeClient.SendAsync(pipe, new McpPipeRequestModel(tool, pane, element), McpPipeClient.ConnectTimeout, token);
         if (response.Error is { } error)
         {
             return Failure(error);
