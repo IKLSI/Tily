@@ -8,8 +8,8 @@ internal static class TilyConnection
 {
     public static async Task<CallToolResult> CallAsync(string tool, object? arguments, CancellationToken token)
     {
-        var pane = Environment.GetEnvironmentVariable(McpEndpoint.PaneVariable);
-        if (string.IsNullOrWhiteSpace(pane))
+        var pane = McpEndpoint.PaneFromEnvironment();
+        if (pane is null)
         {
             return Failure(McpPipe.NotInTily);
         }

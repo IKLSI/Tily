@@ -33,6 +33,25 @@ public sealed class McpEndpointTests
         Assert.Matches("^tily-mcp-[0-9a-f]{24}$", name);
     }
 
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void Pane_WhenVariableMissingOrBlank_ThenOutsideTily(string? value)
+    {
+        var pane = McpEndpoint.Pane(value);
+
+        Assert.Null(pane);
+    }
+
+    [Fact]
+    public void Pane_WhenVariableSet_ThenTrimmedPaneId()
+    {
+        var pane = McpEndpoint.Pane(" 95724b0bb3834147a87a2b03e9aefbd0 ");
+
+        Assert.Equal("95724b0bb3834147a87a2b03e9aefbd0", pane);
+    }
+
     [Fact]
     public void DataDirectory_WhenNotOverridden_ThenTilyUnderLocalAppData()
     {

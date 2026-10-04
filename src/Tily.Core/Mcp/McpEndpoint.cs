@@ -15,6 +15,10 @@ public static class McpEndpoint
             ? Path.Combine(localApplicationData, "Tily")
             : Path.GetFullPath(overridden);
 
+    public static string? Pane(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+
+    public static string? PaneFromEnvironment() => Pane(Environment.GetEnvironmentVariable(PaneVariable));
+
     public static string DataDirectoryFromEnvironment() =>
         DataDirectory(Environment.GetEnvironmentVariable(DataDirectoryVariable), Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData));
 
