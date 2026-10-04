@@ -1,6 +1,7 @@
 import type { McpServerInfo } from '../bridge/mcpMessages'
 import { installMcpServer, removeMcpServer } from '../mcp/mcpRequests'
-import { SETTINGS_BUTTON, SETTINGS_HINT, SETTINGS_SECONDARY } from './settingsStyles'
+import { InfoTip } from './InfoTip'
+import { SETTINGS_BUTTON, SETTINGS_ROW, SETTINGS_SECONDARY } from './settingsStyles'
 
 interface McpSettingsSectionProps {
   sectionClassName: string
@@ -27,21 +28,21 @@ export function McpSettingsSection({ sectionClassName, mcp }: McpSettingsSection
 
   return (
     <section className="flex flex-col gap-2">
-      <h3 className={sectionClassName}>Serveur MCP</h3>
-      <p className={SETTINGS_HINT}>Le serveur MCP « tily » permet à Claude Code, lancé dans un pane, de lire la disposition des workspaces, onglets et panes de cette instance de Tily, le texte de ses terminaux et leurs commandes en échec, et d’attendre qu’un serveur soit prêt. Il communique par un canal local réservé à votre compte Windows, jamais par le réseau.</p>
-      <p className={`${SETTINGS_HINT} font-mono`}>{mcp.executable}</p>
-      <p className={SETTINGS_HINT}>{`Le serveur n’est déclaré ou retiré de ${mcp.configFile} (niveau utilisateur de Claude Code) que sur votre clic ; les autres serveurs MCP et réglages de ce fichier sont conservés. Effet aux prochaines sessions claude.`}</p>
+      <div className={SETTINGS_ROW}>
+        <h3 className={sectionClassName}>Serveur MCP</h3>
+        <InfoTip text={`Permet à Claude Code, lancé dans un pane, de lire cette instance de Tily (disposition, texte des terminaux, commandes) et de la piloter : onglets, splits, commandes, worktrees. Agir sur un terminal qu’il n’a pas créé demande votre accord. Canal local réservé à votre compte Windows, jamais le réseau. Exécutable : ${mcp.executable}`} />
+      </div>
       {!mcp.available && <p className="text-[11px] text-tily-warning">{`tily-mcp.exe est introuvable à côté de Tily : ${mcp.executable}`}</p>}
       {otherCopy && <p className="text-[11px] text-tily-warning">{`Déclaré pour une autre copie de Tily : ${mcp.command ?? ''}. « Activer pour cette copie » la remplace.`}</p>}
       <span className="flex items-center gap-3">
         <span className={`text-[11px] ${tone}`}>{text}</span>
         {mcp.installed && (
-          <button type="button" className={SETTINGS_SECONDARY} data-tip="Retire le serveur « tily » de la configuration de Claude Code et ferme le canal local" onClick={removeMcpServer}>
+          <button type="button" className={SETTINGS_SECONDARY} data-tip={`Retire le serveur « tily » de ${mcp.configFile} et ferme le canal local`} onClick={removeMcpServer}>
             Désactiver
           </button>
         )}
         {(!mcp.installed || otherCopy) && mcp.available && (
-          <button type="button" className={PRIMARY} data-tip="Déclare le serveur « tily » dans la configuration utilisateur de Claude Code (fusion, effet aux prochaines sessions claude)" onClick={installMcpServer}>
+          <button type="button" className={PRIMARY} data-tip={`Déclare le serveur « tily » dans ${mcp.configFile} (niveau utilisateur de Claude Code) en gardant ses autres serveurs et réglages ; effet aux prochaines sessions claude`} onClick={installMcpServer}>
             {otherCopy ? 'Activer pour cette copie' : 'Activer'}
           </button>
         )}

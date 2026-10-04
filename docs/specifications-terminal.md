@@ -541,6 +541,8 @@ L’export de préférences ne doit pas embarquer implicitement la sortie des te
 
 **Convention proposée.** L’en-tête de l’écran Paramètres affiche la version de Tily (« Tily 1.0.0 »), pour la comparer aux versions publiées ou la citer dans un signalement.
 
+**Convention proposée.** L’écran Paramètres reste court : chaque réglage n’affiche que son libellé, et le détail (valeur par défaut, bornes, effet, fichiers touchés) est dans l’infobulle d’une icône ⓘ placée à côté du libellé ou du titre de la section, affichée au survol, au focus clavier ou au clic. Les états (disponible, installé, activé), les avertissements et les erreurs restent affichés en clair ; un champ numérique hors bornes affiche ses bornes. Les chemins des fichiers de réglages ne sont pas listés : « Afficher les fichiers » ouvre leur dossier.
+
 **Convention proposée.** Le pied de l’écran Paramètres propose, à côté d’Importer et Exporter, « Afficher les fichiers » : l’Explorateur Windows s’ouvre sur le dossier des fichiers de réglages (et de la session), pour les sauvegarder ou les modifier à la main.
 
 **Convention proposée.** L’écran Paramètres signale un éditeur introuvable : chemin absolu absent, ou nom de commande (`code`, `cursor`…) qui n’est ni dans le PATH, avec les extensions de PATHEXT, ni parmi les applications enregistrées de Windows (App Paths) ; c’est un avertissement, l’enregistrement reste possible.

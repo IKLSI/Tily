@@ -16,6 +16,7 @@ export enum IconName {
   File = 'file',
   Folder = 'folder',
   Graph = 'graph',
+  Info = 'info',
   Local = 'local',
   Minus = 'minus',
   More = 'more',

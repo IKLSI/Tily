@@ -77,6 +77,12 @@ const SHAPES: Record<IconName, ReactNode> = {
       <path d="M3 3.6v4.8M3 4.2c0 1.5 4.9.3 4.9 1.8M3 7.8c0-1.5 4.9-.3 4.9-1.8" />
     </>
   ),
+  [IconName.Info]: (
+    <>
+      <circle cx="6" cy="6" r="4.7" />
+      <path d="M6 5.5v2.9M6 3.7v.1" />
+    </>
+  ),
   [IconName.Local]: (
     <>
       <rect x="2.3" y="2.5" width="7.4" height="5" rx=".7" />
