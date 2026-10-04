@@ -11,6 +11,9 @@ export enum McpTool {
   Run = 'run',
   Interrupt = 'interrupt',
   Close = 'close',
+  Worktrees = 'worktrees',
+  CreateWorktree = 'createWorktree',
+  RemoveWorktree = 'removeWorktree',
 }
 
 export interface McpServerInfo {

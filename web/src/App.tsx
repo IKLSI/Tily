@@ -2,6 +2,8 @@ import { useEffect } from 'react'
 import { clearSeenCommandNotices } from './terminal/commandNotices'
 import { startAttentionNotifier } from './agents/attentionNotifier'
 import { bridge } from './bridge/bridge'
+import { dispatchReply } from './bridge/requestListeners'
+import { WorktreeOperation } from './bridge/worktreeMessages'
 import { AppShell } from './components/AppShell'
 import { receiveMcpRequest } from './mcp/mcpRequests'
 import { allPanes, restoredSessionLabel } from './model/session'
@@ -142,12 +144,20 @@ export default function App() {
       bridge.on('git.pushRejected', (message) => receiveGitPushRejected(message.operation, message.branch, message.message, message.output)),
       bridge.on('git.autoFetchStarted', (message) => receiveGitAutoFetchStarted(message.path)),
       bridge.on('git.autoFetchEnded', receiveGitAutoFetchEnded),
-      bridge.on('worktrees.sourcesFound', (message) => receiveWorktreeSources(message.request, message.sources)),
-      bridge.on('worktrees.planned', (message) => receiveWorktreePlan(message.request, message.plan)),
+      bridge.on('worktrees.sourcesFound', (message) => dispatchReply(message.type, message.request, message) || receiveWorktreeSources(message.request, message.sources)),
+      bridge.on('worktrees.planned', (message) => dispatchReply(message.type, message.request, message) || receiveWorktreePlan(message.request, message.plan)),
+      bridge.on('worktrees.listed', (message) => dispatchReply(message.type, message.request, message)),
       bridge.on('worktrees.progress', (message) => receiveWorktreeProgress(message.operation, message.message)),
-      bridge.on('worktrees.created', (message) => receiveWorktreeCreated(message.path, message.name, message.install)),
-      bridge.on('worktrees.done', (message) => receiveWorktreeDone(message.operation, message.message, message.warnings)),
-      bridge.on('worktrees.failed', (message) => receiveWorktreeFailed(message.operation, message.message, message.output, message.lockedBy)),
+      bridge.on('worktrees.created', (message) => dispatchReply(message.type, message.request, message) || receiveWorktreeCreated(message.path, message.name, message.install)),
+      bridge.on('worktrees.done', (message) => {
+        dispatchReply(message.type, message.request, message)
+        receiveWorktreeDone(message.operation, message.message, message.warnings)
+      }),
+      bridge.on('worktrees.failed', (message) => {
+        if (!dispatchReply(message.type, message.request, message) || message.operation === WorktreeOperation.Remove) {
+          receiveWorktreeFailed(message.operation, message.message, message.output, message.lockedBy)
+        }
+      }),
       bridge.on('update.state', (message) => receiveUpdateState(message)),
       bridge.on('update.restart', receiveUpdateRestart),
       bridge.on('statusLog.added', (message) => receiveStatusLogEntry(message.entry)),

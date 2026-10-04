@@ -12,6 +12,7 @@ import { requireSession } from './mcpPanes'
 import { readPane } from './mcpReadPane'
 import { interruptPane, runCommand } from './mcpRun'
 import { waitFor } from './mcpWaitFor'
+import { createWorktree, listWorktrees, removeWorktree } from './mcpWorktrees'
 
 type McpRequest = HostMessageOf<'mcp.request'>
 
@@ -41,6 +42,12 @@ const answer = async (request: McpRequest): Promise<unknown> => {
       return interruptPane(argumentsOf(request.arguments), request.pane)
     case McpTool.Close:
       return closeElement(argumentsOf(request.arguments), request.pane)
+    case McpTool.Worktrees:
+      return listWorktrees(argumentsOf(request.arguments), request.pane)
+    case McpTool.CreateWorktree:
+      return createWorktree(argumentsOf(request.arguments), request.pane)
+    case McpTool.RemoveWorktree:
+      return removeWorktree(argumentsOf(request.arguments), request.pane)
     default:
       throw new Error(`Outil Tily inconnu : ${request.tool}. Mettez Tily à jour.`)
   }

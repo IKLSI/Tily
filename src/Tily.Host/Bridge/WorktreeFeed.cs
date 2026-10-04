@@ -47,6 +47,9 @@ public sealed class WorktreeFeed
             case "worktrees.plan":
                 _plans.Enqueue(() => Plan(command));
                 break;
+            case "worktrees.list":
+                _plans.Enqueue(() => List(command));
+                break;
             case "worktrees.create":
                 _operations.Enqueue(() => Create(command));
                 break;
@@ -95,21 +98,42 @@ public sealed class WorktreeFeed
         _post(new { type = "worktrees.planned", request = command.Request, plan });
     }
 
+    private void List(BridgeCommandModel command)
+    {
+        var path = command.Path ?? throw new InvalidOperationException("Dossier manquant.");
+        try
+        {
+            var location = GitRepository.Locate(_runner, path);
+            if (location is null)
+            {
+                _post(new { type = "worktrees.listed", request = command.Request, error = $"Aucun dépôt Git dans {path}." });
+                return;
+            }
+
+            _post(new { type = "worktrees.listed", request = command.Request, root = location.Root, worktrees = WorktreeLister.List(new GitRepository(_runner, location)) });
+        }
+        catch (Exception exception) when (exception is GitCommandException or IOException or UnauthorizedAccessException)
+        {
+            _post(new { type = "worktrees.listed", request = command.Request, error = UserErrorMessage.Of(exception) });
+        }
+    }
+
     private void Create(BridgeCommandModel command)
     {
         var settings = _settings();
-        Run(CreateOperation, () =>
+        var request = command.Request;
+        Run(CreateOperation, request, () =>
         {
-            var creation = WorktreeCreator.Create(_runner, RequestOf(command, settings), settings.Worktrees, settings.ProjectsRoot, message => Progress(CreateOperation, message));
+            var creation = WorktreeCreator.Create(_runner, RequestOf(command, settings), settings.Worktrees, settings.ProjectsRoot, message => Progress(CreateOperation, request, message));
             if (command.RememberFolder && command.Project is { } project)
             {
                 _rememberFolder(project, Path.GetDirectoryName(creation.Path) ?? creation.Path);
             }
 
-            Progress(CreateOperation, "Randomisation des ports…");
+            Progress(CreateOperation, request, "Randomisation des ports…");
             var ports = Ports(creation.Path);
             var install = WorktreeCreator.InstallCommandFor(creation.Path, command.Install);
-            _post(new { type = "worktrees.created", path = creation.Path, name = creation.Name, branch = creation.Branch, install });
+            _post(new { type = "worktrees.created", request, path = creation.Path, name = creation.Name, branch = creation.Branch, install });
             _changed();
             List<WorktreeStepModel> steps = [.. creation.Steps, ports];
             if (command.Remember)
@@ -119,7 +143,7 @@ public sealed class WorktreeFeed
 
             if (command.Database)
             {
-                Progress(CreateOperation, "Réplication de la base…");
+                Progress(CreateOperation, request, "Réplication de la base…");
                 steps.Add(_database.Replicate(creation.Path, creation.Branch, creation.Project));
             }
 
@@ -129,26 +153,27 @@ public sealed class WorktreeFeed
     }
 
     private void Remove(BridgeCommandModel command) =>
-        Run(RemoveOperation, () =>
+        Run(RemoveOperation, command.Request, () =>
         {
-            var removal = new WorktreeRemover(_runner, _database).Remove(command.Path ?? string.Empty, command.KeepBranch, command.DropDatabase, command.Confirmed, message => Progress(RemoveOperation, message));
+            var removal = new WorktreeRemover(_runner, _database).Remove(command.Path ?? string.Empty, command.KeepBranch, command.DropDatabase, command.Confirmed, message => Progress(RemoveOperation, command.Request, message));
             _changed();
             return ($"Worktree « {Path.GetFileName(removal.Path)} » supprimé.", removal.Steps);
         });
 
-    private void Run(string operation, Func<(string Message, IReadOnlyList<WorktreeStepModel> Steps)> action)
+    private void Run(string operation, int request, Func<(string Message, IReadOnlyList<WorktreeStepModel> Steps)> action)
     {
         try
         {
             var (message, steps) = action();
             var warnings = steps.Where(step => step.Status != WorktreeStepStatus.Ok).Select(step => step.Message).ToList();
-            _post(new { type = "worktrees.done", operation, message, warnings });
+            _post(new { type = "worktrees.done", request, operation, message, warnings });
         }
         catch (WorktreeException failure)
         {
             _post(new
             {
                 type = "worktrees.failed",
+                request,
                 operation,
                 step = failure.Step,
                 message = failure.Message,
@@ -158,7 +183,7 @@ public sealed class WorktreeFeed
         }
         catch (Exception exception) when (exception is GitCommandException or IOException or UnauthorizedAccessException)
         {
-            _post(new { type = "worktrees.failed", operation, step = WorktreeSteps.Verification, message = UserErrorMessage.Of(exception), output = (exception as GitCommandException)?.Output is { Length: > 0 } output ? output : null });
+            _post(new { type = "worktrees.failed", request, operation, step = WorktreeSteps.Verification, message = UserErrorMessage.Of(exception), output = (exception as GitCommandException)?.Output is { Length: > 0 } output ? output : null });
         }
     }
 
@@ -191,7 +216,7 @@ public sealed class WorktreeFeed
         }
     }
 
-    private void Progress(string operation, string message) => _post(new { type = "worktrees.progress", operation, message });
+    private void Progress(string operation, int request, string message) => _post(new { type = "worktrees.progress", request, operation, message });
 
     private static WorktreeRequestModel RequestOf(BridgeCommandModel command, SettingsModel settings) =>
         new(command.Repository ?? string.Empty, command.Branch ?? string.Empty, ModeOf(command.Mode), command.Base, string.IsNullOrWhiteSpace(command.Folder) ? settings.WorktreeFolderOf(command.Project) : command.Folder);

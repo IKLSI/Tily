@@ -53,7 +53,8 @@ internal static class TilyTools
         McpServerTool.Create((Func<string, int, bool, int?, CancellationToken, Task<CallToolResult>>)ReadPaneAsync, ReadOnly("tily_read_pane", "Lire un pane", ReadPaneDescription)),
         McpServerTool.Create((Func<string?, bool, int, CancellationToken, Task<CallToolResult>>)CommandsAsync, ReadOnly("tily_commands", "Commandes terminées", CommandsDescription)),
         McpServerTool.Create((Func<string, string?, bool, int, CancellationToken, Task<CallToolResult>>)WaitForAsync, ReadOnly("tily_wait_for", "Attendre dans un pane", WaitForDescription)),
-        .. TilyActions.Tools()
+        .. TilyActions.Tools(),
+        .. TilyWorktreeTools.Tools()
     ];
 
     private static McpServerToolCreateOptions ReadOnly(string name, string title, string description) => new()

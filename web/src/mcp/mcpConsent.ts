@@ -22,7 +22,7 @@ export interface ConsentDemand {
 const answers = new Map<number, (answer: ConsentAnswer) => void>()
 let nextId = 1
 
-const agentLabel = (caller: string | undefined): string => {
+export const agentLabel = (caller: string | undefined): string => {
   const place = placeOf(requireSession(), caller)
   return place ? `Claude Code dans « ${locationOf(place)} »` : 'Claude Code'
 }

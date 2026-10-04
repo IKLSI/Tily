@@ -1,4 +1,5 @@
 import { bridge } from '../bridge/bridge'
+import { CANCELLED_REPLY, dispatchReply } from '../bridge/requestListeners'
 import { PickTarget } from '../bridge/messages'
 import { WorktreeBranchMode, WorktreeOperation, type WorktreePlan, type WorktreeSources } from '../bridge/worktreeMessages'
 import { focusActivePane } from '../explorer/fileExplorerActions'
@@ -138,13 +139,19 @@ export const openCreatedWorktree = (path: string, name: string, install: string 
   }
 }
 
-export const requestWorktreeRemoval = (path: string, branch?: string): void => {
+type RemovalPreset = Partial<Pick<WorktreeRemoval, 'keepBranch' | 'dropDatabase' | 'request' | 'requestedBy'>>
+
+export const requestWorktreeRemoval = (path: string, branch?: string, preset: RemovalPreset = {}): void => {
   const { session } = useSessionStore.getState()
   if (!session) {
     return
   }
   const panes = removalPanes(session, path, useAgentStore.getState().agents)
-  useWorktreeStore.getState().setRemoval({ ...worktreeTarget(path), branch, panes, closePanes: true, keepBranch: false, dropDatabase: true, failure: null })
+  useWorktreeStore.getState().setRemoval({ ...worktreeTarget(path), branch, panes, closePanes: true, keepBranch: false, dropDatabase: true, failure: null, ...preset })
+}
+
+const removalCancelled = (removal: WorktreeRemoval): void => {
+  dispatchReply(CANCELLED_REPLY, removal.request, removal)
 }
 
 export const changeWorktreeRemoval = (patch: Partial<WorktreeRemoval>): void => {
@@ -155,8 +162,12 @@ export const changeWorktreeRemoval = (patch: Partial<WorktreeRemoval>): void => 
 }
 
 export const cancelWorktreeRemoval = (): void => {
-  useWorktreeStore.getState().setRemoval(null)
+  const { removal, setRemoval } = useWorktreeStore.getState()
+  setRemoval(null)
   focusActivePane()
+  if (removal) {
+    removalCancelled(removal)
+  }
 }
 
 const closePanesNow = (paneIds: string[]): void => {
@@ -179,12 +190,18 @@ export const confirmWorktreeRemoval = (): void => {
   }
   setRemoval(null)
   const paneIds = removal.closePanes ? removal.panes.map((pane) => pane.paneId) : []
-  requestClose(`Supprimer le worktree « ${removal.name} » ?`, paneIds, () => {
-    closePanesNow(paneIds)
-    const store = useWorktreeStore.getState()
-    store.setPendingRemoval({ ...removal, panes: removal.closePanes ? [] : removal.panes, failure: null })
-    store.setBusy(WorktreeOperation.Remove)
-    useHostStore.getState().setStatus('Suppression du worktree…')
-    bridge.send({ type: 'worktrees.remove', path: removal.path, keepBranch: removal.keepBranch, dropDatabase: removal.dropDatabase, confirmed: true })
-  })
+  requestClose(
+    `Supprimer le worktree « ${removal.name} » ?`,
+    paneIds,
+    () => {
+      closePanesNow(paneIds)
+      const store = useWorktreeStore.getState()
+      store.setPendingRemoval({ ...removal, panes: removal.closePanes ? [] : removal.panes, failure: null })
+      store.setBusy(WorktreeOperation.Remove)
+      useHostStore.getState().setStatus('Suppression du worktree…')
+      bridge.send({ type: 'worktrees.remove', request: removal.request, path: removal.path, keepBranch: removal.keepBranch, dropDatabase: removal.dropDatabase, confirmed: true })
+    },
+    undefined,
+    () => removalCancelled(removal),
+  )
 }
