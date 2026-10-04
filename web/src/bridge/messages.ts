@@ -1,5 +1,6 @@
 import type { Session } from '../model/session'
 import type { GitChangeKind, GitHostMessage, GitSettings, GitWebMessage } from './gitMessages'
+import type { McpHostMessage, McpServerInfo, McpWebMessage } from './mcpMessages'
 import type { PreviewHostMessage, PreviewKind, PreviewWebMessage } from './previewMessages'
 import type { StatusLogEntry, StatusLogHostMessage, StatusLogWebMessage } from './statusLogMessages'
 import type { UpdateHostMessage, UpdateSettings, UpdateWebMessage } from './updateMessages'
@@ -131,6 +132,7 @@ export interface SettingsSnapshot {
   files: Record<string, string>
   warnings: string[]
   agents: AgentHooksInfo
+  mcp: McpServerInfo
   notifications: NotificationAvailability
 }
 
@@ -197,6 +199,7 @@ export type HostToWebMessage =
   | WorktreeHostMessage
   | UpdateHostMessage
   | StatusLogHostMessage
+  | McpHostMessage
 
 export type WebToHostMessage =
   | { type: 'app.ready' }
@@ -244,6 +247,7 @@ export type WebToHostMessage =
   | WorktreeWebMessage
   | UpdateWebMessage
   | StatusLogWebMessage
+  | McpWebMessage
 
 export type HostMessageType = HostToWebMessage['type']
 export type HostMessageOf<T extends HostMessageType> = Extract<HostToWebMessage, { type: T }>

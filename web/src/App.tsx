@@ -3,6 +3,7 @@ import { clearSeenCommandNotices } from './terminal/commandNotices'
 import { startAttentionNotifier } from './agents/attentionNotifier'
 import { bridge } from './bridge/bridge'
 import { AppShell } from './components/AppShell'
+import { receiveMcpRequest } from './mcp/mcpRequests'
 import { allPanes, restoredSessionLabel } from './model/session'
 import { useAgentStore } from './store/agentStore'
 import { StatusLevel, useHostStore } from './store/hostStore'
@@ -66,7 +67,7 @@ export default function App() {
         setStatus(`Taille du texte des terminaux : ${message.fontSize} px`)
       }),
       bridge.on('settings.result', (message) => {
-        applySettings({ settings: message.settings, shellSettings: message.shellSettings, files: message.files, warnings: message.warnings, agents: message.agents, notifications: message.notifications }, message.shells, message.persistence)
+        applySettings({ settings: message.settings, shellSettings: message.shellSettings, files: message.files, warnings: message.warnings, agents: message.agents, mcp: message.mcp, notifications: message.notifications }, message.shells, message.persistence)
         if (!message.saved) {
           return
         }
@@ -146,6 +147,7 @@ export default function App() {
       bridge.on('update.restart', receiveUpdateRestart),
       bridge.on('statusLog.added', (message) => receiveStatusLogEntry(message.entry)),
       bridge.on('statusLog.cleared', receiveStatusLogCleared),
+      bridge.on('mcp.request', (message) => void receiveMcpRequest(message)),
       bridge.on('terminal.exit', (message) => {
         terminalRegistry.markExited(message.pane, message.code)
         markExited(message.pane, message.code)

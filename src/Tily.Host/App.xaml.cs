@@ -1,4 +1,5 @@
 using Tily.Core.Agents;
+using Tily.Core.Mcp;
 using Microsoft.UI.Xaml;
 
 namespace Tily.Host;
@@ -6,7 +7,6 @@ namespace Tily.Host;
 public partial class App : Application
 {
     private const string RemoveClaudeHooksArgument = "--remove-claude-hooks";
-    private const string DataDirectoryVariable = "TILY_DATA_DIR";
 
     public static string DataDirectory { get; } = ResolveDataDirectory();
 
@@ -33,10 +33,13 @@ public partial class App : Application
 
     private static string ResolveDataDirectory()
     {
-        var overridden = Environment.GetEnvironmentVariable(DataDirectoryVariable);
-        return string.IsNullOrWhiteSpace(overridden)
-            ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Tily")
-            : Path.GetFullPath(overridden);
+        var directory = McpEndpoint.DataDirectoryFromEnvironment();
+        if (!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable(McpEndpoint.DataDirectoryVariable)))
+        {
+            Environment.SetEnvironmentVariable(McpEndpoint.DataDirectoryVariable, directory);
+        }
+
+        return directory;
     }
 
     private static void RemoveClaudeHooks()
@@ -44,6 +47,14 @@ public partial class App : Application
         try
         {
             new ClaudeHooksInstaller(Path.Combine(AppContext.BaseDirectory, "hooks", "tily-agent-state.ps1")).RemoveIfPresent();
+        }
+        catch (Exception exception) when (exception is InvalidOperationException or IOException or UnauthorizedAccessException)
+        {
+        }
+
+        try
+        {
+            new ClaudeMcpInstaller(Path.Combine(AppContext.BaseDirectory, ClaudeMcpInstaller.ExecutableName)).RemoveIfPresent();
         }
         catch (Exception exception) when (exception is InvalidOperationException or IOException or UnauthorizedAccessException)
         {

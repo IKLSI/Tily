@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0-windows10.0.26100.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <RootNamespace>Tily.Mcp</RootNamespace>
+    <AssemblyName>tily-mcp</AssemblyName>
+    <SelfContained>true</SelfContained>
+    <ApplicationIcon>..\Tily.Host\Assets\Tily.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="ModelContextProtocol.Core" Version="2.2.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Tily.Core\Tily.Core.csproj" />
+  </ItemGroup>
+</Project>

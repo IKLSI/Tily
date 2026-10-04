@@ -1,0 +1,17 @@
+export enum McpTool {
+  Layout = 'layout',
+}
+
+export interface McpServerInfo {
+  configFile: string
+  executable: string
+  available: boolean
+  installed: boolean
+  command?: string
+  listening: boolean
+  error?: string
+}
+
+export type McpHostMessage = { type: 'mcp.request'; id: string; tool: string; pane?: string; arguments?: unknown }
+
+export type McpWebMessage = { type: 'mcp.install' } | { type: 'mcp.remove' } | { type: 'mcp.response'; id: string; result?: unknown; error?: string }

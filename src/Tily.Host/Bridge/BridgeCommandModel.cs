@@ -6,6 +6,8 @@ namespace Tily.Host.Bridge;
 public sealed class BridgeCommandModel
 {
     public required string Type { get; init; }
+    public string? Id { get; init; }
+    public string? Error { get; init; }
     public string? Pane { get; init; }
     public string? Data { get; init; }
     public string? Shell { get; init; }
@@ -78,4 +80,5 @@ public sealed class BridgeCommandModel
     public JsonElement? Text { get; init; }
     public JsonElement? Settings { get; init; }
     public JsonElement? Notifications { get; init; }
+    public JsonElement? Result { get; init; }
 }

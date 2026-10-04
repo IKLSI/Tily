@@ -44,6 +44,7 @@ public sealed class HostBridge : IDisposable
     private readonly WorktreeFeed _worktrees;
     private readonly UpdateFeed _updates;
     private readonly StatusLogFeed _statusLog;
+    private readonly McpFeed _mcp;
     private SettingsModel _settings;
     private ShellPathsModel _shellPaths = ShellPathsModel.Empty;
     private PersistenceSettingsModel _persistence = PersistenceSettingsModel.Default;
@@ -80,6 +81,7 @@ public sealed class HostBridge : IDisposable
         _git = new GitFeed(Post, () => _settings.Git.AutoFetch, PostBackgroundError);
         _worktrees = new WorktreeFeed(Post, () => _settings, RememberWorktreeFolder, _git.RefreshSoon, PostBackgroundError, dataDirectory);
         _updates = new UpdateFeed(Post, ApplicationVersion, dataDirectory);
+        _mcp = new McpFeed(dataDirectory, Post, PostBackgroundError);
         ApplySettings(_settings);
         _terminals.OutputReceived += HandleOutput;
         _terminals.CurrentDirectoryChanged += HandleCurrentDirectoryChanged;
@@ -92,6 +94,7 @@ public sealed class HostBridge : IDisposable
         core.WebMessageReceived += HandleWebMessage;
         _preview.Attach(core);
         _agents.Start();
+        _mcp.Start();
     }
 
     private void HandleWebMessage(CoreWebView2 sender, CoreWebView2WebMessageReceivedEventArgs args)
@@ -220,6 +223,7 @@ public sealed class HostBridge : IDisposable
         {
             case "app.ready":
                 SendHello();
+                _mcp.MarkReady();
                 break;
             case "session.save":
                 SaveSession(command);
@@ -252,6 +256,17 @@ public sealed class HostBridge : IDisposable
             case "agents.removeHooks":
                 _agents.Hooks.Remove();
                 PostSettings(false);
+                break;
+            case "mcp.install":
+                _mcp.Install();
+                PostSettings(false);
+                break;
+            case "mcp.remove":
+                _mcp.Remove();
+                PostSettings(false);
+                break;
+            case "mcp.response":
+                _mcp.Receive(command);
                 break;
             case "settings.export":
                 _ = ExportPreferencesAsync();
@@ -390,6 +405,7 @@ public sealed class HostBridge : IDisposable
             shells = ShellCatalog.Profiles(_shellPaths),
             persistence = _persistence,
             agents = _agents.Describe(),
+            mcp = _mcp.Describe(),
             notifications = _notifier.Describe(),
             saved
         });
@@ -676,6 +692,7 @@ public sealed class HostBridge : IDisposable
         _files.Dispose();
         _preview.Dispose();
         _previewRequests.Dispose();
+        _mcp.Dispose();
         _git.Dispose();
         foreach (var buffer in _buffers.Values)
         {

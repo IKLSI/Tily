@@ -5,6 +5,7 @@ import { revealInExplorer } from '../explorer/fileExplorerActions'
 import { useHostStore } from '../store/hostStore'
 import { AppearanceSettingsSection } from './AppearanceSettingsSection'
 import { keepTabInside } from './focusTrap'
+import { McpSettingsSection } from './McpSettingsSection'
 import { SETTINGS_BROWSE, SETTINGS_BUTTON, SETTINGS_HINT, SETTINGS_INPUT, SETTINGS_INPUT_BASE, SETTINGS_LABEL } from './settingsStyles'
 import { SoundSetting } from './SoundSetting'
 import { UpdateSettingsSection } from './UpdateSettingsSection'
@@ -348,6 +349,7 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
           )}
         </span>
       </section>
+      <McpSettingsSection sectionClassName={SECTION} mcp={current.mcp} />
       <UpdateSettingsSection sectionClassName={SECTION} autoCheck={settings.updates.autoCheck} file={current.files.updates} onAutoCheckChange={handleAutoCheckChange} />
     </>
   )

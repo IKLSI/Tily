@@ -20,12 +20,14 @@ Le panneau de gauche présente les workspaces et leurs onglets. Les états d’a
 
 **Retenu (30 septembre 2026, issue #118).** Le panneau de gauche bascule entre cette arborescence et une vue Agents, qui suit les agents de tous les workspaces, permet de leur répondre, d’en lancer un sur une tâche et de reprendre une session terminée (section 12, « Vue Agents »). La règle précédente, qui excluait toute interface dédiée aux agents et toute distribution de tâches, est levée.
 
+**Retenu (4 octobre 2026, issue #141).** Claude Code, lancé par l’utilisateur dans un pane, peut lire et organiser Tily par un serveur MCP (section 12, « Pilotage par Claude Code (MCP) »). Une action qu’il demande ainsi vaut action explicite de l’utilisateur : l’exclusion de la création ou de la fermeture automatique de workspaces ne s’applique pas à ce cas.
+
 ### Hors périmètre actuel
 
 - Couche « Projet » obligatoire au-dessus des workspaces.
 - Maintien des agents ou serveurs en arrière-plan après fermeture de l’application ; reprise des processus après réouverture.
 - Conversation complète d’un agent (transcript rendu) et orchestration entre agents (file de tâches, dépendances entre tâches) : la vue Agents s’en tient au résumé de chaque agent et au lancement d’un agent à la fois.
-- Création ou fermeture automatique de workspaces liée au cycle de vie des worktrees : seules les actions explicites de l’utilisateur en ouvrent ou en ferment (voir la gestion des worktrees en section 11).
+- Création ou fermeture automatique de workspaces liée au cycle de vie des worktrees : seules les actions explicites de l’utilisateur en ouvrent ou en ferment (voir la gestion des worktrees en section 11). Une action demandée par le serveur MCP de Tily par un agent que l’utilisateur a lancé vaut action explicite (section 12, « Pilotage par Claude Code (MCP) »).
 - Modèles de workspace et mode focus dédié.
 - Recherche globale dans le contenu des fichiers du projet.
 - Recherche dans la sortie des terminaux : ce besoin a été retiré du périmètre.
@@ -460,6 +462,31 @@ Les actions utilisent le **dossier du pane actif**, jamais un hypothétique doss
 
 **Convention proposée.** L’historique, `agent-history.json` dans le dossier de données, garde pour chaque session son identifiant, son dossier, `workspace › onglet`, son titre, son début et sa fin, son dernier message, ses fichiers modifiés et son état final. Sa section, repliable, suit les agents vivants ; « Reprendre » ouvre un nouvel onglet dans le dossier de la session et y lance `claude --resume <id>`. Le bouton est grisé, avec la raison en infobulle, si le dossier n’existe plus, si Claude Code a effacé le transcript (30 jours par défaut) ou si la session tourne déjà. Après un redémarrage, un groupe « À reprendre » réunit les panes restaurés qui avaient une session Claude, avec « Reprendre ici », et l’en-tête de ces panes porte aussi « Reprendre Claude » jusqu’à la première commande tapée ; les anciennes sessions ne sont jamais présentées comme vivantes.
 
+### Pilotage par Claude Code (MCP)
+
+**Retenu (4 octobre 2026, issue #141).** L’utilisateur n’a plus à servir de presse-papier entre ses terminaux et Claude Code : un agent lancé dans un pane lit la sortie de n’importe quel pane, retrouve les commandes en échec, attend qu’un serveur soit prêt et organise lui-même workspaces, onglets, panes et worktrees.
+
+- Transport : un exécutable stdio `tily-mcp.exe`, livré à côté de `Tily.exe` et bâti sur le SDK officiel `ModelContextProtocol` pour C#, est déclaré une seule fois comme serveur MCP `tily` au niveau utilisateur de Claude Code (`~/.claude.json`, édité directement). Il retrouve son instance de Tily par `TILY_DATA_DIR`, hérité du pane, et lui parle par un named pipe propre à cette instance ; rien n’écoute sur le réseau. Lancé hors de Tily, il répond par une erreur claire en français.
+- Activation : Paramètres, section « Serveur MCP », active ou désactive le serveur au choix de l’utilisateur et affiche « activé » ou « désactivé ». Activer déclare le serveur ; désactiver le retire de la configuration de Claude Code et ferme le canal de l’instance. Les autres réglages et serveurs de ce fichier sont conservés. L’exécutable partage le runtime .NET de Tily : l’installeur n’embarque pas de second runtime.
+- Pouvoirs : la lecture et les actions sûres sont libres. Une confirmation dans Tily (Autoriser / Refuser, avec l’agent, l’action et la cible) est demandée pour fermer un pane occupé ou qui n’appartient pas à l’agent, écrire dans un pane qui n’appartient pas à l’agent et supprimer un worktree ; un refus revient à Claude sous forme d’erreur en français. Les onglets et panes créés par un agent lui appartiennent et portent une marque discrète « créé par Claude ».
+- Source de la sortie : le texte rendu par xterm.js côté interface, avec les repères de commande existants ; l’hôte ne duplique pas la sortie des terminaux. Un pane jamais affiché depuis le lancement de Tily n’a pas démarré : sa lecture répond par une erreur. Un onglet ou un split créé par l’agent avec une commande de démarrage devient l’onglet affiché, ce qui démarre son terminal.
+- Succès d’une commande : connu pour Windows PowerShell 5.1 et PowerShell 7 (séquence OSC 6973) ; « inconnu » pour les autres shells.
+- Hors périmètre : les logs de jobs GitLab, qui passent par le serveur MCP GitLab existant.
+
+| Outil | Rôle | Garde-fou |
+| --- | --- | --- |
+| `tily_layout` | Arborescence workspaces → onglets → panes : identifiants, noms, dossier, branche, shell, état d’agent, pane démarré ou non ; le pane appelant et les éléments affichés sont marqués. | libre |
+| `tily_read_pane` | Texte rendu d’un pane : N dernières lignes, ou sortie de la dernière commande. | libre |
+| `tily_commands` | Commandes terminées : commande, durée, succès, dossier, extrait de sortie ; filtre « échecs seulement ». | libre |
+| `tily_wait_for` | Attend un motif (`Now listening on`, `ready in`) ou la fin d’une commande, avec un délai maximal. | libre |
+| `tily_open_workspace`, `tily_new_tab`, `tily_split`, `tily_focus`, `tily_rename` | Organisation ; un onglet ou un split créé peut lancer une commande au démarrage. | libre |
+| `tily_run`, `tily_interrupt` | Écrire une commande ou envoyer Ctrl + C dans un pane. | libre dans un pane de l’agent, confirmation sinon |
+| `tily_close` | Fermer un pane ou un onglet. | libre si le pane est à l’agent et inactif, confirmation sinon |
+| `tily_worktrees`, `tily_create_worktree` | Lister et créer (ports, `pnpm install`, base répliquée). | libre |
+| `tily_remove_worktree` | Suppression avec le même dialogue que l’interface. | confirmation |
+
+**Convention proposée.** Le nom du pipe dérive d’une empreinte SHA-256 du dossier de données (`tily-mcp-<24 caractères hexadécimaux>`) ; le pipe est réservé au compte Windows courant et refuse une seconde instance de Tily sur le même dossier de données. Chaque appel ouvre une connexion, envoie une ligne JSON et lit une ligne JSON. L’hôte relaie la demande à l’interface (`mcp.request`), qui répond (`mcp.response`) ; une demande sans réponse expire après 10 secondes sans jamais bloquer le fil de l’interface. L’hôte ajoute à `tily_layout` la branche de chaque dossier. Une déclaration qui pointe vers une autre copie de Tily compte comme « activé » et peut être remplacée par « Activer pour cette copie » ; un serveur `tily` qui n’est pas celui de Tily n’est jamais écrasé. La désinstallation retire la déclaration.
+
 ## 13. Sauvegarde, fermeture et restauration
 
 ### Données à retrouver
@@ -633,6 +660,11 @@ Ces scénarios définissent les vérifications à effectuer sur l’application 
 | R48 | Terminer deux sessions Claude, fermer puis rouvrir Tily ; reprendre une session depuis « À reprendre », une autre depuis l’historique, puis supprimer le worktree d’une troisième session. | L’historique liste les sessions avec leur titre ; les panes restaurés proposent « Reprendre » sans relancer Claude d’eux-mêmes ; chaque reprise rouvre la bonne conversation ; la session du worktree supprimé ne peut plus être reprise et l’infobulle l’explique. |
 | R49 | Hooks réinstallés, demander à Claude Code dans un pane de produire une page HTML de relecture et de l’ouvrir avec `start`, en restant sur cet onglet puis en passant sur un autre ; ensuite cliquer un `.html` dans l’arbre, basculer « Source » et « Agrandir », suivre une ancre, un lien web et un lien vers un autre fichier, modifier le fichier, puis « Ouvrir dans le navigateur ». | Le navigateur ne s’ouvre pas : la page s’affiche dans l’aperçu de l’onglet de Claude, aussitôt ou au retour sur cet onglet avec une annonce dans la barre de statut ; Claude est informé que Tily l’a ouverte ; scripts de la page actifs, ancre suivie dans la page, lien web dans le navigateur, autre fichier dans l’aperçu ; rechargement après modification ; la page s’ouvre dans le navigateur par défaut sur demande (section 4). |
 | R50 | Ouvrir un `.json` en CRLF dans l’aperçu, « Éditer », modifier, Ctrl + S ; modifier de nouveau puis changer le fichier hors de Tily, Ctrl + S, « Écraser », puis recommencer avec « Recharger » ; avec une modification en cours, Échap puis cliquer un autre fichier de l’arbre et tester « Annuler », « Enregistrer » et « Abandonner les modifications ». | Fichier écrit avec son encodage et ses fins de ligne CRLF, « Modifié » disparaît ; bandeau « Le fichier a été modifié sur le disque. » sans perte des modifications, Ctrl + S refusé avec un message en français, « Écraser » écrit les modifications, « Recharger » reprend la version du disque ; la confirmation apparaît à chaque fois, « Annuler » garde l’édition, « Enregistrer » écrit puis poursuit, « Abandonner » poursuit sans écrire (section 4). |
+| R51 | Dans Paramètres, section « Serveur MCP », cliquer « Activer » ; lancer `claude` dans un pane d’un workspace qui en compte trois, vérifier `/mcp` puis demander la disposition de Tily ; cliquer « Désactiver » et redemander. | `~/.claude.json` déclare le serveur `tily` sans perdre ses autres clés ni serveurs ; Claude reçoit tous les workspaces, onglets et panes avec dossier, branche, shell et état d’agent, son propre pane marqué ; après désactivation, la déclaration a disparu et l’appel répond « Tily ne répond pas… » en français (section 12, « Pilotage par Claude Code (MCP) »). |
+| R52 | Serveur activé, lancer une seconde instance isolée par `TILY_DATA_DIR` ; demander la disposition depuis un `claude` de chaque instance, puis depuis un `claude` lancé hors de Tily. | Chaque agent reçoit la disposition de sa propre instance ; hors de Tily, l’erreur explique en français qu’il faut lancer Claude Code depuis un pane de Tily. |
+| R53 | Depuis Claude dans un pane : lire les 50 dernières lignes d’un autre pane, lister les commandes en échec d’un pane PowerShell puis d’un pane Git Bash, attendre `ready in` après `pnpm dev`, puis lire un pane jamais affiché depuis le lancement. | Texte exact, sans séquences d’échappement ; échecs PowerShell signalés, succès « inconnu » pour Git Bash ; l’attente rend la main dès le motif affiché, ou à l’expiration du délai ; le pane jamais affiché répond par une erreur en français. |
+| R54 | Depuis Claude : ouvrir un workspace, un onglet avec `pnpm dev`, un split, focaliser et renommer ; écrire une commande puis envoyer Ctrl + C dans un pane créé par Claude. | Chaque élément créé porte la marque « créé par Claude » ; l’onglet lancé devient l’onglet affiché et sa commande démarre ; aucune confirmation n’est demandée pour ces actions. |
+| R55 | Depuis Claude : écrire dans un pane créé par l’utilisateur, fermer un pane occupé, supprimer un worktree ; refuser la première demande, autoriser les suivantes. | Un dialogue Autoriser / Refuser cite l’agent, l’action et la cible ; le refus revient à Claude en erreur française ; aucun appel ne fige l’interface. |
 
 ## 18. Décisions restantes avant développement
 
