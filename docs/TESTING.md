@@ -12,7 +12,7 @@ Nommage des méthodes : `Méthode_QuandCondition_AlorsRésultat` en anglais tech
 
 | Catégorie | Exemple | Contrainte |
 | --- | --- | --- |
-| Unitaires purs | `SessionValidatorTests`, `OscCwdParserTests` | Aucune E/S, exécution instantanée. |
+| Unitaires purs | `SessionValidatorTests`, `SessionValidatorBrowserTests` (adresse et largeur d'un pane navigateur), `OscCwdParserTests` | Aucune E/S, exécution instantanée. |
 | Persistance | `SessionRepositoryTests`, `StatusLogRepositoryTests` | Dossier temporaire unique par test, supprimé dans `Dispose`. |
 | Lancement de l'éditeur | `EditorLaunchTests` (lance un faux éditeur `code.cmd` écrit dans un dossier temporaire, sur un fichier dont le dossier contient `&`, `,`, `^` et `%`), `EditorLocationTests` (purs) | Vérifie que cmd.exe reçoit le chemin entier entre guillemets et n'exécute rien d'autre ; aucun vrai éditeur n'est lancé. |
 | Intégration terminal | `TerminalManagerTests`, `PowerShellIntegrationTests` (wrapper de prompt exécuté dans un vrai Windows PowerShell 5.1 sans profil : `$?` rendu au prompt d'origine, séquence OSC 7, fin de commande annoncée une seule fois par entrée d'historique ajoutée par `Add-History`, avec sa durée et son succès, hauteur annoncée d'une invite sur deux lignes, colorée ou plus large que le tampon, `Set-StrictMode -Version Latest` sans erreur ajoutée à `$Error`, y compris dans le registre) | Lance un vrai Windows PowerShell 5.1 avec le profil de la machine ; délai maximal de 30 s ; vérifie la variable `TILY_PANE_ID`, le dossier courant et la mort des processus enfants, suivis par handle et non par PID, que Windows peut réattribuer aussitôt, et que Ctrl + C interrompt un programme même quand le processus hôte ignore Ctrl + C. |

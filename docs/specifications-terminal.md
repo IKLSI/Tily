@@ -241,6 +241,16 @@ Les splits peuvent être imbriqués. L’action de fermeture d’un pane retire 
 
 **Décision prise.** La navigation au clavier est spatiale : chaque direction choisit le pane dont la position visuelle est la plus proche dans cette direction. En l’absence de cible dans la direction demandée, conserver le pane actif.
 
+### Panes navigateur
+
+**Retenu (4 octobre 2026, issue #142).** Un pane peut être un navigateur, pour voir l’application en cours de développement à côté de ses terminaux ; Claude Code en lit lui-même la console, le réseau et des captures (section 12, « Pilotage par Claude Code (MCP) »). On l’ouvre depuis la palette, le menu « + » ou Leader, en split ou en onglet. Son en-tête porte un champ d’adresse, Précédent, Recharger, la largeur mobile ou desktop, l’ouverture des DevTools et un compteur d’erreurs. Le pane est restauré avec la session (adresse et largeur). Les cookies et les sessions des pages, connexion Azure AD comprise, sont gardés dans un profil séparé de celui de l’interface de Tily et conservés d’un lancement à l’autre. **Décidé (4 octobre 2026) :** aucune connexion automatique avec le compte Windows : on se connecte une fois à la main, ce qui laisse choisir un compte de test et reste prévisible.
+
+**Convention proposée.** Leader puis U ouvre un navigateur côte à côte du pane actif ; la palette propose « Navigateur côte à côte », « Navigateur en dessous » et « Navigateur dans un nouvel onglet » ; le clic droit sur « + » ajoute « Navigateur » à la liste des shells. Un navigateur ouvert depuis l’interface affiche une page vide et met le focus dans son champ d’adresse. Une adresse sans schéma s’ouvre en http pour `localhost`, une adresse IP ou un nom sans point, en https sinon ; seuls http, https et file sont acceptés. Entrée navigue, Échap rend le focus à la page. Le pane garde le dossier et le shell du pane d’où il a été ouvert : un split depuis un navigateur ouvre un terminal dans ce dossier. Le nom automatique de l’onglet est le titre de la page, sinon son hôte. La largeur mobile affiche la page dans une colonne de 390 px centrée, avec l’émulation mobile (balise viewport, media queries) ; « Outils de développement » ouvre les DevTools dans une fenêtre à part.
+
+**Convention proposée.** Les raccourcis de Tily tapés dans la page (Ctrl + Espace et la touche Leader suivante, Ctrl + P, Ctrl + Tab, Ctrl + Maj + lettre des raccourcis directs, Alt + flèche, Alt + F4) vont à Tily et jamais à la page ; toute autre touche va à la page. Un clic dans la page rend le pane actif ; un pane navigateur activé au clavier reçoit le focus clavier. Un lien `_blank` ou un `window.open` sans dimensions s’ouvre dans un nouveau pane navigateur côte à côte, dans le même profil ; une fenêtre demandée avec des dimensions (popup de connexion type MSAL) s’ouvre dans une petite fenêtre qui partage la session.
+
+**Convention proposée.** Rien de l’interface ne pouvant se dessiner par-dessus la page (section 15), la page est figée dès qu’un menu, la palette ou un dialogue de Tily est ouvert, ou qu’un élément de l’interface (infobulle, tiroir, notification) recouvre le pane : elle est masquée et remplacée par sa capture, puis réaffichée à la fermeture. Cliquer sur la page figée ferme le menu ouvert comme un clic ailleurs. Un pane navigateur jamais affiché depuis le lancement de Tily n’a pas démarré ; un onglet en arrière-plan garde sa page vivante, qui continue d’être suivie.
+
 ## 8. Terminal réel et shells
 
 **Retenu.** L’application finale héberge de vrais terminaux interactifs. Windows PowerShell 5.1 est le shell par défaut afin de charger le profil existant ; CMD, Git Bash et PowerShell 7 sont disponibles en alternative configurée.
@@ -321,6 +331,8 @@ Les séquences Leader sont consommées par l’application uniquement lorsqu’e
 **Convention proposée.** Leader puis un chiffre de 1 à 9 (touches de la rangée du haut, sans Maj en AZERTY) affiche l’onglet correspondant du workspace actif, 9 affichant le dernier, comme les navigateurs et le préfixe de tmux ; un onglet absent est signalé dans la barre de statut.
 
 **Convention proposée.** Leader puis N ouvre la création d’un worktree (section 11), comme le Leader + n de WezTerm ; aucun raccourci direct.
+
+**Convention proposée.** Leader puis U ouvre un navigateur côte à côte du pane actif (section 7, « Panes navigateur ») ; aucun raccourci direct.
 
 **Convention proposée.** Leader puis O, ou Ctrl + Maj + O, ouvre ou ferme la vue Notes du panneau de droite (section 5, « Notes du workspace »).
 
@@ -504,6 +516,7 @@ Les actions utilisent le **dossier du pane actif**, jamais un hypothétique doss
 - Journal des messages de la barre de statut.
 - Dispositions de splits, orientations, proportions et panes actifs.
 - Dossiers courants et shells utilisés.
+- Adresse et largeur de chaque pane navigateur ; la session de ses pages reste dans son profil (section 7, « Panes navigateur »).
 - Texte des anciennes sessions avec distinction visuelle à la réouverture.
 - Workspace et onglet actifs, largeur et vue du panneau (Workspaces ou Agents), panneau visible/replié et groupes dépliés/repliés.
 - Historique des sessions d’agents (section 12, « Vue Agents »).
@@ -597,7 +610,7 @@ Les déplacements et changements de présentation agissent sur le modèle et la 
 | Workspace | Identifiant, nom, onglets ordonnés, onglet actif, état déplié. |
 | Onglet | Identifiant, nom affiché, nom manuel ou automatique, arbre de splits, pane actif. |
 | Nœud split | Orientation, proportion, deux enfants ; ou référence à un pane pour une feuille. |
-| Pane | Identifiant, profil de shell, dossier courant, référence à l’historique, état de session. |
+| Pane | Identifiant, profil de shell, dossier courant, référence à l’historique, état de session ; pour un navigateur, adresse et largeur. |
 | Activité | Identifiant, pane concerné, état, source, date de changement ; données de session vivante. |
 
 Mesures de référence du spike : ConPTY livre 7 à 12 Mo/s en flux soutenu ; `PostWebMessage` transmet 20 Mo sur deux panes simultanés sans perte, avec un rendu xterm.js cumulé de 18 Mc/s, et reste le canal retenu. Le dossier courant est reçu environ 100 ms après le prompt. Versions minimales : Windows 10 1809 (build 17763) pour ConPTY, Windows App SDK et WebView2 Evergreen ; seule la configuration Windows 11 build 26200 a été testée. Critères de performance à respecter par l’application : aucune perte ni doublon de frappe, débit de rendu au moins égal au débit ConPTY, dossier courant reçu en moins d’une seconde, aucun processus survivant après fermeture d’un pane.
@@ -680,6 +693,8 @@ Ces scénarios définissent les vérifications à effectuer sur l’application 
 | R54 | Depuis Claude : ouvrir un workspace, un onglet avec `pnpm dev`, un split, focaliser et renommer ; écrire une commande puis envoyer Ctrl + C dans un pane créé par Claude. | Chaque élément créé porte la marque « créé par Claude » ; l’onglet lancé devient l’onglet affiché et sa commande démarre ; aucune confirmation n’est demandée pour ces actions. |
 | R55 | Depuis Claude : écrire dans un pane créé par l’utilisateur, fermer un pane occupé, supprimer un worktree ; refuser la première demande, autoriser les suivantes. | Un dialogue Autoriser / Refuser cite l’agent, l’action et la cible ; le refus revient à Claude en erreur française ; aucun appel ne fige l’interface. |
 | R56 | Depuis Claude : lister les worktrees d’un dépôt, en créer un sans base répliquée, le relister, puis demander la suppression du dépôt principal, celle du worktree où tourne Claude et celle du worktree créé. | La liste donne chaque worktree avec ses panes ; le worktree créé s’ouvre dans un workspace marqué « créé par Claude » ; les deux premières suppressions sont refusées en français sans dialogue ; la troisième ouvre le dialogue de suppression de l’interface, qui cite Claude, avec le focus sur « Annuler » (section 12, « Pilotage par Claude Code (MCP) »). |
+| R57 | Ouvrir un navigateur par Leader puis U, saisir `localhost:5173` ; ouvrir la palette, un menu contextuel et un dialogue, survoler un bouton de l’en-tête du pane ; passer en largeur mobile, replier le panneau des workspaces, agrandir le pane, changer d’onglet ; taper Ctrl + P, puis Leader puis U, dans la page ; suivre un lien `_blank` ; fermer puis rouvrir Tily ; fermer le pane. | La page suit le pane dans chaque disposition ; palette, menu, dialogue et infobulle passent au-dessus de la page figée ; la page ne reçoit ni Ctrl + P ni le Leader, qui agissent dans Tily ; le lien s’ouvre dans un nouveau pane navigateur ; adresse et largeur sont restaurées ; la fermeture ne laisse aucune page ouverte (section 7, « Panes navigateur »). |
+| R58 | Dans un pane navigateur, se connecter à une application Azure AD (popup de connexion et redirection), fermer puis rouvrir Tily ; ouvrir la même application dans le navigateur par défaut. | Connexion réussie dans le pane, sans connexion automatique avec le compte Windows ; session retrouvée après redémarrage ; l’interface de Tily et le navigateur par défaut n’en partagent rien (section 7, « Panes navigateur »). |
 
 ## 18. Décisions restantes avant développement
 

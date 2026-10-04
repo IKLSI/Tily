@@ -1,7 +1,4 @@
-export enum BrowserViewport {
-  Desktop = 'desktop',
-  Mobile = 'mobile',
-}
+import type { BrowserViewport } from '../model/browser'
 
 export enum BrowserLogLevel {
   Debug = 'debug',

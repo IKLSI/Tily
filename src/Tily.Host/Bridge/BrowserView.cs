@@ -20,6 +20,7 @@ internal sealed class BrowserView : IDisposable
     private Rect _bounds;
     private bool _visible;
     private bool _capturing;
+    private bool _focusPending;
     private int _lastErrors;
 
     public BrowserView(string paneId, BrowserViewport viewport, BrowserCallbacks callbacks)
@@ -113,7 +114,14 @@ internal sealed class BrowserView : IDisposable
 
     public void OpenDevTools() => _core?.OpenDevToolsWindow();
 
-    public void Focus() => Control.Focus(FocusState.Programmatic);
+    public void Focus()
+    {
+        _focusPending = Control.Visibility != Visibility.Visible;
+        if (!_focusPending)
+        {
+            Control.Focus(FocusState.Programmatic);
+        }
+    }
 
     public BrowserStateModel State() => new(
         PaneId,
@@ -217,6 +225,11 @@ internal sealed class BrowserView : IDisposable
         Control.Width = Math.Max(0, width);
         Control.Height = Math.Max(0, _bounds.Height);
         Control.Visibility = _visible && _bounds.Width > 0 && _bounds.Height > 0 ? Visibility.Visible : Visibility.Collapsed;
+        if (_focusPending && Control.Visibility == Visibility.Visible)
+        {
+            _focusPending = false;
+            Control.Focus(FocusState.Programmatic);
+        }
     }
 
     private async Task<BrowserNavigationModel> WaitForNavigationAsync(Action start, TimeSpan timeout)
