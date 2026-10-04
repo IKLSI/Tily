@@ -3,6 +3,7 @@ import { nextPaneInState, tabAgents, type AgentMap } from '../agents/agentSummar
 import { activePane, DEFAULT_SHELL, paneCountLabel, panesOf, type Tab } from '../model/session'
 import { useHostStore } from '../store/hostStore'
 import { openWorktreeDialog } from '../worktree/worktreeActions'
+import { AgentOwnerMark } from './AgentOwnerMark'
 import { AgentStateIcon } from './AgentStateIcon'
 import { CommandNoticeIcon } from './CommandNoticeIcon'
 import { useCommandStore } from '../store/commandStore'
@@ -126,6 +127,7 @@ export function WorkspaceTabRow({ workspaceId, tab, siblings, active, renaming, 
               {lead}
             </span>
             <TruncatedName name={tab.name} siblings={siblings} className="flex-1" />
+            {tab.owner && <AgentOwnerMark owner={tab.owner} compact />}
             {customShell && <span className="shrink-0 font-mono text-[10.5px] text-tily-muted @max-[260px]:hidden">{SHELL_LABELS[customShell] ?? customShell}</span>}
           </button>
         )}

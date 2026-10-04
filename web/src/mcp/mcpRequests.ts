@@ -6,8 +6,10 @@ import { terminalRegistry } from '../terminal/terminalRegistry'
 import { argumentsOf } from './mcpArguments'
 import { listCommands } from './mcpCommands'
 import { layoutOf } from './mcpLayout'
+import { focusElement, newTab, openWorkspace, renameElement, splitPane } from './mcpOrganize'
 import { requireSession } from './mcpPanes'
 import { readPane } from './mcpReadPane'
+import { interruptPane, runCommand } from './mcpRun'
 import { waitFor } from './mcpWaitFor'
 
 type McpRequest = HostMessageOf<'mcp.request'>
@@ -22,6 +24,20 @@ const answer = async (request: McpRequest): Promise<unknown> => {
       return listCommands(argumentsOf(request.arguments))
     case McpTool.WaitFor:
       return waitFor(argumentsOf(request.arguments))
+    case McpTool.OpenWorkspace:
+      return openWorkspace(argumentsOf(request.arguments), request.pane)
+    case McpTool.NewTab:
+      return newTab(argumentsOf(request.arguments), request.pane)
+    case McpTool.Split:
+      return splitPane(argumentsOf(request.arguments), request.pane)
+    case McpTool.Focus:
+      return focusElement(argumentsOf(request.arguments))
+    case McpTool.Rename:
+      return renameElement(argumentsOf(request.arguments))
+    case McpTool.Run:
+      return runCommand(argumentsOf(request.arguments), request.pane)
+    case McpTool.Interrupt:
+      return interruptPane(argumentsOf(request.arguments), request.pane)
     default:
       throw new Error(`Outil Tily inconnu : ${request.tool}. Mettez Tily à jour.`)
   }

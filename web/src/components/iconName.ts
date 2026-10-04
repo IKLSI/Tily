@@ -1,4 +1,5 @@
 export enum IconName {
+  Agent = 'agent',
   Branch = 'branch',
   Check = 'check',
   Chevron = 'chevron',

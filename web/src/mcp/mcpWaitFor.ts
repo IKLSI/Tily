@@ -103,7 +103,7 @@ const createScanner = (terminal: Terminal, fromRow: number, matcher: RegExp): Sc
   return { find, dispose: () => anchor?.dispose() }
 }
 
-const settled = (terminal: Terminal): Promise<void> =>
+export const outputSettled = (terminal: Terminal): Promise<void> =>
   new Promise((resolve) => {
     const begun = Date.now()
     let lastWrite = begun
@@ -172,7 +172,7 @@ const watch = (target: McpPaneTarget, matcher: RegExp | null, timeoutMs: number)
       end({ outcome: WaitOutcome.Timeout, message, tail: tail() })
     }
     const commandFinished = (command: FinishedCommand): void => {
-      void settled(terminal).then(() => {
+      void outputSettled(terminal).then(() => {
         if (done || check()) {
           return
         }

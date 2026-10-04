@@ -55,6 +55,7 @@ public sealed class TabModel
     public string Active { get; set; } = string.Empty;
     public bool Explorer { get; set; }
     public string? Panel { get; set; }
+    public string? Owner { get; set; }
     public SplitNodeModel Tree { get; set; } = new();
 }
 
@@ -75,6 +76,7 @@ public sealed class PaneModel
     public string Id { get; set; } = string.Empty;
     public string Path { get; set; } = string.Empty;
     public string Shell { get; set; } = string.Empty;
+    public string? Owner { get; set; }
 }
 
 public static class SessionLimits
@@ -104,5 +106,6 @@ public static class SessionLimits
     public const int MaxFavorites = 50;
     public const int MaxFavoriteLength = 100;
     public const int MaxNoteChars = 100_000;
+    public const int MaxOwnerLength = 64;
     public static readonly string[] Panels = ["files", "git", "notes"];
 }

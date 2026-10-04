@@ -123,6 +123,7 @@ public static class SessionValidator
             tab.Panel = null;
         }
 
+        tab.Owner = ValidOwner(tab.Owner);
         var treeResult = ValidateTree(tab.Tree, 0, ref nodeCount);
         if (!treeResult.IsValid)
         {
@@ -144,6 +145,7 @@ public static class SessionValidator
         if (node.IsLeaf)
         {
             var pane = node.Pane!;
+            pane.Owner = ValidOwner(pane.Owner);
             return string.IsNullOrEmpty(pane.Id) || pane.Path is null || string.IsNullOrEmpty(pane.Shell)
                 ? ValidationResultModel.Fail("Pane invalide.")
                 : ValidationResultModel.Ok();
@@ -157,4 +159,7 @@ public static class SessionValidator
         var left = ValidateTree(node.A, depth + 1, ref nodeCount);
         return left.IsValid ? ValidateTree(node.B, depth + 1, ref nodeCount) : left;
     }
+
+    private static string? ValidOwner(string? owner) =>
+        string.IsNullOrWhiteSpace(owner) || owner.Length > SessionLimits.MaxOwnerLength ? null : owner;
 }

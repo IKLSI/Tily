@@ -26,6 +26,21 @@ internal static class TilyConnection
         return new CallToolResult { Content = [new TextContentBlock { Text = text }], IsError = response.Result is null };
     }
 
+    public static Task<CallToolResult> CallCheckedAsync(string tool, Func<object> arguments, CancellationToken token)
+    {
+        object values;
+        try
+        {
+            values = arguments();
+        }
+        catch (InvalidOperationException exception)
+        {
+            return Task.FromResult(Failure(exception.Message));
+        }
+
+        return CallAsync(tool, values, token);
+    }
+
     private static CallToolResult Failure(string message) =>
         new() { Content = [new TextContentBlock { Text = message }], IsError = true };
 }

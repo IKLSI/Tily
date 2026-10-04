@@ -3,6 +3,13 @@ export enum McpTool {
   ReadPane = 'readPane',
   Commands = 'commands',
   WaitFor = 'waitFor',
+  OpenWorkspace = 'openWorkspace',
+  NewTab = 'newTab',
+  Split = 'split',
+  Focus = 'focus',
+  Rename = 'rename',
+  Run = 'run',
+  Interrupt = 'interrupt',
 }
 
 export interface McpServerInfo {

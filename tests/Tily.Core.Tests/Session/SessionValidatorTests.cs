@@ -49,6 +49,38 @@ public sealed class SessionValidatorTests
     }
 
     [Fact]
+    public void Validate_WhenOwnerGiven_ThenKeepsIt()
+    {
+        var session = SessionFactory.Initial();
+        var tab = session.Workspaces[0].Tabs[0];
+        tab.Owner = "pane-de-claude";
+        tab.Tree.Pane!.Owner = "pane-de-claude";
+
+        var result = SessionValidator.Validate(session);
+
+        Assert.True(result.IsValid);
+        Assert.Equal("pane-de-claude", tab.Owner);
+        Assert.Equal("pane-de-claude", tab.Tree.Pane.Owner);
+    }
+
+    [Theory]
+    [InlineData(" ")]
+    [InlineData("pane-dont-l-identifiant-depasse-largement-les-soixante-quatre-caracteres")]
+    public void Validate_WhenOwnerBlankOrTooLong_ThenDropsItWithoutFailing(string owner)
+    {
+        var session = SessionFactory.Initial();
+        var tab = session.Workspaces[0].Tabs[0];
+        tab.Owner = owner;
+        tab.Tree.Pane!.Owner = owner;
+
+        var result = SessionValidator.Validate(session);
+
+        Assert.True(result.IsValid);
+        Assert.Null(tab.Owner);
+        Assert.Null(tab.Tree.Pane.Owner);
+    }
+
+    [Fact]
     public void Validate_WhenFavoriteEmpty_ThenFails()
     {
         var session = SessionFactory.Initial();

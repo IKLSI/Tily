@@ -35,6 +35,22 @@ public sealed class SessionRepositoryTests : IDisposable
     }
 
     [Fact]
+    public void Save_ThenLoad_KeepsTheAgentOwnerOfTabsAndPanes()
+    {
+        var repository = new SessionRepository(_directory);
+        var session = SessionFactory.Initial();
+        var tab = session.Workspaces[0].Tabs[0];
+        tab.Owner = "pane-de-claude";
+        tab.Tree.Pane!.Owner = "pane-de-claude";
+
+        repository.Save(session);
+        var loaded = repository.Load().Session!.Workspaces[0].Tabs[0];
+
+        Assert.Equal("pane-de-claude", loaded.Owner);
+        Assert.Equal("pane-de-claude", loaded.Tree.Pane!.Owner);
+    }
+
+    [Fact]
     public void Save_WhenClosedTabHasNoText_ThenWritesNoTextInTheSession()
     {
         var repository = new SessionRepository(_directory);

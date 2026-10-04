@@ -7,7 +7,12 @@ interface McpPaneAgent {
   message?: string
 }
 
-interface McpPaneLayout {
+interface McpOwnership {
+  owner?: string
+  mine?: true
+}
+
+interface McpPaneLayout extends McpOwnership {
   id: string
   path: string
   shell: string
@@ -17,7 +22,7 @@ interface McpPaneLayout {
   agent?: McpPaneAgent
 }
 
-interface McpTabLayout {
+interface McpTabLayout extends McpOwnership {
   id: string
   name: string
   active: boolean
@@ -44,6 +49,8 @@ export interface McpLayout {
 
 const agentOf = (agent: PaneAgent | undefined): McpPaneAgent | undefined => (agent ? { name: agent.agent, state: agent.state, message: agent.message } : undefined)
 
+const ownershipOf = (owner: string | undefined, callerPane: string | undefined): McpOwnership => (owner ? { owner, mine: owner === callerPane ? true : undefined } : {})
+
 export const layoutOf = (session: Session, agents: Record<string, PaneAgent>, callerPane: string | undefined, started: (paneId: string) => boolean): McpLayout => {
   let caller: McpCaller | null = null
   const workspaces = session.workspaces.map((workspace) => ({
@@ -54,12 +61,22 @@ export const layoutOf = (session: Session, agents: Record<string, PaneAgent>, ca
       id: tab.id,
       name: tab.name,
       active: tab.id === workspace.active,
+      ...ownershipOf(tab.owner, callerPane),
       panes: panesOf(tab.tree).map((pane) => {
         const isCaller = pane.id === callerPane
         if (isCaller) {
           caller = { workspace: workspace.id, tab: tab.id, pane: pane.id }
         }
-        return { id: pane.id, path: pane.path, shell: pane.shell, active: pane.id === tab.active, started: started(pane.id), caller: isCaller ? (true as const) : undefined, agent: agentOf(agents[pane.id]) }
+        return {
+          id: pane.id,
+          path: pane.path,
+          shell: pane.shell,
+          active: pane.id === tab.active,
+          started: started(pane.id),
+          caller: isCaller ? (true as const) : undefined,
+          ...ownershipOf(pane.owner, callerPane),
+          agent: agentOf(agents[pane.id]),
+        }
       }),
     })),
   }))
