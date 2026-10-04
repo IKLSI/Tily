@@ -14,6 +14,7 @@ public sealed class BrowserLog
     private readonly LinkedList<BrowserNetworkEntryModel> _network = new();
     private readonly Func<DateTimeOffset> _clock;
     private long _sequence;
+    private int _errors;
 
     public BrowserLog(Func<DateTimeOffset>? clock = null) => _clock = clock ?? (() => DateTimeOffset.Now);
 
@@ -24,6 +25,7 @@ public sealed class BrowserLog
         lock (_sync)
         {
             Load++;
+            _errors = 0;
         }
     }
 
@@ -33,6 +35,7 @@ public sealed class BrowserLog
         {
             var entry = new BrowserConsoleEntryModel(++_sequence, _clock(), message.Level, Truncate(message.Text, MaxTextChars), TruncateOrNull(message.Url, MaxUrlChars), message.Line, Load);
             Append(_console, entry, MaxConsoleEntries);
+            _errors += entry.Level == BrowserLogLevel.Error ? 1 : 0;
             return entry;
         }
     }
@@ -50,6 +53,7 @@ public sealed class BrowserLog
                 Load = Load
             };
             Append(_network, entry, MaxNetworkEntries);
+            _errors += entry.IsError ? 1 : 0;
             return entry;
         }
     }
@@ -73,8 +77,7 @@ public sealed class BrowserLog
     {
         lock (_sync)
         {
-            return _console.Count(entry => entry.Load == Load && entry.Level == BrowserLogLevel.Error)
-                + _network.Count(entry => entry.Load == Load && entry.IsError);
+            return _errors;
         }
     }
 

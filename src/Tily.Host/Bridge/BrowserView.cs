@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.Web.WebView2.Core;
@@ -11,16 +12,20 @@ internal sealed class BrowserView : IDisposable
 {
     public const string ProfileName = "browser";
     private const double OffscreenLeft = -20000;
+    private static readonly TimeSpan ErrorsDelay = TimeSpan.FromMilliseconds(250);
     private static readonly string[] ConsoleEvents = [DevToolsConsole.ConsoleApiCalled, DevToolsConsole.ExceptionThrown, DevToolsConsole.EntryAdded];
 
     private readonly BrowserCallbacks _callbacks;
     private readonly DevToolsNetwork _network = new();
     private readonly List<TaskCompletionSource<BrowserNavigationModel>> _navigations = [];
+    private readonly List<CoreWebView2DevToolsProtocolEventReceiver> _receivers = [];
     private CoreWebView2? _core;
     private Rect _bounds;
     private bool _visible;
     private bool _capturing;
+    private readonly DispatcherQueueTimer _errorsTimer;
     private bool _focusPending;
+    private bool _errorsScheduled;
     private int _lastErrors;
 
     public BrowserView(string paneId, BrowserViewport viewport, BrowserCallbacks callbacks)
@@ -30,6 +35,10 @@ internal sealed class BrowserView : IDisposable
         _callbacks = callbacks;
         Control = new WebView2 { Visibility = Visibility.Collapsed, DefaultBackgroundColor = Microsoft.UI.Colors.White };
         Control.GotFocus += (_, _) => _callbacks.Focused(this);
+        _errorsTimer = Control.DispatcherQueue.CreateTimer();
+        _errorsTimer.Interval = ErrorsDelay;
+        _errorsTimer.IsRepeating = false;
+        _errorsTimer.Tick += (_, _) => PostErrorsNow();
     }
 
     public string PaneId { get; }
@@ -61,18 +70,20 @@ internal sealed class BrowserView : IDisposable
         core.WebMessageReceived += HandleWebMessage;
         foreach (var name in ConsoleEvents)
         {
-            core.GetDevToolsProtocolEventReceiver(name).DevToolsProtocolEventReceived += (_, args) => ReceiveConsole(name, args.ParameterObjectAsJson);
+            var receiver = core.GetDevToolsProtocolEventReceiver(name);
+            receiver.DevToolsProtocolEventReceived += (_, args) => ReceiveConsole(name, args.ParameterObjectAsJson);
+            _receivers.Add(receiver);
         }
 
         foreach (var name in DevToolsNetwork.Events)
         {
-            core.GetDevToolsProtocolEventReceiver(name).DevToolsProtocolEventReceived += (_, args) => ReceiveNetwork(name, args.ParameterObjectAsJson);
+            var receiver = core.GetDevToolsProtocolEventReceiver(name);
+            receiver.DevToolsProtocolEventReceived += (_, args) => ReceiveNetwork(name, args.ParameterObjectAsJson);
+            _receivers.Add(receiver);
         }
 
         await core.AddScriptToExecuteOnDocumentCreatedAsync(BrowserPageScript.Keys(shortcutLetters));
-        await core.CallDevToolsProtocolMethodAsync("Runtime.enable", "{}");
-        await core.CallDevToolsProtocolMethodAsync("Log.enable", "{}");
-        await core.CallDevToolsProtocolMethodAsync("Network.enable", "{}");
+        await BrowserDevTools.EnableAsync(core);
         _core = core;
         await ApplyViewportAsync();
         core.Navigate(url);
@@ -148,14 +159,10 @@ internal sealed class BrowserView : IDisposable
                 Control.Visibility = Visibility.Visible;
             }
 
-            await core.CallDevToolsProtocolMethodAsync("Emulation.setDeviceMetricsOverride", Json(new { width = size.Width, height = size.Height, deviceScaleFactor = size.Scale, mobile = size.Mobile }));
-            await SettleAsync(core);
-            var (width, height) = fullPage ? await ContentSizeAsync(core) : (size.Width, size.Height);
-            var parameters = fullPage
-                ? Json(new { format = "png", captureBeyondViewport = true, clip = new { x = 0, y = 0, width, height, scale = 1 } })
-                : Json(new { format = "png" });
-            using var result = JsonDocument.Parse(await core.CallDevToolsProtocolMethodAsync("Page.captureScreenshot", parameters));
-            var data = result.RootElement.GetProperty("data").GetString() ?? string.Empty;
+            await BrowserDevTools.EmulateAsync(core, size);
+            await BrowserDevTools.SettleAsync(core);
+            var (width, height) = fullPage ? await BrowserDevTools.ContentSizeAsync(core) : (size.Width, size.Height);
+            var data = await BrowserDevTools.ScreenshotAsync(core, width, height, fullPage);
             return new BrowserCaptureModel(data, width, height, size.Scale, BrowserViewports.Name(viewport), core.Source, core.DocumentTitle);
         }
         finally
@@ -166,54 +173,13 @@ internal sealed class BrowserView : IDisposable
         }
     }
 
-    public async Task<string> SnapshotAsync()
-    {
-        var core = Require();
-        if (Control.Visibility != Visibility.Visible)
-        {
-            return string.Empty;
-        }
-
-        using var stream = new Windows.Storage.Streams.InMemoryRandomAccessStream();
-        await core.CapturePreviewAsync(CoreWebView2CapturePreviewImageFormat.Jpeg, stream);
-        var bytes = new byte[stream.Size];
-        using var input = stream.GetInputStreamAt(0).AsStreamForRead();
-        await input.ReadExactlyAsync(bytes);
-        return $"data:image/jpeg;base64,{Convert.ToBase64String(bytes)}";
-    }
-
-    private static async Task<(int Width, int Height)> ContentSizeAsync(CoreWebView2 core)
-    {
-        using var metrics = JsonDocument.Parse(await core.CallDevToolsProtocolMethodAsync("Page.getLayoutMetrics", "{}"));
-        var content = metrics.RootElement.GetProperty("cssContentSize");
-        var width = (int)Math.Ceiling(content.GetProperty("width").GetDouble());
-        var height = (int)Math.Min(Math.Ceiling(content.GetProperty("height").GetDouble()), BrowserCaptureModel.MaxFullPageHeight);
-        return (width, height);
-    }
-
-    private static async Task SettleAsync(CoreWebView2 core)
-    {
-        await core.CallDevToolsProtocolMethodAsync("Runtime.evaluate", Json(new
-        {
-            expression = "new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(resolve, 150))))",
-            awaitPromise = true
-        }));
-    }
+    public async Task<string> SnapshotAsync() => Control.Visibility == Visibility.Visible ? await BrowserDevTools.PreviewAsync(Require()) : string.Empty;
 
     private async Task ApplyViewportAsync()
     {
-        if (_core is null)
+        if (_core is not null)
         {
-            return;
-        }
-
-        if (Viewport == BrowserViewport.Mobile)
-        {
-            await _core.CallDevToolsProtocolMethodAsync("Emulation.setDeviceMetricsOverride", Json(new { width = 0, height = 0, deviceScaleFactor = 0, mobile = true }));
-        }
-        else
-        {
-            await _core.CallDevToolsProtocolMethodAsync("Emulation.clearDeviceMetricsOverride", "{}");
+            await BrowserDevTools.ApplyPaneViewportAsync(_core, Viewport);
         }
     }
 
@@ -343,8 +309,7 @@ internal sealed class BrowserView : IDisposable
     {
         try
         {
-            var json = await Require().CallDevToolsProtocolMethodAsync("Network.getResponseBody", Json(new { requestId }));
-            if (DevToolsNetwork.BodyOf(json) is { } body)
+            if (await BrowserDevTools.ResponseBodyAsync(Require(), requestId) is { } body)
             {
                 Log.AttachBody(sequence, body);
             }
@@ -356,6 +321,16 @@ internal sealed class BrowserView : IDisposable
 
     private void PostErrorsIfChanged()
     {
+        if (!_errorsScheduled)
+        {
+            _errorsScheduled = true;
+            _errorsTimer.Start();
+        }
+    }
+
+    private void PostErrorsNow()
+    {
+        _errorsScheduled = false;
         var errors = Log.ErrorCount();
         if (errors != _lastErrors)
         {
@@ -368,8 +343,6 @@ internal sealed class BrowserView : IDisposable
 
     private CoreWebView2 Require() => _core ?? throw new InvalidOperationException("Le navigateur de ce pane démarre encore : réessayez dans un instant.");
 
-    private static string Json(object value) => JsonSerializer.Serialize(value);
-
     public void Dispose()
     {
         foreach (var navigation in _navigations.ToList())
@@ -377,6 +350,7 @@ internal sealed class BrowserView : IDisposable
             navigation.TrySetException(new InvalidOperationException("Le pane navigateur a été fermé."));
         }
 
+        _errorsTimer.Stop();
         Control.Close();
     }
 }

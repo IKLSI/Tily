@@ -108,6 +108,20 @@ public sealed class BrowserLogTests
     }
 
     [Fact]
+    public void ErrorCount_WhenMoreErrorsThanBufferHolds_ThenAllCounted()
+    {
+        var log = NewLog();
+        for (var index = 0; index < BrowserLog.MaxConsoleEntries + 500; index++)
+        {
+            log.AddConsole(new BrowserConsoleMessageModel(BrowserLogLevel.Error, "rafale", null, null));
+        }
+
+        var count = log.ErrorCount();
+
+        Assert.Equal(BrowserLog.MaxConsoleEntries + 500, count);
+    }
+
+    [Fact]
     public void AttachBody_WhenEntryKnown_ThenBodyTruncated()
     {
         var log = NewLog();

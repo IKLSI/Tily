@@ -85,6 +85,15 @@ const CloseIcon = () => (
   </svg>
 )
 
+const ErrorIcon = () => (
+  <svg {...ICON_PROPS} aria-hidden="true">
+    <circle cx="6" cy="6" r="4.5" />
+    <path d="M6 3.5v3M6 8.5v.01" />
+  </svg>
+)
+
+const errorsLabel = (count: number): string => (count === 1 ? '1 erreur' : `${count} erreurs`)
+
 const focusBlocked = (): boolean => {
   const { renamingWorkspaceId, renamingTabId, paletteOpen, projectPickerOpen, settingsOpen, closeConfirmation } = useUiStore.getState()
   return Boolean(renamingWorkspaceId || renamingTabId || paletteOpen || projectPickerOpen || settingsOpen || closeConfirmation)
@@ -134,6 +143,7 @@ export const BrowserPaneView = memo(function BrowserPaneView({ pane, active, zoo
     }
   }
   const viewportLabel = mobile ? 'Largeur desktop' : 'Largeur mobile (390 px)'
+  const errors = state?.errors ?? 0
 
   return (
     <section
@@ -153,6 +163,12 @@ export const BrowserPaneView = memo(function BrowserPaneView({ pane, active, zoo
           <ReloadIcon />
         </button>
         <BrowserAddressBar url={state?.url ?? pane.url} editing={editing} onNavigate={handleNavigate} onLeave={handleLeaveAddress} />
+        {errors > 0 && (
+          <button type="button" className="flex h-5 shrink-0 cursor-pointer items-center gap-1 rounded px-1 font-mono text-tily-error hover:bg-tily-green-hover" data-tip={`${errorsLabel(errors)} depuis le dernier chargement (console et réseau) · clic : outils de développement`} aria-label={errorsLabel(errors)} onClick={handleDevTools}>
+            <ErrorIcon />
+            {errors}
+          </button>
+        )}
         <button type="button" className={`${SECONDARY_BUTTON} ${mobile ? 'text-tily-green' : ''}`} data-tip={viewportLabel} aria-label={viewportLabel} aria-pressed={mobile} onClick={handleToggleViewport}>
           {mobile ? <DesktopIcon /> : <MobileIcon />}
         </button>
