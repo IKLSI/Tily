@@ -300,7 +300,7 @@ public sealed class HostBridge : IDisposable
                 PostDroppedPath(command);
                 break;
             case "terminal.activity":
-                Post(new { type = "terminal.activityResult", panes = _terminals.Activity(command.Panes ?? []) });
+                Post(new { type = "terminal.activityResult", request = command.Request, panes = _terminals.Activity(command.Panes ?? []) });
                 break;
             case "projects.list":
                 ListProjects(_settings.ProjectsRoot, _settings.Worktrees.FolderFor(_settings.ProjectsRoot), _settings.WorktreeFolders);

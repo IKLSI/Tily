@@ -4,6 +4,7 @@ import type { HostMessageOf } from '../bridge/messages'
 import { useAgentStore } from '../store/agentStore'
 import { terminalRegistry } from '../terminal/terminalRegistry'
 import { argumentsOf } from './mcpArguments'
+import { closeElement } from './mcpClose'
 import { listCommands } from './mcpCommands'
 import { layoutOf } from './mcpLayout'
 import { focusElement, newTab, openWorkspace, renameElement, splitPane } from './mcpOrganize'
@@ -38,6 +39,8 @@ const answer = async (request: McpRequest): Promise<unknown> => {
       return runCommand(argumentsOf(request.arguments), request.pane)
     case McpTool.Interrupt:
       return interruptPane(argumentsOf(request.arguments), request.pane)
+    case McpTool.Close:
+      return closeElement(argumentsOf(request.arguments), request.pane)
     default:
       throw new Error(`Outil Tily inconnu : ${request.tool}. Mettez Tily à jour.`)
   }

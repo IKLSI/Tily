@@ -9,7 +9,7 @@ internal static class TilyActions
 {
     private const string Ownership =
         "Les onglets et panes que vous créez vous appartiennent et sont marqués « créé par Claude » : "
-        + "vous pouvez y écrire (tily_run) et les interrompre (tily_interrupt) sans confirmation.";
+        + "vous pouvez y écrire (tily_run), les interrompre (tily_interrupt) et les fermer quand rien n’y tourne (tily_close) sans confirmation.";
 
     private const string Display =
         "Avec command, l’onglet est affiché et la commande y est lancée dès l’invite ; avec focus, il est affiché sans commande. "
@@ -31,13 +31,21 @@ internal static class TilyActions
     private const string RenameDescription =
         "Renomme un workspace ou un onglet (un seul des deux). Un onglet renommé garde ce nom au lieu de suivre le dossier de son pane.";
 
+    private const string Consent =
+        "Hors des panes qui vous appartiennent, Tily demande l’accord de l’utilisateur (au plus 2 minutes) ; un refus revient en erreur : ne réessayez pas sans lui demander.";
+
     private const string RunDescription =
-        "Écrit une commande d’une ligne dans un pane, puis Entrée, comme une frappe. Réservé aux panes qui vous appartiennent ; "
-        + "le pane ne doit avoir ni commande en cours ni programme plein écran. Avec Windows PowerShell et PowerShell 7, attend que la commande démarre "
-        + "(ou se termine si elle est brève) ; suivez-la ensuite avec tily_wait_for et tily_read_pane.";
+        "Écrit une commande d’une ligne dans un pane, puis Entrée, comme une frappe. Le pane ne doit avoir ni commande en cours ni programme plein écran. "
+        + "Avec Windows PowerShell et PowerShell 7, attend que la commande démarre (ou se termine si elle est brève) ; suivez-la ensuite avec tily_wait_for et tily_read_pane. "
+        + Consent;
 
     private const string InterruptDescription =
-        "Envoie Ctrl + C à un pane qui vous appartient pour arrêter sa commande en cours ; avec Windows PowerShell et PowerShell 7, indique si elle s’est arrêtée.";
+        "Envoie Ctrl + C à un pane pour arrêter sa commande en cours ; avec Windows PowerShell et PowerShell 7, indique si elle s’est arrêtée. " + Consent;
+
+    private const string CloseDescription =
+        "Ferme un pane ou un onglet (un seul des deux) et arrête ses programmes ; un onglet fermé se rouvre dans Tily par Ctrl + Maj + Z. "
+        + "Sans confirmation s’il vous appartient et qu’aucun programme n’y tourne ; sinon, Tily demande l’accord de l’utilisateur (au plus 2 minutes). "
+        + "Votre propre pane et son onglet ne peuvent pas être fermés.";
 
     private const string PathDescription = "Dossier : chemin absolu, ou relatif à votre dossier courant.";
     private const string ShellDescription = "Shell : powershell (Windows PowerShell 5.1), pwsh (PowerShell 7), cmd ou gitbash.";
@@ -53,7 +61,8 @@ internal static class TilyActions
         McpServerTool.Create((Func<string?, string?, string?, CancellationToken, Task<CallToolResult>>)FocusAsync, Options("tily_focus", "Afficher dans Tily", FocusDescription, false, true)),
         McpServerTool.Create((Func<string, string?, string?, CancellationToken, Task<CallToolResult>>)RenameAsync, Options("tily_rename", "Renommer", RenameDescription, false, true)),
         McpServerTool.Create((Func<string, string, CancellationToken, Task<CallToolResult>>)RunAsync, Options("tily_run", "Lancer une commande", RunDescription, true, false)),
-        McpServerTool.Create((Func<string, CancellationToken, Task<CallToolResult>>)InterruptAsync, Options("tily_interrupt", "Interrompre (Ctrl + C)", InterruptDescription, true, false))
+        McpServerTool.Create((Func<string, CancellationToken, Task<CallToolResult>>)InterruptAsync, Options("tily_interrupt", "Interrompre (Ctrl + C)", InterruptDescription, true, false)),
+        McpServerTool.Create((Func<string?, string?, CancellationToken, Task<CallToolResult>>)CloseAsync, Options("tily_close", "Fermer un pane ou un onglet", CloseDescription, true, false))
     ];
 
     private static McpServerToolCreateOptions Options(string name, string title, string description, bool destructive, bool idempotent) => new()
@@ -154,4 +163,10 @@ internal static class TilyActions
         [Description(TargetPaneDescription)] string pane,
         CancellationToken token = default) =>
         TilyConnection.CallAsync(McpActions.Interrupt, new { pane }, token);
+
+    private static Task<CallToolResult> CloseAsync(
+        [Description("Identifiant du pane à fermer, donné par tily_layout.")] string? pane = null,
+        [Description("Identifiant de l’onglet à fermer, donné par tily_layout.")] string? tab = null,
+        CancellationToken token = default) =>
+        TilyConnection.CallAsync(McpActions.Close, new { pane, tab }, token);
 }

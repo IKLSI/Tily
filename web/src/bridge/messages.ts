@@ -180,7 +180,7 @@ export type HostToWebMessage =
   | { type: 'terminal.exit'; pane: string; code: number }
   | { type: 'terminal.dropped'; pane: string; text: string }
   | { type: 'terminal.pathMissing'; pane: string; path: string; fallback: string }
-  | { type: 'terminal.activityResult'; panes: PaneActivity[] }
+  | { type: 'terminal.activityResult'; request?: number; panes: PaneActivity[] }
   | { type: 'agent.states'; panes: PaneAgent[] }
   | { type: 'agent.join'; pane: string }
   | { type: 'projects.listed'; root: string; projects: Project[]; error?: string }
@@ -221,7 +221,7 @@ export type WebToHostMessage =
   | { type: 'terminal.resize'; pane: string; cols: number; rows: number }
   | { type: 'terminal.ack'; pane: string; chars: number }
   | { type: 'terminal.close'; pane: string }
-  | { type: 'terminal.activity'; panes: string[] }
+  | { type: 'terminal.activity'; panes: string[]; request?: number }
   | { type: 'terminal.drop'; pane: string; shell: string }
   | { type: 'terminal.dropPath'; pane: string; shell: string; path: string }
   | { type: 'projects.list' }

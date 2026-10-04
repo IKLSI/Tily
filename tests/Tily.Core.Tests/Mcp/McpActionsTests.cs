@@ -47,6 +47,19 @@ public sealed class McpActionsTests
         Assert.StartsWith("Nom trop long", error.Message);
     }
 
+    [Theory]
+    [InlineData(McpActions.Run, true)]
+    [InlineData(McpActions.Interrupt, true)]
+    [InlineData(McpActions.Close, true)]
+    [InlineData(McpActions.NewTab, false)]
+    [InlineData(McpLayout.Tool, false)]
+    public void MayAskConsent_WhenTool_ThenOnlyWritingAndClosing(string tool, bool expected)
+    {
+        var mayAsk = McpActions.MayAskConsent(tool);
+
+        Assert.Equal(expected, mayAsk);
+    }
+
     [Fact]
     public void Name_WhenPadded_ThenTrimmed()
     {

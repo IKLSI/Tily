@@ -115,7 +115,7 @@ public sealed class McpFeed : IDisposable
         try
         {
             _post(new { type = "mcp.request", id, tool = request.Tool, pane = request.Pane, arguments = request.Arguments });
-            response = await answer.Task.WaitAsync(request.Tool == McpWaitFor.Tool ? McpWaitFor.AnswerTimeout(request.Arguments) : AnswerTimeout, token);
+            response = await answer.Task.WaitAsync(AnswerTimeoutOf(request), token);
         }
         catch (TimeoutException)
         {
@@ -130,6 +130,13 @@ public sealed class McpFeed : IDisposable
             ? McpPipeResponseModel.Success(McpLayout.WithBranches(layout, GitContext.Resolve))
             : response;
     }
+
+    private static TimeSpan AnswerTimeoutOf(McpPipeRequestModel request) => request.Tool switch
+    {
+        McpWaitFor.Tool => McpWaitFor.AnswerTimeout(request.Arguments),
+        var tool when McpActions.MayAskConsent(tool) => McpActions.ConsentAnswerTimeout,
+        _ => AnswerTimeout
+    };
 
     public void Dispose()
     {

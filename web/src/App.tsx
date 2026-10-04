@@ -11,6 +11,7 @@ import { usePaneStore } from './store/paneStore'
 import { useSessionStore } from './store/sessionStore'
 import { useUiStore } from './store/uiStore'
 import { receiveActivity, receiveApplicationClosing } from './terminal/closeGuard'
+import { receiveQueriedActivity } from './terminal/paneActivity'
 import { queryContext, receiveContext } from './terminal/contextActions'
 import { startExternalDrops } from './terminal/externalDrop'
 import { receiveCreated, receiveDeleted, receiveGitMarks, receiveListing, receiveRenamed } from './explorer/fileExplorerActions'
@@ -96,7 +97,11 @@ export default function App() {
         setStatus(`Préférences lues depuis ${message.path} : Enregistrer remplace la configuration actuelle.`)
       }),
       bridge.on('app.closing', (message) => receiveApplicationClosing(message.activity)),
-      bridge.on('terminal.activityResult', (message) => receiveActivity(message.panes)),
+      bridge.on('terminal.activityResult', (message) => {
+        if (!receiveQueriedActivity(message.request, message.panes)) {
+          receiveActivity(message.panes)
+        }
+      }),
       bridge.on('agent.states', (message) => useAgentStore.getState().setAgents(message.panes)),
       bridge.on('agent.join', (message) => joinPane(message.pane)),
       bridge.on('session.saved', () => setUnsaved(false)),

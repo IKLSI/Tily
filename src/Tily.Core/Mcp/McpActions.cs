@@ -9,8 +9,12 @@ public static class McpActions
     public const string Rename = "rename";
     public const string Run = "run";
     public const string Interrupt = "interrupt";
+    public const string Close = "close";
     public const int MaxNameChars = 100;
     public const int MaxCommandChars = 4000;
+    public static readonly TimeSpan ConsentAnswerTimeout = TimeSpan.FromSeconds(125);
+
+    public static bool MayAskConsent(string tool) => tool is Run or Interrupt or Close;
 
     public static string? Command(string? command)
     {

@@ -10,6 +10,7 @@ export enum McpTool {
   Rename = 'rename',
   Run = 'run',
   Interrupt = 'interrupt',
+  Close = 'close',
 }
 
 export interface McpServerInfo {

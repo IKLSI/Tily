@@ -3,6 +3,7 @@ import { formatCommandDuration } from '../terminal/commandNotices'
 import { commandTracking } from '../terminal/commandOutput'
 import { textArgument, type McpArguments } from './mcpArguments'
 import { describeCommand, type McpCommand } from './mcpCommands'
+import { paneLabel, requireConsent } from './mcpConsent'
 import { locationOf, requireStartedPane, type McpPaneTarget } from './mcpPanes'
 import { outputSettled } from './mcpWaitFor'
 
@@ -25,12 +26,14 @@ interface McpRunResult {
   message: string
   command?: McpCommand
   startedAt?: string
+  approved?: boolean
 }
 
 interface McpInterruptResult {
   pane: string
   stopped?: boolean
   message: string
+  approved?: boolean
 }
 
 const pollUntil = (condition: () => boolean, timeoutMs: number): Promise<boolean> =>
@@ -45,13 +48,18 @@ const pollUntil = (condition: () => boolean, timeoutMs: number): Promise<boolean
     }, POLL_MS)
   })
 
-export const requireOwned = (target: McpPaneTarget, caller: string | undefined, action: string): void => {
-  if (!caller || target.pane.owner !== caller) {
-    throw new Error(`Le pane ${target.pane.id} (${locationOf(target)}) n’a pas été créé par vous : ${action} demande l’accord de l’utilisateur.`)
+const requirePermission = async (target: McpPaneTarget, caller: string | undefined, action: string, detail: string | undefined): Promise<boolean> => {
+  if (target.pane.id === caller) {
+    throw new Error('Vous ne pouvez pas écrire dans votre propre pane ni l’interrompre : Claude Code s’y exécute.')
   }
+  if (caller && target.pane.owner === caller) {
+    return false
+  }
+  await requireConsent({ caller, action, target: paneLabel(target), detail })
+  return true
 }
 
-const requireReady = (target: McpPaneTarget): void => {
+const requireReady = (target: McpPaneTarget): McpPaneTarget => {
   if (usePaneStore.getState().states[target.pane.id]?.kind === PaneStateKind.Exited) {
     throw new Error(`Le shell du pane ${target.pane.id} (${locationOf(target)}) s’est terminé : relancez-le depuis Tily ou ouvrez un autre pane.`)
   }
@@ -62,16 +70,22 @@ const requireReady = (target: McpPaneTarget): void => {
   if (running) {
     throw new Error(`Une commande tourne déjà dans le pane ${target.pane.id} (« ${running.command} ») : arrêtez-la avec tily_interrupt ou ouvrez un autre pane.`)
   }
+  return target
 }
 
 export const runCommand = async (values: McpArguments, caller: string | undefined): Promise<McpRunResult> => {
-  const target = requireStartedPane(textArgument(values, 'pane'))
-  requireOwned(target, caller, 'y écrire')
+  const paneId = textArgument(values, 'pane')
   const command = textArgument(values, 'command')
   if (!command) {
     throw new Error('Indiquez la commande à lancer.')
   }
-  requireReady(target)
+  const approved = await requirePermission(requireReady(requireStartedPane(paneId)), caller, 'Lancer une commande', command)
+  const target = requireReady(requireStartedPane(paneId))
+  const result = await send(target, command)
+  return approved ? { ...result, approved } : result
+}
+
+const send = async (target: McpPaneTarget, command: string): Promise<McpRunResult> => {
   const { terminal } = target.handle
   const before = commandTracking(terminal)
   const lastId = before.finished.at(-1)?.id ?? 0
@@ -98,8 +112,14 @@ export const runCommand = async (values: McpArguments, caller: string | undefine
 }
 
 export const interruptPane = async (values: McpArguments, caller: string | undefined): Promise<McpInterruptResult> => {
-  const target = requireStartedPane(textArgument(values, 'pane'))
-  requireOwned(target, caller, 'l’interrompre')
+  const paneId = textArgument(values, 'pane')
+  const running = commandTracking(requireStartedPane(paneId).handle.terminal).running
+  const approved = await requirePermission(requireStartedPane(paneId), caller, 'Envoyer Ctrl + C', running?.command ? `Commande en cours : ${running.command}` : undefined)
+  const result = await interrupt(requireStartedPane(paneId))
+  return approved ? { ...result, approved } : result
+}
+
+const interrupt = async (target: McpPaneTarget): Promise<McpInterruptResult> => {
   const { terminal } = target.handle
   const before = commandTracking(terminal)
   terminal.input(CTRL_C, false)

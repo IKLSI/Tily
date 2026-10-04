@@ -17,6 +17,7 @@ import { focusGitPanel, takeFocusFromCoveredTerminals } from '../git/gitFocus'
 import { openWorkspaceNotes, toggleRightPanel } from '../panel/rightPanel'
 import { useGitStore } from '../store/gitStore'
 import { usePreviewStore } from '../store/previewStore'
+import { useMcpConsentStore } from '../store/mcpConsentStore'
 import { usePasteStore } from '../store/pasteStore'
 import { worktreeModalOpen } from '../store/worktreeStore'
 import { filePickerOpen } from '../store/filePickerStore'
@@ -27,6 +28,7 @@ import { focusPane, joinPane } from '../terminal/terminalActions'
 import { togglePaneZoom, useEndZoomWhenPaneChanges, zoomedPaneOf } from '../terminal/paneZoom'
 import { AttentionToasts } from './AttentionToasts'
 import { CloseConfirmDialog } from './CloseConfirmDialog'
+import { McpConsentDialog } from './McpConsentDialog'
 import { PasteConfirmDialog } from './PasteConfirmDialog'
 import { CommandPalette } from './CommandPalette'
 import { DeleteConfirmDialog } from './DeleteConfirmDialog'
@@ -172,7 +174,7 @@ const handleCancelGit = (): void => {
 
 const confirmationOpen = (): boolean => {
   const { settingsOpen, closeConfirmation } = useUiStore.getState()
-  return settingsOpen || closeConfirmation !== null || useExplorerStore.getState().deleteRequest !== null || useGitStore.getState().confirmation !== null || usePasteStore.getState().request !== null || worktreeModalOpen() || filePickerOpen() || commitPickerOpen() || usePreviewStore.getState().pendingAction !== null
+  return settingsOpen || closeConfirmation !== null || useExplorerStore.getState().deleteRequest !== null || useGitStore.getState().confirmation !== null || usePasteStore.getState().request !== null || useMcpConsentStore.getState().queue.length > 0 || worktreeModalOpen() || filePickerOpen() || commitPickerOpen() || usePreviewStore.getState().pendingAction !== null
 }
 
 const modalOpen = (): boolean => {
@@ -403,6 +405,7 @@ export function AppShell({ session }: AppShellProps) {
       {closeConfirmation && <CloseConfirmDialog confirmation={closeConfirmation} onConfirm={confirmClose} onCancel={handleCancelClose} />}
       <PasteConfirmDialog />
       {unsavedPreview && <UnsavedPreviewDialog />}
+      <McpConsentDialog />
       <Tooltip />
       <StatusBar />
     </div>
