@@ -17,7 +17,7 @@ internal sealed class BrowserView : IDisposable
 
     private readonly BrowserCallbacks _callbacks;
     private readonly DevToolsNetwork _network = new();
-    private readonly List<TaskCompletionSource<BrowserNavigationModel>> _navigations = [];
+    private readonly List<BrowserNavigationWaiter> _navigations = [];
     private readonly List<CoreWebView2DevToolsProtocolEventReceiver> _receivers = [];
     private CoreWebView2? _core;
     private Rect _bounds;
@@ -200,12 +200,12 @@ internal sealed class BrowserView : IDisposable
 
     private async Task<BrowserNavigationModel> WaitForNavigationAsync(Action start, TimeSpan timeout)
     {
-        var completion = new TaskCompletionSource<BrowserNavigationModel>(TaskCreationOptions.RunContinuationsAsynchronously);
-        _navigations.Add(completion);
+        var waiter = new BrowserNavigationWaiter();
+        _navigations.Add(waiter);
         start();
         try
         {
-            return await completion.Task.WaitAsync(timeout);
+            return await waiter.Completion.Task.WaitAsync(timeout);
         }
         catch (TimeoutException)
         {
@@ -213,12 +213,17 @@ internal sealed class BrowserView : IDisposable
         }
         finally
         {
-            _navigations.Remove(completion);
+            _navigations.Remove(waiter);
         }
     }
 
     private void HandleNavigationStarting(CoreWebView2 sender, CoreWebView2NavigationStartingEventArgs args)
     {
+        foreach (var waiter in _navigations.Where(waiter => waiter.NavigationId is null))
+        {
+            waiter.NavigationId = args.NavigationId;
+        }
+
         Loading = true;
         Log.StartLoad();
         _lastErrors = 0;
@@ -229,11 +234,11 @@ internal sealed class BrowserView : IDisposable
     {
         Loading = false;
         var status = args.HttpStatusCode > 0 ? args.HttpStatusCode : (int?)null;
-        var error = args.IsSuccess ? null : args.WebErrorStatus.ToString();
+        var error = args.IsSuccess ? null : $"Chargement impossible : {args.WebErrorStatus}.";
         var result = new BrowserNavigationModel(sender.Source, sender.DocumentTitle, args.IsSuccess, status, error, Log.ErrorCount());
-        foreach (var navigation in _navigations.ToList())
+        foreach (var waiter in _navigations.Where(waiter => waiter.NavigationId == args.NavigationId).ToList())
         {
-            navigation.TrySetResult(result);
+            waiter.Completion.TrySetResult(result);
         }
 
         PostState();
@@ -345,9 +350,9 @@ internal sealed class BrowserView : IDisposable
 
     public void Dispose()
     {
-        foreach (var navigation in _navigations.ToList())
+        foreach (var waiter in _navigations.ToList())
         {
-            navigation.TrySetException(new InvalidOperationException("Le pane navigateur a été fermé."));
+            waiter.Completion.TrySetException(new InvalidOperationException("Le pane navigateur a été fermé."));
         }
 
         _errorsTimer.Stop();
