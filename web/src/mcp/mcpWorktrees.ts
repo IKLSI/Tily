@@ -7,7 +7,7 @@ import { StatusLevel, useHostStore } from '../store/hostStore'
 import { useSessionStore } from '../store/sessionStore'
 import { useWorktreeStore } from '../store/worktreeStore'
 import { terminalRegistry } from '../terminal/terminalRegistry'
-import { cancelWorktreeRemoval, requestWorktreeRemoval } from '../worktree/worktreeActions'
+import { cancelWorktreeRemoval, queueWorktreeTask, requestWorktreeRemoval } from '../worktree/worktreeActions'
 import { isWithinFolder, sameFolder } from '../worktree/worktreePaths'
 import { flagArgument, textArgument, type McpArguments } from './mcpArguments'
 import { agentLabel } from './mcpConsent'
@@ -18,7 +18,7 @@ const REPLY_TIMEOUT_MS = 15_000
 const CONSENT_TIMEOUT_MS = 120_000
 const OPERATION_TIMEOUT_MS = 590_000
 const MAX_OUTPUT_CHARS = 4000
-const BUSY = 'Une création ou une suppression de worktree est déjà en cours dans Tily : réessayez quand elle sera terminée.'
+const REMOVAL_PENDING = 'Une confirmation de suppression de worktree est déjà affichée dans Tily : réessayez quand l’utilisateur y aura répondu.'
 
 type Listed = HostMessageOf<'worktrees.listed'>
 type Created = HostMessageOf<'worktrees.created'>
@@ -155,8 +155,6 @@ const runCreation = (creation: CreationRequest, owner: string, focus: boolean): 
       clearTimeout(timer)
       stop()
       if (type === 'worktrees.failed') {
-        useWorktreeStore.getState().setBusy(null)
-        useHostStore.getState().setStatus((message as Failed).message, StatusLevel.Error)
         reject(new Error(failureOf(message as Failed)))
       } else if (opened) {
         resolve({ ...opened, message: (message as Done).message, warnings: (message as Done).warnings })
@@ -164,8 +162,7 @@ const runCreation = (creation: CreationRequest, owner: string, focus: boolean): 
         reject(new Error('Le worktree a été créé, mais Tily n’a pas pu l’ouvrir.'))
       }
     })
-    useWorktreeStore.getState().setBusy(WorktreeOperation.Create)
-    useHostStore.getState().setStatus('Création d’un worktree demandée par Claude Code…')
+    queueWorktreeTask({ request, operation: WorktreeOperation.Create, fromDialog: false }, 'Création d’un worktree demandée par Claude Code')
     bridge.send({ type: 'worktrees.create', request, ...creation, remember: false, rememberFolder: false })
   })
 
@@ -178,9 +175,6 @@ export const createWorktree = async (values: McpArguments, caller: string | unde
   const mode = modeOf(textArgument(values, 'mode'))
   const base = textArgument(values, 'base')
   const folder = textArgument(values, 'folder')
-  if (useWorktreeStore.getState().busy) {
-    throw new Error(BUSY)
-  }
   const { sources } = await askHost<HostMessageOf<'worktrees.sourcesFound'>>('worktrees.sourcesFound', (request) =>
     bridge.send({ type: 'worktrees.sources', request, path: folderArgument(values, 'repository', caller) }),
   )
@@ -190,9 +184,6 @@ export const createWorktree = async (values: McpArguments, caller: string | unde
   )
   if (plan.error || !plan.path) {
     throw new Error(plan.error ?? 'Tily n’a pas pu déterminer le dossier du worktree.')
-  }
-  if (useWorktreeStore.getState().busy) {
-    throw new Error(BUSY)
   }
   const creation: CreationRequest = { repository, branch, mode, base, install: values.install !== false, database: values.database !== false, project: sources.project, folder }
   return runCreation(creation, owner, flagArgument(values, 'focus'))
@@ -257,9 +248,8 @@ export const removeWorktree = async (values: McpArguments, caller: string | unde
   if (callerPlace && isWithinFolder(callerPlace.pane.path, worktree.path)) {
     throw new Error('Votre pane est dans ce worktree : Claude Code ne peut pas supprimer le dossier dans lequel il tourne.')
   }
-  const { removal, busy } = useWorktreeStore.getState()
-  if (removal || busy) {
-    throw new Error(BUSY)
+  if (useWorktreeStore.getState().removal) {
+    throw new Error(REMOVAL_PENDING)
   }
   return awaitRemoval(worktree, caller, values)
 }

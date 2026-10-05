@@ -6,6 +6,7 @@ import { StatusLevel, useHostStore } from '../store/hostStore'
 import { useStatusLogStore } from '../store/statusLogStore'
 import { useWorktreeStore } from '../store/worktreeStore'
 import { entryFullDate, entryTime, toggleStatusLog } from '../statusLog/statusLogActions'
+import { formatCommandDuration } from '../terminal/commandNotices'
 import { Icon } from './Icon'
 import { IconName } from './iconName'
 import { Spinner } from './Spinner'
@@ -27,7 +28,9 @@ export function StatusBar() {
   const status = useHostStore((state) => state.status)
   const unsaved = useHostStore((state) => state.unsaved)
   const { busy, busyRefs } = useGitStore(useShallow((state) => ({ busy: state.busy, busyRefs: state.busyRefs })))
-  const worktreeBusy = useWorktreeStore((state) => state.busy !== null)
+  const { worktreeTasks, purge } = useWorktreeStore(useShallow((state) => ({ worktreeTasks: state.tasks.length, purge: state.purge })))
+  const worktreeBusy = worktreeTasks > 0
+  const waiting = worktreeTasks - 1
   const logOpen = useStatusLogStore((state) => state.open)
   const spinning = Boolean(busy) || worktreeBusy
 
@@ -57,6 +60,17 @@ export function StatusBar() {
         <span role="status" className="sr-only">
           {status.text}
         </span>
+        {waiting > 0 && (
+          <span className="shrink-0 px-3 text-tily-muted" data-tip={`${waiting} opération${waiting > 1 ? 's' : ''} de worktree en attente`}>
+            {`+${waiting} en attente`}
+          </span>
+        )}
+        {purge && (
+          <span className="flex shrink-0 items-center gap-[6px] px-3 text-tily-muted tabular-nums" data-tip="Fichiers d’un worktree supprimé, effacés en arrière-plan">
+            <Spinner size={10} className="shrink-0 text-tily-green" />
+            {`Effacement de « ${purge.name} » : ${purge.files.toLocaleString('fr-FR')} fichiers (${formatCommandDuration(purge.elapsedMs)})`}
+          </span>
+        )}
         {status.at && !spinning && (
           <time dateTime={status.at} data-tip={`Message du ${entryFullDate(status)}`} className="shrink-0 px-3 text-tily-muted tabular-nums">
             {entryTime(status, new Date())}

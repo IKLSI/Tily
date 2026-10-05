@@ -31,6 +31,19 @@ export interface WorktreeFailure {
   lockedBy?: string[]
 }
 
+export interface WorktreeTask {
+  request: number
+  operation: WorktreeOperation
+  fromDialog: boolean
+  removal?: WorktreeRemoval
+}
+
+export interface WorktreePurge {
+  name: string
+  files: number
+  elapsedMs: number
+}
+
 export interface WorktreeRemoval {
   path: string
   name: string
@@ -53,9 +66,9 @@ interface WorktreeState {
   planPending: boolean
   plan: WorktreePlan | null
   createFailure: WorktreeFailure | null
-  busy: WorktreeOperation | null
+  tasks: WorktreeTask[]
+  purge: WorktreePurge | null
   removal: WorktreeRemoval | null
-  pendingRemoval: WorktreeRemoval | null
   setPicker: (picker: WorktreePickerKind | null) => void
   setDraft: (draft: WorktreeDraft | null) => void
   requestSources: () => number
@@ -63,9 +76,10 @@ interface WorktreeState {
   requestPlan: () => number
   receivePlan: (request: number, plan: WorktreePlan) => void
   setCreateFailure: (createFailure: WorktreeFailure | null) => void
-  setBusy: (busy: WorktreeOperation | null) => void
+  addTask: (task: WorktreeTask) => void
+  takeTask: (request: number | undefined) => WorktreeTask | undefined
+  setPurge: (purge: WorktreePurge | null) => void
   setRemoval: (removal: WorktreeRemoval | null) => void
-  setPendingRemoval: (pendingRemoval: WorktreeRemoval | null) => void
 }
 
 export const useWorktreeStore = create<WorktreeState>()((set, get) => ({
@@ -77,9 +91,9 @@ export const useWorktreeStore = create<WorktreeState>()((set, get) => ({
   planPending: false,
   plan: null,
   createFailure: null,
-  busy: null,
+  tasks: [],
+  purge: null,
   removal: null,
-  pendingRemoval: null,
   setPicker: (picker) => set({ picker }),
   setDraft: (draft) => set(draft ? { draft } : { draft, sources: null, plan: null, planPending: false, createFailure: null }),
   requestSources: () => {
@@ -102,9 +116,16 @@ export const useWorktreeStore = create<WorktreeState>()((set, get) => ({
   },
   receivePlan: (request, plan) => set((current) => (current.planRequest === request && current.draft ? { plan, planPending: false } : current)),
   setCreateFailure: (createFailure) => set({ createFailure }),
-  setBusy: (busy) => set({ busy }),
+  addTask: (task) => set((current) => ({ tasks: [...current.tasks, task] })),
+  takeTask: (request) => {
+    const task = get().tasks.find((candidate) => candidate.request === request)
+    if (task) {
+      set((current) => ({ tasks: current.tasks.filter((candidate) => candidate !== task) }))
+    }
+    return task
+  },
+  setPurge: (purge) => set({ purge }),
   setRemoval: (removal) => set({ removal }),
-  setPendingRemoval: (pendingRemoval) => set({ pendingRemoval }),
 }))
 
 export const worktreeModalOpen = (): boolean => {

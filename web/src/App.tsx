@@ -6,7 +6,6 @@ import { receiveBrowserFailure, receiveBrowserFocused, receiveBrowserState, rece
 import { receiveBrowserKey } from './browser/browserKeys'
 import { disposeMissingBrowsers, startBrowserLayer } from './browser/browserLayer'
 import { dispatchReply } from './bridge/requestListeners'
-import { WorktreeOperation } from './bridge/worktreeMessages'
 import { AppShell } from './components/AppShell'
 import { receiveMcpRequest } from './mcp/mcpRequests'
 import { allPanes, restoredSessionLabel } from './model/session'
@@ -27,7 +26,18 @@ import { receiveGitAutoFetchEnded, receiveGitAutoFetchStarted, receiveGitChanged
 import { insertIntoPane, joinPane } from './terminal/terminalActions'
 import { WORKTREE_FOLDER_FIELD, WORKTREE_REPOSITORY_FIELD } from './worktree/worktreeActions'
 import { PROJECT_REPOSITORY_FIELD, receiveProjectRepositories, receiveProjectRepositoryPicked, receiveProjectRepositoryRemembered } from './project/projectOpenActions'
-import { receiveWorktreeCreated, receiveWorktreeDone, receiveWorktreeFailed, receiveWorktreePlan, receiveWorktreeProgress, receiveWorktreeFolderPicked, receiveWorktreeRepositoryPicked, receiveWorktreeSources } from './worktree/worktreeReceivers'
+import {
+  receiveWorktreeCreated,
+  receiveWorktreeDone,
+  receiveWorktreeFailed,
+  receiveWorktreePlan,
+  receiveWorktreeProgress,
+  receiveWorktreePurged,
+  receiveWorktreePurging,
+  receiveWorktreeFolderPicked,
+  receiveWorktreeRepositoryPicked,
+  receiveWorktreeSources,
+} from './worktree/worktreeReceivers'
 import { terminalRegistry } from './terminal/terminalRegistry'
 import { receiveUpdateRestart, receiveUpdateState } from './update/updateActions'
 import { receiveStatusLogCleared, receiveStatusLogEntry, startStatusLog } from './statusLog/statusLogActions'
@@ -151,17 +161,18 @@ export default function App() {
       bridge.on('worktrees.sourcesFound', (message) => dispatchReply(message.type, message.request, message) || receiveWorktreeSources(message.request, message.sources)),
       bridge.on('worktrees.planned', (message) => dispatchReply(message.type, message.request, message) || receiveWorktreePlan(message.request, message.plan)),
       bridge.on('worktrees.listed', (message) => dispatchReply(message.type, message.request, message)),
-      bridge.on('worktrees.progress', (message) => receiveWorktreeProgress(message.operation, message.message)),
+      bridge.on('worktrees.progress', (message) => receiveWorktreeProgress(message.message)),
       bridge.on('worktrees.created', (message) => dispatchReply(message.type, message.request, message) || receiveWorktreeCreated(message.path, message.name, message.install)),
       bridge.on('worktrees.done', (message) => {
         dispatchReply(message.type, message.request, message)
-        receiveWorktreeDone(message.operation, message.message, message.warnings)
+        receiveWorktreeDone(message.request, message.message, message.warnings)
       }),
       bridge.on('worktrees.failed', (message) => {
-        if (!dispatchReply(message.type, message.request, message) || message.operation === WorktreeOperation.Remove) {
-          receiveWorktreeFailed(message.operation, message.message, message.output, message.lockedBy)
-        }
+        dispatchReply(message.type, message.request, message)
+        receiveWorktreeFailed(message.request, message.operation, message.message, message.output, message.lockedBy)
       }),
+      bridge.on('worktrees.purging', (message) => receiveWorktreePurging(message.name, message.files, message.elapsedMs)),
+      bridge.on('worktrees.purged', (message) => receiveWorktreePurged(message.names, message.files, message.elapsedMs, message.remaining)),
       bridge.on('update.state', (message) => receiveUpdateState(message)),
       bridge.on('update.restart', receiveUpdateRestart),
       bridge.on('statusLog.added', (message) => receiveStatusLogEntry(message.entry)),

@@ -7,24 +7,7 @@ public static class LockedFolder
 {
     private const int MaxRemainingFiles = 200;
     private const int MaxRegisteredFiles = 1000;
-    private const string ProbeSuffix = ".tily-verrou-";
     private static readonly HashSet<string> SkippedFolders = new(StringComparer.OrdinalIgnoreCase) { "node_modules", ".git" };
-
-    public static bool CanMove(string folder)
-    {
-        var probe = folder.TrimEnd(Path.DirectorySeparatorChar) + ProbeSuffix + Guid.NewGuid().ToString("N")[..8];
-        try
-        {
-            Directory.Move(folder, probe);
-        }
-        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
-        {
-            return false;
-        }
-
-        Directory.Move(probe, folder);
-        return true;
-    }
 
     public static IReadOnlyList<string> SampleFiles(string folder)
     {
@@ -33,10 +16,10 @@ public static class LockedFolder
         return files;
     }
 
-    public static IReadOnlyList<string> DeleteAll(string folder)
+    public static IReadOnlyList<string> DeleteAll(string folder, Action? fileDeleted = null)
     {
         var remaining = new List<string>();
-        Delete(new DirectoryInfo(folder), remaining);
+        Delete(new DirectoryInfo(folder), remaining, fileDeleted ?? (() => { }));
         return remaining;
     }
 
@@ -105,7 +88,7 @@ public static class LockedFolder
         }
     }
 
-    private static void Delete(DirectoryInfo directory, List<string> remaining)
+    private static void Delete(DirectoryInfo directory, List<string> remaining, Action fileDeleted)
     {
         try
         {
@@ -117,7 +100,7 @@ public static class LockedFolder
                 }
                 else
                 {
-                    Delete(child, remaining);
+                    Delete(child, remaining, fileDeleted);
                 }
             }
 
@@ -127,6 +110,7 @@ public static class LockedFolder
                 {
                     file.Attributes = FileAttributes.Normal;
                     file.Delete();
+                    fileDeleted();
                 }, file.FullName, remaining);
             }
 

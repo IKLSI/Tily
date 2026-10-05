@@ -44,18 +44,18 @@ public sealed class WorktreeRemover
         var replicated = dropDatabase ? WorktreeDatabase.Replicated(target, mainRoot) : null;
         var steps = new List<WorktreeStepModel>();
 
-        progress("Suppression du worktree…");
-        RequireUnlocked(target);
-        var removed = main.Run("worktree", "remove", "--force", target);
-        var remaining = Directory.Exists(target) ? LockedFolder.DeleteAll(target) : [];
-        if (Directory.Exists(target))
+        progress($"Suppression du worktree « {Path.GetFileName(target)} »…");
+        if (entry.Locked)
         {
-            throw Locked(target, removed.Succeeded ? string.Empty : removed.Details, LockedFolder.LockingProcesses(remaining));
+            main.Run("worktree", "unlock", target);
         }
 
+        MoveToTrash(target);
         steps.Add(WorktreeSteps.Ok(WorktreeSteps.Removal, $"Worktree supprimé : {target}."));
         main.Run("worktree", "prune");
-        steps.Add(WorktreeSteps.Ok(WorktreeSteps.Prune, "Prune des worktrees terminé."));
+        steps.Add(WorktreeLister.List(main).Any(worktree => WorktreeTarget.SamePath(worktree.Path, target))
+            ? WorktreeSteps.Warning(WorktreeSteps.Prune, $"Git liste encore le worktree {target} : lancez git worktree prune dans {mainRoot}.")
+            : WorktreeSteps.Ok(WorktreeSteps.Prune, "Prune des worktrees terminé."));
 
         if (replicated is not null)
         {
@@ -66,10 +66,10 @@ public sealed class WorktreeRemover
         }
 
         steps.Add(DeleteBranch(main, branch, keepBranch));
-        return new WorktreeRemovalModel(target, branch, steps);
+        return new WorktreeRemovalModel(target, branch, WorktreeTrash.RootFor(target), steps);
     }
 
-    private static void RequireUnlocked(string target)
+    private static void MoveToTrash(string target)
     {
         for (var attempt = 0; attempt < LockAttempts; attempt++)
         {
@@ -78,7 +78,7 @@ public sealed class WorktreeRemover
                 Thread.Sleep(RetryDelay);
             }
 
-            if (LockedFolder.CanMove(target))
+            if (WorktreeTrash.TryMove(target))
             {
                 return;
             }

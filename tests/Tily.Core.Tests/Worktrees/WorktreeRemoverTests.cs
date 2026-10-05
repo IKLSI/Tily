@@ -31,6 +31,70 @@ public sealed class WorktreeRemoverTests : IDisposable
     }
 
     [Fact]
+    public void Remove_WhenWorktree_ThenMovesFolderToTrashForPurge()
+    {
+        File.WriteAllText(Path.Combine(_worktree, "fichier.txt"), "x");
+
+        var removal = _remover.Remove(_worktree, false, false, true, _ => { });
+
+        Assert.Contains(Directory.EnumerateFiles(removal.Trash, "fichier.txt", SearchOption.AllDirectories), file => file.Contains("dépôt-vue"));
+    }
+
+    [Fact]
+    public void Remove_WhenWorktree_ThenGitNoLongerListsIt()
+    {
+        _remover.Remove(_worktree, false, false, true, _ => { });
+
+        Assert.DoesNotContain(WorktreeLister.List(_sandbox.Repository), worktree => WorktreeTarget.SamePath(worktree.Path, _worktree));
+    }
+
+    [Fact]
+    public void Remove_WhenWorktreeLocked_ThenRemovesIt()
+    {
+        _sandbox.Git("worktree", "lock", _worktree);
+
+        _remover.Remove(_worktree, false, false, true, _ => { });
+
+        Assert.DoesNotContain(WorktreeLister.List(_sandbox.Repository), worktree => WorktreeTarget.SamePath(worktree.Path, _worktree));
+    }
+
+    [Fact]
+    public void Purge_WhenWorktreeRemoved_ThenDeletesTrash()
+    {
+        var removal = _remover.Remove(_worktree, false, false, true, _ => { });
+
+        WorktreeTrash.Purge(removal.Trash, _ => { });
+
+        Assert.False(Directory.Exists(removal.Trash));
+    }
+
+    [Fact]
+    public void Purge_WhenWorktreeRemoved_ThenNamesWorktree()
+    {
+        var removal = _remover.Remove(_worktree, false, false, true, _ => { });
+
+        var purge = WorktreeTrash.Purge(removal.Trash, _ => { });
+
+        Assert.Equal(["dépôt-vue"], purge.Names);
+    }
+
+    [Fact]
+    public void Purge_WhenFileStillOpen_ThenReportsRemainingFolder()
+    {
+        var removal = _remover.Remove(_worktree, false, false, true, _ => { });
+        var kept = Directory.EnumerateDirectories(removal.Trash).Single();
+        var open = Path.Combine(kept, "dépôt-vue", "ouvert.txt");
+        File.WriteAllText(open, "x");
+        WorktreePurgeModel purge;
+        using (new FileStream(open, FileMode.Open, FileAccess.ReadWrite, FileShare.None))
+        {
+            purge = WorktreeTrash.Purge(removal.Trash, _ => { });
+        }
+
+        Assert.Equal([Path.Combine(kept, "dépôt-vue")], purge.Remaining);
+    }
+
+    [Fact]
     public void Remove_WhenKeepBranch_ThenKeepsBranch()
     {
         _remover.Remove(_worktree, true, false, true, _ => { });
