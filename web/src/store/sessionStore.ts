@@ -13,6 +13,7 @@ import {
   tabNameFor,
   createWorkspace,
   DEFAULT_GIT_GRAPH,
+  disownTab,
   EXPLORER_DEFAULT,
   EXPLORER_MAX,
   EXPLORER_MIN,
@@ -42,6 +43,7 @@ import {
 interface SessionState {
   session: Session | null
   load: (session: Session) => void
+  change: (mutate: (draft: Session) => void) => void
   selectWorkspace: (workspaceId: string) => void
   selectTab: (tabId: string) => void
   selectPane: (paneId: string) => void
@@ -112,6 +114,8 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
 
   load: (session) =>
     set({ session: { ...session, closed: session.closed ?? [], favorites: session.favorites ?? [], explorerWidth: session.explorerWidth ?? EXPLORER_DEFAULT, gitGraph: clampGitGraph({ ...DEFAULT_GIT_GRAPH, ...session.gitGraph }) } }),
+
+  change: (mutate) => set((state) => ({ session: mutateSession(state.session, mutate) })),
 
   selectWorkspace: (workspaceId) =>
     set((state) => ({ session: mutateSession(state.session, (draft) => { draft.active = workspaceId }) })),
@@ -350,7 +354,7 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
         if (!workspace || index < 0) {
           return
         }
-        const { tab } = cloneTabWithNewIds(current(workspace.tabs[index]))
+        const { tab } = cloneTabWithNewIds(disownTab(current(workspace.tabs[index])))
         workspace.tabs.splice(index + 1, 0, tab)
         workspace.active = tab.id
         draft.active = workspace.id

@@ -54,13 +54,28 @@ export interface WorktreeSettings {
 export type WorktreeHostMessage =
   | { type: 'worktrees.sourcesFound'; request: number; sources: WorktreeSources }
   | { type: 'worktrees.planned'; request: number; plan: WorktreePlan }
-  | { type: 'worktrees.progress'; operation: WorktreeOperation; message: string }
-  | { type: 'worktrees.created'; path: string; name: string; branch: string; install?: string }
-  | { type: 'worktrees.done'; operation: WorktreeOperation; message: string; warnings: string[] }
-  | { type: 'worktrees.failed'; operation: WorktreeOperation; step: string; message: string; output?: string; lockedBy?: string[] }
+  | { type: 'worktrees.listed'; request: number; root?: string; worktrees?: Worktree[]; error?: string }
+  | { type: 'worktrees.progress'; request?: number; operation: WorktreeOperation; message: string }
+  | { type: 'worktrees.created'; request?: number; path: string; name: string; branch: string; install?: string }
+  | { type: 'worktrees.done'; request?: number; operation: WorktreeOperation; message: string; warnings: string[] }
+  | { type: 'worktrees.failed'; request?: number; operation: WorktreeOperation; step: string; message: string; output?: string; lockedBy?: string[] }
 
 export type WorktreeWebMessage =
   | { type: 'worktrees.sources'; request: number; path?: string; project?: string }
   | { type: 'worktrees.plan'; request: number; repository: string; branch: string; mode: WorktreeBranchMode; base?: string; project: string; folder?: string }
-  | { type: 'worktrees.create'; repository: string; branch: string; mode: WorktreeBranchMode; base?: string; install: boolean; database: boolean; project: string; remember: boolean; folder?: string; rememberFolder: boolean }
-  | { type: 'worktrees.remove'; path: string; keepBranch: boolean; dropDatabase: boolean; confirmed: boolean }
+  | { type: 'worktrees.list'; request: number; path: string }
+  | {
+      type: 'worktrees.create'
+      request?: number
+      repository: string
+      branch: string
+      mode: WorktreeBranchMode
+      base?: string
+      install: boolean
+      database: boolean
+      project: string
+      remember: boolean
+      folder?: string
+      rememberFolder: boolean
+    }
+  | { type: 'worktrees.remove'; request?: number; path: string; keepBranch: boolean; dropDatabase: boolean; confirmed: boolean }

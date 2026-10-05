@@ -8,7 +8,8 @@ import { SerializeAddon } from '@xterm/addon-serialize'
 import { WebLinksAddon } from '@xterm/addon-web-links'
 import { bridge } from '../bridge/bridge'
 import { DEFAULT_FONT_SIZE } from '../model/appearance'
-import type { Pane } from '../model/session'
+import { allPanes, type Pane } from '../model/session'
+import { useSessionStore } from '../store/sessionStore'
 import { COMMAND_DONE_OSC, receiveCommandDone } from './commandNotices'
 import { trackCommandOutput } from './commandOutput'
 import { registerFileLinks } from './fileLinks'
@@ -191,6 +192,11 @@ const snapshotOf = (handle: TerminalHandle): string => {
   return [...handle.chunks.map((chunk) => chunk.text), tail].join(CHUNK_SEPARATOR)
 }
 
+const currentPath = (pane: Pane): string => {
+  const { session } = useSessionStore.getState()
+  return (session ? allPanes(session).find((candidate) => candidate.id === pane.id)?.path : undefined) ?? pane.path
+}
+
 const openLinkOnCtrlClick = (event: MouseEvent, url: string): void => {
   if (event.ctrlKey) {
     bridge.send({ type: 'link.open', url })
@@ -221,7 +227,7 @@ const createHandle = (pane: Pane): TerminalHandle => {
     receiveCommandDone(pane.id, data)
     return true
   })
-  trackCommandOutput(terminal)
+  trackCommandOutput(terminal, () => currentPath(pane))
   registerFileLinks(terminal, pane.id)
   terminal.buffer.onBufferChange(() => forgetChunks(handle))
   terminal.onResize(({ cols, rows }) => {

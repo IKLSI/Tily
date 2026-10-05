@@ -1,18 +1,17 @@
 import type { ChangeEvent } from 'react'
 import { DEFAULT_FONT_SIZE, MAX_FONT_SIZE, MIN_FONT_SIZE } from '../model/appearance'
-import { SETTINGS_HINT, SETTINGS_INPUT, SETTINGS_LABEL } from './settingsStyles'
+import { SETTINGS_INPUT, SETTINGS_LABEL } from './settingsStyles'
 
 interface AppearanceSettingsSectionProps {
   sectionClassName: string
   fontSize: number
-  file?: string
   onFontSizeChange: (fontSize: number) => void
 }
 
 const FONT_SIZES = Array.from({ length: MAX_FONT_SIZE - MIN_FONT_SIZE + 1 }, (_, index) => MIN_FONT_SIZE + index)
 const SAMPLE_FONT = '"CaskaydiaCove Nerd Font Mono", "Cascadia Mono", Consolas, monospace'
 
-export function AppearanceSettingsSection({ sectionClassName, fontSize, file, onFontSizeChange }: AppearanceSettingsSectionProps) {
+export function AppearanceSettingsSection({ sectionClassName, fontSize, onFontSizeChange }: AppearanceSettingsSectionProps) {
   const handleChange = (event: ChangeEvent<HTMLSelectElement>) => onFontSizeChange(Number(event.target.value))
 
   return (
@@ -31,8 +30,6 @@ export function AppearanceSettingsSection({ sectionClassName, fontSize, file, on
       <p className="overflow-hidden rounded border border-tily-line bg-tily-terminal px-2 py-1 whitespace-nowrap text-tily-terminal-ink" style={{ fontFamily: SAMPLE_FONT, fontSize }}>
         PS C:\Files\Projects&gt; git status
       </p>
-      <p className={SETTINGS_HINT}>S’applique à tous les terminaux ouverts dès l’enregistrement.</p>
-      {file && <p className={`${SETTINGS_HINT} font-mono`}>{file}</p>}
     </section>
   )
 }

@@ -40,6 +40,8 @@ export interface WorktreeRemoval {
   keepBranch: boolean
   dropDatabase: boolean
   failure: WorktreeFailure | null
+  request?: number
+  requestedBy?: string
 }
 
 interface WorktreeState {

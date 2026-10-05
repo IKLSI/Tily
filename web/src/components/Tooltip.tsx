@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 
 const TIP_ATTRIBUTE = 'data-tip'
+const CLICK_ATTRIBUTE = 'data-tip-click'
 const ELLIPSIS = 'ellipsis'
 const OVERFLOW_SEARCH_DEPTH = 3
 const SHOW_DELAY_MS = 250
@@ -81,6 +82,15 @@ export function Tooltip() {
         show(element, element.getAttribute(TIP_ATTRIBUTE))
       }
     }
+    const handleClick = (event: MouseEvent) => {
+      const element = tipTargetOf(event.target)
+      const text = element?.getAttribute(TIP_ATTRIBUTE)
+      if (element?.hasAttribute(CLICK_ATTRIBUTE) && text) {
+        clearTimeout(timer)
+        current = element
+        setState(placeFor(element, text))
+      }
+    }
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         hide()
@@ -88,6 +98,7 @@ export function Tooltip() {
     }
     document.addEventListener('pointerover', handlePointerOver)
     document.addEventListener('pointerdown', hide)
+    document.addEventListener('click', handleClick)
     document.addEventListener('focusin', handleFocusIn)
     document.addEventListener('focusout', hide)
     document.addEventListener('keydown', handleKeyDown)
@@ -96,6 +107,7 @@ export function Tooltip() {
       clearTimeout(timer)
       document.removeEventListener('pointerover', handlePointerOver)
       document.removeEventListener('pointerdown', hide)
+      document.removeEventListener('click', handleClick)
       document.removeEventListener('focusin', handleFocusIn)
       document.removeEventListener('focusout', hide)
       document.removeEventListener('keydown', handleKeyDown)

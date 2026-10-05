@@ -5,6 +5,7 @@ import { tabAgents } from '../agents/agentSummary'
 import { activePane, DEFAULT_SHELL, paneCountLabel, panesOf, type Workspace } from '../model/session'
 import { useAgentStore } from '../store/agentStore'
 import { useUiStore } from '../store/uiStore'
+import { AgentOwnerMark } from './AgentOwnerMark'
 import { AgentStateIcon } from './AgentStateIcon'
 import { CommandNoticeIcon } from './CommandNoticeIcon'
 import { tabCommandNotice } from '../terminal/commandNotices'
@@ -222,6 +223,7 @@ export function TabBar({ workspace, shells, renamingTabId, panelOpen, onTogglePa
                   >
                     {agentSummary ? <AgentStateIcon state={agentSummary.state} tip={agentSummary.tip} /> : commandNotice && <CommandNoticeIcon notice={commandNotice} />}
                     <span className="min-w-0 truncate">{tab.name}</span>
+                    {tab.owner && <AgentOwnerMark owner={tab.owner} compact />}
                   </button>
                 )}
                 <button type="button" className="shrink-0 cursor-pointer px-2 text-xs hover:text-tily-error" data-tip="Fermer l’onglet" onClick={handleClose}>

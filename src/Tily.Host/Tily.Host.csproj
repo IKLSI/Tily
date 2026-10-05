@@ -27,6 +27,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Tily.Core\Tily.Core.csproj" />
+    <ProjectReference Include="..\Tily.Mcp\Tily.Mcp.csproj" />
   </ItemGroup>
   <Target Name="BuildWeb" BeforeTargets="BeforeBuild" Condition="!Exists('$(WebDist)\index.html') Or '$(Configuration)' == 'Release'">
     <Exec Command="pnpm install --frozen-lockfile" WorkingDirectory="$(WebRoot)" />

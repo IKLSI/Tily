@@ -1,7 +1,8 @@
 import type { ChangeEvent } from 'react'
 import type { WorktreeProjectFolder, WorktreeSettings } from '../bridge/worktreeMessages'
 import { folderName } from '../model/session'
-import { SETTINGS_BROWSE, SETTINGS_HINT, SETTINGS_INPUT, SETTINGS_LABEL, SETTINGS_SECONDARY } from './settingsStyles'
+import { InfoTip } from './InfoTip'
+import { SETTINGS_BROWSE, SETTINGS_HINT, SETTINGS_INPUT, SETTINGS_LABEL, SETTINGS_ROW, SETTINGS_SECONDARY } from './settingsStyles'
 
 interface WorktreeFolderSettingsProps {
   worktrees: WorktreeSettings
@@ -13,25 +14,33 @@ interface WorktreeFolderSettingsProps {
 }
 
 const PATH_SEPARATOR = '\\'
+const FOLDER_ID = 'settings-worktree-folder'
 
 export function WorktreeFolderSettings({ worktrees, folders, projectsRoot, onChange, onFoldersChange, onPickFolder }: WorktreeFolderSettingsProps) {
   const handleFolderChange = (event: ChangeEvent<HTMLInputElement>) => onChange({ folder: event.target.value })
 
   return (
     <>
-      <label className="flex flex-col gap-1">
-        <span className={SETTINGS_LABEL}>Dossier des worktrees</span>
+      <div className="flex flex-col gap-1">
+        <span className={SETTINGS_ROW}>
+          <label htmlFor={FOLDER_ID} className={SETTINGS_LABEL}>
+            Dossier des worktrees
+          </label>
+          <InfoTip text="Vide : sous-dossier « worktrees » du dossier des projets, comme wtr. Chaque worktree y est créé sous le nom « projet-branche »." />
+        </span>
         <span className="flex gap-1">
-          <input type="text" className={SETTINGS_INPUT} value={worktrees.folder} placeholder={`${projectsRoot}${PATH_SEPARATOR}worktrees`} spellCheck={false} onChange={handleFolderChange} />
+          <input id={FOLDER_ID} type="text" className={SETTINGS_INPUT} value={worktrees.folder} placeholder={`${projectsRoot}${PATH_SEPARATOR}worktrees`} spellCheck={false} onChange={handleFolderChange} />
           <button type="button" className={SETTINGS_BROWSE} aria-label="Choisir le dossier des worktrees" data-tip="Choisir le dossier des worktrees" onClick={onPickFolder}>
             …
           </button>
         </span>
-        <span className={SETTINGS_HINT}>Vide : sous-dossier « worktrees » du dossier des projets, comme wtr. Chaque worktree y est créé sous le nom « projet-branche ».</span>
-      </label>
+      </div>
       {folders.length > 0 && (
         <div className="flex flex-col gap-1">
-          <span className={SETTINGS_LABEL}>Dossiers des worktrees par projet</span>
+          <span className={SETTINGS_ROW}>
+            <span className={SETTINGS_LABEL}>Dossiers des worktrees par projet</span>
+            <InfoTip text="Mémorisés à la création d’un worktree, par la case « Mémoriser pour les prochains worktrees »." />
+          </span>
           <ul className="flex flex-col gap-1">
             {folders.map((entry) => {
               const handleRemove = () => onFoldersChange(folders.filter((candidate) => candidate !== entry))
@@ -50,7 +59,6 @@ export function WorktreeFolderSettings({ worktrees, folders, projectsRoot, onCha
               )
             })}
           </ul>
-          <span className={SETTINGS_HINT}>Mémorisés à la création d’un worktree, par la case « Mémoriser pour les prochains worktrees ».</span>
         </div>
       )}
     </>

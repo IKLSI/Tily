@@ -2,7 +2,10 @@ import { useEffect } from 'react'
 import { clearSeenCommandNotices } from './terminal/commandNotices'
 import { startAttentionNotifier } from './agents/attentionNotifier'
 import { bridge } from './bridge/bridge'
+import { dispatchReply } from './bridge/requestListeners'
+import { WorktreeOperation } from './bridge/worktreeMessages'
 import { AppShell } from './components/AppShell'
+import { receiveMcpRequest } from './mcp/mcpRequests'
 import { allPanes, restoredSessionLabel } from './model/session'
 import { useAgentStore } from './store/agentStore'
 import { StatusLevel, useHostStore } from './store/hostStore'
@@ -10,6 +13,7 @@ import { usePaneStore } from './store/paneStore'
 import { useSessionStore } from './store/sessionStore'
 import { useUiStore } from './store/uiStore'
 import { receiveActivity, receiveApplicationClosing } from './terminal/closeGuard'
+import { receiveQueriedActivity } from './terminal/paneActivity'
 import { queryContext, receiveContext } from './terminal/contextActions'
 import { startExternalDrops } from './terminal/externalDrop'
 import { receiveCreated, receiveDeleted, receiveGitMarks, receiveListing, receiveRenamed } from './explorer/fileExplorerActions'
@@ -66,7 +70,7 @@ export default function App() {
         setStatus(`Taille du texte des terminaux : ${message.fontSize} px`)
       }),
       bridge.on('settings.result', (message) => {
-        applySettings({ settings: message.settings, shellSettings: message.shellSettings, files: message.files, warnings: message.warnings, agents: message.agents, notifications: message.notifications }, message.shells, message.persistence)
+        applySettings({ settings: message.settings, shellSettings: message.shellSettings, files: message.files, warnings: message.warnings, agents: message.agents, mcp: message.mcp, notifications: message.notifications }, message.shells, message.persistence)
         if (!message.saved) {
           return
         }
@@ -95,7 +99,11 @@ export default function App() {
         setStatus(`Préférences lues depuis ${message.path} : Enregistrer remplace la configuration actuelle.`)
       }),
       bridge.on('app.closing', (message) => receiveApplicationClosing(message.activity)),
-      bridge.on('terminal.activityResult', (message) => receiveActivity(message.panes)),
+      bridge.on('terminal.activityResult', (message) => {
+        if (!receiveQueriedActivity(message.request, message.panes)) {
+          receiveActivity(message.panes)
+        }
+      }),
       bridge.on('agent.states', (message) => useAgentStore.getState().setAgents(message.panes)),
       bridge.on('agent.join', (message) => joinPane(message.pane)),
       bridge.on('session.saved', () => setUnsaved(false)),
@@ -136,16 +144,25 @@ export default function App() {
       bridge.on('git.pushRejected', (message) => receiveGitPushRejected(message.operation, message.branch, message.message, message.output)),
       bridge.on('git.autoFetchStarted', (message) => receiveGitAutoFetchStarted(message.path)),
       bridge.on('git.autoFetchEnded', receiveGitAutoFetchEnded),
-      bridge.on('worktrees.sourcesFound', (message) => receiveWorktreeSources(message.request, message.sources)),
-      bridge.on('worktrees.planned', (message) => receiveWorktreePlan(message.request, message.plan)),
+      bridge.on('worktrees.sourcesFound', (message) => dispatchReply(message.type, message.request, message) || receiveWorktreeSources(message.request, message.sources)),
+      bridge.on('worktrees.planned', (message) => dispatchReply(message.type, message.request, message) || receiveWorktreePlan(message.request, message.plan)),
+      bridge.on('worktrees.listed', (message) => dispatchReply(message.type, message.request, message)),
       bridge.on('worktrees.progress', (message) => receiveWorktreeProgress(message.operation, message.message)),
-      bridge.on('worktrees.created', (message) => receiveWorktreeCreated(message.path, message.name, message.install)),
-      bridge.on('worktrees.done', (message) => receiveWorktreeDone(message.operation, message.message, message.warnings)),
-      bridge.on('worktrees.failed', (message) => receiveWorktreeFailed(message.operation, message.message, message.output, message.lockedBy)),
+      bridge.on('worktrees.created', (message) => dispatchReply(message.type, message.request, message) || receiveWorktreeCreated(message.path, message.name, message.install)),
+      bridge.on('worktrees.done', (message) => {
+        dispatchReply(message.type, message.request, message)
+        receiveWorktreeDone(message.operation, message.message, message.warnings)
+      }),
+      bridge.on('worktrees.failed', (message) => {
+        if (!dispatchReply(message.type, message.request, message) || message.operation === WorktreeOperation.Remove) {
+          receiveWorktreeFailed(message.operation, message.message, message.output, message.lockedBy)
+        }
+      }),
       bridge.on('update.state', (message) => receiveUpdateState(message)),
       bridge.on('update.restart', receiveUpdateRestart),
       bridge.on('statusLog.added', (message) => receiveStatusLogEntry(message.entry)),
       bridge.on('statusLog.cleared', receiveStatusLogCleared),
+      bridge.on('mcp.request', (message) => void receiveMcpRequest(message)),
       bridge.on('terminal.exit', (message) => {
         terminalRegistry.markExited(message.pane, message.code)
         markExited(message.pane, message.code)

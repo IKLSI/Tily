@@ -1,4 +1,5 @@
 export enum IconName {
+  Agent = 'agent',
   Branch = 'branch',
   Check = 'check',
   Chevron = 'chevron',
@@ -15,6 +16,7 @@ export enum IconName {
   File = 'file',
   Folder = 'folder',
   Graph = 'graph',
+  Info = 'info',
   Local = 'local',
   Minus = 'minus',
   More = 'more',

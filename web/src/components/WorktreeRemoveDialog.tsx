@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ChangeEvent, type PointerEvent } from 'react'
+import { useEffect, useRef, useState, type ChangeEvent, type PointerEvent } from 'react'
 import type { WorktreeRemoval } from '../store/worktreeStore'
 import { cancelWorktreeRemoval, changeWorktreeRemoval, confirmWorktreeRemoval } from '../worktree/worktreeActions'
 import { keepTabInside } from './focusTrap'
@@ -9,7 +9,8 @@ interface WorktreeRemoveDialogProps {
   removal: WorktreeRemoval
 }
 
-const DANGER = `${SETTINGS_BUTTON} border-tily-error text-tily-error hover:bg-tily-green-hover`
+const DANGER = `${SETTINGS_BUTTON} border-tily-error text-tily-error hover:bg-tily-green-hover aria-disabled:cursor-default aria-disabled:opacity-50`
+const ARM_DELAY_MS = 600
 const CHECK_LABEL = 'flex items-center gap-2 text-[12px] text-tily-ink'
 
 const handleBackdropPointerDown = (event: PointerEvent<HTMLDivElement>) => {
@@ -23,12 +24,16 @@ const handleKeepBranchChange = (event: ChangeEvent<HTMLInputElement>) => changeW
 const handleDropDatabaseChange = (event: ChangeEvent<HTMLInputElement>) => changeWorktreeRemoval({ dropDatabase: event.target.checked })
 
 export function WorktreeRemoveDialog({ removal }: WorktreeRemoveDialogProps) {
-  const { name, path, branch, panes, closePanes, keepBranch, dropDatabase, failure } = removal
+  const { name, path, branch, panes, closePanes, keepBranch, dropDatabase, failure, requestedBy } = removal
   const confirmRef = useRef<HTMLButtonElement>(null)
+  const cancelRef = useRef<HTMLButtonElement>(null)
+  const [armed, setArmed] = useState(!requestedBy)
   const title = `Supprimer le worktree « ${name} » ?`
 
   useEffect(() => {
-    confirmRef.current?.focus()
+    const initialButton = requestedBy ? cancelRef.current : confirmRef.current
+    initialButton?.focus()
+    const timer = requestedBy ? setTimeout(() => setArmed(true), ARM_DELAY_MS) : undefined
     const handleDocumentKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         event.preventDefault()
@@ -36,17 +41,27 @@ export function WorktreeRemoveDialog({ removal }: WorktreeRemoveDialogProps) {
       }
     }
     document.addEventListener('keydown', handleDocumentKeyDown)
-    return () => document.removeEventListener('keydown', handleDocumentKeyDown)
-  }, [])
+    return () => {
+      clearTimeout(timer)
+      document.removeEventListener('keydown', handleDocumentKeyDown)
+    }
+  }, [requestedBy])
+
+  const handleConfirm = () => {
+    if (armed) {
+      confirmWorktreeRemoval()
+    }
+  }
 
   return (
     <div className="absolute inset-0 z-30 flex items-start justify-center bg-tily-paper/60 pt-[12vh]" onPointerDown={handleBackdropPointerDown}>
       <div role="alertdialog" aria-label={title} className="flex max-h-[76vh] w-[540px] max-w-[94vw] flex-col rounded-lg border border-tily-line bg-tily-panel shadow-xl" onKeyDown={keepTabInside}>
         <div className="flex items-center justify-between border-b border-tily-line px-4 py-3">
           <h2 className="truncate text-[15px] font-semibold text-tily-ink">{title}</h2>
-          <span className="shrink-0 pl-3 text-[11px] text-tily-muted">Entrée supprime · Échap annule</span>
+          <span className="shrink-0 pl-3 text-[11px] text-tily-muted">{requestedBy ? 'Entrée ou Échap annule' : 'Entrée supprime · Échap annule'}</span>
         </div>
         <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-4 py-4">
+          {requestedBy && <p className="text-[12px] text-tily-ink">{`Demandé par ${requestedBy}. Sans réponse dans les 2 minutes, la demande est refusée.`}</p>}
           <p className={`${SETTINGS_HINT} font-mono`}>{path}</p>
           <p className="text-[12px] text-tily-warning">Le dossier est supprimé avec ses modifications non commitées.</p>
           {panes.length > 0 && (
@@ -79,10 +94,10 @@ export function WorktreeRemoveDialog({ removal }: WorktreeRemoveDialogProps) {
           {failure && <WorktreeFailureDetails failure={failure} />}
         </div>
         <div className="flex items-center justify-end gap-2 border-t border-tily-line px-4 py-3">
-          <button type="button" className={SETTINGS_SECONDARY} onClick={cancelWorktreeRemoval}>
+          <button ref={cancelRef} type="button" className={SETTINGS_SECONDARY} onClick={cancelWorktreeRemoval}>
             Annuler
           </button>
-          <button ref={confirmRef} type="button" className={DANGER} onClick={confirmWorktreeRemoval}>
+          <button ref={confirmRef} type="button" className={DANGER} aria-disabled={!armed} onClick={handleConfirm}>
             {failure ? 'Réessayer' : 'Supprimer'}
           </button>
         </div>

@@ -1,5 +1,6 @@
 import type { Session } from '../model/session'
 import type { GitChangeKind, GitHostMessage, GitSettings, GitWebMessage } from './gitMessages'
+import type { McpHostMessage, McpServerInfo, McpWebMessage } from './mcpMessages'
 import type { PreviewHostMessage, PreviewKind, PreviewWebMessage } from './previewMessages'
 import type { StatusLogEntry, StatusLogHostMessage, StatusLogWebMessage } from './statusLogMessages'
 import type { UpdateHostMessage, UpdateSettings, UpdateWebMessage } from './updateMessages'
@@ -131,6 +132,7 @@ export interface SettingsSnapshot {
   files: Record<string, string>
   warnings: string[]
   agents: AgentHooksInfo
+  mcp: McpServerInfo
   notifications: NotificationAvailability
 }
 
@@ -178,7 +180,7 @@ export type HostToWebMessage =
   | { type: 'terminal.exit'; pane: string; code: number }
   | { type: 'terminal.dropped'; pane: string; text: string }
   | { type: 'terminal.pathMissing'; pane: string; path: string; fallback: string }
-  | { type: 'terminal.activityResult'; panes: PaneActivity[] }
+  | { type: 'terminal.activityResult'; request?: number; panes: PaneActivity[] }
   | { type: 'agent.states'; panes: PaneAgent[] }
   | { type: 'agent.join'; pane: string }
   | { type: 'projects.listed'; root: string; projects: Project[]; error?: string }
@@ -197,6 +199,7 @@ export type HostToWebMessage =
   | WorktreeHostMessage
   | UpdateHostMessage
   | StatusLogHostMessage
+  | McpHostMessage
 
 export type WebToHostMessage =
   | { type: 'app.ready' }
@@ -218,7 +221,7 @@ export type WebToHostMessage =
   | { type: 'terminal.resize'; pane: string; cols: number; rows: number }
   | { type: 'terminal.ack'; pane: string; chars: number }
   | { type: 'terminal.close'; pane: string }
-  | { type: 'terminal.activity'; panes: string[] }
+  | { type: 'terminal.activity'; panes: string[]; request?: number }
   | { type: 'terminal.drop'; pane: string; shell: string }
   | { type: 'terminal.dropPath'; pane: string; shell: string; path: string }
   | { type: 'projects.list' }
@@ -244,6 +247,7 @@ export type WebToHostMessage =
   | WorktreeWebMessage
   | UpdateWebMessage
   | StatusLogWebMessage
+  | McpWebMessage
 
 export type HostMessageType = HostToWebMessage['type']
 export type HostMessageOf<T extends HostMessageType> = Extract<HostToWebMessage, { type: T }>

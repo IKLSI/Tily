@@ -10,6 +10,7 @@ interface IconProps {
 const DEFAULT_SIZE = 12
 
 const SHAPES: Record<IconName, ReactNode> = {
+  [IconName.Agent]: <path d="M6 1.6 7 5l3.4 1L7 7l-1 3.4L5 7 1.6 6 5 5Z" />,
   [IconName.Branch]: (
     <>
       <circle cx="3" cy="2.5" r="1.2" />
@@ -74,6 +75,12 @@ const SHAPES: Record<IconName, ReactNode> = {
       <circle cx="3" cy="9.5" r="1.1" />
       <circle cx="9" cy="6" r="1.1" />
       <path d="M3 3.6v4.8M3 4.2c0 1.5 4.9.3 4.9 1.8M3 7.8c0-1.5 4.9-.3 4.9-1.8" />
+    </>
+  ),
+  [IconName.Info]: (
+    <>
+      <circle cx="6" cy="6" r="4.7" />
+      <path d="M6 5.5v2.9M6 3.7v.1" />
     </>
   ),
   [IconName.Local]: (

@@ -7,6 +7,7 @@ export interface Pane {
   id: string
   path: string
   shell: string
+  owner?: string
 }
 
 export interface SplitLeaf {
@@ -43,6 +44,7 @@ export interface Tab {
   tree: SplitNode
   explorer?: boolean
   panel?: RightPanelView
+  owner?: string
 }
 
 export interface Workspace {
@@ -161,6 +163,15 @@ export const createWorkspace = (name: string, path: string, shell: string): Work
   return { id: newId(), name, tabs: [tab], active: tab.id, expanded: true }
 }
 
+export const createOwnedPane = (path: string, shell: string, owner: string): Pane => ({ ...createPane(path, shell), owner })
+
+export const createOwnedTab = (path: string, shell: string, owner: string): Tab => ({ ...tabOfPane(createOwnedPane(path, shell, owner)), owner })
+
+export const createOwnedWorkspace = (name: string, path: string, shell: string, owner: string): Workspace => {
+  const tab = createOwnedTab(path, shell, owner)
+  return { id: newId(), name, tabs: [tab], active: tab.id, expanded: true }
+}
+
 export const panesOf = (node: SplitNode): Pane[] => (isLeaf(node) ? [node.pane] : [...panesOf(node.a), ...panesOf(node.b)])
 
 const replaceNode = (node: SplitNode, paneId: string, replacement: (leaf: SplitLeaf) => SplitNode): SplitNode => {
@@ -245,6 +256,19 @@ const renewPaneIds = (node: SplitNode, paneIds: Record<string, string>): SplitNo
     return { pane: { ...node.pane, id } }
   }
   return { ...node, a: renewPaneIds(node.a, paneIds), b: renewPaneIds(node.b, paneIds) }
+}
+
+const disownNode = (node: SplitNode): SplitNode => {
+  if (isLeaf(node)) {
+    const { owner: _owner, ...pane } = node.pane
+    return { pane }
+  }
+  return { ...node, a: disownNode(node.a), b: disownNode(node.b) }
+}
+
+export const disownTab = (tab: Tab): Tab => {
+  const { owner: _owner, ...rest } = tab
+  return { ...rest, tree: disownNode(tab.tree) }
 }
 
 export const cloneTabWithNewIds = (tab: Tab): { tab: Tab; paneIds: Record<string, string> } => {

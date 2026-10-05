@@ -72,6 +72,20 @@ const closeTabNow = (tabId: string): void => {
   useHostStore.getState().setStatus('Onglet fermé. Ctrl + Maj + Z le rouvre avec un nouveau terminal.')
 }
 
+export const closeTabWithoutAsking = (tabId: string): void => closeTabNow(tabId)
+
+export const closePaneWithoutAsking = (paneId: string): void => {
+  const tab = tabOfPaneId(paneId)
+  if (!tab) {
+    return
+  }
+  if (panesOf(tab.tree).length === 1) {
+    closeTabNow(tab.id)
+  } else {
+    useSessionStore.getState().closePane(paneId)
+  }
+}
+
 export const closeTabKeepingText = (tabId: string): void => {
   const tab = tabOf(tabId)
   if (tab) {
