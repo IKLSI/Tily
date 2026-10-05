@@ -12,7 +12,7 @@ public sealed class ReleaseParserTests
         {
           "tag_name": "{{tag}}",
           "name": "Tily 1.4.0",
-          "html_url": "https://github.com/MaximeRazafinjato/tily/releases/tag/{{tag}}",
+          "html_url": "https://github.com/IKLSI/Tily/releases/tag/{{tag}}",
           "published_at": "2026-09-30T08:00:00Z",
           "body": "Intro.\r\n\r\n## Installation\r\n1. Lancer.\r\n\r\n## Nouveautés\r\n- Mises à jour dans l’application.\r\n- Libellés.\r\n",
           "assets": [
@@ -20,7 +20,7 @@ public sealed class ReleaseParserTests
               "name": "{{assetName}}",
               "size": 1234,
               "digest": {{(digest is null ? "null" : $"\"{digest}\"")}},
-              "browser_download_url": "{{url ?? $"https://github.com/MaximeRazafinjato/tily/releases/download/{tag}/{assetName}"}}"
+              "browser_download_url": "{{url ?? $"https://github.com/IKLSI/Tily/releases/download/{tag}/{assetName}"}}"
             }
           ]
         }
@@ -34,7 +34,7 @@ public sealed class ReleaseParserTests
         var release = ReleaseParser.Parse(json);
 
         Assert.Equal(
-            new UpdateAssetModel("Tily-1.4.0-arm64.dmg", "https://github.com/MaximeRazafinjato/tily/releases/download/v1.4.0/Tily-1.4.0-arm64.dmg", 1234, Digest),
+            new UpdateAssetModel("Tily-1.4.0-arm64.dmg", "https://github.com/IKLSI/Tily/releases/download/v1.4.0/Tily-1.4.0-arm64.dmg", 1234, Digest),
             release.Installer);
         Assert.Equal("1.4.0", release.Version);
         Assert.Equal(["Mises à jour dans l’application.", "Libellés."], release.Notes);

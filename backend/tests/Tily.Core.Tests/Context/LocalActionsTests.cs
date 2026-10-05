@@ -7,7 +7,7 @@ public sealed class LocalActionsTests
 {
     [Theory]
     [InlineData("http://localhost:5173/")]
-    [InlineData("https://github.com/MaximeRazafinjato/tily")]
+    [InlineData("https://github.com/IKLSI/Tily")]
     public void RequireWebLink_WhenHttpOrHttps_ThenReturnsUri(string url)
     {
         var uri = LocalActions.RequireWebLink(url);

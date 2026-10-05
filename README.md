@@ -9,9 +9,9 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/MaximeRazafinjato/tily/releases/latest"><img src="https://img.shields.io/github/v/release/MaximeRazafinjato/tily" alt="Dernière version"></a>
+  <a href="https://github.com/IKLSI/Tily/releases/latest"><img src="https://img.shields.io/github/v/release/IKLSI/Tily" alt="Dernière version"></a>
   <img src="https://img.shields.io/badge/plateforme-macOS%20Apple%20silicon-000000" alt="Plateforme : macOS (Apple silicon)">
-  <a href="LICENSE"><img src="https://img.shields.io/github/license/MaximeRazafinjato/tily" alt="Licence : GPL-3.0"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/IKLSI/Tily" alt="Licence : GPL-3.0"></a>
 </p>
 
 ![Tily avec plusieurs workspaces et un onglet découpé en trois terminaux](docs/images/overview.png)
@@ -56,7 +56,7 @@
 
 ## Installation
 
-1. Télécharger `Tily-x.y.z-arm64.dmg` depuis la [dernière version](https://github.com/MaximeRazafinjato/tily/releases/latest) (Mac à puce Apple).
+1. Télécharger `Tily-x.y.z-arm64.dmg` depuis la [dernière version](https://github.com/IKLSI/Tily/releases/latest) (Mac à puce Apple).
 2. Ouvrir le `.dmg` et glisser Tily dans Applications.
 3. Tily n’est signé qu’ad hoc, sans notarisation : au premier lancement, faire un clic droit sur Tily dans Applications puis « Ouvrir », ou retirer la quarantaine dans un terminal : `xattr -dr com.apple.quarantine /Applications/Tily.app`.
 

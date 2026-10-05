@@ -30,6 +30,6 @@ dmg:
   artifactName: Tily-${version}-arm64.dmg
 publish:
   provider: github
-  owner: MaximeRazafinjato
-  repo: tily
+  owner: IKLSI
+  repo: Tily
   releaseType: release
