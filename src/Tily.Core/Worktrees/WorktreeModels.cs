@@ -44,4 +44,4 @@ public sealed record PortChangeModel(int Old, int New);
 
 public sealed record WorktreeCreationModel(string Path, string Name, string Branch, string Project, string MainRoot, IReadOnlyList<WorktreeStepModel> Steps);
 
-public sealed record WorktreeRemovalModel(string Path, string? Branch, IReadOnlyList<WorktreeStepModel> Steps);
+public sealed record WorktreeRemovalModel(string Path, string? Branch, string Trash, IReadOnlyList<WorktreeStepModel> Steps);

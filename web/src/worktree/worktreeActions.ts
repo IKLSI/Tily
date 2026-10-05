@@ -1,5 +1,5 @@
 import { bridge } from '../bridge/bridge'
-import { CANCELLED_REPLY, dispatchReply } from '../bridge/requestListeners'
+import { CANCELLED_REPLY, dispatchReply, newAgentRequest } from '../bridge/requestListeners'
 import { PickTarget } from '../bridge/messages'
 import { WorktreeBranchMode, WorktreeOperation, type WorktreePlan, type WorktreeSources } from '../bridge/worktreeMessages'
 import { focusActivePane } from '../explorer/fileExplorerActions'
@@ -7,7 +7,7 @@ import { activePane, activeTab, activeWorkspace, DEFAULT_SHELL, panesOf } from '
 import { useAgentStore } from '../store/agentStore'
 import { useHostStore } from '../store/hostStore'
 import { useSessionStore } from '../store/sessionStore'
-import { useWorktreeStore, WorktreePickerKind, type WorktreeDraft, type WorktreeRemoval } from '../store/worktreeStore'
+import { useWorktreeStore, WorktreePickerKind, type WorktreeDraft, type WorktreeRemoval, type WorktreeTask } from '../store/worktreeStore'
 import { requestClose } from '../terminal/closeGuard'
 import { joinPane } from '../terminal/terminalActions'
 import { terminalRegistry } from '../terminal/terminalRegistry'
@@ -84,15 +84,25 @@ export const closeWorktreeDialog = (): void => {
 export const folderChanged = (draft: WorktreeDraft, plan: WorktreePlan | null): boolean =>
   draft.folder !== null && draft.folder.trim().length > 0 && !sameFolder(draft.folder.trim(), plan?.defaultFolder ?? '')
 
+const waitingLabel = (waiting: number): string => `${waiting} opération${waiting > 1 ? 's' : ''} de worktree avant`
+
+export const queueWorktreeTask = (task: WorktreeTask, label: string): void => {
+  const { tasks, addTask } = useWorktreeStore.getState()
+  addTask(task)
+  useHostStore.getState().setStatus(tasks.length > 0 ? `${label} en attente (${waitingLabel(tasks.length)}).` : `${label}…`)
+}
+
+export const dialogCreationPending = (tasks: WorktreeTask[]): boolean => tasks.some((task) => task.fromDialog)
+
 export const submitWorktree = (): void => {
-  const { draft, plan, planPending, busy, setBusy, setCreateFailure } = useWorktreeStore.getState()
-  if (!draft || !plan?.path || plan.error || planPending || busy) {
+  const { draft, plan, planPending, tasks, setCreateFailure } = useWorktreeStore.getState()
+  if (!draft || !plan?.path || plan.error || planPending || dialogCreationPending(tasks)) {
     return
   }
   setCreateFailure(null)
-  setBusy(WorktreeOperation.Create)
-  useHostStore.getState().setStatus('Création du worktree…')
-  bridge.send({ type: 'worktrees.create', repository: draft.repository, branch: draft.branch, mode: draft.mode, base: draft.base || undefined, install: draft.install, database: draft.database, project: draft.project, remember: draft.remember, folder: draft.folder ?? undefined, rememberFolder: draft.rememberFolder && folderChanged(draft, plan) })
+  const request = newAgentRequest()
+  queueWorktreeTask({ request, operation: WorktreeOperation.Create, fromDialog: true }, 'Création du worktree')
+  bridge.send({ type: 'worktrees.create', request, repository: draft.repository, branch: draft.branch, mode: draft.mode, base: draft.base || undefined, install: draft.install, database: draft.database, project: draft.project, remember: draft.remember, folder: draft.folder ?? undefined, rememberFolder: draft.rememberFolder && folderChanged(draft, plan) })
 }
 
 export const openWorktreePicker = (kind: WorktreePickerKind): void => {
@@ -184,8 +194,8 @@ const closePanesNow = (paneIds: string[]): void => {
 }
 
 export const confirmWorktreeRemoval = (): void => {
-  const { removal, busy, setRemoval } = useWorktreeStore.getState()
-  if (!removal || busy) {
+  const { removal, setRemoval } = useWorktreeStore.getState()
+  if (!removal) {
     return
   }
   setRemoval(null)
@@ -195,11 +205,10 @@ export const confirmWorktreeRemoval = (): void => {
     paneIds,
     () => {
       closePanesNow(paneIds)
-      const store = useWorktreeStore.getState()
-      store.setPendingRemoval({ ...removal, panes: removal.closePanes ? [] : removal.panes, failure: null })
-      store.setBusy(WorktreeOperation.Remove)
-      useHostStore.getState().setStatus('Suppression du worktree…')
-      bridge.send({ type: 'worktrees.remove', request: removal.request, path: removal.path, keepBranch: removal.keepBranch, dropDatabase: removal.dropDatabase, confirmed: true })
+      const request = removal.request ?? newAgentRequest()
+      const pending = { ...removal, panes: removal.closePanes ? [] : removal.panes, failure: null }
+      queueWorktreeTask({ request, operation: WorktreeOperation.Remove, fromDialog: false, removal: pending }, `Suppression du worktree « ${removal.name} »`)
+      bridge.send({ type: 'worktrees.remove', request, path: removal.path, keepBranch: removal.keepBranch, dropDatabase: removal.dropDatabase, confirmed: true })
     },
     undefined,
     () => removalCancelled(removal),

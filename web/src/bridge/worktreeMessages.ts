@@ -59,6 +59,8 @@ export type WorktreeHostMessage =
   | { type: 'worktrees.created'; request?: number; path: string; name: string; branch: string; install?: string }
   | { type: 'worktrees.done'; request?: number; operation: WorktreeOperation; message: string; warnings: string[] }
   | { type: 'worktrees.failed'; request?: number; operation: WorktreeOperation; step: string; message: string; output?: string; lockedBy?: string[] }
+  | { type: 'worktrees.purging'; name: string; files: number; elapsedMs: number }
+  | { type: 'worktrees.purged'; names: string[]; files: number; elapsedMs: number; remaining: string[] }
 
 export type WorktreeWebMessage =
   | { type: 'worktrees.sources'; request: number; path?: string; project?: string }
@@ -66,7 +68,7 @@ export type WorktreeWebMessage =
   | { type: 'worktrees.list'; request: number; path: string }
   | {
       type: 'worktrees.create'
-      request?: number
+      request: number
       repository: string
       branch: string
       mode: WorktreeBranchMode
@@ -78,4 +80,4 @@ export type WorktreeWebMessage =
       folder?: string
       rememberFolder: boolean
     }
-  | { type: 'worktrees.remove'; request?: number; path: string; keepBranch: boolean; dropDatabase: boolean; confirmed: boolean }
+  | { type: 'worktrees.remove'; request: number; path: string; keepBranch: boolean; dropDatabase: boolean; confirmed: boolean }

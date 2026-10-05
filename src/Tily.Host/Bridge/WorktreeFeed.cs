@@ -19,6 +19,7 @@ public sealed class WorktreeFeed
     private readonly WorktreeProjectsRepository _projects;
     private readonly BackgroundQueue _plans;
     private readonly BackgroundQueue _operations;
+    private readonly BackgroundQueue _purges;
 
     public WorktreeFeed(Action<object> post, Func<SettingsModel> settings, Action<string, string> rememberFolder, Action changed, Action<Exception> onError, string dataDirectory)
     {
@@ -29,6 +30,7 @@ public sealed class WorktreeFeed
         _changed = changed;
         _plans = new BackgroundQueue(onError);
         _operations = new BackgroundQueue(onError);
+        _purges = new BackgroundQueue(onError);
     }
 
     public void Handle(BridgeCommandModel command)
@@ -156,9 +158,19 @@ public sealed class WorktreeFeed
         Run(RemoveOperation, command.Request, () =>
         {
             var removal = new WorktreeRemover(_runner, _database).Remove(command.Path ?? string.Empty, command.KeepBranch, command.DropDatabase, command.Confirmed, message => Progress(RemoveOperation, command.Request, message));
+            _purges.Enqueue(() => Purge(removal.Trash));
             _changed();
             return ($"Worktree « {Path.GetFileName(removal.Path)} » supprimé.", removal.Steps);
         });
+
+    private void Purge(string trash)
+    {
+        var purge = WorktreeTrash.Purge(trash, step => _post(new { type = "worktrees.purging", name = step.Name, files = step.Files, elapsedMs = (long)step.Elapsed.TotalMilliseconds }));
+        if (purge.Names.Count > 0)
+        {
+            _post(new { type = "worktrees.purged", names = purge.Names, files = purge.Files, elapsedMs = (long)purge.Elapsed.TotalMilliseconds, remaining = purge.Remaining });
+        }
+    }
 
     private void Run(string operation, int request, Func<(string Message, IReadOnlyList<WorktreeStepModel> Steps)> action)
     {
@@ -184,6 +196,10 @@ public sealed class WorktreeFeed
         catch (Exception exception) when (exception is GitCommandException or IOException or UnauthorizedAccessException)
         {
             _post(new { type = "worktrees.failed", request, operation, step = WorktreeSteps.Verification, message = UserErrorMessage.Of(exception), output = (exception as GitCommandException)?.Output is { Length: > 0 } output ? output : null });
+        }
+        catch (Exception exception)
+        {
+            _post(new { type = "worktrees.failed", request, operation, step = WorktreeSteps.Verification, message = UserErrorMessage.Of(exception) });
         }
     }
 
