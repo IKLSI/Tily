@@ -1,0 +1,19 @@
+{
+  "name": "tily",
+  "productName": "Tily",
+  "version": "3.0.0",
+  "description": "Terminal macOS organisé en workspaces, onglets et panes",
+  "private": true,
+  "main": "dist/main/main.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "pnpm build && electron .",
+    "dist": "pnpm build && electron-builder --mac --arm64 --publish never"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.4",
+    "electron": "^44.5.1",
+    "electron-builder": "^26.15.3",
+    "typescript": "^6.0.3"
+  }
+}

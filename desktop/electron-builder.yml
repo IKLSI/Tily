@@ -1,0 +1,35 @@
+appId: com.maximerazafinjato.tily
+productName: Tily
+directories:
+  output: release
+  buildResources: resources
+files:
+  - dist/**/*
+  - package.json
+extraResources:
+  - from: ../backend/publish
+    to: backend
+  - from: renderer/dist
+    to: renderer
+mac:
+  category: public.app-category.developer-tools
+  target:
+    - target: dmg
+      arch: arm64
+    - target: zip
+      arch: arm64
+  icon: resources/icon.png
+  identity: "-"
+  hardenedRuntime: true
+  gatekeeperAssess: false
+  entitlements: resources/entitlements.mac.plist
+  entitlementsInherit: resources/entitlements.mac.plist
+  extendInfo:
+    NSAppleEventsUsageDescription: Tily pilote le Finder pour placer les fichiers dans la Corbeille.
+dmg:
+  artifactName: Tily-${version}-arm64.dmg
+publish:
+  provider: github
+  owner: MaximeRazafinjato
+  repo: tily
+  releaseType: release

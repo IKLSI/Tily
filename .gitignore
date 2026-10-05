@@ -20,12 +20,8 @@ tily-configuration.json
 session*.json
 
 # Application Tily (socle)
-src/**/bin/
-src/**/obj/
-tests/**/bin/
-tests/**/obj/
-web/node_modules/
-web/dist/
+backend/src/**/bin/
+backend/src/**/obj/
+backend/tests/**/bin/
+backend/tests/**/obj/
 publish/
-installer/output/
-installer/MicrosoftEdgeWebview2Setup.exe

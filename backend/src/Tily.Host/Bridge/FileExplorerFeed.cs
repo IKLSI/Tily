@@ -1,0 +1,250 @@
+using Tily.Core.Context;
+using Tily.Core.Files;
+using Tily.Core.Git;
+using Tily.Core.StatusLog;
+
+namespace Tily.Host.Bridge;
+
+public sealed class FileExplorerFeed : IDisposable
+{
+    private static readonly TimeSpan ChangeDelay = TimeSpan.FromMilliseconds(150);
+
+    private readonly Func<string> _editorCommand;
+    private readonly Action<object> _post;
+    private readonly BackgroundQueue _queue;
+    private readonly BackgroundQueue _searchQueue;
+    private CancellationTokenSource _search = new();
+    private readonly Dictionary<string, FileSystemWatcher?> _watchers = new(StringComparer.Ordinal);
+    private readonly HashSet<string> _changed = new(StringComparer.Ordinal);
+    private readonly object _sync = new();
+    private readonly Timer _changeTimer;
+    private readonly ExplorerGitMarks _gitMarks;
+
+    public FileExplorerFeed(Func<string> editorCommand, Action<object> post, Action<Exception> onError)
+    {
+        _editorCommand = editorCommand;
+        _post = post;
+        _queue = new BackgroundQueue(onError);
+        _searchQueue = new BackgroundQueue(onError);
+        _changeTimer = new Timer(_ => ListChanged());
+        _gitMarks = new ExplorerGitMarks(post, onError);
+    }
+
+    public void Handle(BridgeCommandModel command)
+    {
+        switch (command.Type)
+        {
+            case "files.watch":
+                Watch(command.Paths ?? []);
+                break;
+            case "files.refresh":
+                List(WatchedPaths());
+                _gitMarks.Refresh();
+                break;
+            case "files.open":
+                LocalActions.OpenFileInEditor(RequirePath(command), _editorCommand());
+                break;
+            case "files.openAt":
+                var location = RequirePath(command);
+                _queue.Enqueue(() => OpenAt(command.Cwd, location, command.Line, command.Column, command));
+                break;
+            case "files.search":
+                var folder = RequirePath(command);
+                var cancellation = RestartSearch();
+                _searchQueue.Enqueue(() => PostProjectFiles(folder, cancellation));
+                break;
+            case "files.reveal":
+                LocalActions.RevealInExplorer(RequirePath(command));
+                break;
+            case "files.create":
+                Create(RequirePath(command), command.Name, command.Kind);
+                break;
+            case "files.rename":
+                Rename(RequirePath(command), RequireParent(command), command.Name);
+                break;
+            case "files.delete":
+                Delete(RequirePath(command), RequireParent(command));
+                break;
+            default:
+                throw new InvalidOperationException($"Commande inconnue : {command.Type}");
+        }
+    }
+
+    private void Watch(string[] paths)
+    {
+        _gitMarks.Follow(paths.FirstOrDefault() ?? string.Empty);
+        List<string> added;
+        lock (_sync)
+        {
+            var wanted = paths.ToHashSet(StringComparer.Ordinal);
+            foreach (var removed in _watchers.Keys.Where(path => !wanted.Contains(path)).ToList())
+            {
+                _watchers[removed]?.Dispose();
+                _watchers.Remove(removed);
+            }
+
+            added = wanted.Where(path => !_watchers.ContainsKey(path)).ToList();
+            foreach (var path in added)
+            {
+                _watchers[path] = CreateWatcher(path);
+            }
+        }
+
+        List(added);
+    }
+
+    private FileSystemWatcher? CreateWatcher(string path)
+    {
+        try
+        {
+            FileExplorer.RequireFullPath(path);
+            var watcher = new FileSystemWatcher(path) { NotifyFilter = NotifyFilters.FileName | NotifyFilters.DirectoryName };
+            watcher.Created += (_, _) => MarkChanged(path);
+            watcher.Deleted += (_, _) => MarkChanged(path);
+            watcher.Renamed += (_, _) => MarkChanged(path);
+            watcher.Error += (_, _) => MarkChanged(path);
+            watcher.EnableRaisingEvents = true;
+            return watcher;
+        }
+        catch (Exception exception) when (exception is ArgumentException or IOException or UnauthorizedAccessException or InvalidOperationException)
+        {
+            return null;
+        }
+    }
+
+    private void MarkChanged(string path)
+    {
+        lock (_sync)
+        {
+            _changed.Add(path);
+        }
+
+        _changeTimer.Change(ChangeDelay, Timeout.InfiniteTimeSpan);
+    }
+
+    private void ListChanged()
+    {
+        List<string> changed;
+        lock (_sync)
+        {
+            changed = _changed.Where(_watchers.ContainsKey).ToList();
+            _changed.Clear();
+        }
+
+        List(changed);
+    }
+
+    private List<string> WatchedPaths()
+    {
+        lock (_sync)
+        {
+            return _watchers.Keys.ToList();
+        }
+    }
+
+    private void List(IEnumerable<string> paths)
+    {
+        foreach (var path in paths)
+        {
+            _queue.Enqueue(() => PostListing(path));
+        }
+    }
+
+    private void PostListing(string path)
+    {
+        var listing = FileExplorer.List(path);
+        _post(new { type = "files.listed", path = listing.Path, entries = listing.Entries, total = listing.Total, error = listing.Error });
+    }
+
+    private CancellationToken RestartSearch()
+    {
+        var next = new CancellationTokenSource();
+        var previous = Interlocked.Exchange(ref _search, next);
+        previous.Cancel();
+        previous.Dispose();
+        return next.Token;
+    }
+
+    private void PostProjectFiles(string folder, CancellationToken cancellation)
+    {
+        if (cancellation.IsCancellationRequested)
+        {
+            return;
+        }
+
+        try
+        {
+            var listing = ProjectFiles.List(new GitRunner(), folder, cancellation: cancellation);
+            _post(new { type = "files.searched", path = folder, root = listing.Root, files = listing.Files, changed = listing.Changed, truncated = listing.Truncated });
+        }
+        catch (Exception exception)
+        {
+            if (exception is OperationCanceledException)
+            {
+                return;
+            }
+
+            _post(new { type = "files.searched", path = folder, root = folder, files = Array.Empty<string>(), changed = Array.Empty<string>(), truncated = false, error = UserErrorMessage.Of(exception) });
+        }
+    }
+
+    private void OpenAt(string? folder, string location, int line, int column, BridgeCommandModel command)
+    {
+        if (command.Alternative is { } alternative && EditorLocation.ExistingExactly(folder, alternative, File.Exists) is { } whole)
+        {
+            LocalActions.OpenFileInEditor(whole, _editorCommand(), command.AlternativeLine, command.AlternativeColumn);
+            return;
+        }
+
+        var path = EditorLocation.ResolveExisting(folder, location, File.Exists)
+            ?? throw new InvalidOperationException($"Fichier introuvable : {EditorLocation.Resolve(folder, location)}");
+        LocalActions.OpenFileInEditor(path, _editorCommand(), line, column);
+    }
+
+    private void Create(string parent, string? name, string? kind) =>
+        _queue.Enqueue(() =>
+        {
+            var path = kind == "folder" ? FileExplorer.CreateFolder(parent, name ?? string.Empty) : FileExplorer.CreateFile(parent, name ?? string.Empty);
+            PostListing(parent);
+            _post(new { type = "files.created", path });
+        });
+
+    private void Rename(string path, string parent, string? name) =>
+        _queue.Enqueue(() =>
+        {
+            var target = FileExplorer.Rename(path, name ?? string.Empty);
+            PostListing(parent);
+            _post(new { type = "files.renamed", path, target });
+        });
+
+    private void Delete(string path, string parent) =>
+        _queue.Enqueue(() =>
+        {
+            RecycleBin.Send(path);
+            PostListing(parent);
+            _post(new { type = "files.deleted", path });
+        });
+
+    private static string RequirePath(BridgeCommandModel command) =>
+        command.Path ?? throw new InvalidOperationException("Chemin manquant.");
+
+    private static string RequireParent(BridgeCommandModel command) =>
+        command.Parent ?? throw new InvalidOperationException("Dossier parent manquant.");
+
+    public void Dispose()
+    {
+        _changeTimer.Dispose();
+        _gitMarks.Dispose();
+        _search.Cancel();
+        _search.Dispose();
+        lock (_sync)
+        {
+            foreach (var watcher in _watchers.Values)
+            {
+                watcher?.Dispose();
+            }
+
+            _watchers.Clear();
+        }
+    }
+}

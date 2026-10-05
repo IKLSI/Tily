@@ -1,0 +1,96 @@
+import type { KeyboardEvent, MouseEvent, PointerEvent, ReactNode } from 'react'
+import { refIndent } from '../gitBranchTree'
+import { beginRefDrag, sameRef } from '../gitDrag'
+import { selectModeOf, type GitSelectMode } from '../gitRows'
+import { useGitStore, type GitRefHandle } from '../gitStore'
+import { Icon } from '../../../components/Icon'
+import { IconName } from '../../../components/iconName'
+import { ROW_ACTION } from '../../right-panel/components/rightPanelStyles'
+import { Spinner } from '../../../components/Spinner'
+import { isMenuKey } from '../../workspaces/components/workspacePanel'
+
+interface GitRefRowProps {
+  rowKey: string
+  icon: IconName
+  name: string
+  meta?: ReactNode
+  metaTip?: string
+  tip?: string
+  current?: boolean
+  selected: boolean
+  depth?: number
+  focusable: boolean
+  handle?: GitRefHandle
+  refName?: string
+  onFocus: (key: string) => void
+  onActivate: () => void
+  onSelect: (mode: GitSelectMode) => void
+  onMenu: (x: number, y: number) => void
+}
+
+export function GitRefRow({ rowKey, icon, name, meta, metaTip, tip, current = false, selected, depth = 0, focusable, handle, refName, onFocus, onActivate, onSelect, onMenu }: GitRefRowProps) {
+  const dropTarget = useGitStore((store) => handle !== undefined && sameRef(store.drag?.target, handle))
+  const pending = useGitStore((store) => refName !== undefined && store.busy !== null && store.busyRefs.includes(refName))
+  const handleClick = (event: MouseEvent) => {
+    onFocus(rowKey)
+    onSelect(selectModeOf(event))
+  }
+  const handleContextMenu = (event: MouseEvent) => {
+    event.preventDefault()
+    onFocus(rowKey)
+    onMenu(event.clientX, event.clientY)
+  }
+  const handleMoreClick = (event: MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation()
+    const rect = event.currentTarget.getBoundingClientRect()
+    onMenu(rect.left, rect.bottom)
+  }
+  const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
+    if (handle) {
+      const row = event.currentTarget
+      beginRefDrag(event, handle, () => row.focus())
+    }
+  }
+  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Enter') {
+      event.preventDefault()
+      event.stopPropagation()
+      onActivate()
+    } else if (isMenuKey(event)) {
+      event.preventDefault()
+      event.stopPropagation()
+      const rect = event.currentTarget.getBoundingClientRect()
+      onMenu(rect.left + 24, rect.bottom)
+    }
+  }
+
+  return (
+    <div
+      role="option"
+      aria-selected={selected}
+      data-git-row={rowKey}
+      data-git-drop-kind={handle?.kind}
+      data-git-drop-name={handle?.name}
+      tabIndex={focusable ? 0 : -1}
+      data-tip={tip}
+      style={{ paddingLeft: refIndent(depth) }}
+      className={`group flex h-[24px] cursor-pointer items-center gap-[6px] pr-[4px] text-[12px] select-none ${selected ? 'bg-tily-green-soft' : 'hover:bg-tily-green-hover'} ${current || selected ? 'text-tily-green-deep' : 'text-tily-ink-soft hover:text-tily-ink'} ${dropTarget ? 'outline-2 -outline-offset-2 outline-tily-focus' : ''} ${pending ? 'opacity-60' : ''}`}
+      onClick={handleClick}
+      onDoubleClick={onActivate}
+      onContextMenu={handleContextMenu}
+      onPointerDown={handlePointerDown}
+      onKeyDown={handleKeyDown}
+    >
+      {pending ? <Spinner className="text-tily-green" /> : <Icon name={icon} className="shrink-0 text-tily-muted" />}
+      <span className={`min-w-0 flex-1 truncate ${current ? 'font-semibold' : ''}`}>{name}</span>
+      {meta && (
+        <span className="shrink-0 font-mono text-[11px] text-tily-muted" data-tip={metaTip}>
+          {meta}
+        </span>
+      )}
+      <button type="button" tabIndex={-1} className={`${ROW_ACTION} opacity-0 group-focus-within:opacity-100 group-hover:opacity-100`} aria-label={`Actions de ${name}`} data-tip="Actions (clic droit, Maj + F10)" onClick={handleMoreClick}>
+        <Icon name={IconName.More} />
+      </button>
+    </div>
+  )
+}

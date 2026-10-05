@@ -4,8 +4,8 @@ const zlib = require('zlib');
 
 const GRID = 256;
 const SUPERSAMPLING = 4;
-const ICO_SIZES = [16, 24, 32, 48, 64, 128, 256];
-const ASSETS_DIR = path.join(__dirname, '..', 'src', 'Tily.Host', 'Assets');
+const ICON_SIZE = 1024;
+const ASSETS_DIR = path.join(__dirname, '..', 'desktop', 'resources');
 
 const tile = { radius: 56, fill: [0x17, 0x19, 0x1b], border: [0x2c, 0x30, 0x33], borderWidth: 8 };
 const chevron = { points: [[70, 82], [126, 128], [70, 174]], width: 26, color: [0xa9, 0xc4, 0xb4] };
@@ -110,28 +110,6 @@ function encodePng(size, pixels) {
   ]);
 }
 
-function encodeIco(images) {
-  const header = Buffer.alloc(6);
-  header.writeUInt16LE(1, 2);
-  header.writeUInt16LE(images.length, 4);
-  const entries = [];
-  let offset = 6 + images.length * 16;
-  for (const { size, png } of images) {
-    const entry = Buffer.alloc(16);
-    entry[0] = size >= 256 ? 0 : size;
-    entry[1] = size >= 256 ? 0 : size;
-    entry.writeUInt16LE(1, 4);
-    entry.writeUInt16LE(32, 6);
-    entry.writeUInt32LE(png.length, 8);
-    entry.writeUInt32LE(offset, 12);
-    entries.push(entry);
-    offset += png.length;
-  }
-  return Buffer.concat([header, ...entries, ...images.map((image) => image.png)]);
-}
-
-const images = ICO_SIZES.map((size) => ({ size, png: encodePng(size, renderPixels(size)) }));
 fs.mkdirSync(ASSETS_DIR, { recursive: true });
-fs.writeFileSync(path.join(ASSETS_DIR, 'Tily.ico'), encodeIco(images));
-fs.writeFileSync(path.join(ASSETS_DIR, 'Tily.png'), images.find((image) => image.size === 256).png);
-console.log(`Icône écrite dans ${ASSETS_DIR} (${ICO_SIZES.join(', ')} px)`);
+fs.writeFileSync(path.join(ASSETS_DIR, 'icon.png'), encodePng(ICON_SIZE, renderPixels(ICON_SIZE)));
+console.log(`Icône écrite dans ${ASSETS_DIR} (${ICON_SIZE} px)`);

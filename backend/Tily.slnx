@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Tily.Core/Tily.Core.csproj" />
+    <Project Path="src/Tily.Host/Tily.Host.csproj" />
+    <Project Path="src/Tily.Mcp/Tily.Mcp.csproj" />
+    <Project Path="src/Tily.Pty/Tily.Pty.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Tily.Core.Tests/Tily.Core.Tests.csproj" />
+  </Folder>
+</Solution>
