@@ -79,6 +79,35 @@ public sealed class WorktreeRemoverTests : IDisposable
     }
 
     [Fact]
+    public void Purge_WhenJunctionPointsOutside_ThenKeepsTargetFiles()
+    {
+        var outside = Path.Combine(_sandbox.Root, "dehors");
+        Directory.CreateDirectory(outside);
+        File.WriteAllText(Path.Combine(outside, "précieux.txt"), "x");
+        Junction(Path.Combine(_worktree, "node_modules"), outside);
+        var removal = _remover.Remove(_worktree, false, false, true, _ => { });
+
+        WorktreeTrash.Purge(removal.Trash, _ => { });
+
+        Assert.True(File.Exists(Path.Combine(outside, "précieux.txt")));
+    }
+
+    [Theory]
+    [InlineData("R&D")]
+    [InlineData("100%")]
+    public void Purge_WhenNameHasCommandPromptCharacters_ThenDeletesTrashedFolder(string name)
+    {
+        var root = Path.Combine(_sandbox.Root, "corbeille");
+        var trashed = Path.Combine(root, "abcd1234", name);
+        Directory.CreateDirectory(trashed);
+        File.WriteAllText(Path.Combine(trashed, "fichier.txt"), "x");
+
+        WorktreeTrash.Purge(root, _ => { });
+
+        Assert.False(Directory.Exists(root));
+    }
+
+    [Fact]
     public void Purge_WhenFileStillOpen_ThenReportsRemainingFolder()
     {
         var removal = _remover.Remove(_worktree, false, false, true, _ => { });
@@ -167,6 +196,12 @@ public sealed class WorktreeRemoverTests : IDisposable
     }
 
     public void Dispose() => _sandbox.Dispose();
+
+    private static void Junction(string link, string target)
+    {
+        using var process = System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("cmd.exe", $"/d /c mklink /J \"{link}\" \"{target}\"") { UseShellExecute = false, CreateNoWindow = true, RedirectStandardOutput = true })!;
+        process.WaitForExit();
+    }
 
     private sealed class RecordingReplicator : IDatabaseReplicator
     {

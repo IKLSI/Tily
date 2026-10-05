@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Diagnostics;
 
 namespace Tily.Core.Worktrees;
@@ -41,6 +42,15 @@ public static class WorktreeTrash
         var names = new List<string>();
         var remaining = new List<string>();
         var files = 0;
+        void Report(string name, int erased)
+        {
+            if (clock.Elapsed - reported >= ProgressInterval)
+            {
+                reported = clock.Elapsed;
+                progress(new WorktreePurgeProgressModel(name, files + erased, clock.Elapsed));
+            }
+        }
+
         while (NextSlot(root, attempted) is { } slot)
         {
             attempted.Add(slot);
@@ -48,15 +58,7 @@ public static class WorktreeTrash
             {
                 var name = Path.GetFileName(item);
                 names.Add(name);
-                LockedFolder.DeleteAll(item, () =>
-                {
-                    files++;
-                    if (clock.Elapsed - reported >= ProgressInterval)
-                    {
-                        reported = clock.Elapsed;
-                        progress(new WorktreePurgeProgressModel(name, files, clock.Elapsed));
-                    }
-                });
+                files += Erase(item, erased => Report(name, erased));
                 if (Directory.Exists(item))
                 {
                     remaining.Add(item);
@@ -68,6 +70,60 @@ public static class WorktreeTrash
 
         DeleteIfEmpty(root);
         return new WorktreePurgeModel(names, files, clock.Elapsed, remaining);
+    }
+
+    private static int Erase(string folder, Action<int> erased)
+    {
+        var total = CountFiles(folder);
+        RemoveWithCommandPrompt(folder, () => erased(total - CountFiles(folder)));
+        if (!Directory.Exists(folder))
+        {
+            return total;
+        }
+
+        var done = total - CountFiles(folder);
+        LockedFolder.DeleteAll(folder, () => erased(++done));
+        return total - CountFiles(folder);
+    }
+
+    private static void RemoveWithCommandPrompt(string folder, Action tick)
+    {
+        if (folder.Contains('%'))
+        {
+            return;
+        }
+
+        var info = new ProcessStartInfo(Path.Combine(Environment.SystemDirectory, "cmd.exe"), $"/d /c rd /s /q \"{folder}\"")
+        {
+            UseShellExecute = false,
+            CreateNoWindow = true
+        };
+        try
+        {
+            using var process = Process.Start(info);
+            while (process is not null && !process.WaitForExit(ProgressInterval))
+            {
+                tick();
+            }
+        }
+        catch (Win32Exception)
+        {
+        }
+    }
+
+    private static int CountFiles(string folder)
+    {
+        try
+        {
+            var directory = new DirectoryInfo(folder);
+            return directory.Exists
+                ? directory.EnumerateFiles().Count() + directory.EnumerateDirectories().Where(child => !child.Attributes.HasFlag(FileAttributes.ReparsePoint)).Sum(child => CountFiles(child.FullName))
+                : 0;
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            return 0;
+        }
     }
 
     private static string? NextSlot(string root, HashSet<string> attempted) => Children(root).FirstOrDefault(slot => !attempted.Contains(slot));
