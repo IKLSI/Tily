@@ -11,6 +11,7 @@ using Tily.Core.StatusLog;
 using Tily.Core.Terminal;
 using Tily.Core.Worktrees;
 using Microsoft.UI.Dispatching;
+using Microsoft.UI.Xaml.Controls;
 using Microsoft.Web.WebView2.Core;
 
 namespace Tily.Host.Bridge;
@@ -45,6 +46,7 @@ public sealed class HostBridge : IDisposable
     private readonly UpdateFeed _updates;
     private readonly StatusLogFeed _statusLog;
     private readonly McpFeed _mcp;
+    private readonly BrowserFeed _browsers;
     private SettingsModel _settings;
     private ShellPathsModel _shellPaths = ShellPathsModel.Empty;
     private PersistenceSettingsModel _persistence = PersistenceSettingsModel.Default;
@@ -57,7 +59,7 @@ public sealed class HostBridge : IDisposable
     private bool _closing;
     private DispatcherQueueTimer? _closeTimer;
 
-    public HostBridge(DispatcherQueue dispatcher, string dataDirectory, nint windowHandle, Action closeWindow, Action<string> setTitle)
+    public HostBridge(DispatcherQueue dispatcher, string dataDirectory, nint windowHandle, Action closeWindow, Action<string> setTitle, Canvas browserLayer, Action focusInterface)
     {
         _dispatcher = dispatcher;
         _windowHandle = windowHandle;
@@ -82,6 +84,7 @@ public sealed class HostBridge : IDisposable
         _worktrees = new WorktreeFeed(Post, () => _settings, RememberWorktreeFolder, _git.RefreshSoon, PostBackgroundError, dataDirectory);
         _updates = new UpdateFeed(Post, ApplicationVersion, dataDirectory);
         _mcp = new McpFeed(dataDirectory, Post, PostBackgroundError);
+        _browsers = new BrowserFeed(browserLayer, () => _core?.Environment, Post, focusInterface);
         ApplySettings(_settings);
         _terminals.OutputReceived += HandleOutput;
         _terminals.CurrentDirectoryChanged += HandleCurrentDirectoryChanged;
@@ -148,7 +151,11 @@ public sealed class HostBridge : IDisposable
 
     private void Receive(string json)
     {
-        if (json.StartsWith(TextSavePrefix, StringComparison.Ordinal))
+        if (json.StartsWith(BrowserFeed.Prefix, StringComparison.Ordinal))
+        {
+            _browsers.Receive(json);
+        }
+        else if (json.StartsWith(TextSavePrefix, StringComparison.Ordinal))
         {
             _writes.Enqueue(() => Handle(json));
         }
@@ -693,6 +700,7 @@ public sealed class HostBridge : IDisposable
         _preview.Dispose();
         _previewRequests.Dispose();
         _mcp.Dispose();
+        _browsers.Dispose();
         _git.Dispose();
         foreach (var buffer in _buffers.Values)
         {
