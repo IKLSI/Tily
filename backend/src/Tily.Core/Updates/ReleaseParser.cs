@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using System.Text.Json;
 
 namespace Tily.Core.Updates;
@@ -5,10 +6,11 @@ namespace Tily.Core.Updates;
 public static class ReleaseParser
 {
     public const string DownloadPrefix = "https://github.com/" + UpdateSource.Repository + "/releases/download/";
-    private const string InstallerSuffix = "-arm64.dmg";
     private const string Sha256Prefix = "sha256:";
 
-    public static UpdateReleaseModel Parse(string json)
+    public static UpdateReleaseModel Parse(string json) => Parse(json, RuntimeInformation.OSArchitecture);
+
+    public static UpdateReleaseModel Parse(string json, Architecture architecture)
     {
         try
         {
@@ -29,7 +31,7 @@ public static class ReleaseParser
                 ReleaseNotes.Highlights(Text(root, "body")),
                 Text(root, "html_url"),
                 publishedAt,
-                Installer(root, version));
+                Installer(root, version, architecture));
         }
         catch (JsonException)
         {
@@ -41,10 +43,10 @@ public static class ReleaseParser
         }
     }
 
-    private static UpdateAssetModel Installer(JsonElement root, string version)
+    private static UpdateAssetModel Installer(JsonElement root, string version, Architecture architecture)
     {
         var assets = root.TryGetProperty("assets", out var list) && list.ValueKind == JsonValueKind.Array ? list.EnumerateArray().ToList() : [];
-        var expected = $"Tily-{version}{InstallerSuffix}";
+        var expected = $"Tily-{version}-{(architecture == Architecture.Arm64 ? "arm64" : "x64")}.dmg";
         var asset = assets.FirstOrDefault(candidate => string.Equals(Text(candidate, "name"), expected, StringComparison.OrdinalIgnoreCase));
         if (asset.ValueKind != JsonValueKind.Object)
         {

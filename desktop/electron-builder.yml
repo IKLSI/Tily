@@ -14,10 +14,8 @@ extraResources:
 mac:
   category: public.app-category.developer-tools
   target:
-    - target: dmg
-      arch: arm64
-    - target: zip
-      arch: arm64
+    - dmg
+    - zip
   icon: resources/icon.png
   identity: "-"
   hardenedRuntime: true
@@ -27,7 +25,7 @@ mac:
   extendInfo:
     NSAppleEventsUsageDescription: Tily pilote le Finder pour placer les fichiers dans la Corbeille.
 dmg:
-  artifactName: Tily-${version}-arm64.dmg
+  artifactName: Tily-${version}-${arch}.dmg
 publish:
   provider: github
   owner: IKLSI

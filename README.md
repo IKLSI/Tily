@@ -56,7 +56,7 @@
 
 ## Installation
 
-1. Télécharger `Tily-x.y.z-arm64.dmg` depuis la [dernière version](https://github.com/IKLSI/Tily/releases/latest) (Mac à puce Apple).
+1. Télécharger depuis la [dernière version](https://github.com/IKLSI/Tily/releases/latest) `Tily-x.y.z-arm64.dmg` (Mac à puce Apple) ou `Tily-x.y.z-x64.dmg` (Mac Intel).
 2. Ouvrir le `.dmg` et glisser Tily dans Applications.
 3. Tily n’est signé qu’ad hoc, sans notarisation : au premier lancement, faire un clic droit sur Tily dans Applications puis « Ouvrir », ou retirer la quarantaine dans un terminal : `xattr -dr com.apple.quarantine /Applications/Tily.app`.
 
@@ -72,7 +72,7 @@ Sur un Mac, avec .NET 10, Node 24 et pnpm 12 :
 dotnet test backend/Tily.slnx                       # hôte, bibliothèque et tests
 cd desktop/renderer && pnpm install && pnpm build   # interface
 cd .. && pnpm install && pnpm start                 # lance Tily en développement
-scripts/build-mac.sh                                # paquet desktop/release/Tily-x.y.z-arm64.dmg
+scripts/build-mac.sh                                # paquets desktop/release/Tily-x.y.z-arm64.dmg et -x64.dmg
 ```
 
 ## Raccourcis clavier

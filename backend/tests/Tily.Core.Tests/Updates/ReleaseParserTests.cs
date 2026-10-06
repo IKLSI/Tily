@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using Tily.Core.Updates;
 using Xunit;
 
@@ -31,7 +32,7 @@ public sealed class ReleaseParserTests
     {
         var json = ReleaseJson();
 
-        var release = ReleaseParser.Parse(json);
+        var release = ReleaseParser.Parse(json, Architecture.Arm64);
 
         Assert.Equal(
             new UpdateAssetModel("Tily-1.4.0-arm64.dmg", "https://github.com/IKLSI/Tily/releases/download/v1.4.0/Tily-1.4.0-arm64.dmg", 1234, Digest),
@@ -41,11 +42,21 @@ public sealed class ReleaseParserTests
     }
 
     [Fact]
+    public void Parse_WhenIntelMac_ThenReadsX64Installer()
+    {
+        var json = ReleaseJson(assetName: "Tily-1.4.0-x64.dmg");
+
+        var release = ReleaseParser.Parse(json, Architecture.X64);
+
+        Assert.Equal("Tily-1.4.0-x64.dmg", release.Installer.Name);
+    }
+
+    [Fact]
     public void Parse_WhenInstallerMissing_ThenFailsInFrench()
     {
         var json = ReleaseJson(assetName: "Tily-1.4.0-portable.zip");
 
-        var exception = Assert.Throws<UpdateException>(() => ReleaseParser.Parse(json));
+        var exception = Assert.Throws<UpdateException>(() => ReleaseParser.Parse(json, Architecture.Arm64));
 
         Assert.Equal("La release 1.4.0 ne contient pas d’installeur Tily-1.4.0-arm64.dmg.", exception.Message);
     }
@@ -55,7 +66,7 @@ public sealed class ReleaseParserTests
     {
         var json = ReleaseJson(digest: null);
 
-        var exception = Assert.Throws<UpdateException>(() => ReleaseParser.Parse(json));
+        var exception = Assert.Throws<UpdateException>(() => ReleaseParser.Parse(json, Architecture.Arm64));
 
         Assert.Contains("empreinte SHA-256", exception.Message);
     }
@@ -65,7 +76,7 @@ public sealed class ReleaseParserTests
     {
         var json = ReleaseJson(url: "https://example.com/Tily-1.4.0-arm64.dmg");
 
-        var exception = Assert.Throws<UpdateException>(() => ReleaseParser.Parse(json));
+        var exception = Assert.Throws<UpdateException>(() => ReleaseParser.Parse(json, Architecture.Arm64));
 
         Assert.StartsWith("Adresse de téléchargement refusée", exception.Message);
     }
@@ -75,7 +86,7 @@ public sealed class ReleaseParserTests
     {
         var json = ReleaseJson(tag: "nightly");
 
-        var exception = Assert.Throws<UpdateException>(() => ReleaseParser.Parse(json));
+        var exception = Assert.Throws<UpdateException>(() => ReleaseParser.Parse(json, Architecture.Arm64));
 
         Assert.Equal("Numéro de version illisible dans la release : « nightly ».", exception.Message);
     }
@@ -83,7 +94,7 @@ public sealed class ReleaseParserTests
     [Fact]
     public void Parse_WhenJsonInvalid_ThenFailsInFrench()
     {
-        var exception = Assert.Throws<UpdateException>(() => ReleaseParser.Parse("<html>"));
+        var exception = Assert.Throws<UpdateException>(() => ReleaseParser.Parse("<html>", Architecture.Arm64));
 
         Assert.Equal("Réponse de GitHub illisible.", exception.Message);
     }
@@ -96,7 +107,7 @@ public sealed class ReleaseParserTests
     [InlineData("1.4.0", "", false)]
     public void IsNewerThan_WhenComparingVersions_ThenComparesNumerically(string available, string current, bool expected)
     {
-        var release = ReleaseParser.Parse(ReleaseJson()) with { Version = available };
+        var release = ReleaseParser.Parse(ReleaseJson(), Architecture.Arm64) with { Version = available };
 
         var newer = release.IsNewerThan(current);
 

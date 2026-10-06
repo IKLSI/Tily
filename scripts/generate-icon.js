@@ -1,115 +1,43 @@
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
-const zlib = require('zlib');
+const { execFileSync } = require('child_process');
 
-const GRID = 256;
-const SUPERSAMPLING = 4;
 const ICON_SIZE = 1024;
 const ASSETS_DIR = path.join(__dirname, '..', 'desktop', 'resources');
+const SQUIRCLE_EXPONENT = 4.6;
+const SQUIRCLE_STEPS = 360;
 
-const tile = { radius: 56, fill: [0x17, 0x19, 0x1b], border: [0x2c, 0x30, 0x33], borderWidth: 8 };
-const chevron = { points: [[70, 82], [126, 128], [70, 174]], width: 26, color: [0xa9, 0xc4, 0xb4] };
-const cursor = { x: 142, y: 158, width: 50, height: 26, radius: 6, color: [0x7a, 0x9f, 0x8b] };
-
-function roundedRectDistance(x, y, left, top, width, height, radius) {
-  const halfWidth = width / 2;
-  const halfHeight = height / 2;
-  const dx = Math.abs(x - (left + halfWidth)) - (halfWidth - radius);
-  const dy = Math.abs(y - (top + halfHeight)) - (halfHeight - radius);
-  const outside = Math.hypot(Math.max(dx, 0), Math.max(dy, 0));
-  return outside + Math.min(Math.max(dx, dy), 0) - radius;
-}
-
-function segmentDistance(x, y, [ax, ay], [bx, by]) {
-  const abx = bx - ax;
-  const aby = by - ay;
-  const t = Math.max(0, Math.min(1, ((x - ax) * abx + (y - ay) * aby) / (abx * abx + aby * aby)));
-  return Math.hypot(x - (ax + t * abx), y - (ay + t * aby));
-}
-
-function chevronDistance(x, y) {
-  const [first, middle, last] = chevron.points;
-  return Math.min(segmentDistance(x, y, first, middle), segmentDistance(x, y, middle, last)) - chevron.width / 2;
-}
-
-function sampleColor(x, y) {
-  const tileDistance = roundedRectDistance(x, y, 0, 0, GRID, GRID, tile.radius);
-  if (tileDistance > 0) return null;
-  if (chevronDistance(x, y) <= 0) return chevron.color;
-  if (roundedRectDistance(x, y, cursor.x, cursor.y, cursor.width, cursor.height, cursor.radius) <= 0) return cursor.color;
-  if (tileDistance > -tile.borderWidth) return tile.border;
-  return tile.fill;
-}
-
-function renderPixels(size) {
-  const pixels = Buffer.alloc(size * size * 4);
-  const scale = GRID / size;
-  const samples = SUPERSAMPLING * SUPERSAMPLING;
-  for (let row = 0; row < size; row++) {
-    for (let column = 0; column < size; column++) {
-      let red = 0;
-      let green = 0;
-      let blue = 0;
-      let covered = 0;
-      for (let sy = 0; sy < SUPERSAMPLING; sy++) {
-        for (let sx = 0; sx < SUPERSAMPLING; sx++) {
-          const color = sampleColor((column + (sx + 0.5) / SUPERSAMPLING) * scale, (row + (sy + 0.5) / SUPERSAMPLING) * scale);
-          if (!color) continue;
-          red += color[0];
-          green += color[1];
-          blue += color[2];
-          covered++;
-        }
-      }
-      const offset = (row * size + column) * 4;
-      if (covered === 0) continue;
-      pixels[offset] = Math.round(red / covered);
-      pixels[offset + 1] = Math.round(green / covered);
-      pixels[offset + 2] = Math.round(blue / covered);
-      pixels[offset + 3] = Math.round((covered / samples) * 255);
-    }
+function squirclePath(center, radius) {
+  const points = [];
+  for (let step = 0; step < SQUIRCLE_STEPS; step++) {
+    const angle = (2 * Math.PI * step) / SQUIRCLE_STEPS;
+    const cos = Math.cos(angle);
+    const sin = Math.sin(angle);
+    const x = center + radius * Math.sign(cos) * Math.abs(cos) ** (2 / SQUIRCLE_EXPONENT);
+    const y = center + radius * Math.sign(sin) * Math.abs(sin) ** (2 / SQUIRCLE_EXPONENT);
+    points.push(`${x.toFixed(2)},${y.toFixed(2)}`);
   }
-  return pixels;
+  return `M${points.join(' L')} Z`;
 }
 
-const crcTable = Array.from({ length: 256 }, (_, index) => {
-  let value = index;
-  for (let bit = 0; bit < 8; bit++) value = value & 1 ? 0xedb88320 ^ (value >>> 1) : value >>> 1;
-  return value >>> 0;
-});
-
-function crc32(buffer) {
-  let crc = 0xffffffff;
-  for (const byte of buffer) crc = crcTable[(crc ^ byte) & 0xff] ^ (crc >>> 8);
-  return (crc ^ 0xffffffff) >>> 0;
+function iconSvg() {
+  const tile = squirclePath(512, 412);
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${ICON_SIZE}" height="${ICON_SIZE}" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="body" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1f2224"/><stop offset="1" stop-color="#151719"/></linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#000" flood-opacity=".3"/></filter>
+  </defs>
+  <path d="${tile}" fill="url(#body)" filter="url(#shadow)"/>
+  <path d="${tile}" fill="none" stroke="#2c3033" stroke-width="4"/>
+  <polyline points="330,400 438,500 330,600" fill="none" stroke="#a9c4b4" stroke-width="44" stroke-linecap="round" stroke-linejoin="round"/>
+  <line x1="508" y1="600" x2="660" y2="600" stroke="#7a9f8b" stroke-width="44" stroke-linecap="round"/>
+</svg>`;
 }
 
-function pngChunk(type, data) {
-  const length = Buffer.alloc(4);
-  length.writeUInt32BE(data.length);
-  const typeAndData = Buffer.concat([Buffer.from(type, 'ascii'), data]);
-  const crc = Buffer.alloc(4);
-  crc.writeUInt32BE(crc32(typeAndData));
-  return Buffer.concat([length, typeAndData, crc]);
-}
-
-function encodePng(size, pixels) {
-  const header = Buffer.alloc(13);
-  header.writeUInt32BE(size, 0);
-  header.writeUInt32BE(size, 4);
-  header[8] = 8;
-  header[9] = 6;
-  const stride = size * 4;
-  const raw = Buffer.alloc((stride + 1) * size);
-  for (let row = 0; row < size; row++) pixels.copy(raw, row * (stride + 1) + 1, row * stride, (row + 1) * stride);
-  return Buffer.concat([
-    Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
-    pngChunk('IHDR', header),
-    pngChunk('IDAT', zlib.deflateSync(raw, { level: 9 })),
-    pngChunk('IEND', Buffer.alloc(0)),
-  ]);
-}
-
+const svgPath = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'tily-icon-')), 'icon.svg');
+fs.writeFileSync(svgPath, iconSvg());
 fs.mkdirSync(ASSETS_DIR, { recursive: true });
-fs.writeFileSync(path.join(ASSETS_DIR, 'icon.png'), encodePng(ICON_SIZE, renderPixels(ICON_SIZE)));
+execFileSync('sips', ['-s', 'format', 'png', '-z', String(ICON_SIZE), String(ICON_SIZE), svgPath, '--out', path.join(ASSETS_DIR, 'icon.png')], { stdio: 'ignore' });
+fs.rmSync(path.dirname(svgPath), { recursive: true, force: true });
 console.log(`Icône écrite dans ${ASSETS_DIR} (${ICON_SIZE} px)`);

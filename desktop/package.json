@@ -8,7 +8,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "start": "pnpm build && electron .",
-    "dist": "pnpm build && electron-builder --mac --arm64 --publish never"
+    "dist": "pnpm build && electron-builder --mac --publish never"
   },
   "devDependencies": {
     "@types/node": "^26.6.4",
