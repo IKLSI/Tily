@@ -29,7 +29,6 @@ export const Header = memo(function Header({ workspaceName, renaming, sidebarCol
         ☰
       </button>
       <div className="flex min-w-0 items-baseline gap-4">
-        <span className="text-[17px] font-semibold text-tily-green">Tily</span>
         {!navigation &&
           (workspaceName === null ? (
             <span className="text-[16px] text-tily-muted">Aucun workspace</span>

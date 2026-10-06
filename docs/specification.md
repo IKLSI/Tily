@@ -120,7 +120,7 @@ Chaque message affiché dans la barre de statut est gardé dans un journal, enre
 
 Leader puis L, Ctrl + Maj + L, la palette (« Afficher / masquer le journal des messages ») ou un clic sur la barre de statut ouvrent le tiroir avec le focus dans la liste, ou le ferment ; Échap le ferme et rend le focus au terminal. Chaque ligne donne l’heure (précédée du jour s’il ne s’agit pas d’aujourd’hui, date complète en infobulle), le niveau (Info, Avertissement, Erreur) et le texte complet, jamais tronqué. Messages du plus ancien au plus récent, la liste suit le dernier tant qu’on n’a pas remonté. « Copier » place tout le journal dans le presse-papiers, « Effacer » le vide sans confirmation. L’hôte horodate chaque message et garde les 500 derniers, 2 000 caractères au plus chacun, dans `status-log.json` du dossier de données ; un fichier illisible est mis de côté et signalé au démarrage. Le libellé d’une opération Git en cours n’est pas journalisé : seul son résultat l’est.
 
-L’heure du message affiché (heures, minutes, secondes, précédées du jour s’il ne date pas d’aujourd’hui) figure en gris à droite de la barre de statut, la date complète en infobulle, pour qu’un message ancien ne passe pas pour un message récent ; elle est masquée pendant une opération Git ou worktree en cours.
+La barre de statut n’affiche pas l’heure du message : elle figure dans le journal des messages.
 
 Le tiroir du journal porte une bascule « Avertissements et erreurs » qui n’affiche que ces messages (« 7 sur 213 messages » dans l’en-tête) ; Copier et Effacer portent toujours sur tout le journal. Au lancement, le message « Session restaurée » indique le nombre de workspaces et d’onglets restaurés.
 

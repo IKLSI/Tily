@@ -1,11 +1,11 @@
-import { memo, useEffect, useState } from 'react'
+import { memo } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { busyLabel } from '../../git/gitBusy'
 import { useGitStore } from '../../git/gitStore'
 import { StatusLevel, useHostStore } from '../../../stores/hostStore'
 import { useStatusLogStore } from '../statusLogStore'
 import { useWorktreeStore } from '../../worktrees/worktreeStore'
-import { entryFullDate, entryTime, toggleStatusLog } from '../statusLogActions'
+import { toggleStatusLog } from '../statusLogActions'
 import { formatCommandDuration } from '../../terminal/commandNotices'
 import { Icon } from '../../../components/Icon'
 import { IconName } from '../../../components/iconName'
@@ -18,13 +18,7 @@ const STATUS_CLASSES: Record<StatusLevel, string> = {
   [StatusLevel.Error]: 'text-tily-error',
 }
 
-const untilTomorrow = (): number => {
-  const now = new Date()
-  return new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).getTime() - now.getTime()
-}
-
 export const StatusBar = memo(function StatusBar() {
-  const [day, setDay] = useState(0)
   const status = useHostStore((state) => state.status)
   const unsaved = useHostStore((state) => state.unsaved)
   const { busy, busyRefs } = useGitStore(useShallow((state) => ({ busy: state.busy, busyRefs: state.busyRefs })))
@@ -33,11 +27,6 @@ export const StatusBar = memo(function StatusBar() {
   const waiting = worktreeTasks - 1
   const logOpen = useStatusLogStore((state) => state.open)
   const spinning = Boolean(busy) || worktreeBusy
-
-  useEffect(() => {
-    const timer = setTimeout(() => setDay(day + 1), untilTomorrow())
-    return () => clearTimeout(timer)
-  }, [day])
 
   return (
     <>
@@ -70,11 +59,6 @@ export const StatusBar = memo(function StatusBar() {
             <Spinner size={10} className="shrink-0 text-tily-green" />
             {`Effacement de « ${purge.name} » : ${purge.files.toLocaleString('fr-FR')} fichiers (${formatCommandDuration(purge.elapsedMs)})`}
           </span>
-        )}
-        {status.at && !spinning && (
-          <time dateTime={status.at} data-tip={`Message du ${entryFullDate(status)}`} className="shrink-0 px-3 text-tily-muted tabular-nums">
-            {entryTime(status, new Date())}
-          </time>
         )}
         {unsaved && (
           <span className="shrink-0 px-3 text-tily-error" data-tip="La dernière sauvegarde a échoué : la session restera en l’état d’avant tant qu’une écriture ne réussit pas.">
