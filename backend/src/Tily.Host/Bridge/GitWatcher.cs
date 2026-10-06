@@ -13,7 +13,12 @@ public sealed class GitWatcher : IDisposable
 
     private const string WorktreesEntry = "worktrees";
     private static readonly HashSet<string> WorktreeEntries = new(StringComparer.OrdinalIgnoreCase) { "HEAD", "locked", "gitdir" };
+    private static readonly HashSet<string> BuildOutputEntries = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "node_modules", "bin", "obj", "dist", ".next", "target"
+    };
 
+    private readonly string _root;
     private readonly string[] _gitDirectories;
     private readonly List<FileSystemWatcher> _watchers = [];
     private readonly Action _changed;
@@ -24,6 +29,7 @@ public sealed class GitWatcher : IDisposable
     public GitWatcher(GitLocationModel location, Action changed)
     {
         _changed = changed;
+        _root = location.Root;
         _gitDirectories = [location.GitDirectory, location.CommonDirectory];
         _timer = new Timer(_ => Fire());
         foreach (var directory in new[] { location.Root, location.GitDirectory, location.CommonDirectory }.Distinct(StringComparer.OrdinalIgnoreCase))
@@ -96,7 +102,7 @@ public sealed class GitWatcher : IDisposable
         var gitDirectory = _gitDirectories.FirstOrDefault(directory => IsWithin(path, directory));
         if (gitDirectory is null)
         {
-            return true;
+            return !IsWithin(path, _root) || !Path.GetRelativePath(_root, path).Split(Path.DirectorySeparatorChar).Any(BuildOutputEntries.Contains);
         }
 
         var relative = Path.GetRelativePath(gitDirectory, path);

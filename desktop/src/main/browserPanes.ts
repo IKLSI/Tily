@@ -1,4 +1,5 @@
-import { WebContentsView, type BrowserWindow, type WebContents } from 'electron'
+import { session, WebContentsView, type BrowserWindow, type Rectangle, type WebContents } from 'electron'
+import { isFiniteNumber, isRecord } from './messageGuards'
 
 const PARTITION = 'persist:browser'
 const PROTOCOL_VERSION = '1.3'
@@ -8,6 +9,38 @@ const SNAPSHOT_QUALITY = 75
 const BACKGROUND = '#ffffff'
 const BLANK = 'about:blank'
 const POPUP_FEATURES = /(^|,)\s*(width|height|left|top)\s*=/i
+const ALLOWED_PROTOCOLS = new Set(['http:', 'https:', 'file:'])
+const ALLOWED_PERMISSIONS = new Set(['clipboard-sanitized-write'])
+
+const isAllowedAddress = (url: string): boolean => {
+  if (url === BLANK) {
+    return true
+  }
+
+  try {
+    return ALLOWED_PROTOCOLS.has(new URL(url).protocol)
+  } catch {
+    return false
+  }
+}
+
+const readBounds = (args: Record<string, unknown>): Rectangle => {
+  const { x, y, width, height } = args
+  if (!isFiniteNumber(x) || !isFiniteNumber(y) || !isFiniteNumber(width) || !isFiniteNumber(height)) {
+    throw new Error('dimensions de la vue invalides')
+  }
+
+  return { x: Math.round(x), y: Math.round(y), width: Math.round(width), height: Math.round(height) }
+}
+
+const readText = (args: Record<string, unknown>, name: string, label: string): string => {
+  const value = args[name]
+  if (typeof value !== 'string') {
+    throw new Error(`${label} invalide`)
+  }
+
+  return value
+}
 
 export interface BrowserCall {
   id: number
@@ -24,7 +57,11 @@ export class BrowserPanes {
   constructor(
     private readonly window: BrowserWindow,
     private readonly emit: BrowserEmit,
-  ) {}
+  ) {
+    const browserSession = session.fromPartition(PARTITION)
+    browserSession.setPermissionRequestHandler((_contents, permission, callback) => callback(ALLOWED_PERMISSIONS.has(permission)))
+    browserSession.setPermissionCheckHandler((_contents, permission) => ALLOWED_PERMISSIONS.has(permission))
+  }
 
   async call(request: BrowserCall): Promise<unknown> {
     const args = request.arguments ?? {}
@@ -41,12 +78,18 @@ export class BrowserPanes {
     const contents = view.webContents
     switch (request.operation) {
       case 'layout':
-        view.setBounds({ x: Math.round(Number(args.x)), y: Math.round(Number(args.y)), width: Math.round(Number(args.width)), height: Math.round(Number(args.height)) })
+        view.setBounds(readBounds(args))
         view.setVisible(Boolean(args.visible))
         return null
-      case 'navigate':
-        contents.loadURL(String(args.url)).catch(() => undefined)
+      case 'navigate': {
+        const url = readText(args, 'url', 'adresse')
+        if (!isAllowedAddress(url)) {
+          throw new Error(`adresse non autorisée : ${url}`)
+        }
+
+        contents.loadURL(url).catch(() => undefined)
         return null
+      }
       case 'back':
         if (contents.navigationHistory.canGoBack()) {
           contents.navigationHistory.goBack()
@@ -65,7 +108,7 @@ export class BrowserPanes {
         this.close(request.pane)
         return null
       case 'cdp':
-        return contents.debugger.sendCommand(String(args.method), (args.params as object | undefined) ?? {})
+        return contents.debugger.sendCommand(readText(args, 'method', 'méthode CDP'), isRecord(args.params) ? args.params : {})
       case 'snapshot':
         return `data:image/jpeg;base64,${(await contents.capturePage()).toJPEG(SNAPSHOT_QUALITY).toString('base64')}`
       default:
@@ -130,7 +173,25 @@ export class BrowserPanes {
 
       this.emit(pane, 'cdp', { method, params })
     })
+    this.guard(pane, contents)
+  }
+
+  private guard(pane: string, contents: WebContents): void {
+    contents.on('will-navigate', (event) => {
+      if (!isAllowedAddress(event.url)) {
+        event.preventDefault()
+      }
+    })
+    contents.on('will-redirect', (event) => {
+      if (!isAllowedAddress(event.url)) {
+        event.preventDefault()
+      }
+    })
     contents.setWindowOpenHandler(({ url, features }) => {
+      if (!isAllowedAddress(url)) {
+        return { action: 'deny' }
+      }
+
       if (POPUP_FEATURES.test(features)) {
         return { action: 'allow' }
       }
@@ -138,6 +199,7 @@ export class BrowserPanes {
       this.emit(pane, 'newPane', { url })
       return { action: 'deny' }
     })
+    contents.on('did-create-window', (popup) => this.guard(pane, popup.webContents))
   }
 
   private close(pane: string): void {

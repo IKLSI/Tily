@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { RightPanelView } from '../../../model/session'
 import { showPanelView } from '../rightPanel'
 import { FileExplorer } from '../../explorer/components/FileExplorer'
@@ -31,7 +32,7 @@ const viewContent = (view: RightPanelView, root: string, onOpenTerminal: (path: 
   return <FileExplorer root={root} onOpenTerminal={onOpenTerminal} />
 }
 
-export function RightPanel({ view, root, width, onClose, onOpenTerminal }: RightPanelProps) {
+export const RightPanel = memo(function RightPanel({ view, root, width, onClose, onOpenTerminal }: RightPanelProps) {
   return (
     <aside data-right-panel="" aria-label="Panneau de droite" className="flex h-full min-h-0 shrink-0 flex-col overflow-hidden bg-tily-paper" style={{ width }}>
       <div role="tablist" aria-label="Vue du panneau" className="flex h-[36px] shrink-0 items-center gap-[2px] pr-[6px] pl-[8px]">
@@ -60,4 +61,4 @@ export function RightPanel({ view, root, width, onClose, onOpenTerminal }: Right
       {viewContent(view, root, onOpenTerminal)}
     </aside>
   )
-}
+})

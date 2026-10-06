@@ -13,5 +13,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Tily.Core\Tily.Core.csproj" />
     <ProjectReference Include="..\..\src\Tily.Pty\Tily.Pty.csproj" />
+    <ProjectReference Include="..\..\src\Tily.Host\Tily.Host.csproj" />
   </ItemGroup>
 </Project>

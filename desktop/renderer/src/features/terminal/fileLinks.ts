@@ -42,7 +42,7 @@ const matchesOf = (text: string, pattern: RegExp, continuesPreviousLine: boolean
     const line = positionOf(colonLine ?? parenLine)
     const path = whole.replace(LOCATION_SUFFIX, '')
     const before = text.slice(0, index)
-    const partOfWord = index > 0 ? PATH_CONTINUATION.test(text[index - 1]) : continuesPreviousLine
+    const partOfWord = index > 0 ? PATH_CONTINUATION.test(text.charAt(index - 1)) : continuesPreviousLine
     const bareName = !SEPARATOR.test(path)
     if (partOfWord || URL_BEFORE.test(before) || SPACED_PATH_BEFORE.test(before) || DOMAIN_START.test(path) || (bareName && (line === 0 || DOMAIN_NAME.test(path)))) {
       return []

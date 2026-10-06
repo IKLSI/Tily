@@ -7,6 +7,7 @@ import { receiveBrowserKey } from '../features/browser/browserKeys'
 import { disposeMissingBrowsers, startBrowserLayer } from '../features/browser/browserLayer'
 import { dispatchReply } from '../bridge/requestListeners'
 import { AppShell } from './AppShell'
+import { ErrorBoundary } from '../components/ErrorBoundary'
 import { receiveMcpRequest } from '../features/mcp/mcpRequests'
 import { allPanes, restoredSessionLabel } from '../model/session'
 import { useAgentStore } from '../features/agents/agentStore'
@@ -69,7 +70,7 @@ export default function App() {
         terminalRegistry.setFontSize(message.appearance.fontSize)
         terminalRegistry.setFontFamily(message.appearance.fontFamily)
         primeSessionText(message.session, message.text)
-        void document.fonts.load('14px "Symbols Nerd Font Mono"').then(() => {
+        const restoreSession = () => {
           load(message.session)
           stopAutosave?.()
           stopAutosave = startTextAutosave(message.persistence.textIntervalSeconds)
@@ -78,6 +79,10 @@ export default function App() {
           } else {
             setStatus(`Session restaurée${restoredSessionLabel(message.session)} : nouveaux shells, aucune commande rejouée.`)
           }
+        }
+        void document.fonts.load('14px "Symbols Nerd Font Mono"').then(restoreSession, (error) => {
+          console.error('Chargement de la police des symboles impossible :', error)
+          restoreSession()
         })
       }),
       bridge.on('appearance.changed', (message) => {
@@ -237,5 +242,9 @@ export default function App() {
     return <div className="flex h-full items-center justify-center text-tily-muted">{status.text}</div>
   }
 
-  return <AppShell session={session} />
+  return (
+    <ErrorBoundary>
+      <AppShell session={session} />
+    </ErrorBoundary>
+  )
 }

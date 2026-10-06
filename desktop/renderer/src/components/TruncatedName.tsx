@@ -5,6 +5,8 @@ interface TruncatedNameProps {
 }
 
 const SEPARATORS = '-_.'
+
+const isSeparator = (character: string | undefined): boolean => character !== undefined && SEPARATORS.includes(character)
 const WHITESPACE = /\s/
 
 const commonLength = (left: string, right: string): number => {
@@ -17,7 +19,7 @@ const commonLength = (left: string, right: string): number => {
 
 const lastSeparatorCut = (name: string, length: number): number => {
   for (let index = length - 1; index >= 0; index -= 1) {
-    if (SEPARATORS.includes(name[index])) {
+    if (isSeparator(name[index])) {
       return index + 1
     }
   }
@@ -29,7 +31,7 @@ const prefixCut = (name: string, other: string): number => {
   if (length === name.length) {
     return 0
   }
-  if (length === other.length && SEPARATORS.includes(name[length])) {
+  if (length === other.length && isSeparator(name[length])) {
     return length + 1
   }
   return lastSeparatorCut(name, length)

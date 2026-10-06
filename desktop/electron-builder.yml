@@ -11,11 +11,13 @@ extraResources:
     to: backend
   - from: renderer/dist
     to: renderer
+    filter:
+      - "**/*"
+      - "!**/*.map"
 mac:
   category: public.app-category.developer-tools
   target:
     - dmg
-    - zip
   icon: resources/icon.png
   identity: "-"
   hardenedRuntime: true

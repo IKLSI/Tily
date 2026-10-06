@@ -38,11 +38,14 @@ export const removalPanes = (session: Session, folder: string, agents: Record<st
     workspace.tabs.flatMap((tab) =>
       panesOf(tab.tree)
         .filter((pane) => isWithinFolder(pane.path, folder))
-        .map((pane) => ({
-          paneId: pane.id,
-          label: [workspace.name, tab.name, folderName(pane.path)].join(LABEL_SEPARATOR),
-          agent: agents[pane.id] !== undefined && ACTIVE_AGENT_STATES.has(agents[pane.id].state),
-        })),
+        .map((pane) => {
+          const agent = agents[pane.id]
+          return {
+            paneId: pane.id,
+            label: [workspace.name, tab.name, folderName(pane.path)].join(LABEL_SEPARATOR),
+            agent: agent !== undefined && ACTIVE_AGENT_STATES.has(agent.state),
+          }
+        }),
     ),
   )
 

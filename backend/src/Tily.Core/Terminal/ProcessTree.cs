@@ -4,7 +4,7 @@ using Tily.Core.Native;
 
 namespace Tily.Core.Terminal;
 
-public sealed record ProcessEntryModel(int Id, int ParentId, uint TerminalDevice, string Name, int ProcessGroup = 0, int ForegroundGroup = 0);
+public sealed record ProcessEntryModel(int Id, int ParentId, uint TerminalDevice, string Name, int ProcessGroup = 0, int ForegroundGroup = 0, ulong StartTime = 0);
 
 public static class ProcessTree
 {
@@ -78,6 +78,18 @@ public static class ProcessTree
             : members.Where(entry => entry.ProcessGroup == root.ForegroundGroup).ToList();
     }
 
+    public static ProcessEntryModel? Find(int identifier) =>
+        identifier > 0 ? Read(identifier, new byte[LibProcApi.BsdInfoSize]) : null;
+
+    public static bool IsSameProcess(ProcessEntryModel known, ProcessEntryModel? current) =>
+        current is not null
+        && current.Id == known.Id
+        && current.StartTime == known.StartTime
+        && (current.TerminalDevice == known.TerminalDevice || current.ParentId == known.ParentId || current.ProcessGroup == known.ProcessGroup);
+
+    public static bool Contains(IReadOnlyList<ProcessEntryModel> snapshot, int rootId, int processId, uint? knownTerminalDevice = null) =>
+        processId == rootId || Members(snapshot, rootId, knownTerminalDevice).Any(entry => entry.Id == processId);
+
     private static ProcessEntryModel? Read(int identifier, byte[] buffer)
     {
         if (LibProcApi.proc_pidinfo(identifier, LibProcApi.BsdInfoFlavor, 0, buffer, buffer.Length) != LibProcApi.BsdInfoSize)
@@ -93,8 +105,13 @@ public static class ProcessTree
             BinaryPrimitives.ReadUInt32LittleEndian(span[LibProcApi.TerminalDeviceOffset..]),
             name.Length > 0 ? name : Text(span.Slice(LibProcApi.CommandOffset, LibProcApi.CommandLength)),
             BinaryPrimitives.ReadInt32LittleEndian(span[LibProcApi.ProcessGroupOffset..]),
-            BinaryPrimitives.ReadInt32LittleEndian(span[LibProcApi.ForegroundGroupOffset..]));
+            BinaryPrimitives.ReadInt32LittleEndian(span[LibProcApi.ForegroundGroupOffset..]),
+            StartTimeOf(span));
     }
+
+    private static ulong StartTimeOf(ReadOnlySpan<byte> span) =>
+        BinaryPrimitives.ReadUInt64LittleEndian(span[LibProcApi.StartSecondsOffset..]) * 1_000_000
+        + BinaryPrimitives.ReadUInt64LittleEndian(span[LibProcApi.StartMicrosecondsOffset..]);
 
     private static string Text(ReadOnlySpan<byte> bytes)
     {

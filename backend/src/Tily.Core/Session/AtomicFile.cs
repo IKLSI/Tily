@@ -6,14 +6,56 @@ public static class AtomicFile
 {
     public static void Write(string filePath, string content)
     {
-        var temporaryPath = filePath + ".tmp";
-        using (var stream = new FileStream(temporaryPath, FileMode.Create, FileAccess.Write, FileShare.None))
+        var targetPath = ResolvedTarget(filePath);
+        var temporaryPath = $"{targetPath}.{Environment.ProcessId}-{Guid.NewGuid():N}.tmp";
+        var mode = ExistingMode(targetPath);
+        try
         {
-            var bytes = new UTF8Encoding(false).GetBytes(content);
-            stream.Write(bytes);
-            stream.Flush(true);
+            using (var stream = new FileStream(temporaryPath, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+            {
+                var bytes = new UTF8Encoding(false).GetBytes(content);
+                stream.Write(bytes);
+                stream.Flush(true);
+            }
+
+            if (mode is { } unixMode && !OperatingSystem.IsWindows())
+            {
+                File.SetUnixFileMode(temporaryPath, unixMode);
+            }
+
+            File.Move(temporaryPath, targetPath, true);
+        }
+        catch
+        {
+            DeleteQuietly(temporaryPath);
+            throw;
+        }
+    }
+
+    private static void DeleteQuietly(string filePath)
+    {
+        try
+        {
+            File.Delete(filePath);
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+        }
+    }
+
+    private static string ResolvedTarget(string filePath)
+    {
+        var file = new FileInfo(filePath);
+        return file.LinkTarget is null ? filePath : file.ResolveLinkTarget(true)?.FullName ?? filePath;
+    }
+
+    private static UnixFileMode? ExistingMode(string filePath)
+    {
+        if (OperatingSystem.IsWindows() || !File.Exists(filePath))
+        {
+            return null;
         }
 
-        File.Move(temporaryPath, filePath, true);
+        return File.GetUnixFileMode(filePath);
     }
 }

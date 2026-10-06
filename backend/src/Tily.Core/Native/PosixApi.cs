@@ -38,6 +38,8 @@ public static partial class PosixApi
     public const int KernelControl = 1;
     public const int KernelArgumentMaximum = 8;
     public const int KernelProcessArguments = 49;
+    public const int LocalSocketLevel = 0;
+    public const int LocalPeerProcessId = 0x002;
 
     [LibraryImport(LibC, SetLastError = true)]
     public static partial int posix_openpt(int flags);
@@ -131,4 +133,10 @@ public static partial class PosixApi
 
     [LibraryImport(LibC, SetLastError = true, StringMarshalling = StringMarshalling.Utf8)]
     public static partial int execvp(string file, nint[] arguments);
+
+    [LibraryImport(LibC, SetLastError = true, StringMarshalling = StringMarshalling.Utf8)]
+    public static partial int revoke(string path);
+
+    [LibraryImport(LibC, EntryPoint = "getsockopt", SetLastError = true)]
+    public static partial int GetSocketOption(nint socket, int level, int option, out int value, ref uint length);
 }

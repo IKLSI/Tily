@@ -15,18 +15,18 @@ export const startAttentionNotifier = (): (() => void) =>
       return
     }
     const fresh = waitingPanes(session, state.agents).filter((pane) => {
-      const key = agentKey(state.agents[pane.paneId])
+      const key = agentKey(pane.agent)
       const isNew = seen[pane.paneId] !== key && state.acknowledged[pane.paneId] !== key
       seen[pane.paneId] = key
       return isNew
     })
     const done = panesInState(session, state.agents, AgentState.Done)
-    const completed = done.filter((pane) => !state.agents[pane.paneId].interrupted)
+    const completed = done.filter((pane) => !pane.agent.interrupted)
     const justFinished = completed.filter((pane) => !finished.has(pane.paneId))
     finished = new Set(completed.map((pane) => pane.paneId))
     const { contexts } = useHostStore.getState()
     const raise = (pane: WaitingPane, kind: AttentionKind) => {
-      const notice = attentionNotice(pane, state.agents[pane.paneId], contexts[pane.paneId]?.branch)
+      const notice = attentionNotice(pane, pane.agent, contexts[pane.paneId]?.branch)
       bridge.send({ type: 'attention.raise', pane: pane.paneId, kind, ...notice })
     }
     fresh.forEach((pane) => raise(pane, AttentionKind.Waiting))

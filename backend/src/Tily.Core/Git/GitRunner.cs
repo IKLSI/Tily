@@ -1,6 +1,6 @@
-using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
+using Tily.Core.Processes;
 
 namespace Tily.Core.Git;
 
@@ -29,29 +29,17 @@ public sealed partial class GitRunner
 
     public GitOutputModel Run(string directory, IEnumerable<string> arguments, GitRunOptionsModel? options = null)
     {
-        var settings = options ?? new GitRunOptionsModel();
-        using var process = new Process { StartInfo = StartInfo(directory, arguments, settings) };
-        process.Start();
-        var output = process.StandardOutput.ReadToEndAsync();
-        var error = process.StandardError.ReadToEndAsync();
-        WriteInput(process, settings.Input);
-        Wait(process, settings.Timeout ?? DefaultTimeout);
-        return new GitOutputModel(process.ExitCode, output.GetAwaiter().GetResult(), error.GetAwaiter().GetResult());
+        var result = Execute(Request(directory, arguments, options ?? new GitRunOptionsModel()));
+        return new GitOutputModel(result.ExitCode, result.Output, result.Error);
     }
 
     public byte[] ReadBytes(string directory, params string[] arguments)
     {
-        using var process = new Process { StartInfo = StartInfo(directory, arguments, new GitRunOptionsModel()) };
-        process.Start();
         using var buffer = new MemoryStream();
-        var copy = process.StandardOutput.BaseStream.CopyToAsync(buffer);
-        var error = process.StandardError.ReadToEndAsync();
-        process.StandardInput.Close();
-        Wait(process, DefaultTimeout);
-        copy.GetAwaiter().GetResult();
-        if (process.ExitCode != 0)
+        var result = Execute(Request(directory, arguments, new GitRunOptionsModel()) with { OutputDestination = buffer });
+        if (result.ExitCode != 0)
         {
-            throw new GitCommandException($"La commande « git {arguments.FirstOrDefault()} » a échoué.", Clean(error.GetAwaiter().GetResult()));
+            throw new GitCommandException($"La commande « git {arguments.FirstOrDefault()} » a échoué.", Clean(result.Error));
         }
 
         return buffer.ToArray();
@@ -59,76 +47,49 @@ public sealed partial class GitRunner
 
     public static string Clean(string text) => AnsiEscape().Replace(text, string.Empty).Replace("\r\n", "\n").Trim();
 
-    private ProcessStartInfo StartInfo(string directory, IEnumerable<string> arguments, GitRunOptionsModel options)
+    private ProcessRequestModel Request(string directory, IEnumerable<string> arguments, GitRunOptionsModel options)
     {
         if (!Directory.Exists(directory))
         {
             throw new GitCommandException($"Dossier introuvable : {directory}", string.Empty);
         }
 
-        var info = new ProcessStartInfo(InstalledGit.Value ?? throw new GitCommandException("Git est introuvable : installez Git (Xcode Command Line Tools ou Homebrew) ou ajoutez git au PATH.", string.Empty))
-        {
-            WorkingDirectory = directory,
-            UseShellExecute = false,
-            CreateNoWindow = true,
-            RedirectStandardInput = true,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            StandardInputEncoding = Utf8,
-            StandardOutputEncoding = Utf8,
-            StandardErrorEncoding = Utf8
-        };
-        foreach (var argument in CommonArguments)
-        {
-            info.ArgumentList.Add(argument);
-        }
-
+        var executable = InstalledGit.Value ?? throw new GitCommandException("Git est introuvable : installez Git (Xcode Command Line Tools ou Homebrew) ou ajoutez git au PATH.", string.Empty);
+        var allArguments = new List<string>(CommonArguments);
         if (options.LiteralPaths)
         {
-            info.ArgumentList.Add("--literal-pathspecs");
+            allArguments.Add("--literal-pathspecs");
         }
 
-        foreach (var argument in arguments)
+        allArguments.AddRange(arguments);
+        var environment = new Dictionary<string, string?>
         {
-            info.ArgumentList.Add(argument);
-        }
-
-        info.Environment["GIT_TERMINAL_PROMPT"] = "0";
-        info.Environment["GIT_EDITOR"] = "true";
-        info.Environment["GIT_MERGE_AUTOEDIT"] = "no";
+            ["GIT_TERMINAL_PROMPT"] = "0",
+            ["GIT_EDITOR"] = "true",
+            ["GIT_MERGE_AUTOEDIT"] = "no"
+        };
         if (options.NeutralLocale)
         {
-            info.Environment["LC_ALL"] = "C";
+            environment["LC_ALL"] = "C";
         }
 
         foreach (var (name, value) in _environment)
         {
-            info.Environment[name] = value;
+            environment[name] = value;
         }
 
-        return info;
+        return new ProcessRequestModel(executable, allArguments, options.Timeout ?? DefaultTimeout, directory, environment, options.Input, Encoding: Utf8);
     }
 
-    private static void WriteInput(Process process, string? input)
+    private static ProcessOutputModel Execute(ProcessRequestModel request)
     {
-        if (input is not null)
+        var result = ProcessRunner.Run(request);
+        if (result.TimedOut)
         {
-            process.StandardInput.Write(input);
+            throw new GitCommandException($"Git ne répond plus après {request.Timeout.TotalMinutes:0} minutes : commande arrêtée.", string.Empty);
         }
 
-        process.StandardInput.Close();
-    }
-
-    private static void Wait(Process process, TimeSpan timeout)
-    {
-        if (process.WaitForExit(timeout))
-        {
-            process.WaitForExit();
-            return;
-        }
-
-        process.Kill(true);
-        throw new GitCommandException($"Git ne répond plus après {timeout.TotalMinutes:0} minutes : commande arrêtée.", string.Empty);
+        return result;
     }
 
     private static string? FindGit()

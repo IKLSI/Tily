@@ -74,9 +74,10 @@ export const handlePanelRowKeys = (event: KeyboardEvent<HTMLElement>): void => {
   const index = rows.indexOf(target)
   const typed = typeAheadText(panelTyped, event)
   const destinations: Record<string, number> = { ArrowDown: index + 1, ArrowUp: index - 1, Home: 0, End: rows.length - 1 }
-  if (!event.shiftKey && event.key in destinations) {
+  const destination = destinations[event.key]
+  if (!event.shiftKey && destination !== undefined) {
     event.preventDefault()
-    rows[destinations[event.key]]?.focus()
+    rows[destination]?.focus()
   } else if (!event.shiftKey && event.key === 'Escape') {
     event.preventDefault()
     focusActivePane()

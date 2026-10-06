@@ -24,12 +24,13 @@ export const typeAheadText = (previous: TypedText, event: KeyboardEvent): TypedT
 }
 
 export const typeAheadIndex = (names: string[], currentIndex: number, typed: string): number => {
-  const cycling = [...typed].every((character) => character === typed[0])
-  const wanted = normalize(cycling ? typed[0] : typed)
+  const firstCharacter = typed.charAt(0)
+  const cycling = typed === firstCharacter.repeat(typed.length)
+  const wanted = normalize(cycling ? firstCharacter : typed)
   const start = cycling ? currentIndex + 1 : Math.max(currentIndex, 0)
   for (let offset = 0; offset < names.length; offset += 1) {
     const index = (start + offset) % names.length
-    if (normalize(names[index]).startsWith(wanted)) {
+    if (normalize(names[index] ?? '').startsWith(wanted)) {
       return index
     }
   }

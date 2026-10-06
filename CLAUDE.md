@@ -39,7 +39,7 @@ scripts/build-mac.sh                   # web, puis par architecture publication 
 node scripts/generate-icon.js          # régénère desktop/resources/icon.png (1024 px)
 ```
 
-La version vient de la propriété `Version` de `backend/src/Tily.Host/Tily.Host.csproj` (recopiée dans `desktop/package.json` par le script) ; chaque version est publiée en release GitHub avec ses deux `.dmg`. La CI `.github/workflows/macos.yml` construit, teste et empaquette sur `macos-latest`. Les captures du README sont dans `docs/images/`.
+La version vient de la propriété `Version` de `backend/src/Tily.Host/Tily.Host.csproj` (recopiée dans `desktop/package.json` par le script) ; chaque version est publiée en release GitHub avec ses deux `.dmg`. La CI `.github/workflows/macos.yml` construit et teste sur `macos-latest` à chaque push sur `main` et à chaque pull request ; sur un tag `v*`, elle empaquette aussi les deux `.dmg` et publie la release. Les captures du README sont dans `docs/images/`.
 
 Les issues GitHub `[Fxx]` référencent les **numéros de sections** de la spec et les **identifiants de recette `Rxx`** (section 16). La spec a été renumérotée le 6 octobre 2026 (sections 2 à 17 devenues 1 à 16) : les anciennes issues citent l'ancienne numérotation. Renuméroter une section impose de revoir ces références.
 

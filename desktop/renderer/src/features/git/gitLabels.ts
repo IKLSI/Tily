@@ -98,7 +98,8 @@ export const shortDate = (unixSeconds: number): string =>
 
 export const initials = (author: string): string => {
   const words = author.split(/[\s._-]+/).filter((word) => word.length > 0)
-  const letters = words.length > 1 ? `${words[0][0]}${words[1][0]}` : (words[0] ?? '?').slice(0, 2)
+  const [first, second] = words
+  const letters = first && second ? `${first.charAt(0)}${second.charAt(0)}` : (first ?? '?').slice(0, 2)
   return letters.toUpperCase()
 }
 

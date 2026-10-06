@@ -1,10 +1,12 @@
 using System.Diagnostics;
+using System.Security.Cryptography;
 
 namespace Tily.Core.Updates;
 
 public static class UpdateInstaller
 {
     public const string ApplicationProcessVariable = "TILY_APP_PID";
+    public const string BundleIdentifier = "com.maximerazafinjato.tily";
     private const string BundleExtension = ".app";
     private const string ScriptName = "tily-update.sh";
     private const string Shell = "/bin/sh";
@@ -16,6 +18,7 @@ public static class UpdateInstaller
         DMG="$1"
         APP="$2"
         PID="$3"
+        BUNDLE_ID="$4"
         i=0
         while kill -0 "$PID" 2>/dev/null && [ "$i" -lt 120 ]; do
           sleep 0.5
@@ -24,11 +27,17 @@ public static class UpdateInstaller
         MOUNT=$(mktemp -d /tmp/tily-update.XXXXXX)
         if hdiutil attach -nobrowse -readonly -noautoopen -mountpoint "$MOUNT" "$DMG" >/dev/null 2>&1; then
           SOURCE=$(find "$MOUNT" -maxdepth 1 -name '*.app' -type d | head -n 1)
-          if [ -n "$SOURCE" ]; then
+          if [ -n "$SOURCE" ] && [ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$SOURCE/Contents/Info.plist" 2>/dev/null)" = "$BUNDLE_ID" ]; then
             STAGED="$APP.update"
-            rm -rf "$STAGED"
-            if ditto "$SOURCE" "$STAGED"; then
-              rm -rf "$APP" && mv "$STAGED" "$APP"
+            PREVIOUS="$APP.old"
+            rm -rf "$STAGED" "$PREVIOUS"
+            if ditto "$SOURCE" "$STAGED" && mv "$APP" "$PREVIOUS"; then
+              if mv "$STAGED" "$APP"; then
+                rm -rf "$PREVIOUS"
+              else
+                rm -rf "$APP"
+                mv "$PREVIOUS" "$APP"
+              fi
             fi
             rm -rf "$STAGED"
           fi
@@ -50,11 +59,16 @@ public static class UpdateInstaller
 
     public static bool IsInstalled(string appDirectory) => BundleOf(appDirectory) is { } bundle && CanReplace(bundle);
 
-    public static void Start(string installerPath, string appDirectory, int processId)
+    public static void Start(string installerPath, string expectedSha256, string appDirectory, int processId)
     {
         if (!File.Exists(installerPath))
         {
             throw new UpdateException($"Installeur introuvable : {installerPath}");
+        }
+
+        if (!string.Equals(Sha256Of(installerPath), expectedSha256, StringComparison.OrdinalIgnoreCase))
+        {
+            throw new UpdateException("L’installeur ne correspond plus à l’empreinte SHA-256 publiée : rien n’a été installé.");
         }
 
         var bundle = BundleOf(appDirectory) ?? throw new UpdateException("Tily ne tourne pas depuis une application installée : mise à jour impossible.");
@@ -67,13 +81,19 @@ public static class UpdateInstaller
             RedirectStandardOutput = true,
             RedirectStandardError = true
         };
-        foreach (var argument in new[] { script, installerPath, bundle, ApplicationProcess(processId).ToString() })
+        foreach (var argument in new[] { script, installerPath, bundle, ApplicationProcess(processId).ToString(), BundleIdentifier })
         {
             start.ArgumentList.Add(argument);
         }
 
         using var process = Process.Start(start) ?? throw new UpdateException("Le script de mise à jour n’a pas pu être lancé.");
         process.StandardInput.Close();
+    }
+
+    private static string Sha256Of(string path)
+    {
+        using var file = File.OpenRead(path);
+        return Convert.ToHexStringLower(SHA256.HashData(file));
     }
 
     private static int ApplicationProcess(int fallback) =>

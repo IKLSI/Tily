@@ -20,6 +20,7 @@ import {
   EXPLORER_MAX,
   EXPLORER_MIN,
   findWorkspace,
+  firstPane,
   mergedNote,
   NOTE_MAX_CHARS,
   panesOf,
@@ -28,6 +29,7 @@ import {
   equalizeNode,
   swapPanes,
   splitLeaf,
+  tabAt,
   updatePane,
   paneName,
   tabOfPane,
@@ -244,8 +246,7 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
         if (index < 0 || destination < 0 || destination >= draft.workspaces.length) {
           return
         }
-        const [workspace] = draft.workspaces.splice(index, 1)
-        draft.workspaces.splice(destination, 0, workspace)
+        draft.workspaces.splice(destination, 0, ...draft.workspaces.splice(index, 1))
       }),
     })),
 
@@ -257,8 +258,7 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
         if (index < 0 || before < 0 || before === index || before === index + 1) {
           return
         }
-        const [workspace] = draft.workspaces.splice(index, 1)
-        draft.workspaces.splice(before > index ? before - 1 : before, 0, workspace)
+        draft.workspaces.splice(before > index ? before - 1 : before, 0, ...draft.workspaces.splice(index, 1))
       }),
     })),
 
@@ -311,14 +311,16 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
         if (!source || !target || tabId === beforeTabId) {
           return
         }
-        const [tab] = source.tabs.splice(source.tabs.findIndex((candidate) => candidate.id === tabId), 1)
+        const sourceIndex = source.tabs.findIndex((candidate) => candidate.id === tabId)
+        const tab = tabAt(source, sourceIndex)
+        source.tabs.splice(sourceIndex, 1)
         if (source.tabs.length === 0 && source !== target) {
           if (source.note) {
             target.note = mergedNote(target.note, source.name, source.note)
           }
           draft.workspaces = draft.workspaces.filter((candidate) => candidate !== source)
         } else if (source.active === tabId && source !== target) {
-          source.active = source.tabs[0].id
+          source.active = tabAt(source, 0).id
         }
         const index = beforeTabId ? target.tabs.findIndex((candidate) => candidate.id === beforeTabId) : -1
         target.tabs.splice(index < 0 ? target.tabs.length : index, 0, tab)
@@ -335,8 +337,7 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
         if (destination < 0 || destination >= workspace.tabs.length) {
           return
         }
-        const [tab] = workspace.tabs.splice(index, 1)
-        workspace.tabs.splice(destination, 0, tab)
+        workspace.tabs.splice(destination, 0, ...workspace.tabs.splice(index, 1))
       }),
     })),
 
@@ -349,8 +350,7 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
         if (!workspace || index < 0 || destination < 0 || destination >= workspace.tabs.length) {
           return
         }
-        const [tab] = workspace.tabs.splice(index, 1)
-        workspace.tabs.splice(destination, 0, tab)
+        workspace.tabs.splice(destination, 0, ...workspace.tabs.splice(index, 1))
       }),
     })),
 
@@ -362,7 +362,7 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
         if (!workspace || index < 0) {
           return
         }
-        const { tab } = cloneTabWithNewIds(disownTab(current(workspace.tabs[index])))
+        const { tab } = cloneTabWithNewIds(disownTab(current(tabAt(workspace, index))))
         workspace.tabs.splice(index + 1, 0, tab)
         workspace.active = tab.id
         draft.active = workspace.id
@@ -374,7 +374,7 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
       session: mutateWorkspace(state.session, (workspace) => {
         const count = workspace.tabs.length
         const index = Math.max(0, workspace.tabs.findIndex((tab) => tab.id === workspace.active))
-        workspace.active = workspace.tabs[(((index + offset) % count) + count) % count].id
+        workspace.active = tabAt(workspace, (((index + offset) % count) + count) % count).id
       }),
     })),
 
@@ -386,7 +386,8 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
           return
         }
         const index = workspace.tabs.findIndex((tab) => tab.id === tabId)
-        const [tab] = workspace.tabs.splice(index, 1)
+        const tab = tabAt(workspace, index)
+        workspace.tabs.splice(index, 1)
         const closed: ClosedTab = { workspaceId: workspace.id, workspaceName: workspace.name, index, tab }
         if (workspace.tabs.length === 0 && workspace.note) {
           closed.workspaceNote = workspace.note
@@ -400,7 +401,7 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
           return
         }
         if (workspace.active === tabId) {
-          workspace.active = workspace.tabs[Math.min(index, workspace.tabs.length - 1)].id
+          workspace.active = tabAt(workspace, Math.min(index, workspace.tabs.length - 1)).id
         }
       }),
     })),
@@ -488,31 +489,30 @@ export const useSessionStore = create<SessionState>()((set, get) => ({
 
   movePaneToTab: (paneId, targetTabId) => set((state) => ({ session: mutateSession(state.session, (draft) => movePaneInto(draft, paneId, targetTabId)) })),
 
-  closePane: (paneId) =>
-    set((state) => {
-      const session = state.session
-      if (!session) {
-        return {}
-      }
-      const workspace = session.workspaces.find((candidate) => candidate.tabs.some((tab) => panesOf(tab.tree).some((pane) => pane.id === paneId)))
-      const tab = workspace?.tabs.find((candidate) => panesOf(candidate.tree).some((pane) => pane.id === paneId))
-      if (!workspace || !tab) {
-        return {}
-      }
-      if (panesOf(tab.tree).length === 1) {
-        state.closeTab(tab.id)
-        return {}
-      }
-      return {
-        session: mutateSession(session, (draft) => {
-          const draftTab = draft.workspaces.find((candidate) => candidate.id === workspace.id)!.tabs.find((candidate) => candidate.id === tab.id)!
-          draftTab.tree = pruneNode(draftTab.tree, paneId) ?? draftTab.tree
-          if (draftTab.active === paneId) {
-            draftTab.active = panesOf(draftTab.tree)[0].id
-          }
-        }),
-      }
-    }),
+  closePane: (paneId) => {
+    const session = get().session
+    if (!session) {
+      return
+    }
+    const workspace = session.workspaces.find((candidate) => candidate.tabs.some((tab) => panesOf(tab.tree).some((pane) => pane.id === paneId)))
+    const tab = workspace?.tabs.find((candidate) => panesOf(candidate.tree).some((pane) => pane.id === paneId))
+    if (!workspace || !tab) {
+      return
+    }
+    if (panesOf(tab.tree).length === 1) {
+      get().closeTab(tab.id)
+      return
+    }
+    set({
+      session: mutateSession(session, (draft) => {
+        const draftTab = draft.workspaces.find((candidate) => candidate.id === workspace.id)!.tabs.find((candidate) => candidate.id === tab.id)!
+        draftTab.tree = pruneNode(draftTab.tree, paneId) ?? draftTab.tree
+        if (draftTab.active === paneId) {
+          draftTab.active = firstPane(draftTab.tree).id
+        }
+      }),
+    })
+  },
 
   toggleFavorite: (commandId) =>
     set((state) => ({

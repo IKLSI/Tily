@@ -44,7 +44,11 @@ export function GitGraphView({ layout }: GitGraphViewProps) {
     if (!section) {
       return
     }
-    const observer = new ResizeObserver(([entry]) => setWidth(entry.contentRect.width))
+    const observer = new ResizeObserver(([entry]) => {
+      if (entry) {
+        setWidth(entry.contentRect.width)
+      }
+    })
     observer.observe(section)
     return () => observer.disconnect()
   }, [state])

@@ -82,15 +82,16 @@ export const WorkspaceItem = memo(function WorkspaceItem({ workspace, workspaceN
     onOpenMenu({ workspaceId: id, x: event.clientX, y: event.clientY, returnFocus: null })
   }
   const handleNameKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
+    const moveOffset = MOVE_KEYS[event.key]
     if (event.key === 'F2') {
       event.preventDefault()
       handleRename()
     } else if (isMenuKey(event)) {
       event.preventDefault()
       onOpenMenu(menuRequestFor(event, id))
-    } else if (event.altKey && event.key in MOVE_KEYS) {
+    } else if (event.altKey && moveOffset !== undefined) {
       event.preventDefault()
-      actions.moveWorkspace(id, MOVE_KEYS[event.key])
+      actions.moveWorkspace(id, moveOffset)
     } else if (!event.altKey && ((event.key === EXPAND_KEY && !expanded) || (event.key === COLLAPSE_KEY && expanded))) {
       event.preventDefault()
       actions.toggleWorkspace(id)

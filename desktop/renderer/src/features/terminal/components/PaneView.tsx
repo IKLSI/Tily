@@ -62,7 +62,7 @@ const LAST_FOLDER = /^(.+?)(\/[^/]+\/?)$/
 
 const pathParts = (path: string): { parent: string; folder: string } => {
   const match = LAST_FOLDER.exec(path)
-  return match ? { parent: match[1], folder: match[2] } : { parent: '', folder: path }
+  return { parent: match?.[1] ?? '', folder: match?.[2] ?? path }
 }
 
 const BranchIcon = () => (

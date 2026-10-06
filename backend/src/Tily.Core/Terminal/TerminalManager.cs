@@ -110,34 +110,53 @@ public sealed class TerminalManager : IDisposable
     public IReadOnlyList<PaneActivityModel> Activity(IEnumerable<string> paneIds)
     {
         var activity = new List<PaneActivityModel>();
+        var sessions = new List<TerminalSession>();
         foreach (var paneId in paneIds)
         {
-            if (!_sessions.TryGetValue(paneId, out var session))
+            if (_sessions.TryGetValue(paneId, out var session))
             {
-                continue;
+                sessions.Add(session);
             }
+        }
 
-            var processes = session.ActiveProcessNames();
+        if (sessions.Count == 0)
+        {
+            return activity;
+        }
+
+        var snapshot = ProcessTree.Snapshot();
+        foreach (var session in sessions)
+        {
+            var processes = session.ActiveProcessNames(snapshot);
             if (processes.Count > 0)
             {
-                activity.Add(new PaneActivityModel(paneId, processes));
+                activity.Add(new PaneActivityModel(session.PaneId, processes));
             }
         }
 
         return activity;
     }
 
-    public IReadOnlyList<PaneProbeModel> Probes() =>
-        _sessions.Values
-            .Where(session => !session.HasExited)
-            .Select(Probe)
-            .ToList();
-
-    private static PaneProbeModel Probe(TerminalSession session)
+    public IReadOnlyList<PaneProbeModel> Probes()
     {
-        var processes = session.ActiveProcesses();
+        var sessions = _sessions.Values.Where(session => !session.HasExited).ToList();
+        if (sessions.Count == 0)
+        {
+            return [];
+        }
+
+        var snapshot = ProcessTree.Snapshot();
+        return sessions.Select(session => Probe(session, snapshot)).ToList();
+    }
+
+    private static PaneProbeModel Probe(TerminalSession session, IReadOnlyList<ProcessEntryModel> snapshot)
+    {
+        var processes = session.ActiveProcesses(snapshot);
         return new PaneProbeModel(session.PaneId, session.StartedAtUtc, TerminalSession.NamesOf(processes), processes.Select(process => process.Id).ToList());
     }
+
+    public bool PaneOwnsProcess(string paneId, int processId) =>
+        _sessions.TryGetValue(paneId, out var session) && session.Contains(processId, ProcessTree.Snapshot());
 
     public TerminalSession Require(string paneId) =>
         _sessions.TryGetValue(paneId, out var session) ? session : throw new InvalidOperationException($"Aucun terminal pour le pane {paneId}.");

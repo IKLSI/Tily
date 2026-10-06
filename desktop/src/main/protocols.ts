@@ -6,6 +6,19 @@ import { APP_HOST, APP_SCHEME } from './paths'
 
 const PREVIEW_HOST = 'tily.files'
 const RESOURCE_TIMEOUT_MS = 10_000
+const HTML_EXTENSION = '.html'
+const CONTENT_SECURITY_POLICY = [
+  "default-src 'self'",
+  "script-src 'self'",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob: https: http:",
+  "font-src 'self' data:",
+  "connect-src 'self'",
+  `frame-src https://${PREVIEW_HOST}`,
+  "object-src 'none'",
+  "base-uri 'none'",
+  "frame-ancestors 'none'",
+].join('; ')
 
 interface ResourceAnswer {
   path?: string | null
@@ -21,7 +34,7 @@ export const registerAppScheme = (): void => {
 }
 
 export const serveApplication = (session: Session, root: string): void => {
-  session.protocol.handle(APP_SCHEME, (request) => {
+  session.protocol.handle(APP_SCHEME, async (request) => {
     const { host, pathname } = new URL(request.url)
     if (host !== APP_HOST) {
       return notFound()
@@ -29,11 +42,18 @@ export const serveApplication = (session: Session, root: string): void => {
 
     const target = path.resolve(root, `.${decodeURIComponent(pathname)}`)
     const relative = path.relative(root, target)
-    if (!relative || relative.startsWith('..') || path.isAbsolute(relative)) {
+    if (!relative || relative === '..' || relative.startsWith(`..${path.sep}`) || path.isAbsolute(relative)) {
       return notFound()
     }
 
-    return net.fetch(pathToFileURL(target).toString())
+    const response = await net.fetch(pathToFileURL(target).toString())
+    if (path.extname(target) !== HTML_EXTENSION) {
+      return response
+    }
+
+    const headers = new Headers(response.headers)
+    headers.set('content-security-policy', CONTENT_SECURITY_POLICY)
+    return new Response(response.body, { status: response.status, statusText: response.statusText, headers })
   })
 }
 

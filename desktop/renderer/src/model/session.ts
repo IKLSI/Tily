@@ -187,6 +187,8 @@ export const createOwnedWorkspace = (name: string, path: string, shell: string, 
 
 export const panesOf = (node: SplitNode): Pane[] => (isLeaf(node) ? [node.pane] : [...panesOf(node.a), ...panesOf(node.b)])
 
+export const firstPane = (node: SplitNode): Pane => (isLeaf(node) ? node.pane : firstPane(node.a))
+
 const replaceNode = (node: SplitNode, paneId: string, replacement: (leaf: SplitLeaf) => SplitNode): SplitNode => {
   if (isLeaf(node)) {
     return node.pane.id === paneId ? replacement(node) : node
@@ -287,7 +289,7 @@ export const disownTab = (tab: Tab): Tab => {
 export const cloneTabWithNewIds = (tab: Tab): { tab: Tab; paneIds: Record<string, string> } => {
   const paneIds: Record<string, string> = {}
   const tree = renewPaneIds(tab.tree, paneIds)
-  return { tab: { ...tab, id: newId(), tree, active: paneIds[tab.active] ?? panesOf(tree)[0].id }, paneIds }
+  return { tab: { ...tab, id: newId(), tree, active: paneIds[tab.active] ?? firstPane(tree).id }, paneIds }
 }
 
 export const isManuallyNamed = (session: Session | null, tabId: string): boolean =>
@@ -299,8 +301,17 @@ export const findWorkspace = (session: Session, workspaceId: string): Workspace 
 export const activeWorkspace = (session: Session): Workspace | undefined =>
   findWorkspace(session, session.active) ?? session.workspaces[0]
 
+const requireTab = (workspace: Workspace, tab: Tab | undefined): Tab => {
+  if (!tab) {
+    throw new Error(`Le workspace « ${workspace.name} » n’a aucun onglet.`)
+  }
+  return tab
+}
+
+export const tabAt = (workspace: Workspace, index: number): Tab => requireTab(workspace, workspace.tabs[index])
+
 export const activeTab = (workspace: Workspace): Tab =>
-  workspace.tabs.find((tab) => tab.id === workspace.active) ?? workspace.tabs[0]
+  requireTab(workspace, workspace.tabs.find((tab) => tab.id === workspace.active) ?? workspace.tabs[0])
 
 const countLabel = (count: number, one: string, several: string): string => `${count} ${count === 1 ? one : several}`
 
@@ -311,7 +322,7 @@ export const restoredSessionLabel = (session: Session): string => {
 
 export const paneCountLabel = (count: number): string => (count === 1 ? '1 pane' : `${count} panes`)
 
-export const activePane = (tab: Tab): Pane => panesOf(tab.tree).find((pane) => pane.id === tab.active) ?? panesOf(tab.tree)[0]
+export const activePane = (tab: Tab): Pane => panesOf(tab.tree).find((pane) => pane.id === tab.active) ?? firstPane(tab.tree)
 
 export const findPane = (session: Session, paneId: string): Pane | undefined => allPanes(session).find((pane) => pane.id === paneId)
 

@@ -6,6 +6,9 @@ namespace Tily.Core.Mcp;
 public sealed class McpPipeServer : IDisposable
 {
     private const int ReadBufferSize = 4096;
+    private const int MaxRequestBytes = 1024 * 1024;
+    private static readonly TimeSpan RequestReadTimeout = TimeSpan.FromSeconds(5);
+    private static readonly TimeSpan CreateRetryDelay = TimeSpan.FromSeconds(1);
 
     private readonly string _pipeName;
     private readonly Func<McpPipeRequestModel, CancellationToken, Task<McpPipeResponseModel>> _handle;
@@ -61,8 +64,30 @@ public sealed class McpPipeServer : IDisposable
                 await pending.DisposeAsync();
             }
 
-            pending = token.IsCancellationRequested ? null : TryCreate();
+            pending = await NextListenerAsync(token);
         }
+    }
+
+    private async Task<NamedPipeServerStream?> NextListenerAsync(CancellationToken token)
+    {
+        while (!token.IsCancellationRequested)
+        {
+            if (TryCreate() is { } listener)
+            {
+                return listener;
+            }
+
+            try
+            {
+                await Task.Delay(CreateRetryDelay, token);
+            }
+            catch (OperationCanceledException)
+            {
+                return null;
+            }
+        }
+
+        return null;
     }
 
     private NamedPipeServerStream? TryCreate()
@@ -83,9 +108,9 @@ public sealed class McpPipeServer : IDisposable
         {
             try
             {
-                using var reader = new StreamReader(stream, McpPipe.Utf8, false, ReadBufferSize, true);
-                var line = await reader.ReadLineAsync(token);
-                var response = await RespondAsync(McpPipe.Parse<McpPipeRequestModel>(line), token);
+                var line = await ReadRequestLineAsync(stream, token);
+                var request = McpPipe.Parse<McpPipeRequestModel>(line);
+                var response = await RespondAsync(request is null ? null : request with { PeerProcessId = McpPeer.ProcessIdOf(stream) }, token);
                 await stream.WriteAsync(McpPipe.Line(response), token);
                 await stream.FlushAsync(token);
                 stream.WaitForPipeDrain();
@@ -94,6 +119,36 @@ public sealed class McpPipeServer : IDisposable
             {
             }
         }
+    }
+
+    private static async Task<string?> ReadRequestLineAsync(Stream stream, CancellationToken token)
+    {
+        using var timeout = CancellationTokenSource.CreateLinkedTokenSource(token);
+        timeout.CancelAfter(RequestReadTimeout);
+        using var line = new MemoryStream();
+        var buffer = new byte[ReadBufferSize];
+        while (true)
+        {
+            var read = await stream.ReadAsync(buffer, timeout.Token);
+            if (read == 0)
+            {
+                break;
+            }
+
+            var end = Array.IndexOf(buffer, (byte)'\n', 0, read);
+            line.Write(buffer, 0, end < 0 ? read : end);
+            if (line.Length > MaxRequestBytes)
+            {
+                return null;
+            }
+
+            if (end >= 0)
+            {
+                break;
+            }
+        }
+
+        return line.Length == 0 ? null : McpPipe.Utf8.GetString(line.GetBuffer(), 0, (int)line.Length).TrimEnd('\r');
     }
 
     private async Task<McpPipeResponseModel> RespondAsync(McpPipeRequestModel? request, CancellationToken token)

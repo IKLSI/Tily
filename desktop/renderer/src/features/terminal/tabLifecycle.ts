@@ -1,4 +1,4 @@
-import { findWorkspace, panesOf, type Tab } from '../../model/session'
+import { findWorkspace, panesOf, tabAt, type Tab } from '../../model/session'
 import { useHostStore } from '../../stores/hostStore'
 import { useSessionStore } from '../../stores/sessionStore'
 import { useUiStore } from '../../stores/uiStore'
@@ -49,7 +49,7 @@ export const movePaneToTab = (paneId: string, targetTabId: string): void => {
   if (!target || !sourceWorkspace) {
     return
   }
-  if (sourceWorkspace.tabs.length === 1 && panesOf(sourceWorkspace.tabs[0].tree).length === 1) {
+  if (sourceWorkspace.tabs.length === 1 && panesOf(tabAt(sourceWorkspace, 0).tree).length === 1) {
     useHostStore.getState().setStatus(`Ce pane est le dernier du workspace « ${sourceWorkspace.name} » : il ne peut pas le quitter sans le fermer.`)
     return
   }

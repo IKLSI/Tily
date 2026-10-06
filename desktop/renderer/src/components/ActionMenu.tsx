@@ -38,10 +38,11 @@ export function ActionMenu({ label, items, emptyMessage, header, align = 'left',
     const focusable = itemsOf(menuRef.current)
     const index = focusable.findIndex((item) => item === document.activeElement)
     const moves: Record<string, number> = { ArrowDown: index + 1, ArrowUp: index - 1, Home: 0, End: focusable.length - 1 }
-    if (event.key in moves) {
+    const destination = moves[event.key]
+    if (destination !== undefined) {
       event.preventDefault()
       event.stopPropagation()
-      focusable[(moves[event.key] + focusable.length) % focusable.length]?.focus()
+      focusable[(destination + focusable.length) % focusable.length]?.focus()
     } else if (event.key === 'Escape' || event.key === 'Tab') {
       event.preventDefault()
       event.stopPropagation()

@@ -11,10 +11,11 @@ pnpm build
 cd "$ROOT/desktop"
 pnpm install --frozen-lockfile
 npm pkg set version="$VERSION"
+pnpm build
 
 for ARCH in arm64 x64; do
   rm -rf "$ROOT/backend/publish"
-  dotnet publish "$ROOT/backend/src/Tily.Host/Tily.Host.csproj" -c Release -r "osx-$ARCH" --self-contained -o "$ROOT/backend/publish"
-  pnpm dist "--$ARCH"
+  dotnet publish "$ROOT/backend/src/Tily.Host/Tily.Host.csproj" -c Release -r "osx-$ARCH" --self-contained -p:PublishReadyToRun=true -o "$ROOT/backend/publish"
+  pnpm exec electron-builder --mac --publish never "--$ARCH"
   echo "Installeur : $ROOT/desktop/release/Tily-$VERSION-$ARCH.dmg"
 done

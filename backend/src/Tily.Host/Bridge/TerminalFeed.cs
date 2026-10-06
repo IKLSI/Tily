@@ -10,7 +10,6 @@ public sealed class TerminalFeed : IDisposable
 {
     public const string Prefix = "terminal.";
 
-    private const int MaxCharsPerMessage = 512 * 1024;
     private const string InvalidDroppedPath = "Chemin déposé invalide.";
 
     private readonly HostLoop _loop;
@@ -19,10 +18,11 @@ public sealed class TerminalFeed : IDisposable
     private readonly BackgroundQueue _queries;
     private readonly Action<object> _post;
     private readonly Action<object> _postNow;
+    private readonly TerminalOutputWriter _output;
     private readonly ConcurrentDictionary<string, PaneOutputBuffer> _buffers = new();
     private int _flushScheduled;
 
-    public TerminalFeed(HostLoop loop, TerminalManager terminals, Action<string> forgetAgent, BackgroundQueue queries, Action<object> post, Action<object> postNow)
+    public TerminalFeed(HostLoop loop, TerminalManager terminals, Action<string> forgetAgent, BackgroundQueue queries, Action<object> post, Action<object> postNow, TerminalOutputWriter output)
     {
         _loop = loop;
         _terminals = terminals;
@@ -30,9 +30,14 @@ public sealed class TerminalFeed : IDisposable
         _queries = queries;
         _post = post;
         _postNow = postNow;
+        _output = output;
         _terminals.OutputReceived += HandleOutput;
         _terminals.CurrentDirectoryChanged += HandleCurrentDirectoryChanged;
-        _terminals.Exited += (paneId, code) => _post(new { type = "terminal.exit", pane = paneId, code });
+        _terminals.Exited += (paneId, code) => _loop.TryEnqueue(() =>
+        {
+            Flush();
+            _postNow(new { type = "terminal.exit", pane = paneId, code });
+        });
     }
 
     public void Handle(BridgeCommandModel command)
@@ -65,7 +70,9 @@ public sealed class TerminalFeed : IDisposable
                 PostDroppedPath(command);
                 break;
             case "terminal.activity":
-                _post(new { type = "terminal.activityResult", request = command.Request, panes = _terminals.Activity(command.Panes ?? []) });
+                var request = command.Request;
+                var panes = command.Panes ?? [];
+                _queries.Enqueue(() => _post(new { type = "terminal.activityResult", request, panes = _terminals.Activity(panes) }));
                 break;
             default:
                 throw new InvalidOperationException($"Commande inconnue : {command.Type}");
@@ -159,11 +166,8 @@ public sealed class TerminalFeed : IDisposable
                 continue;
             }
 
-            for (var offset = 0; offset < text.Length; offset += MaxCharsPerMessage)
-            {
-                var length = Math.Min(MaxCharsPerMessage, text.Length - offset);
-                _postNow(new { type = "terminal.output", pane = buffer.PaneId, data = text.Substring(offset, length) });
-            }
+            _output.Send(buffer.PaneId, text);
+            buffer.Recycle(text);
         }
     }
 

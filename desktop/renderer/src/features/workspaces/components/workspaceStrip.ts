@@ -21,7 +21,7 @@ export const visibleIndexes = (widths: number[], pinnedIndex: number, space: num
   }
   for (let count = widths.length - 1; count > 1; count -= 1) {
     const indexes = leadingIndexes(count, pinnedIndex)
-    if (spanOf(indexes.map((index) => widths[index])) + STRIP_GAP_PX + overflowWidth <= space) {
+    if (spanOf(indexes.map((index) => widths[index] ?? 0)) + STRIP_GAP_PX + overflowWidth <= space) {
       return indexes
     }
   }

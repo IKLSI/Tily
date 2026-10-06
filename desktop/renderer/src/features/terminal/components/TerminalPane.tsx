@@ -46,11 +46,20 @@ export function TerminalPane({ pane, active, onFocus, onContextMenu }: TerminalP
       pasteTextIntoPane(paneId, event.clipboardData?.getData(PLAIN_TEXT) ?? '')
     }
     host.addEventListener('paste', handleNativePaste, true)
-    const observer = new ResizeObserver(() => handle.fit.fit())
+    let fitFrame = 0
+    const observer = new ResizeObserver(() => {
+      if (fitFrame === 0) {
+        fitFrame = requestAnimationFrame(() => {
+          fitFrame = 0
+          handle.fit.fit()
+        })
+      }
+    })
     observer.observe(host)
     return () => {
       host.removeEventListener('paste', handleNativePaste, true)
       observer.disconnect()
+      cancelAnimationFrame(fitFrame)
     }
   }, [pane.id])
 

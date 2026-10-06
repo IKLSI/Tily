@@ -45,8 +45,9 @@ const select = (rows: Iterable<number>, anchor: number | null, cursor: number | 
 const selectDiffHunk = (hunk: number): void => {
   const context = currentContext()
   const rows = context ? hunkChangeRows(context.rows, hunk) : []
-  if (rows.length > 0) {
-    select(rows, rows[0], rows[0])
+  const [first] = rows
+  if (first !== undefined) {
+    select(rows, first, first)
   }
 }
 
@@ -112,8 +113,9 @@ export const moveDiffHunk = (step: 1 | -1, topRow: number): void => {
 export const selectAllDiffLines = (): void => {
   const context = currentContext()
   const rows = context ? changeRowsBetween(context.rows, 0, context.rows.length - 1) : []
-  if (context && rows.length > 0) {
-    select(rows, rows[0], context.selection.cursor ?? rows[0])
+  const [first] = rows
+  if (context && first !== undefined) {
+    select(rows, first, context.selection.cursor ?? first)
   }
 }
 

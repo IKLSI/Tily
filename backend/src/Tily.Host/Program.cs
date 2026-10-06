@@ -14,7 +14,7 @@ if (args.Contains(RemoveClaudeHooksArgument, StringComparer.Ordinal))
 var dataDirectory = ResolveDataDirectory();
 var channel = new StdioChannel();
 using var loop = new HostLoop(exception => Console.Error.WriteLine(exception));
-using (var bridge = new HostBridge(loop, dataDirectory, channel.Send))
+using (var bridge = new HostBridge(loop, dataDirectory, channel.Send, channel.SendUtf8Line))
 {
     channel.Listen(line => loop.TryEnqueue(() => bridge.Receive(line)), () => loop.TryEnqueue(loop.Stop));
     bridge.Start();

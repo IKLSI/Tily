@@ -1,6 +1,6 @@
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Text;
+using Tily.Core.Processes;
 
 namespace Tily.Core.Worktrees;
 
@@ -16,47 +16,23 @@ public static class ExternalCommand
 
     public static ExternalOutputModel Run(string executable, IEnumerable<string> arguments, string? input = null, IReadOnlyDictionary<string, string>? environment = null)
     {
-        var info = new ProcessStartInfo(Tily.Core.Context.CommandLocator.Find(executable) ?? executable)
-        {
-            UseShellExecute = false,
-            CreateNoWindow = true,
-            RedirectStandardInput = true,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            StandardInputEncoding = Utf8,
-            StandardOutputEncoding = Utf8,
-            StandardErrorEncoding = Utf8
-        };
-        foreach (var argument in arguments)
-        {
-            info.ArgumentList.Add(argument);
-        }
-
-        foreach (var (name, value) in environment ?? new Dictionary<string, string>())
-        {
-            info.Environment[name] = value;
-        }
-
+        var request = new ProcessRequestModel(
+            Tily.Core.Context.CommandLocator.Find(executable) ?? executable,
+            arguments,
+            Timeout,
+            Environment: environment?.ToDictionary(pair => pair.Key, pair => (string?)pair.Value),
+            Input: input,
+            Encoding: Utf8);
         try
         {
-            using var process = Process.Start(info) ?? throw new WorktreeException($"Impossible de lancer {executable}.", WorktreeSteps.Database);
-            var output = process.StandardOutput.ReadToEndAsync();
-            var error = process.StandardError.ReadToEndAsync();
-            if (input is not null)
+            var result = ProcessRunner.Run(request);
+            if (result.TimedOut)
             {
-                process.StandardInput.Write(input);
-            }
-
-            process.StandardInput.Close();
-            if (!process.WaitForExit(Timeout))
-            {
-                process.Kill(true);
                 throw new WorktreeException($"{executable} ne répond plus après {Timeout.TotalMinutes:0} minutes : commande arrêtée.", WorktreeSteps.Database);
             }
 
-            process.WaitForExit();
-            var text = string.Join('\n', new[] { output.GetAwaiter().GetResult(), error.GetAwaiter().GetResult() }.Where(part => part.Trim().Length > 0));
-            return new ExternalOutputModel(process.ExitCode, text.Replace("\r\n", "\n").Trim());
+            var text = string.Join('\n', new[] { result.Output, result.Error }.Where(part => part.Trim().Length > 0));
+            return new ExternalOutputModel(result.ExitCode, text.Replace("\r\n", "\n").Trim());
         }
         catch (Win32Exception)
         {

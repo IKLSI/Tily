@@ -37,7 +37,7 @@ const letterOf = (event: KeyboardEvent): string => {
     return event.key.toLowerCase()
   }
   const fromCode = /^Key([A-Z])$/.exec(event.code)
-  return fromCode ? fromCode[1].toLowerCase() : event.key.toLowerCase()
+  return (fromCode?.[1] ?? event.key).toLowerCase()
 }
 
 const isControlSpace = (event: KeyboardEvent): boolean =>

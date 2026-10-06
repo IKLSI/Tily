@@ -31,7 +31,7 @@ const LANE_STRONG_TINTS = ['bg-tily-lane-0/45', 'bg-tily-lane-1/45', 'bg-tily-la
 const LANE_HOVER_TINTS = ['hover:bg-tily-lane-0/45', 'hover:bg-tily-lane-1/45', 'hover:bg-tily-lane-2/45', 'hover:bg-tily-lane-3/45', 'hover:bg-tily-lane-4/45', 'hover:bg-tily-lane-5/45', 'hover:bg-tily-lane-6/45', 'hover:bg-tily-lane-7/45']
 const LANE_STRONG_HOVER_TINTS = ['hover:bg-tily-lane-0/65', 'hover:bg-tily-lane-1/65', 'hover:bg-tily-lane-2/65', 'hover:bg-tily-lane-3/65', 'hover:bg-tily-lane-4/65', 'hover:bg-tily-lane-5/65', 'hover:bg-tily-lane-6/65', 'hover:bg-tily-lane-7/65']
 
-const pick = (classes: string[], color: number): string => classes[color % classes.length]
+const pick = (classes: string[], color: number): string => classes[color % classes.length] ?? ''
 
 const messageWidth = (layout: GitGraphLayout, width: number, authorShown: boolean, dateShown: boolean): number =>
   width - layout.labelsWidth - layout.graphWidth - (authorShown ? layout.authorWidth : 0) - (dateShown ? layout.dateWidth : 0)

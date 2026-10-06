@@ -1,10 +1,10 @@
 import { current } from 'immer'
-import { panesOf, pruneNode, splitLeaf, SplitAxis, tabNameFor, tabOfPane, type Session, type SplitNode, type Tab } from '../model/session'
+import { firstPane, panesOf, pruneNode, splitLeaf, SplitAxis, tabAt, tabNameFor, tabOfPane, type Session, type SplitNode, type Tab } from '../model/session'
 
 const keepRemaining = (source: Tab, paneId: string, remaining: SplitNode): void => {
   source.tree = remaining
   if (source.active === paneId) {
-    const next = panesOf(remaining)[0]
+    const next = firstPane(remaining)
     source.active = next.id
     source.name = tabNameFor(source, next.id, next.path)
   }
@@ -43,7 +43,7 @@ export const movePaneInto = (draft: Session, paneId: string, targetTabId: string
     const index = sourceWorkspace.tabs.findIndex((tab) => tab.id === source.id)
     sourceWorkspace.tabs = sourceWorkspace.tabs.filter((tab) => tab.id !== source.id)
     if (sourceWorkspace.active === source.id) {
-      sourceWorkspace.active = sourceWorkspace.tabs[Math.min(index, sourceWorkspace.tabs.length - 1)].id
+      sourceWorkspace.active = tabAt(sourceWorkspace, Math.min(index, sourceWorkspace.tabs.length - 1)).id
     }
   }
   target.tree = splitLeaf(target.tree, target.active, SplitAxis.Horizontal, moved)

@@ -1,4 +1,4 @@
-import { useRef, type KeyboardEvent, type PointerEvent } from 'react'
+import { useEffect, useRef, type KeyboardEvent, type PointerEvent } from 'react'
 
 const KEYBOARD_STEP = 15
 
@@ -14,7 +14,21 @@ interface SidebarResizerProps {
 
 export function SidebarResizer({ width, min, max, label, defaultWidth, reversed = false, onResize }: SidebarResizerProps) {
   const dragRef = useRef<{ startX: number; startWidth: number } | null>(null)
+  const frameRef = useRef(0)
+  const pendingWidthRef = useRef<number | null>(null)
   const direction = reversed ? -1 : 1
+
+  useEffect(() => () => cancelAnimationFrame(frameRef.current), [])
+
+  const flushPendingWidth = () => {
+    cancelAnimationFrame(frameRef.current)
+    frameRef.current = 0
+    const pending = pendingWidthRef.current
+    pendingWidthRef.current = null
+    if (pending !== null) {
+      onResize(pending)
+    }
+  }
 
   const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
     event.preventDefault()
@@ -23,11 +37,16 @@ export function SidebarResizer({ width, min, max, label, defaultWidth, reversed 
     document.body.style.cursor = 'ew-resize'
   }
   const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
-    if (dragRef.current) {
-      onResize(dragRef.current.startWidth + direction * (event.clientX - dragRef.current.startX))
+    if (!dragRef.current) {
+      return
+    }
+    pendingWidthRef.current = dragRef.current.startWidth + direction * (event.clientX - dragRef.current.startX)
+    if (frameRef.current === 0) {
+      frameRef.current = requestAnimationFrame(flushPendingWidth)
     }
   }
   const handlePointerUp = () => {
+    flushPendingWidth()
     dragRef.current = null
     document.body.style.cursor = ''
   }

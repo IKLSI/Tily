@@ -29,9 +29,26 @@ public sealed class UpdateInstallerTests
     {
         var missing = Path.Combine(Path.GetTempPath(), $"Tily-{Guid.NewGuid():N}-arm64.dmg");
 
-        var exception = Assert.Throws<UpdateException>(() => UpdateInstaller.Start(missing, "/Applications/Tily.app/Contents/Resources/backend", 1));
+        var exception = Assert.Throws<UpdateException>(() => UpdateInstaller.Start(missing, new string('0', 64), "/Applications/Tily.app/Contents/Resources/backend", 1));
 
         Assert.Equal($"Installeur introuvable : {missing}", exception.Message);
+    }
+
+    [Fact]
+    public void Start_WhenInstallerDigestDiffers_ThenFailsInFrench()
+    {
+        var installer = Path.Combine(Path.GetTempPath(), $"Tily-{Guid.NewGuid():N}-arm64.dmg");
+        File.WriteAllText(installer, "contenu modifié");
+        try
+        {
+            var exception = Assert.Throws<UpdateException>(() => UpdateInstaller.Start(installer, new string('0', 64), "/Applications/Tily.app/Contents/Resources/backend", 1));
+
+            Assert.Equal("L’installeur ne correspond plus à l’empreinte SHA-256 publiée : rien n’a été installé.", exception.Message);
+        }
+        finally
+        {
+            File.Delete(installer);
+        }
     }
 
     [Fact]
@@ -41,5 +58,15 @@ public sealed class UpdateInstallerTests
         Assert.Contains("hdiutil attach", UpdateInstaller.Script);
         Assert.Contains("ditto \"$SOURCE\" \"$STAGED\"", UpdateInstaller.Script);
         Assert.Contains("open \"$APP\"", UpdateInstaller.Script);
+    }
+
+    [Fact]
+    public void Script_WhenRendered_ThenChecksBundleIdentifierAndKeepsPreviousApplicationUntilReplaced()
+    {
+        Assert.Contains("Print :CFBundleIdentifier", UpdateInstaller.Script);
+        Assert.Contains("= \"$BUNDLE_ID\"", UpdateInstaller.Script);
+        Assert.Contains("mv \"$APP\" \"$PREVIOUS\"", UpdateInstaller.Script);
+        Assert.Contains("mv \"$PREVIOUS\" \"$APP\"", UpdateInstaller.Script);
+        Assert.DoesNotContain("rm -rf \"$APP\" && mv", UpdateInstaller.Script);
     }
 }

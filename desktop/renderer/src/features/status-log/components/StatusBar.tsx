@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { memo, useEffect, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { busyLabel } from '../../git/gitBusy'
 import { useGitStore } from '../../git/gitStore'
@@ -23,7 +23,7 @@ const untilTomorrow = (): number => {
   return new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).getTime() - now.getTime()
 }
 
-export function StatusBar() {
+export const StatusBar = memo(function StatusBar() {
   const [day, setDay] = useState(0)
   const status = useHostStore((state) => state.status)
   const unsaved = useHostStore((state) => state.unsaved)
@@ -84,4 +84,4 @@ export function StatusBar() {
       </footer>
     </>
   )
-}
+})

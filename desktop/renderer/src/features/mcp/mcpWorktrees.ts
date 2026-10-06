@@ -2,7 +2,7 @@ import { bridge } from '../../bridge/bridge'
 import type { HostMessageOf } from '../../bridge/messages'
 import { CANCELLED_REPLY, listenReplies, newAgentRequest } from '../../bridge/requestListeners'
 import { WorktreeBranchMode, WorktreeOperation, type Worktree } from '../../bridge/worktreeMessages'
-import { activePane, createOwnedWorkspace, DEFAULT_SHELL, panesOf, type Session } from '../../model/session'
+import { activePane, activeTab, createOwnedWorkspace, DEFAULT_SHELL, panesOf, type Session } from '../../model/session'
 import { StatusLevel, useHostStore } from '../../stores/hostStore'
 import { useSessionStore } from '../../stores/sessionStore'
 import { useWorktreeStore } from '../worktrees/worktreeStore'
@@ -114,7 +114,7 @@ const modeOf = (value: string | undefined): WorktreeBranchMode => {
 
 const openOwnedWorktree = (created: Created, owner: string, focus: boolean): McpOpenedWorktree => {
   const workspace = createOwnedWorkspace(created.name, created.path, DEFAULT_SHELL, owner)
-  const tab = workspace.tabs[0]
+  const tab = activeTab(workspace)
   const pane = activePane(tab)
   if (created.install) {
     terminalRegistry.runAtStart(pane.id, created.install)

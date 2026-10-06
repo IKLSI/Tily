@@ -1,5 +1,5 @@
 using System.ComponentModel;
-using System.Diagnostics;
+using Tily.Core.Processes;
 
 namespace Tily.Core.Files;
 
@@ -17,26 +17,17 @@ public static class RecycleBin
             throw new InvalidOperationException($"L’élément n’existe plus : {path}");
         }
 
-        var start = new ProcessStartInfo(ScriptExecutable) { UseShellExecute = false, RedirectStandardError = true, RedirectStandardOutput = true, CreateNoWindow = true };
-        foreach (var argument in Arguments(path))
-        {
-            start.ArgumentList.Add(argument);
-        }
-
         try
         {
-            using var process = Process.Start(start) ?? throw new InvalidOperationException("osascript n’a pas pu être lancé.");
-            var error = process.StandardError.ReadToEndAsync();
-            _ = process.StandardOutput.ReadToEndAsync();
-            if (!process.WaitForExit(Timeout))
+            var result = ProcessRunner.Run(new ProcessRequestModel(ScriptExecutable, Arguments(path), Timeout, InheritsInput: true));
+            if (result.TimedOut)
             {
-                process.Kill(true);
                 throw new InvalidOperationException($"Le Finder n’a pas répondu : « {Path.GetFileName(path)} » n’a pas été placé dans la corbeille.");
             }
 
-            if (process.ExitCode != 0)
+            if (result.ExitCode != 0)
             {
-                throw new InvalidOperationException($"Impossible de placer « {Path.GetFileName(path)} » dans la corbeille : {error.Result.Trim()}");
+                throw new InvalidOperationException($"Impossible de placer « {Path.GetFileName(path)} » dans la corbeille : {result.Error.Trim()}");
             }
         }
         catch (Win32Exception exception)

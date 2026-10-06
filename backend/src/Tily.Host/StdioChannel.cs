@@ -5,8 +5,15 @@ namespace Tily.Host;
 public sealed class StdioChannel
 {
     private readonly object _writeLock = new();
-    private readonly StreamWriter _output = new(Console.OpenStandardOutput(), new UTF8Encoding(false)) { AutoFlush = false, NewLine = "\n" };
+    private readonly Stream _standardOutput;
+    private readonly StreamWriter _output;
     private readonly StreamReader _input = new(Console.OpenStandardInput(), new UTF8Encoding(false));
+
+    public StdioChannel()
+    {
+        _standardOutput = Console.OpenStandardOutput();
+        _output = new StreamWriter(_standardOutput, new UTF8Encoding(false)) { AutoFlush = false, NewLine = "\n" };
+    }
 
     public void Send(string json)
     {
@@ -16,6 +23,21 @@ public sealed class StdioChannel
             {
                 _output.WriteLine(json);
                 _output.Flush();
+            }
+            catch (IOException)
+            {
+            }
+        }
+    }
+
+    public void SendUtf8Line(ReadOnlySpan<byte> line)
+    {
+        lock (_writeLock)
+        {
+            try
+            {
+                _standardOutput.Write(line);
+                _standardOutput.Flush();
             }
             catch (IOException)
             {

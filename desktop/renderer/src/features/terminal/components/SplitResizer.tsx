@@ -1,4 +1,4 @@
-import { useRef, type KeyboardEvent, type PointerEvent, type RefObject } from 'react'
+import { useEffect, useRef, type KeyboardEvent, type PointerEvent, type RefObject } from 'react'
 import { SPLIT_RATIO_DEFAULT, SPLIT_RATIO_MAX, SPLIT_RATIO_MIN, SplitAxis } from '../../../model/session'
 
 const KEYBOARD_STEP = 0.05
@@ -15,9 +15,22 @@ interface SplitResizerProps {
 
 export function SplitResizer({ axis, ratio, containerRef, onResize }: SplitResizerProps) {
   const draggingRef = useRef(false)
+  const frameRef = useRef(0)
+  const pendingRatioRef = useRef<number | null>(null)
   const horizontal = axis === SplitAxis.Horizontal
   const cursor = horizontal ? 'ew-resize' : 'ns-resize'
 
+  useEffect(() => () => cancelAnimationFrame(frameRef.current), [])
+
+  const flushPendingRatio = () => {
+    cancelAnimationFrame(frameRef.current)
+    frameRef.current = 0
+    const pending = pendingRatioRef.current
+    pendingRatioRef.current = null
+    if (pending !== null) {
+      onResize(pending)
+    }
+  }
   const ratioAt = (event: PointerEvent<HTMLDivElement>): number | undefined => {
     const rect = containerRef.current?.getBoundingClientRect()
     if (!rect) {
@@ -33,11 +46,16 @@ export function SplitResizer({ axis, ratio, containerRef, onResize }: SplitResiz
   }
   const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
     const next = draggingRef.current ? ratioAt(event) : undefined
-    if (next !== undefined) {
-      onResize(next)
+    if (next === undefined) {
+      return
+    }
+    pendingRatioRef.current = next
+    if (frameRef.current === 0) {
+      frameRef.current = requestAnimationFrame(flushPendingRatio)
     }
   }
   const handlePointerUp = () => {
+    flushPendingRatio()
     draggingRef.current = false
     document.body.style.cursor = ''
   }

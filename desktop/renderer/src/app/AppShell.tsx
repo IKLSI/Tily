@@ -32,6 +32,8 @@ import { McpConsentDialog } from '../features/mcp/components/McpConsentDialog'
 import { PasteConfirmDialog } from '../features/terminal/components/PasteConfirmDialog'
 import { CommandPalette } from '../features/palette/components/CommandPalette'
 import { DeleteConfirmDialog } from '../components/DeleteConfirmDialog'
+import { ErrorBoundary } from '../components/ErrorBoundary'
+import { recoverFromDialogError } from './dialogRecovery'
 import { EmptyState } from './EmptyState'
 import { GitConfirmDialog } from '../features/git/components/GitConfirmDialog'
 import { GitContextMenu } from '../features/git/components/GitContextMenu'
@@ -56,6 +58,9 @@ import { WorktreeDialogs } from '../features/worktrees/components/WorktreeDialog
 
 const ProjectPickers = lazy(() => import('../features/projects/components/ProjectPickers').then((module) => ({ default: module.ProjectPickers })))
 const SettingsDialog = lazy(() => import('../features/settings/components/SettingsDialog').then((module) => ({ default: module.SettingsDialog })))
+
+const OVERLAY_FALLBACK = 'absolute bottom-10 left-1/2 z-50 flex -translate-x-1/2 flex-col items-center gap-3 rounded border border-tily-line bg-tily-panel p-4 text-center shadow-lg'
+const PANEL_FALLBACK = 'flex w-72 shrink-0 flex-col items-center justify-center gap-3 border-l border-tily-line bg-tily-panel p-4 text-center'
 
 interface AppShellProps {
   session: Session
@@ -141,6 +146,26 @@ const handleNewWorkspace = (): void => {
 
 const handleOpenProjects = (): void => runCommand(Command.Projects)
 
+const handleOpenSettings = (): void => {
+  bridge.send({ type: 'settings.get' })
+  useUiStore.getState().openSettings()
+}
+
+const handleToggleSidebar = (): void => {
+  const { session, toggleSidebar } = useSessionStore.getState()
+  if (session && !session.sidebarCollapsed && document.activeElement?.closest('aside')) {
+    focusActivePane()
+  }
+  toggleSidebar()
+}
+
+const handleStartRenameFromHeader = (): void => {
+  const workspace = currentWorkspace()
+  if (workspace) {
+    useUiStore.getState().startRenamingWorkspace(workspace.id, RenameOrigin.Header)
+  }
+}
+
 const handleNewTabIn = (workspaceId: string): void => {
   const { selectWorkspace, newTab } = useSessionStore.getState()
   selectWorkspace(workspaceId)
@@ -170,6 +195,11 @@ const handleCancelGit = (): void => {
   const restoreFocus = confirmation?.restoreFocus ?? focusGitPanel
   confirm(null)
   restoreFocus()
+}
+
+const handleDialogError = (): void => {
+  recoverFromDialogError()
+  requestAnimationFrame(focusActivePane)
 }
 
 const confirmationOpen = (): boolean => {
@@ -208,7 +238,7 @@ const panelActions: WorkspacePanelActions = {
 }
 
 export function AppShell({ session }: AppShellProps) {
-  const { selectTab, selectPane, toggleSidebar, setSidebarWidth, setExplorerWidth, newTab, moveTab, shiftTab, setSplitRatio } = useSessionStore.getState()
+  const { selectTab, selectPane, setSidebarWidth, setExplorerWidth, newTab, moveTab, shiftTab, setSplitRatio } = useSessionStore.getState()
   const { leaderActive, shells, settingsSnapshot, pickedPath, importedPreferences } = useHostStore(
     useShallow((state) => ({
       leaderActive: state.leaderActive,
@@ -231,14 +261,14 @@ export function AppShell({ session }: AppShellProps) {
       closeConfirmation: state.closeConfirmation,
     })),
   )
-  const { startRenamingWorkspace, startRenamingTab, openPalette, closePalette, openSettings, closeSettings } = useUiStore.getState()
+  const { startRenamingTab, openPalette, closePalette, closeSettings } = useUiStore.getState()
   const deleteRequest = useExplorerStore((state) => state.deleteRequest)
   const gitConfirmation = useGitStore((state) => state.confirmation)
   const unsavedPreview = usePreviewStore((state) => state.pendingAction !== null)
   const gitGraphReady = useGitStore((state) => state.graphOpen && state.state !== null)
   const agents = useAgentStore((state) => state.agents)
   const acknowledged = useAgentStore((state) => state.acknowledged)
-  const waiting = waitingPanes(session, agents).filter((pane) => acknowledged[pane.paneId] !== agentKey(agents[pane.paneId]))
+  const waiting = useMemo(() => waitingPanes(session, agents).filter((pane) => acknowledged[pane.paneId] !== agentKey(pane.agent)), [session, agents, acknowledged])
   const workspace = activeWorkspace(session)
   const tab = workspace ? activeTab(workspace) : undefined
   const panelView = tab?.panel ?? RightPanelView.Files
@@ -286,10 +316,6 @@ export function AppShell({ session }: AppShellProps) {
     handleClosePalette()
     item.run()
   }
-  const handleOpenSettings = () => {
-    bridge.send({ type: 'settings.get' })
-    openSettings()
-  }
   const handleCloseSettings = () => {
     closeSettings()
     focusActivePane()
@@ -306,17 +332,6 @@ export function AppShell({ session }: AppShellProps) {
   const handleRemoveHooks = () => bridge.send({ type: 'agents.removeHooks' })
   const handleTestNotification = (notifications: NotificationSettings, kind: AttentionKind) => bridge.send({ type: 'attention.test', pane: tab?.active ?? '', kind, notifications })
   const handleDismissAttention = (paneId: string) => useAgentStore.getState().acknowledge(paneId)
-  const handleToggleSidebar = () => {
-    if (!session.sidebarCollapsed && document.activeElement?.closest('aside')) {
-      focusActivePane()
-    }
-    toggleSidebar()
-  }
-  const handleStartRename = () => {
-    if (workspace) {
-      startRenamingWorkspace(workspace.id, RenameOrigin.Header)
-    }
-  }
 
   const renderMain = (current: Workspace) => {
     const currentTab = activeTab(current)
@@ -342,11 +357,15 @@ export function AppShell({ session }: AppShellProps) {
           onMove={moveTab}
         />
         <div className="relative min-h-0 flex-1 border-t border-tily-line bg-tily-panel p-1">
-          <SplitView key={currentTab.id} node={zoomedPane ? { pane: zoomedPane } : currentTab.tree} zoomed={zoomedPane !== undefined} onToggleZoom={togglePaneZoom} activePaneId={currentTab.active} onFocus={selectPane} onClose={closePaneKeepingText} onSplit={handleSplit} onResize={handleResize} shells={availableShells} onRestart={restartPane} onRestartIn={restartPaneIn} onChangeShell={changePaneShell} onDismissState={dismissPaneState} />
-          {graphShown && <GitGraphView layout={session.gitGraph} />}
-          {gitShown && <GitDiffDrawer />}
-          {filesShown && <LazyFilePreview />}
-          {gitShown && <GitContextMenu />}
+          <ErrorBoundary resetKey={currentTab.id}>
+            <SplitView key={currentTab.id} node={zoomedPane ? { pane: zoomedPane } : currentTab.tree} zoomed={zoomedPane !== undefined} onToggleZoom={togglePaneZoom} activePaneId={currentTab.active} onFocus={selectPane} onClose={closePaneKeepingText} onSplit={handleSplit} onResize={handleResize} shells={availableShells} onRestart={restartPane} onRestartIn={restartPaneIn} onChangeShell={changePaneShell} onDismissState={dismissPaneState} />
+          </ErrorBoundary>
+          <ErrorBoundary resetKey={currentTab.id} className={OVERLAY_FALLBACK}>
+            {graphShown && <GitGraphView layout={session.gitGraph} />}
+            {gitShown && <GitDiffDrawer />}
+            {filesShown && <LazyFilePreview />}
+            {gitShown && <GitContextMenu />}
+          </ErrorBoundary>
         </div>
       </>
     )
@@ -366,7 +385,7 @@ export function AppShell({ session }: AppShellProps) {
         }
         onToggleSidebar={handleToggleSidebar}
         onOpenSettings={handleOpenSettings}
-        onStartRename={handleStartRename}
+        onStartRename={handleStartRenameFromHeader}
         onCommitRename={handleCommitRename}
         onCancelRename={finishRename}
       />
@@ -388,31 +407,35 @@ export function AppShell({ session }: AppShellProps) {
         {tab?.explorer && (
           <>
             <SidebarResizer width={session.explorerWidth} min={EXPLORER_MIN} max={EXPLORER_MAX} defaultWidth={EXPLORER_DEFAULT} label="Largeur du panneau de droite" reversed onResize={setExplorerWidth} />
-            <RightPanel view={panelView} root={activePane(tab).path} width={session.explorerWidth} onClose={toggleRightPanel} onOpenTerminal={handleOpenTerminalAt} />
+            <ErrorBoundary resetKey={panelView} className={PANEL_FALLBACK}>
+              <RightPanel view={panelView} root={activePane(tab).path} width={session.explorerWidth} onClose={toggleRightPanel} onOpenTerminal={handleOpenTerminalAt} />
+            </ErrorBoundary>
           </>
         )}
       </div>
       <AttentionToasts waiting={waiting} onJoin={handleJoinPane} onDismiss={handleDismissAttention} />
-      <FilePicker />
-      <CommitPicker />
-      {projectPickerOpen && (
-        <Suspense fallback={null}>
-          <ProjectPickers />
-        </Suspense>
-      )}
-      {settingsOpen && (
-        <Suspense fallback={null}>
-          <SettingsDialog snapshot={settingsSnapshot} pickedPath={pickedPath} imported={importedPreferences} onClose={handleCloseSettings} onSave={handleSaveSettings} onPick={handlePickPath} onExport={handleExportPreferences} onImport={handleImportPreferences} onInstallHooks={handleInstallHooks} onRemoveHooks={handleRemoveHooks} onTestNotification={handleTestNotification} />
-        </Suspense>
-      )}
-      {paletteOpen && <CommandPalette session={session} shells={availableShells} onClose={handleClosePalette} onRun={handleRunPaletteItem} onToggleFavorite={toggleFavoriteCommand} />}
-      {deleteRequest && <DeleteConfirmDialog request={deleteRequest} onConfirm={confirmDelete} onCancel={handleCancelDelete} />}
-      <WorktreeDialogs />
-      {gitConfirmation && <GitConfirmDialog confirmation={gitConfirmation} onConfirm={handleConfirmGit} onCancel={handleCancelGit} />}
-      {closeConfirmation && <CloseConfirmDialog confirmation={closeConfirmation} onConfirm={confirmClose} onCancel={handleCancelClose} />}
-      <PasteConfirmDialog />
-      {unsavedPreview && <UnsavedPreviewDialog />}
-      <McpConsentDialog />
+      <ErrorBoundary className={OVERLAY_FALLBACK} onRecover={handleDialogError}>
+        <FilePicker />
+        <CommitPicker />
+        {projectPickerOpen && (
+          <Suspense fallback={null}>
+            <ProjectPickers />
+          </Suspense>
+        )}
+        {settingsOpen && (
+          <Suspense fallback={null}>
+            <SettingsDialog snapshot={settingsSnapshot} pickedPath={pickedPath} imported={importedPreferences} onClose={handleCloseSettings} onSave={handleSaveSettings} onPick={handlePickPath} onExport={handleExportPreferences} onImport={handleImportPreferences} onInstallHooks={handleInstallHooks} onRemoveHooks={handleRemoveHooks} onTestNotification={handleTestNotification} />
+          </Suspense>
+        )}
+        {paletteOpen && <CommandPalette session={session} shells={availableShells} onClose={handleClosePalette} onRun={handleRunPaletteItem} onToggleFavorite={toggleFavoriteCommand} />}
+        {deleteRequest && <DeleteConfirmDialog request={deleteRequest} onConfirm={confirmDelete} onCancel={handleCancelDelete} />}
+        <WorktreeDialogs />
+        {gitConfirmation && <GitConfirmDialog confirmation={gitConfirmation} onConfirm={handleConfirmGit} onCancel={handleCancelGit} />}
+        {closeConfirmation && <CloseConfirmDialog confirmation={closeConfirmation} onConfirm={confirmClose} onCancel={handleCancelClose} />}
+        <PasteConfirmDialog />
+        {unsavedPreview && <UnsavedPreviewDialog />}
+        <McpConsentDialog />
+      </ErrorBoundary>
       <Tooltip />
       <StatusBar />
     </div>

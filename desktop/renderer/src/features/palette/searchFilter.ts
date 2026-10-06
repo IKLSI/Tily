@@ -58,7 +58,7 @@ const matchesWordPrefixes = (token: string, words: string[]): boolean => {
   return false
 }
 
-const isWordStart = (text: string, index: number): boolean => index === 0 || !/[a-z0-9]/.test(text[index - 1])
+const isWordStart = (text: string, index: number): boolean => index === 0 || !/[a-z0-9]/.test(text.charAt(index - 1))
 
 const isSubsequenceFromWordStart = (token: string, text: string): boolean => {
   let start = 0
@@ -77,6 +77,8 @@ const isSubsequenceFromWordStart = (token: string, text: string): boolean => {
   return false
 }
 
+const distanceAt = (distances: number[], index: number): number => distances[index] ?? Number.POSITIVE_INFINITY
+
 const prefixEditDistance = (token: string, word: string): number => {
   let beforePrevious: number[] = []
   let previous = Array.from({ length: word.length + 1 }, (_, column) => column)
@@ -84,10 +86,10 @@ const prefixEditDistance = (token: string, word: string): number => {
     const current = [row]
     for (let column = 1; column <= word.length; column += 1) {
       const substitutionCost = token[row - 1] === word[column - 1] ? 0 : 1
-      let distance = Math.min(previous[column] + 1, current[column - 1] + 1, previous[column - 1] + substitutionCost)
+      let distance = Math.min(distanceAt(previous, column) + 1, distanceAt(current, column - 1) + 1, distanceAt(previous, column - 1) + substitutionCost)
       const isTransposition = row > 1 && column > 1 && token[row - 1] === word[column - 2] && token[row - 2] === word[column - 1]
       if (isTransposition) {
-        distance = Math.min(distance, beforePrevious[column - 2] + 1)
+        distance = Math.min(distance, distanceAt(beforePrevious, column - 2) + 1)
       }
       current.push(distance)
     }

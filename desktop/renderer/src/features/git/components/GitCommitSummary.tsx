@@ -12,7 +12,7 @@ interface GitCommitSummaryProps {
   stash: boolean
 }
 
-const subjectOf = (message: string): string => message.split('\n')[0]
+const subjectOf = (message: string): string => message.split('\n')[0] ?? ''
 
 const bodyOf = (message: string): string => message.split('\n').slice(1).join('\n').trim()
 
@@ -28,12 +28,13 @@ export function GitCommitSummary({ details, error, selected, stash }: GitCommitS
     const buttons = Array.from(event.currentTarget.querySelectorAll<HTMLElement>('[data-git-row]'))
     const index = buttons.indexOf(event.target as HTMLElement)
     const moves: Record<string, number> = { ArrowDown: index + 1, ArrowUp: index - 1, Home: 0, End: buttons.length - 1 }
-    if (!(event.key in moves) || index < 0) {
+    const destination = moves[event.key]
+    if (destination === undefined || index < 0) {
       return
     }
     event.preventDefault()
     event.stopPropagation()
-    const target = buttons[Math.min(Math.max(moves[event.key], 0), buttons.length - 1)]
+    const target = buttons[Math.min(Math.max(destination, 0), buttons.length - 1)]
     setFocusPath(target?.dataset.gitRow ?? null)
     target?.focus()
   }

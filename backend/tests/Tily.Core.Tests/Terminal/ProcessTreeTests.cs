@@ -79,4 +79,66 @@ public sealed class ProcessTreeTests
     [InlineData("zsh", new[] { "-zsh" })]
     public void FromArguments_WhenProgramOrInterpreter_ThenReturnsCommandName(string expected, string[] arguments) =>
         Assert.Equal(expected, ProcessCommandName.FromArguments(arguments));
+
+    [Fact]
+    public void IsSameProcess_WhenSameStartAndGroup_ThenTrue()
+    {
+        var known = new ProcessEntryModel(300, 100, Terminal, "node", 300, 300, 1_700_000_000_000_000);
+        var current = known with { ParentId = 1, TerminalDevice = NoTerminal };
+
+        Assert.True(ProcessTree.IsSameProcess(known, current));
+    }
+
+    [Fact]
+    public void IsSameProcess_WhenIdentifierReusedLater_ThenFalse()
+    {
+        var known = new ProcessEntryModel(300, 100, Terminal, "node", 300, 300, 1_700_000_000_000_000);
+        var current = new ProcessEntryModel(300, 1, NoTerminal, "Safari", 300, 0, 1_700_000_005_000_000);
+
+        Assert.False(ProcessTree.IsSameProcess(known, current));
+    }
+
+    [Fact]
+    public void IsSameProcess_WhenProcessGone_ThenFalse()
+    {
+        var known = new ProcessEntryModel(300, 100, Terminal, "node", 300, 300, 1_700_000_000_000_000);
+
+        Assert.False(ProcessTree.IsSameProcess(known, null));
+    }
+
+    [Fact]
+    public void IsSameProcess_WhenSameStartButUnrelated_ThenFalse()
+    {
+        var known = new ProcessEntryModel(300, 100, Terminal, "node", 300, 300, 1_700_000_000_000_000);
+        var current = new ProcessEntryModel(300, 1, OtherTerminal, "vim", 400, 400, 1_700_000_000_000_000);
+
+        Assert.False(ProcessTree.IsSameProcess(known, current));
+    }
+
+    [Fact]
+    public void Contains_WhenDescendantOfPaneShell_ThenTrue()
+    {
+        IReadOnlyList<ProcessEntryModel> snapshot =
+        [
+            new(100, 1, Terminal, "zsh"),
+            new(300, 100, Terminal, "claude"),
+            new(400, 300, NoTerminal, "tily-mcp")
+        ];
+
+        Assert.True(ProcessTree.Contains(snapshot, 100, 400));
+    }
+
+    [Fact]
+    public void Contains_WhenProcessOfAnotherPane_ThenFalse()
+    {
+        IReadOnlyList<ProcessEntryModel> snapshot =
+        [
+            new(100, 1, Terminal, "zsh"),
+            new(200, 1, OtherTerminal, "zsh"),
+            new(300, 200, OtherTerminal, "claude"),
+            new(400, 300, NoTerminal, "tily-mcp")
+        ];
+
+        Assert.False(ProcessTree.Contains(snapshot, 100, 400));
+    }
 }

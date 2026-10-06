@@ -31,6 +31,8 @@ public sealed class UpdateFeed : IDisposable
     private string? _error;
     private string? _installerPath;
     private string? _pendingInstaller;
+    private string? _installerSha256;
+    private string? _pendingSha256;
     private DateTimeOffset? _checkedAt;
     private long _received;
     private long _total;
@@ -152,6 +154,15 @@ public sealed class UpdateFeed : IDisposable
                 _error = exception is UpdateException ? exception.Message : $"Impossible de joindre GitHub : {exception.Message}";
             }
         }
+        catch (Exception exception)
+        {
+            lock (_gate)
+            {
+                _checkedAt = DateTimeOffset.Now;
+                _status = _release is null ? Failed : Available;
+                _error = $"Vérification des mises à jour impossible : {exception.Message}";
+            }
+        }
 
         PostState();
     }
@@ -184,6 +195,7 @@ public sealed class UpdateFeed : IDisposable
             lock (_gate)
             {
                 _installerPath = path;
+                _installerSha256 = installer.Sha256;
                 _status = Ready;
             }
         }
@@ -194,7 +206,7 @@ public sealed class UpdateFeed : IDisposable
                 _status = Available;
             }
         }
-        catch (Exception exception) when (exception is UpdateException or HttpRequestException or IOException or UnauthorizedAccessException)
+        catch (Exception exception)
         {
             lock (_gate)
             {
@@ -259,6 +271,7 @@ public sealed class UpdateFeed : IDisposable
             }
 
             _pendingInstaller = _installerPath;
+            _pendingSha256 = _installerSha256;
         }
 
         _post(new { type = "update.restart" });
@@ -267,22 +280,25 @@ public sealed class UpdateFeed : IDisposable
     public void LaunchPendingInstaller()
     {
         string? installer;
+        string? sha256;
         lock (_gate)
         {
             installer = _pendingInstaller;
+            sha256 = _pendingSha256;
             _pendingInstaller = null;
+            _pendingSha256 = null;
         }
 
-        if (installer is null)
+        if (installer is null || sha256 is null)
         {
             return;
         }
 
         try
         {
-            UpdateInstaller.Start(installer, _appDirectory, Environment.ProcessId);
+            UpdateInstaller.Start(installer, sha256, _appDirectory, Environment.ProcessId);
         }
-        catch (Exception exception) when (exception is UpdateException or System.ComponentModel.Win32Exception or InvalidOperationException)
+        catch (Exception exception) when (exception is UpdateException or System.ComponentModel.Win32Exception or InvalidOperationException or IOException or UnauthorizedAccessException)
         {
         }
     }

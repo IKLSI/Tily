@@ -91,7 +91,7 @@ export const openWorkspace = (values: McpArguments, caller: string | undefined):
   const command = textArgument(values, 'command')
   const show = command !== undefined || flagArgument(values, 'focus')
   const workspace = createOwnedWorkspace(textArgument(values, 'name') ?? (folderName(path) || path), path, requireShell(textArgument(values, 'shell'), DEFAULT_SHELL), owner)
-  const tab = workspace.tabs[0]
+  const tab = activeTab(workspace)
   const pane = activePane(tab)
   prepareStart(pane, command)
   useSessionStore.getState().change((draft) => {
@@ -173,10 +173,11 @@ const singleTarget = (values: McpArguments, names: string[], message: string): [
     const value = textArgument(values, name)
     return value ? [[name, value] as [string, string]] : []
   })
-  if (given.length !== 1) {
+  const [target, ...others] = given
+  if (!target || others.length > 0) {
     throw new Error(message)
   }
-  return given[0]
+  return target
 }
 
 export const focusElement = (values: McpArguments): McpShown => {

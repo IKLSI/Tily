@@ -72,7 +72,7 @@ export const toHunkSelection = (rows: DiffRow[], selected: Iterable<number>): Gi
   const byHunk = new Map<number, number[]>()
   for (const index of [...selected].sort((a, b) => a - b)) {
     const row = rows[index]
-    if (isChangeRow(row) && row.hunk !== undefined && row.index !== undefined) {
+    if (row !== undefined && isChangeRow(row) && row.hunk !== undefined && row.index !== undefined) {
       byHunk.set(row.hunk, [...(byHunk.get(row.hunk) ?? []), row.index])
     }
   }

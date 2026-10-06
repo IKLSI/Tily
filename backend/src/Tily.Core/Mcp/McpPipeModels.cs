@@ -5,7 +5,11 @@ using System.Text.Json.Serialization;
 
 namespace Tily.Core.Mcp;
 
-public sealed record McpPipeRequestModel(string Tool, string? Pane, JsonElement? Arguments);
+public sealed record McpPipeRequestModel(string Tool, string? Pane, JsonElement? Arguments)
+{
+    [JsonIgnore]
+    public int? PeerProcessId { get; init; }
+}
 
 public sealed record McpPipeResponseModel(JsonElement? Result, string? Error)
 {

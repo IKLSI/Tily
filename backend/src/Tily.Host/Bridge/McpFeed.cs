@@ -9,8 +9,10 @@ public sealed class McpFeed : IDisposable
 {
     private static readonly TimeSpan AnswerTimeout = TimeSpan.FromSeconds(10);
     private const string Starting = "Tily démarre encore : réessayez dans un instant.";
+    private const string MissingPane = "Demande MCP refusée : le pane d’origine est manquant.";
 
     private readonly string _pipeName;
+    private readonly Func<string, int, bool> _paneOwnsProcess;
     private readonly Action<object> _post;
     private readonly Action<Exception> _fail;
     private readonly ConcurrentDictionary<string, TaskCompletionSource<McpPipeResponseModel>> _pending = new();
@@ -20,9 +22,10 @@ public sealed class McpFeed : IDisposable
     private string? _error;
     private volatile bool _ready;
 
-    public McpFeed(string dataDirectory, Action<object> post, Action<Exception> fail)
+    public McpFeed(string dataDirectory, Func<string, int, bool> paneOwnsProcess, Action<object> post, Action<Exception> fail)
     {
         _pipeName = McpEndpoint.PipeName(dataDirectory);
+        _paneOwnsProcess = paneOwnsProcess;
         _post = post;
         _fail = fail;
         Installer = new ClaudeMcpInstaller(Path.Combine(AppContext.BaseDirectory, ClaudeMcpInstaller.ExecutableName));
@@ -106,6 +109,16 @@ public sealed class McpFeed : IDisposable
         if (!_ready)
         {
             return McpPipeResponseModel.Failure(Starting);
+        }
+
+        if (request.Pane is not { } pane)
+        {
+            return McpPipeResponseModel.Failure(MissingPane);
+        }
+
+        if (request.PeerProcessId is not { } processId || !_paneOwnsProcess(pane, processId))
+        {
+            return McpPipeResponseModel.Failure($"Demande MCP refusée : Tily n’a pas pu vérifier qu’elle vient d’un processus du pane « {pane} ».");
         }
 
         var id = Guid.NewGuid().ToString("N");

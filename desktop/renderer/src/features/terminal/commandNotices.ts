@@ -34,7 +34,7 @@ export const formatCommandDuration = (durationMs: number): string => {
 }
 
 const commandLabel = (command: string): string => {
-  const firstLine = command.split(/\r?\n/)[0].trim()
+  const firstLine = (command.split(/\r?\n/)[0] ?? '').trim()
   return firstLine.length > COMMAND_LABEL_CHARS ? `${firstLine.slice(0, COMMAND_LABEL_CHARS - 1)}…` : firstLine
 }
 

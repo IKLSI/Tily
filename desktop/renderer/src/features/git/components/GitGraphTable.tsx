@@ -72,7 +72,11 @@ export function GitGraphTable({ state, layout }: GitGraphTableProps) {
     if (!container) {
       return
     }
-    const observer = new ResizeObserver(([entry]) => setWidth(entry.contentRect.width))
+    const observer = new ResizeObserver(([entry]) => {
+      if (entry) {
+        setWidth(entry.contentRect.width)
+      }
+    })
     observer.observe(container)
     return () => observer.disconnect()
   }, [])
@@ -93,30 +97,33 @@ export function GitGraphTable({ state, layout }: GitGraphTableProps) {
 
   const moveTo = (index: number) => {
     const target = Math.min(Math.max(index, 0), commits.length)
-    if (target === 0) {
-      selectWorkingTree()
+    const commit = commits[target - 1]
+    if (commit) {
+      showCommit(commit.sha, KEYBOARD_DETAILS_DELAY_MS)
     } else {
-      showCommit(commits[target - 1].sha, KEYBOARD_DETAILS_DELAY_MS)
+      selectWorkingTree()
     }
     scrollRowIntoView(containerRef.current, target, false)
   }
   const openMenuAtActive = () => {
-    const key = activeIndex === 0 ? WORKING_TREE_KEY : commits[activeIndex - 1]?.sha
+    const activeCommit = activeIndex > 0 ? commits[activeIndex - 1] : undefined
+    const key = activeIndex === 0 ? WORKING_TREE_KEY : activeCommit?.sha
     const rect = key ? document.getElementById(graphRowId(key))?.getBoundingClientRect() : undefined
     const x = (rect?.left ?? 0) + shownLayout.labelsWidth + shownLayout.graphWidth
     const y = rect?.bottom ?? 0
     if (activeIndex === 0) {
       openWorkingTreeMenu(x, y)
-    } else if (activeIndex > 0) {
-      openCommitMenu(commits[activeIndex - 1], x, y)
+    } else if (activeCommit) {
+      openCommitMenu(activeCommit, x, y)
     }
   }
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     const start = Math.max(activeIndex, 0)
     const page = Math.max(1, Math.floor(((containerRef.current?.clientHeight ?? 0) - GRAPH_HEADER_HEIGHT) / GRAPH_ROW_HEIGHT) - 1)
     const moves: Record<string, number> = { ArrowDown: start + 1, ArrowUp: start - 1, PageDown: start + page, PageUp: start - page, Home: 0, End: commits.length }
-    if (event.key in moves) {
-      moveTo(moves[event.key])
+    const destination = moves[event.key]
+    if (destination !== undefined) {
+      moveTo(destination)
     } else if (event.key === 'Enter') {
       focusGitPanel()
     } else if (isMenuKey(event)) {

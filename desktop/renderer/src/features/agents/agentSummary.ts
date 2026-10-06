@@ -20,6 +20,7 @@ export interface WaitingPane {
   label: string
   folder: string
   detail: string
+  agent: PaneAgent
 }
 
 interface AttentionNotice {
@@ -141,18 +142,24 @@ export const longestWaitingFirst = (panes: WaitingPane[], since: Record<string, 
 export const panesInState = (session: Session, agents: AgentMap, state: AgentState): WaitingPane[] =>
   session.workspaces.flatMap((workspace) =>
     workspace.tabs.flatMap((tab) =>
-      panesOf(tab.tree)
-        .filter((pane) => agents[pane.id]?.state === state)
-        .map((pane) => ({
-          paneId: pane.id,
-          workspaceId: workspace.id,
-          tabId: tab.id,
-          workspaceName: workspace.name,
-          tabName: tab.name,
-          label: `${workspace.name} › ${tab.name} › ${folderName(pane.path)}`,
-          folder: folderName(pane.path),
-          detail: describeAgent(agents[pane.id]),
-        })),
+      panesOf(tab.tree).flatMap((pane) => {
+        const agent = agents[pane.id]
+        return agent?.state === state
+          ? [
+              {
+                paneId: pane.id,
+                workspaceId: workspace.id,
+                tabId: tab.id,
+                workspaceName: workspace.name,
+                tabName: tab.name,
+                label: `${workspace.name} › ${tab.name} › ${folderName(pane.path)}`,
+                folder: folderName(pane.path),
+                detail: describeAgent(agent),
+                agent,
+              },
+            ]
+          : []
+      }),
     ),
   )
 

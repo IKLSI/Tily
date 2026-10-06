@@ -11,14 +11,16 @@ public sealed class UnixPty : IDisposable
 
     private static readonly int[] StandardStreams = [0, 1, 2];
 
-    private UnixPty(SafeFileHandle master, int processId)
+    private UnixPty(SafeFileHandle master, int processId, string terminalPath)
     {
         Master = master;
         ProcessId = processId;
+        TerminalPath = terminalPath;
     }
 
     public SafeFileHandle Master { get; }
     public int ProcessId { get; }
+    public string TerminalPath { get; }
 
     public static string HelperPath => Path.Combine(AppContext.BaseDirectory, HelperName);
 
@@ -44,7 +46,7 @@ public sealed class UnixPty : IDisposable
             try
             {
                 Resize(master, columns, rows);
-                return new UnixPty(master, Spawn(helper, [helper, executable, .. arguments], workingDirectory, environment, slave));
+                return new UnixPty(master, Spawn(helper, [helper, executable, .. arguments], workingDirectory, environment, slave), slavePath);
             }
             finally
             {
@@ -130,6 +132,14 @@ public sealed class UnixPty : IDisposable
         if (!condition)
         {
             throw new InvalidOperationException($"{message} (erreur système {Marshal.GetLastPInvokeError()}).");
+        }
+    }
+
+    public void RevokeTerminal()
+    {
+        if (!Master.IsClosed)
+        {
+            PosixApi.revoke(TerminalPath);
         }
     }
 

@@ -75,15 +75,16 @@ export function WorkspaceTabRow({ workspaceId, tab, siblings, active, renaming, 
   }
   const handlePointerDown = (event: PointerEvent<HTMLElement>) => beginTabDrag(event, tab.id, actions.moveTab)
   const handleKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
+    const moveOffset = MOVE_KEYS[event.key]
     if (event.key === 'F2') {
       event.preventDefault()
       handleRename()
     } else if (isMenuKey(event)) {
       event.preventDefault()
       onOpenMenu(menuRequestFor(event, workspaceId, tab.id))
-    } else if (event.altKey && event.key in MOVE_KEYS) {
+    } else if (event.altKey && moveOffset !== undefined) {
       event.preventDefault()
-      actions.shiftTab(tab.id, MOVE_KEYS[event.key])
+      actions.shiftTab(tab.id, moveOffset)
     } else if (!event.altKey && event.key === COLLAPSE_KEY) {
       event.preventDefault()
       focusOwnWorkspaceRow(event.currentTarget)

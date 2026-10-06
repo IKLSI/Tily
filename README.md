@@ -58,7 +58,11 @@
 
 1. Télécharger depuis la [dernière version](https://github.com/IKLSI/Tily/releases/latest) `Tily-x.y.z-arm64.dmg` (Mac à puce Apple) ou `Tily-x.y.z-x64.dmg` (Mac Intel).
 2. Ouvrir le `.dmg` et glisser Tily dans Applications.
-3. Tily n’est signé qu’ad hoc, sans notarisation : au premier lancement, faire un clic droit sur Tily dans Applications puis « Ouvrir », ou retirer la quarantaine dans un terminal : `xattr -dr com.apple.quarantine /Applications/Tily.app`.
+3. Tily n’est signé qu’ad hoc, sans notarisation : macOS le dit « endommagé » ou refuse de l’ouvrir tant que la quarantaine n’est pas retirée. Avant le premier lancement, exécuter dans un terminal :
+
+   ```bash
+   xattr -cr /Applications/Tily.app
+   ```
 
 La touche Leader est Cmd + K. Ctrl + Espace fonctionne aussi, mais macOS le réserve par défaut au changement de source de saisie : il ne marche qu’après avoir libéré ce raccourci dans Réglages Système → Clavier → Raccourcis clavier → Sources de saisie. Placer un fichier dans la Corbeille depuis Tily demande une fois l’autorisation de piloter le Finder.
 

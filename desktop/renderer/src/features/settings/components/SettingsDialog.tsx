@@ -169,8 +169,9 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
   const handleFontSizeChange = (fontSize: number) => updateAppearance({ fontSize })
   const handleFontFamilyChange = (fontFamily: TerminalFont) => updateAppearance({ fontFamily })
   const handleRevealFiles = () => {
-    if (snapshot) {
-      revealInExplorer(snapshot.files.shells)
+    const shellsFile = snapshot?.files.shells
+    if (shellsFile) {
+      revealInExplorer(shellsFile)
     }
   }
 

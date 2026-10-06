@@ -36,8 +36,9 @@ export function SearchDialog<T extends SearchItem>({ label, placeholder, emptyMe
   }, [selected, filtered])
 
   const move = (offset: number) => {
-    if (filtered.length > 0) {
-      setSelectedId(filtered[(selected + offset + filtered.length) % filtered.length].id)
+    const next = filtered[(selected + offset + filtered.length) % filtered.length]
+    if (next) {
+      setSelectedId(next.id)
     }
   }
   const handleQueryChange = (event: React.ChangeEvent<HTMLInputElement>) => {

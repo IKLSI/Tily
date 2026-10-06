@@ -1,4 +1,4 @@
-import { Fragment, useCallback, useEffect, useRef, useState, type KeyboardEvent, type MouseEvent, type PointerEvent, type WheelEvent } from 'react'
+import { Fragment, memo, useCallback, useEffect, useRef, useState, type KeyboardEvent, type MouseEvent, type PointerEvent, type WheelEvent } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import type { ShellProfile } from '../../../bridge/messages'
 import { tabAgents } from '../../agents/agentSummary'
@@ -73,7 +73,7 @@ const focusNeighbourTab = (tabButton: HTMLElement, offset: number): void => {
   tabButtons[tabButtons.indexOf(tabButton) + offset]?.focus()
 }
 
-export function TabBar({ workspace, shells, renamingTabId, panelOpen, onTogglePanel, onSelect, onStartRename, onCommitRename, onCancelRename, onClose, onCloseOthers, onShift, onDuplicate, onNew, onMove }: TabBarProps) {
+export const TabBar = memo(function TabBar({ workspace, shells, renamingTabId, panelOpen, onTogglePanel, onSelect, onStartRename, onCommitRename, onCancelRename, onClose, onCloseOthers, onShift, onDuplicate, onNew, onMove }: TabBarProps) {
   const [menuOpen, setMenuOpen] = useState(false)
   const [tabMenu, setTabMenu] = useState<TabMenuRequest | null>(null)
   const [fade, setFade] = useState<StripFade>(NO_FADE)
@@ -186,6 +186,7 @@ export function TabBar({ workspace, shells, renamingTabId, panelOpen, onTogglePa
             setTabMenu({ tabId: tab.id, x: event.clientX, y: event.clientY, returnFocus: null })
           }
           const handleTabKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
+            const neighbourOffset = NEIGHBOUR_KEYS[event.key]
             if (isMenuKey(event)) {
               event.preventDefault()
               const { left, bottom } = event.currentTarget.getBoundingClientRect()
@@ -193,12 +194,12 @@ export function TabBar({ workspace, shells, renamingTabId, panelOpen, onTogglePa
             } else if (event.key === RENAME_KEY) {
               event.preventDefault()
               onStartRename(tab.id)
-            } else if (event.key in NEIGHBOUR_KEYS && !event.ctrlKey && !event.shiftKey) {
+            } else if (neighbourOffset !== undefined && !event.ctrlKey && !event.shiftKey) {
               event.preventDefault()
               if (event.altKey) {
-                onShift(tab.id, NEIGHBOUR_KEYS[event.key])
+                onShift(tab.id, neighbourOffset)
               } else {
-                focusNeighbourTab(event.currentTarget, NEIGHBOUR_KEYS[event.key])
+                focusNeighbourTab(event.currentTarget, neighbourOffset)
               }
             }
           }
@@ -279,4 +280,4 @@ export function TabBar({ workspace, shells, renamingTabId, panelOpen, onTogglePa
       )}
     </div>
   )
-}
+})

@@ -21,7 +21,7 @@ const itemOf = (relative: string, tag?: string): SearchItem => {
   const match = LAST_SEPARATOR.exec(relative)
   const folder = match?.[1]
   const hint = tag ? (folder ? `${tag}${HINT_SEPARATOR}${folder}` : tag) : folder
-  return { id: relative, label: match ? match[2] : relative, hint, searchText: relative }
+  return { id: relative, label: match?.[2] ?? relative, hint, searchText: relative }
 }
 
 const itemsOf = (list: ProjectFileList | null, recent: string[]): SearchItem[] => {

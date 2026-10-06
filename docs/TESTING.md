@@ -1,10 +1,10 @@
 # Tests backend (xUnit)
 
-Projet : `backend/tests/Tily.Core.Tests`. Lancer avec `dotnet test backend/Tily.slnx` **sur macOS** (poste de développement ou CI `.github/workflows/macos.yml` sur `macos-latest`) : le code appelle libc et libproc, lance de vrais `/bin/zsh` et `/bin/bash` et suppose des chemins POSIX. Sous Windows, la solution compile mais la plupart des tests échouent. Le projet référence `Tily.Pty` pour que `tily-pty` soit copié à côté des tests.
+Projet : `backend/tests/Tily.Core.Tests`. Lancer avec `dotnet test backend/Tily.slnx` **sur macOS** (poste de développement ou CI `.github/workflows/macos.yml` sur `macos-latest`) : le code appelle libc et libproc, lance de vrais `/bin/zsh` et `/bin/bash` et suppose des chemins POSIX. Sous Windows, la solution compile mais la plupart des tests échouent. Le projet référence `Tily.Pty` pour que `tily-pty` soit copié à côté des tests, et `Tily.Host` pour tester les classes du pont (`Bridge/`).
 
 ## Organisation
 
-Un dossier par espace de noms testé (`Agents/`, `Context/`, `Files/`, `Session/`, `Shell/`, `Terminal/`, `Git/`, `Worktrees/`, `Updates/`, `StatusLog/`, `Mcp/`, `Browser/`), une classe par type testé, suffixe `Tests`.
+Un dossier par espace de noms testé (`Agents/`, `Context/`, `Files/`, `Session/`, `Shell/`, `Terminal/`, `Git/`, `Worktrees/`, `Updates/`, `StatusLog/`, `Mcp/`, `Browser/`, `Bridge/` pour `Tily.Host.Bridge`), une classe par type testé, suffixe `Tests`.
 
 Nommage des méthodes : `Méthode_QuandCondition_AlorsRésultat` en anglais technique (`Validate_WhenActivePaneUnknown_ThenFails`). Structure Given / When / Then séparée par des lignes vides, une assertion principale par test.
 
@@ -12,7 +12,7 @@ Nommage des méthodes : `Méthode_QuandCondition_AlorsRésultat` en anglais tech
 
 | Catégorie | Exemple | Contrainte |
 | --- | --- | --- |
-| Unitaires purs | `SessionValidatorTests`, `SessionValidatorBrowserTests` (adresse et largeur d'un pane navigateur), `OscCwdParserTests`, `DroppedPathsTests`, `ShellCatalogTests`, `ProcessTreeTests` (membres d'un arbre et nom de commande d'après `argv`, sur des instantanés construits à la main), `AgentHookHandlerTests` (hook d'état et interception de `open <page>.html`, dossier temporaire) | Aucune E/S, exécution instantanée. |
+| Unitaires purs | `SessionValidatorTests`, `SessionValidatorBrowserTests` (adresse et largeur d'un pane navigateur), `OscCwdParserTests`, `DroppedPathsTests`, `ShellCatalogTests`, `ProcessTreeTests` (membres d'un arbre et nom de commande d'après `argv`, sur des instantanés construits à la main ; `IsSameProcess` et `Contains`), `TerminalOutputWriterTests` (ligne `terminal.output` identique à la sérialisation par réflexion, découpage par tranches à travers les morceaux du `StringBuilder`), `PaneOutputBufferTests` (caractère UTF-8 coupé entre deux lectures, recyclage du tampon), `AgentHookHandlerTests` (hook d'état et interception de `open <page>.html`, dossier temporaire) | Aucune E/S, exécution instantanée. |
 | Persistance | `SessionRepositoryTests`, `StatusLogRepositoryTests` | Dossier temporaire unique par test, supprimé dans `Dispose`. |
 | Lancement de l'éditeur | `EditorLaunchTests` (lance un faux éditeur, script `sh` rendu exécutable dans un dossier temporaire, sur un fichier dont le chemin contient des caractères spéciaux du shell ; éditeur absent), `EditorLocationTests` (purs) | Vérifie que l'éditeur reçoit le chemin entier en un seul argument, sans passer par un shell ; aucun vrai éditeur n'est lancé. |
 | Intégration terminal | `TerminalManagerTests` (vrai `/bin/zsh -l` et vrai `/bin/bash` dans un PTY, intégration écrite dans un dossier temporaire) | Lance les shells de la machine avec le profil de l'utilisateur ; délai maximal de 30 s ; vérifie le dossier courant annoncé par OSC 7, la variable `TILY_PANE_ID`, les séquences `OSC 6973` `exec`, `done` et `prompt` de zsh et `done` de bash, la mort des processus enfants à l'arrêt du pane, la liste des programmes actifs sans le shell, le code de sortie et l'interruption d'un programme par Ctrl + C, qui prouve que le shell a bien un terminal de contrôle. |

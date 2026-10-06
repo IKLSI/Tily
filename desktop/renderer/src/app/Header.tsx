@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { memo, type ReactNode } from 'react'
 import { EditableName } from '../components/EditableName'
 import { InlineNameEditor } from '../components/InlineNameEditor'
 import { LeaderHints } from '../features/keyboard/components/LeaderHints'
@@ -17,7 +17,7 @@ interface HeaderProps {
   onCancelRename: () => void
 }
 
-export function Header({ workspaceName, renaming, sidebarCollapsed, leaderActive, navigation, onToggleSidebar, onOpenSettings, onStartRename, onCommitRename, onCancelRename }: HeaderProps) {
+export const Header = memo(function Header({ workspaceName, renaming, sidebarCollapsed, leaderActive, navigation, onToggleSidebar, onOpenSettings, onStartRename, onCommitRename, onCancelRename }: HeaderProps) {
   return (
     <header className="relative flex h-[42px] shrink-0 items-center gap-4 border-b border-tily-line bg-tily-panel px-3 text-tily-ink">
       <button
@@ -55,4 +55,4 @@ export function Header({ workspaceName, renaming, sidebarCollapsed, leaderActive
       </div>
     </header>
   )
-}
+})

@@ -17,6 +17,8 @@ public static partial class LibProcApi
     public const int ProcessGroupOffset = 100;
     public const int TerminalDeviceOffset = 108;
     public const int ForegroundGroupOffset = 112;
+    public const int StartSecondsOffset = 120;
+    public const int StartMicrosecondsOffset = 128;
 
     [LibraryImport(LibProc, SetLastError = true)]
     public static partial int proc_listallpids(int[]? buffer, int bufferSize);

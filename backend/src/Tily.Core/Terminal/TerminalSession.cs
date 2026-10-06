@@ -13,6 +13,7 @@ public sealed class TerminalSession : IDisposable
     private static readonly string[] LocaleVariables = ["LC_ALL", "LC_CTYPE", "LANG"];
     private const string DefaultLocale = "en_US.UTF-8";
     private static readonly TimeSpan HangUpGrace = TimeSpan.FromSeconds(1);
+    private static readonly TimeSpan FinalOutputGrace = TimeSpan.FromSeconds(1);
 
     private readonly UnixPty _pty;
     private readonly OscCwdParser _cwdParser = new();
@@ -54,6 +55,8 @@ public sealed class TerminalSession : IDisposable
 
     public IReadOnlyList<string> ActiveProcessNames() => NamesOf(ActiveProcesses());
 
+    public IReadOnlyList<string> ActiveProcessNames(IReadOnlyList<ProcessEntryModel> snapshot) => NamesOf(ActiveProcesses(snapshot));
+
     public static IReadOnlyList<string> NamesOf(IEnumerable<ActiveProcessModel> processes) =>
         new SortedSet<string>(processes.Select(process => process.Name), StringComparer.OrdinalIgnoreCase).ToList();
 
@@ -64,10 +67,30 @@ public sealed class TerminalSession : IDisposable
             return Array.Empty<ActiveProcessModel>();
         }
 
-        var snapshot = ProcessTree.Snapshot();
+        return ActiveProcesses(ProcessTree.Snapshot());
+    }
+
+    public IReadOnlyList<ActiveProcessModel> ActiveProcesses(IReadOnlyList<ProcessEntryModel> snapshot)
+    {
+        if (HasExited || Volatile.Read(ref _closed) == 1)
+        {
+            return Array.Empty<ActiveProcessModel>();
+        }
+
         return ProcessTree.Foreground(snapshot, ProcessId, Members(snapshot))
             .Select(entry => new ActiveProcessModel(entry.Id, ProcessCommandName.Of(entry.Id, entry.Name)))
             .ToList();
+    }
+
+    public bool Contains(int processId, IReadOnlyList<ProcessEntryModel> snapshot)
+    {
+        if (HasExited || Volatile.Read(ref _closed) == 1)
+        {
+            return false;
+        }
+
+        _terminalDevice = ProcessTree.TerminalDeviceOf(snapshot, ProcessId) ?? _terminalDevice;
+        return ProcessTree.Contains(snapshot, ProcessId, processId, _terminalDevice);
     }
 
     private IReadOnlyList<ProcessEntryModel> Members() => Members(ProcessTree.Snapshot());
@@ -171,9 +194,13 @@ public sealed class TerminalSession : IDisposable
 
         foreach (var member in members)
         {
-            PosixApi.SendSignal(member.Id, PosixApi.SignalKill);
+            if (ProcessTree.IsSameProcess(member, ProcessTree.Find(member.Id)))
+            {
+                PosixApi.SendSignal(member.Id, PosixApi.SignalKill);
+            }
         }
 
+        _pty.RevokeTerminal();
         _pty.Dispose();
     }
 
@@ -195,9 +222,9 @@ public sealed class TerminalSession : IDisposable
                     break;
                 }
 
-                var chunk = buffer.AsSpan(0, (int)count);
-                _cwdParser.Feed(chunk);
-                OutputReceived?.Invoke(chunk.ToArray());
+                var chunk = buffer.AsMemory(0, (int)count);
+                _cwdParser.Feed(chunk.Span);
+                OutputReceived?.Invoke(chunk);
             }
         }
         catch (ObjectDisposedException)
@@ -218,6 +245,11 @@ public sealed class TerminalSession : IDisposable
         ExitCode = result < 0 ? 0 : DecodeExitCode(status);
         HasExited = true;
         _exited.Set();
+        if (Volatile.Read(ref _closed) == 0)
+        {
+            _readerThread.Join(FinalOutputGrace);
+        }
+
         BeginClose();
         Exited?.Invoke(ExitCode);
     }

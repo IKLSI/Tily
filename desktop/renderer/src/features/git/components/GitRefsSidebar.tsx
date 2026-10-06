@@ -110,6 +110,7 @@ export function GitRefsSidebar({ state, width }: GitRefsSidebarProps) {
     const index = all.indexOf(event.target as HTMLElement)
     const current = all[index]?.dataset.gitRow
     const moves: Record<string, number> = { ArrowDown: index + 1, ArrowUp: index - 1, Home: 0, End: all.length - 1 }
+    const destination = moves[event.key]
     if (!current) {
       return
     }
@@ -122,8 +123,8 @@ export function GitRefsSidebar({ state, width }: GitRefsSidebarProps) {
       }
     } else if (event.key === 'Delete') {
       deleteSelectedRefs(current)
-    } else if (event.key in moves) {
-      moveFocus(all, moves[event.key], event.shiftKey)
+    } else if (destination !== undefined) {
+      moveFocus(all, destination, event.shiftKey)
     } else {
       return
     }

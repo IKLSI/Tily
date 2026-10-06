@@ -4,18 +4,32 @@ type Handler<T extends HostMessageType> = (message: HostMessageOf<T>) => void
 
 interface TilyChannel {
   send(message: unknown): void
-  onMessage(listener: (message: HostToWebMessage) => void): void
+  onMessage(listener: (message: HostToWebMessage) => void): () => void
   pathForFile(file: File): string
 }
 
-const channel = (window as unknown as { tily?: TilyChannel }).tily
+declare global {
+  interface Window {
+    tily?: TilyChannel
+  }
+}
+
+const channel = window.tily
 const handlers = new Map<HostMessageType, Set<Handler<HostMessageType>>>()
 
 const dispatch = (message: HostToWebMessage): void => {
-  handlers.get(message.type)?.forEach((handler) => handler(message))
+  handlers.get(message.type)?.forEach((handler) => {
+    try {
+      handler(message)
+    } catch (error) {
+      console.error(`Échec du traitement du message ${message.type} :`, error)
+    }
+  })
 }
 
-channel?.onMessage(dispatch)
+const unsubscribe = channel?.onMessage(dispatch)
+
+import.meta.hot?.dispose(() => unsubscribe?.())
 
 export const bridge = {
   available: Boolean(channel),
