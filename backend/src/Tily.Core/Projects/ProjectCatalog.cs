@@ -8,7 +8,7 @@ public sealed record ProjectListModel(string Root, IReadOnlyList<ProjectModel> P
 
 public static class ProjectCatalog
 {
-    public static readonly string DefaultRoot = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Projects");
+    public static readonly string DefaultRoot = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Developer");
     public const string ExcludedFolder = "worktrees";
 
     private const string GitEntry = ".git";

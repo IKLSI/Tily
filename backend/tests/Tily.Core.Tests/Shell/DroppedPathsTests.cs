@@ -8,33 +8,33 @@ public sealed class DroppedPathsTests
     [Fact]
     public void Format_WhenPathNeedsNoQuoting_ThenInsertsItFollowedBySpace()
     {
-        var text = DroppedPaths.Format(["/Users/maxime/notes.txt"], "zsh");
+        var text = DroppedPaths.Format(["/Files/notes.txt"], "zsh");
 
-        Assert.Equal("/Users/maxime/notes.txt ", text);
+        Assert.Equal("/Files/notes.txt ", text);
     }
 
     [Fact]
     public void Format_WhenPathHasSpaces_ThenWrapsInSingleQuotes()
     {
-        var text = DroppedPaths.Format(["/Users/maxime/Mes projets/notes.txt"], "zsh");
+        var text = DroppedPaths.Format(["/Files/Mes projets/notes.txt"], "zsh");
 
-        Assert.Equal("'/Users/maxime/Mes projets/notes.txt' ", text);
+        Assert.Equal("'/Files/Mes projets/notes.txt' ", text);
     }
 
     [Fact]
     public void Format_WhenPathHasApostrophe_ThenClosesAndEscapesIt()
     {
-        var text = DroppedPaths.Format(["/Users/maxime/l'été.png"], "bash");
+        var text = DroppedPaths.Format(["/Files/l'été.png"], "bash");
 
-        Assert.Equal("'/Users/maxime/l'\\''été.png' ", text);
+        Assert.Equal("'/Files/l'\\''été.png' ", text);
     }
 
     [Fact]
     public void Format_WhenPathHasOnlyNonBreakingSpace_ThenQuotesIt()
     {
-        var text = DroppedPaths.Format(["/Users/maxime/A B.txt"], "zsh");
+        var text = DroppedPaths.Format(["/Files/A B.txt"], "zsh");
 
-        Assert.Equal("'/Users/maxime/A B.txt' ", text);
+        Assert.Equal("'/Files/A B.txt' ", text);
     }
 
     [Theory]
@@ -52,8 +52,8 @@ public sealed class DroppedPathsTests
     [Fact]
     public void Format_WhenSeveralPaths_ThenSeparatesThemBySpaces()
     {
-        var text = DroppedPaths.Format(["/tmp/a.txt", "/Users/maxime/Mes projets", "  "], "zsh");
+        var text = DroppedPaths.Format(["/tmp/a.txt", "/Files/Mes projets", "  "], "zsh");
 
-        Assert.Equal("/tmp/a.txt '/Users/maxime/Mes projets' ", text);
+        Assert.Equal("/tmp/a.txt '/Files/Mes projets' ", text);
     }
 }

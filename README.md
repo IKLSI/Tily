@@ -113,4 +113,7 @@ Ctrl + Maj + C et Ctrl + Maj + V copient et collent ; un texte de plusieurs lign
 
 ## Licence
 
-Copyright (c) 2026 Maxime Razafinjato. Tily est un logiciel libre distribué sous licence [GNU GPL v3](LICENSE) : chacun peut l’utiliser, l’étudier, le modifier et le redistribuer, à condition que toute version redistribuée reste sous la même licence.
+Copyright (c) 2026 Maxime Razafinjato  
+Copyright (c) 2026 KLS
+
+Tily est un logiciel libre distribué sous licence [GNU GPL v3](LICENSE) : chacun peut l’utiliser, l’étudier, le modifier et le redistribuer, à condition que toute version redistribuée reste sous la même licence.

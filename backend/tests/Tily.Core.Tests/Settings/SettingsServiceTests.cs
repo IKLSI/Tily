@@ -21,7 +21,7 @@ public sealed class SettingsServiceTests : IDisposable
 
         Assert.Equal("code", settings.Editor);
         Assert.Equal(PersistenceSettingsModel.Default, settings.Persistence);
-        Assert.Equal(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Projects"), settings.ProjectsRoot);
+        Assert.Equal(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Developer"), settings.ProjectsRoot);
         Assert.Equal(NotificationSettingsModel.Default, settings.Notifications);
         Assert.Equal(GitSettingsModel.Default, settings.Git);
         Assert.Equal(AppearanceSettingsModel.Default, settings.Appearance);

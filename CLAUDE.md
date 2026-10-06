@@ -11,7 +11,7 @@ Tily est un terminal **macOS** organisé en **workspaces → onglets → panes**
 
 Tily (de *mitily*, « guetter » en malgache) s'appelait Dock jusqu'au 30 septembre 2026 : l'historique Git, les issues GitHub et les releases antérieures emploient encore ce nom. Jusqu'à la version 2.2.0 incluse, Tily était une application Windows (WinUI 3 + WebView2, ConPTY, PowerShell 5.1, installeur Inno Setup) ; le port macOS du 5 octobre 2026 a supprimé tout le code Windows, qui reste consultable dans l'historique Git.
 
-Le backlog vit uniquement dans les issues GitHub de `MaximeRazafinjato/tily`. Toute évolution de l'application suit `docs/architecture/backend.md`, `docs/architecture/frontend.md` et `docs/testing.md`.
+Toute évolution de l'application suit `docs/architecture/backend.md`, `docs/architecture/frontend.md` et `docs/testing.md`.
 
 Tout le contenu est rédigé en **français**.
 
@@ -45,7 +45,7 @@ Les issues GitHub `[Fxx]` référencent les **numéros de sections** de la spec 
 
 ## Choix établis
 
-`docs/specification.md` décrit le comportement actuel de Tily, sans statut ni point en suspens : toute évolution la met à jour pour qu'elle reste factuelle. Choix à ne pas rouvrir : Leader = Cmd + K (délai 5 s ; Ctrl + Espace reste accepté, mais macOS le réserve par défaut au changement de source de saisie), palette = Ctrl + P, shell par défaut = zsh (`/bin/zsh -l`, profil de l'utilisateur chargé ; bash disponible), agents suivis = Claude Code (`claude`) et Codex CLI (`codex`), projets = premier niveau du dossier des projets (`~/Projects` par défaut, réglage `ProjectsRoot`) hors `worktrees`, recherche dans les terminaux **hors périmètre**, F13 retirée.
+`docs/specification.md` décrit le comportement actuel de Tily, sans statut ni point en suspens : toute évolution la met à jour pour qu'elle reste factuelle. Choix à ne pas rouvrir : Leader = Cmd + K (délai 5 s ; Ctrl + Espace reste accepté, mais macOS le réserve par défaut au changement de source de saisie), palette = Ctrl + P, shell par défaut = zsh (`/bin/zsh -l`, profil de l'utilisateur chargé ; bash disponible), agents suivis = Claude Code (`claude`) et Codex CLI (`codex`), projets = premier niveau du dossier des projets (`~/Developer` par défaut, réglage `ProjectsRoot`) hors `worktrees`, recherche dans les terminaux **hors périmètre**, F13 retirée.
 
 ## Application (`backend/`, `desktop/`, `desktop/renderer/`)
 

@@ -70,7 +70,7 @@ Ces valeurs sont des références de réalisation, pas des contraintes de taille
 
 Police des terminaux choisie dans une liste fixe (section « Terminaux » des Paramètres) : Menlo (par défaut), Monaco, Courier New, CaskaydiaCove Nerd Font, MesloLGS Nerd Font, Hack Nerd Font, JetBrainsMono Nerd Font, FiraCode Nerd Font ; une police absente de la machine retombe sur les polices de secours. Elle est conservée dans `appearance.json` et fait partie des préférences exportées.
 
-Taille du texte des terminaux : réglage « Taille du texte (px) » de la section « Terminaux » des Paramètres, de 8 à 32 px, 14 par défaut, avec un aperçu. Elle s’applique à l’enregistrement à tous les terminaux ouverts, qui recalculent leurs colonnes et leurs lignes et les transmettent au shell ; elle est conservée dans `appearance.json` et fait partie des préférences exportées. La palette propose aussi « Agrandir le texte des terminaux », « Réduire le texte des terminaux » et « Taille du texte des terminaux par défaut », qui appliquent et enregistrent la nouvelle taille sans ouvrir les Paramètres.
+Taille du texte des terminaux : réglage « Taille du texte (px) » de la section « Terminaux » des Paramètres, de 8 à 32 px, 12 par défaut, avec un aperçu. Elle s’applique à l’enregistrement à tous les terminaux ouverts, qui recalculent leurs colonnes et leurs lignes et les transmettent au shell ; elle est conservée dans `appearance.json` et fait partie des préférences exportées. La palette propose aussi « Agrandir le texte des terminaux », « Réduire le texte des terminaux » et « Taille du texte des terminaux par défaut », qui appliquent et enregistrent la nouvelle taille sans ouvrir les Paramètres.
 
 ### Explorateur de fichiers
 
@@ -342,11 +342,11 @@ Les raccourcis directs fonctionnent aussi quand le focus est hors d’un termina
 
 ## 9. Sélecteur de projets
 
-Chercher rapidement un dossier dans `~/Projects`, puis ouvrir un workspace avec un premier terminal dans ce dossier. Le raccourci WezTerm Leader + F existant sert de référence fonctionnelle.
+Chercher rapidement un dossier dans `~/Developer`, puis ouvrir un workspace avec un premier terminal dans ce dossier. Le raccourci WezTerm Leader + F existant sert de référence fonctionnelle.
 
 Ce sélecteur recherche des dossiers, pas du texte dans les fichiers. L’interface doit rester compacte et intégrée. La navigation clavier suit le principe ↑ / ↓ / Entrée / Échap.
 
-Le dossier des projets est `~/Projects` par défaut, réglable. Seul son premier niveau est listé, sans le dossier `worktrees`. Le sélecteur ne recherche que des dossiers et ne détecte pas les workspaces déjà ouverts : chaque sélection peut créer un nouveau workspace. Le nom initial est celui du dossier sélectionné.
+Le dossier des projets est `~/Developer` par défaut, réglable. Seul son premier niveau est listé, sans le dossier `worktrees`. Le sélecteur ne recherche que des dossiers et ne détecte pas les workspaces déjà ouverts : chaque sélection peut créer un nouveau workspace. Le nom initial est celui du dossier sélectionné.
 
 Les dossiers de premier niveau de `worktrees` sont listés à part, après les projets, avec la mention « worktree », comme le préfixe `[wt]` du sélecteur WezTerm ; en choisir un ouvre un workspace comme pour un projet. Quand un autre dossier des worktrees est réglé (section 10), c’est lui qui est listé, et il est retiré de la liste des projets s’il se trouve dans le dossier des projets ; il en va de même des dossiers des worktrees mémorisés par projet (section 10).
 

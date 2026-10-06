@@ -5,7 +5,7 @@ namespace Tily.Core.Settings;
 
 public sealed record AppearanceSettingsModel(int FontSize = AppearanceSettingsModel.DefaultFontSize, string FontFamily = AppearanceSettingsModel.DefaultFontFamily)
 {
-    public const int DefaultFontSize = 14;
+    public const int DefaultFontSize = 12;
     public const int MinFontSize = 8;
     public const int MaxFontSize = 32;
     public const string DefaultFontFamily = "Menlo";

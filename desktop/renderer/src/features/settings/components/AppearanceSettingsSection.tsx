@@ -42,7 +42,7 @@ export function AppearanceSettingsSection({ sectionClassName, fontSize, fontFami
         </select>
       </label>
       <p className="overflow-hidden rounded border border-tily-line bg-tily-terminal px-2 py-1 whitespace-nowrap text-tily-terminal-ink" style={{ fontFamily: fontStack(fontFamily), fontSize }}>
-        ~/Projects % git status
+        ~/Developer % git status
       </p>
     </section>
   )

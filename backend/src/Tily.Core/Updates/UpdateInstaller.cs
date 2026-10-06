@@ -6,7 +6,7 @@ namespace Tily.Core.Updates;
 public static class UpdateInstaller
 {
     public const string ApplicationProcessVariable = "TILY_APP_PID";
-    public const string BundleIdentifier = "com.maximerazafinjato.tily";
+    public const string BundleIdentifier = "com.iklsi.tily";
     private const string BundleExtension = ".app";
     private const string ScriptName = "tily-update.sh";
     private const string Shell = "/bin/sh";
