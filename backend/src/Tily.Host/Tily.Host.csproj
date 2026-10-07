@@ -4,7 +4,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <RootNamespace>Tily.Host</RootNamespace>
     <AssemblyName>Tily</AssemblyName>
-    <Version>3.0.3</Version>
+    <Version>3.0.4</Version>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Tily.Core\Tily.Core.csproj" />
