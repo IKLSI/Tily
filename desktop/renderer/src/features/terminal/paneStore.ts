@@ -14,7 +14,7 @@ export interface PaneState {
 
 interface PaneStoreState {
   states: Record<string, PaneState>
-  devServers: Record<string, string>
+  devServers: Record<string, string[]>
   markFailed: (paneId: string, message: string) => void
   markExited: (paneId: string, code: number) => void
   markPathMissing: (paneId: string, path: string, fallback: string) => void
@@ -55,6 +55,7 @@ export const usePaneStore = create<PaneStoreState>()((set) => ({
       return { states: without(state.states, paneId) }
     }),
   clear: (paneId) => set((state) => (state.states[paneId] ? { states: without(state.states, paneId) } : state)),
-  showDevServer: (paneId, url) => set((state) => (state.devServers[paneId] ? state : { devServers: { ...state.devServers, [paneId]: url } })),
+  showDevServer: (paneId, url) =>
+    set((state) => (state.devServers[paneId]?.includes(url) ? state : { devServers: { ...state.devServers, [paneId]: [...(state.devServers[paneId] ?? []), url] } })),
   clearDevServer: (paneId) => set((state) => (state.devServers[paneId] ? { devServers: without(state.devServers, paneId) } : state)),
 }))

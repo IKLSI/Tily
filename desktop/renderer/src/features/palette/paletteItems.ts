@@ -112,13 +112,13 @@ const commandItems = (session: Session, shells: ShellProfile[]): PaletteItem[] =
   }
   if (tab) {
     const paneId = tab.active
-    const devServer = usePaneStore.getState().devServers[paneId]
+    const devServers = usePaneStore.getState().devServers[paneId] ?? []
     items.push(
       command('copy-path', 'Copier le chemin du pane actif', () => copyPanePath(paneId)),
       command('previous-command', 'Remonter à la commande précédente du pane actif', () => runCommand(Command.PreviousCommand), 'Alt + PgUp'),
       command('next-command', 'Descendre à la commande suivante du pane actif', () => runCommand(Command.NextCommand), 'Alt + PgDn'),
       command('copy-last-output', 'Copier la sortie de la dernière commande du pane actif', () => copyLastCommandOutput(paneId)),
-      ...(devServer ? [command('open-dev-server', `Ouvrir le serveur de dev dans un navigateur${SEPARATOR}${devServer}`, () => openDevServer(paneId, devServer))] : []),
+      ...devServers.map((url) => command(`open-dev-server-${url}`, `Ouvrir le serveur de dev dans un navigateur${SEPARATOR}${url}`, () => openDevServer(paneId, url))),
       command('clear-scrollback', 'Effacer l’historique de défilement du pane actif', () => clearPaneScrollback(paneId)),
       command('open-file', 'Ouvrir un fichier du projet…', openFilePicker),
       command('open-editor', 'Ouvrir le dossier du pane actif dans l’éditeur', () => openPaneFolder(paneId, OpenTarget.Editor)),

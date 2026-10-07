@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useState, type MouseEvent } from 'react'
+import { memo, useCallback, useEffect, useRef, useState, type MouseEvent } from 'react'
 import { OpenTarget, type ShellProfile } from '../../../bridge/messages'
 import { RightPanelView, SplitAxis, type Pane } from '../../../model/session'
 import { openPanelView } from '../../right-panel/rightPanel'
@@ -9,6 +9,7 @@ import { copyPaneBranch, copyPanePath, gitSummary, openPaneFolder, queryContext 
 import { clearPaneScrollback, copyLastCommandOutput, copyPaneSelection, focusPane, hasPaneSelection, pasteIntoPane, selectAllInPane, setPaneTerminalTabbable } from '../terminalActions'
 import { movePaneToNewTab } from '../tabLifecycle'
 import { openDevServer } from '../../browser/browserActions'
+import { ActionMenu } from '../../../components/ActionMenu'
 import { TerminalPane } from './TerminalPane'
 import { AgentBadge } from '../../agents/components/AgentBadge'
 import { AgentOwnerMark } from '../../agents/components/AgentOwnerMark'
@@ -88,6 +89,12 @@ const UnzoomIcon = () => (
   </svg>
 )
 
+const NO_DEV_SERVERS: string[] = []
+
+const TRAILING_SLASH = /\/$/
+
+const addressOf = (url: string): string => url.replace(TRAILING_SLASH, '')
+
 const GlobeIcon = () => (
   <svg {...ICON_PROPS} aria-hidden="true">
     <circle cx="6" cy="6" r="4.5" />
@@ -106,7 +113,9 @@ export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZ
   const paneState = usePaneStore((state) => state.states[pane.id])
   const context = useHostStore((state) => state.contexts[pane.id])
   const agent = useAgentStore((state) => state.agents[pane.id])
-  const devServer = usePaneStore((state) => state.devServers[pane.id])
+  const devServers = usePaneStore((state) => state.devServers[pane.id]) ?? NO_DEV_SERVERS
+  const [devServerMenuOpen, setDevServerMenuOpen] = useState(false)
+  const devServerButtonRef = useRef<HTMLButtonElement>(null)
   const [menu, setMenu] = useState<TerminalMenuRequest | null>(null)
 
   useEffect(() => {
@@ -135,11 +144,27 @@ export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZ
   const handleRestartIn = (path: string) => onRestartIn(pane.id, path)
   const handleDismissState = () => onDismissState(pane.id)
   const handleChangeShell = (shellId: string) => onChangeShell(pane.id, shellId)
+  const [singleDevServer] = devServers
   const handleOpenDevServer = () => {
-    if (devServer) {
-      openDevServer(pane.id, devServer)
+    if (devServers.length > 1) {
+      setDevServerMenuOpen(true)
+    } else if (singleDevServer) {
+      openDevServer(pane.id, singleDevServer)
     }
   }
+  const handleCloseDevServerMenu = useCallback(() => {
+    setDevServerMenuOpen(false)
+    devServerButtonRef.current?.focus()
+  }, [])
+  const devServerItems = devServers.map((url) => ({
+    id: url,
+    label: addressOf(url),
+    run: () => {
+      setDevServerMenuOpen(false)
+      openDevServer(pane.id, url)
+    },
+  }))
+  const devServerTip = devServers.length > 1 ? `${devServers.length} serveurs de dev détectés : choisir lequel ouvrir dans un navigateur à côté` : `Serveur de dev détecté : ouvrir ${singleDevServer ?? ''} dans un navigateur à côté`
   const handleCopyPath = () => copyPanePath(pane.id)
   const handleOpenEditor = () => openPaneFolder(pane.id, OpenTarget.Editor)
   const handleOpenExplorer = () => openPaneFolder(pane.id, OpenTarget.Explorer)
@@ -203,10 +228,22 @@ export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZ
             <span className="truncate py-1 [text-box:trim-both_cap_alphabetic]">{branchLabel}</span>
           </button>
         )}
-        {devServer && (
-          <button type="button" className={`${HEADER_BUTTON} text-tily-green`} data-tip={`Serveur de dev détecté : ouvrir ${devServer} dans un navigateur à côté`} aria-label={`Ouvrir ${devServer} dans un navigateur à côté`} onClick={handleOpenDevServer}>
-            <GlobeIcon />
-          </button>
+        {singleDevServer && (
+          <div className="relative flex">
+            <button
+              ref={devServerButtonRef}
+              type="button"
+              className={`${HEADER_BUTTON} text-tily-green`}
+              data-tip={devServerTip}
+              aria-label={devServerTip}
+              aria-haspopup={devServers.length > 1 ? 'menu' : undefined}
+              aria-expanded={devServers.length > 1 ? devServerMenuOpen : undefined}
+              onClick={handleOpenDevServer}
+            >
+              <GlobeIcon />
+            </button>
+            {devServerMenuOpen && devServers.length > 1 && <ActionMenu label="Serveurs de dev détectés" items={devServerItems} align="right" onClose={handleCloseDevServerMenu} />}
+          </div>
         )}
         <button type="button" className={SECONDARY_BUTTON} data-tip={`Copier le chemin ${pane.path}`} aria-label="Copier le chemin" onClick={handleCopyPath}>
           <CopyIcon />
