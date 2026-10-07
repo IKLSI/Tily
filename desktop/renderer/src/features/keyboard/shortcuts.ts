@@ -50,7 +50,7 @@ const isLeaderChord = (event: KeyboardEvent): boolean => isCommandK(event) || is
 const isCloseWindow = (event: KeyboardEvent): boolean => event.altKey && event.key === 'F4'
 const isCopy = (event: KeyboardEvent): boolean => event.ctrlKey && event.shiftKey && !event.altKey && letterOf(event) === 'c'
 const isPlainCtrlC = (event: KeyboardEvent): boolean => event.ctrlKey && !event.shiftKey && !event.altKey && letterOf(event) === 'c'
-const isPaste = (event: KeyboardEvent): boolean => event.ctrlKey && !event.altKey && letterOf(event) === 'v'
+const isPaste = (event: KeyboardEvent): boolean => event.ctrlKey && event.shiftKey && !event.altKey && letterOf(event) === 'v'
 const isAgentLineBreak = (event: KeyboardEvent): boolean => event.key === ENTER_KEY && !event.altKey && !event.metaKey && event.shiftKey !== event.ctrlKey
 const isTabCycle = (event: KeyboardEvent): boolean => event.ctrlKey && !event.altKey && event.key === TAB_KEY
 

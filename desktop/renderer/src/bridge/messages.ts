@@ -248,6 +248,7 @@ export type WebToHostMessage =
   | { type: 'terminal.activity'; panes: string[]; request?: number }
   | { type: 'terminal.drop'; pane: string; shell: string; paths: string[] }
   | { type: 'terminal.dropPath'; pane: string; shell: string; path: string }
+  | { type: 'terminal.dropFile'; pane: string; shell: string; name: string; data: string }
   | { type: 'projects.list' }
   | { type: 'projects.repositories'; request: number; project: string }
   | { type: 'projects.rememberRepository'; project: string; repository: string }

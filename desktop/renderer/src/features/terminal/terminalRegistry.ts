@@ -163,10 +163,10 @@ const cacheStableLines = (handle: TerminalHandle, maxLines: number): boolean => 
 const snapshotOf = (handle: TerminalHandle): string => {
   const { terminal, serializer } = handle
   if (terminal.buffer.active !== terminal.buffer.normal) {
-    return serializer.serialize({ scrollback: scrollbackLines })
+    return serializer.serialize({ scrollback: scrollbackLines, excludeModes: true })
   }
   cacheStableLines(handle, Number.MAX_SAFE_INTEGER)
-  const tail = serializer.serialize({ range: { start: firstUncachedLine(handle), end: terminal.buffer.normal.length - 1 }, excludeAltBuffer: true })
+  const tail = serializer.serialize({ range: { start: firstUncachedLine(handle), end: terminal.buffer.normal.length - 1 }, excludeAltBuffer: true, excludeModes: true })
   return [...handle.chunks.map((chunk) => chunk.text), tail].join(CHUNK_SEPARATOR)
 }
 
@@ -317,7 +317,7 @@ export const terminalRegistry = {
     for (const paneId of paneIds) {
       const handle = handles.get(paneId)
       if (handle) {
-        text[paneId] = handle.serializer.serialize({ scrollback: SNAPSHOT_SCROLLBACK_LINES })
+        text[paneId] = handle.serializer.serialize({ scrollback: SNAPSHOT_SCROLLBACK_LINES, excludeModes: true })
       }
     }
     return text

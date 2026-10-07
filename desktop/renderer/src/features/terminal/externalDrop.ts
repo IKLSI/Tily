@@ -47,6 +47,15 @@ export const insertPathIntoPane = (paneId: string, path: string): boolean => {
   return true
 }
 
+const sendFileContent = (paneId: string, file: File): void => {
+  const reader = new FileReader()
+  reader.onload = () => {
+    const dataUrl = reader.result as string
+    bridge.send({ type: 'terminal.dropFile', pane: paneId, shell: shellOf(paneId), name: file.name, data: dataUrl.slice(dataUrl.indexOf(',') + 1) })
+  }
+  reader.readAsDataURL(file)
+}
+
 const handleDragOver = (event: DragEvent): void => {
   if (!carriesDroppableData(event)) {
     return
@@ -64,11 +73,15 @@ const handleDrop = (event: DragEvent): void => {
   event.preventDefault()
   const paneId = openPaneIdUnder(event)
   const treePath = treePathOf(event)
-  const files = event.dataTransfer?.files
+  const files = Array.from(event.dataTransfer?.files ?? [])
   if (paneId && treePath) {
     insertPathIntoPane(paneId, treePath)
-  } else if (paneId && files && files.length > 0) {
-    bridge.send({ type: 'terminal.drop', pane: paneId, shell: shellOf(paneId), paths: bridge.pathsOf(files) })
+  } else if (paneId && files.length > 0) {
+    const paths = bridge.pathsOf(files)
+    if (paths.length > 0) {
+      bridge.send({ type: 'terminal.drop', pane: paneId, shell: shellOf(paneId), paths })
+    }
+    files.filter((file) => bridge.pathsOf([file]).length === 0).forEach((file) => sendFileContent(paneId, file))
   }
 }
 

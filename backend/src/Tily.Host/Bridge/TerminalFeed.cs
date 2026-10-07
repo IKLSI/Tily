@@ -11,6 +11,7 @@ public sealed class TerminalFeed : IDisposable
     public const string Prefix = "terminal.";
 
     private const string InvalidDroppedPath = "Chemin déposé invalide.";
+    private const string InvalidDroppedFile = "Fichier déposé illisible.";
 
     private readonly HostLoop _loop;
     private readonly TerminalManager _terminals;
@@ -70,6 +71,9 @@ public sealed class TerminalFeed : IDisposable
             case "terminal.dropPath":
                 PostDroppedPath(command);
                 break;
+            case "terminal.dropFile":
+                SaveDroppedFile(command);
+                break;
             case "terminal.activity":
                 var request = command.Request;
                 var panes = command.Panes ?? [];
@@ -108,6 +112,30 @@ public sealed class TerminalFeed : IDisposable
     {
         var paths = (command.Paths ?? []).Where(path => Path.IsPathFullyQualified(path) && !path.Any(char.IsControl)).ToList();
         _post(new { type = "terminal.dropped", pane = RequirePane(command), text = DroppedPaths.Format(paths, command.Shell ?? ShellCatalog.DefaultShellId) });
+    }
+
+    private void SaveDroppedFile(BridgeCommandModel command)
+    {
+        var paneId = RequirePane(command);
+        var shellId = command.Shell ?? ShellCatalog.DefaultShellId;
+        var name = command.Name ?? string.Empty;
+        var data = command.Data ?? string.Empty;
+        _queries.Enqueue(() =>
+        {
+            try
+            {
+                var path = DroppedFiles.Default.Save(name, Convert.FromBase64String(data));
+                _post(new { type = "terminal.dropped", pane = paneId, text = DroppedPaths.Format([path], shellId) });
+            }
+            catch (FormatException)
+            {
+                _post(new { type = "error", message = InvalidDroppedFile });
+            }
+            catch (Exception exception) when (exception is InvalidOperationException or IOException or UnauthorizedAccessException)
+            {
+                _post(new { type = "error", message = exception is InvalidOperationException ? exception.Message : $"Impossible d’enregistrer le fichier déposé : {exception.Message}" });
+            }
+        });
     }
 
     private void PostDroppedPath(BridgeCommandModel command)
