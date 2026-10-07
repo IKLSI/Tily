@@ -1,7 +1,7 @@
 {
   "name": "tily",
   "productName": "Tily",
-  "version": "3.0.0",
+  "version": "3.0.3",
   "description": "Terminal macOS organisé en workspaces, onglets et panes",
   "private": true,
   "main": "dist/main/main.js",
