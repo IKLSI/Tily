@@ -8,6 +8,7 @@ import { usePaneStore } from '../paneStore'
 import { copyPaneBranch, copyPanePath, gitSummary, openPaneFolder, queryContext } from '../contextActions'
 import { clearPaneScrollback, copyLastCommandOutput, copyPaneSelection, focusPane, hasPaneSelection, pasteIntoPane, selectAllInPane, setPaneTerminalTabbable } from '../terminalActions'
 import { movePaneToNewTab } from '../tabLifecycle'
+import { openDevServer } from '../../browser/browserActions'
 import { TerminalPane } from './TerminalPane'
 import { AgentBadge } from '../../agents/components/AgentBadge'
 import { AgentOwnerMark } from '../../agents/components/AgentOwnerMark'
@@ -87,6 +88,13 @@ const UnzoomIcon = () => (
   </svg>
 )
 
+const GlobeIcon = () => (
+  <svg {...ICON_PROPS} aria-hidden="true">
+    <circle cx="6" cy="6" r="4.5" />
+    <path d="M1.5 6h9M6 1.5c-1.6 1.6-1.6 7.4 0 9M6 1.5c1.6 1.6 1.6 7.4 0 9" />
+  </svg>
+)
+
 const CloseIcon = () => (
   <svg {...ICON_PROPS} aria-hidden="true">
     <line x1="3" y1="3" x2="9" y2="9" />
@@ -98,6 +106,7 @@ export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZ
   const paneState = usePaneStore((state) => state.states[pane.id])
   const context = useHostStore((state) => state.contexts[pane.id])
   const agent = useAgentStore((state) => state.agents[pane.id])
+  const devServer = usePaneStore((state) => state.devServers[pane.id])
   const [menu, setMenu] = useState<TerminalMenuRequest | null>(null)
 
   useEffect(() => {
@@ -126,6 +135,11 @@ export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZ
   const handleRestartIn = (path: string) => onRestartIn(pane.id, path)
   const handleDismissState = () => onDismissState(pane.id)
   const handleChangeShell = (shellId: string) => onChangeShell(pane.id, shellId)
+  const handleOpenDevServer = () => {
+    if (devServer) {
+      openDevServer(pane.id, devServer)
+    }
+  }
   const handleCopyPath = () => copyPanePath(pane.id)
   const handleOpenEditor = () => openPaneFolder(pane.id, OpenTarget.Editor)
   const handleOpenExplorer = () => openPaneFolder(pane.id, OpenTarget.Explorer)
@@ -187,6 +201,11 @@ export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZ
           >
             <BranchIcon />
             <span className="truncate py-1 [text-box:trim-both_cap_alphabetic]">{branchLabel}</span>
+          </button>
+        )}
+        {devServer && (
+          <button type="button" className={`${HEADER_BUTTON} text-tily-green`} data-tip={`Serveur de dev détecté : ouvrir ${devServer} dans un navigateur à côté`} aria-label={`Ouvrir ${devServer} dans un navigateur à côté`} onClick={handleOpenDevServer}>
+            <GlobeIcon />
           </button>
         )}
         <button type="button" className={SECONDARY_BUTTON} data-tip={`Copier le chemin ${pane.path}`} aria-label="Copier le chemin" onClick={handleCopyPath}>

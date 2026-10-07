@@ -33,6 +33,7 @@ public sealed class TerminalFeed : IDisposable
         _output = output;
         _terminals.OutputReceived += HandleOutput;
         _terminals.CurrentDirectoryChanged += HandleCurrentDirectoryChanged;
+        _terminals.DevServerDetected += (paneId, url) => _post(new { type = "terminal.devServer", pane = paneId, url });
         _terminals.Exited += (paneId, code) => _loop.TryEnqueue(() =>
         {
             Flush();

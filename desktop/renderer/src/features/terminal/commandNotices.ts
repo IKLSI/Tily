@@ -1,6 +1,7 @@
 import { bridge } from '../../bridge/bridge'
 import { activeTab, activeWorkspace, allPanes, panesOf, type Tab, type Workspace } from '../../model/session'
 import { useCommandStore, type CommandNotice } from './commandStore'
+import { usePaneStore } from './paneStore'
 import { StatusLevel, useHostStore } from '../../stores/hostStore'
 import { useSessionStore } from '../../stores/sessionStore'
 
@@ -75,6 +76,9 @@ export const workspaceCommandNotice = (workspace: Workspace, notices: Record<str
 
 export const receiveCommandDone = (paneId: string, data: string): void => {
   const notice = parseCommandDone(data)
+  if (notice) {
+    usePaneStore.getState().clearDevServer(paneId)
+  }
   const tab = tabOfPane(paneId)
   if (!notice || !tab || notice.durationMs < NOTICE_MIN_MS) {
     return

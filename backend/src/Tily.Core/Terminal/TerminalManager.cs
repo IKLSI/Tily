@@ -24,6 +24,7 @@ public sealed class TerminalManager : IDisposable
 
     public event Action<string, ReadOnlyMemory<byte>>? OutputReceived;
     public event Action<string, string>? CurrentDirectoryChanged;
+    public event Action<string, string>? DevServerDetected;
     public event Action<string, uint>? Exited;
 
     public TerminalSession Start(string paneId, string shellId, string workingDirectory, int columns, int rows, string? initialCommand = null)
@@ -46,6 +47,7 @@ public sealed class TerminalManager : IDisposable
         });
         session.OutputReceived += data => OutputReceived?.Invoke(paneId, data);
         session.CurrentDirectoryChanged += path => CurrentDirectoryChanged?.Invoke(paneId, path);
+        session.DevServerDetected += url => DevServerDetected?.Invoke(paneId, url);
         session.Exited += code =>
         {
             if (_sessions.TryGetValue(paneId, out var current) && ReferenceEquals(current, session))

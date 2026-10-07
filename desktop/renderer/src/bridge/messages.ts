@@ -199,6 +199,7 @@ export type HostToWebMessage =
   | ({ type: 'settings.imported' } & ImportedPreferences)
   | { type: 'terminal.output'; pane: string; data: string }
   | { type: 'terminal.cwd'; pane: string; path: string }
+  | { type: 'terminal.devServer'; pane: string; url: string }
   | { type: 'terminal.exit'; pane: string; code: number }
   | { type: 'terminal.dropped'; pane: string; text: string }
   | { type: 'terminal.pathMissing'; pane: string; path: string; fallback: string }

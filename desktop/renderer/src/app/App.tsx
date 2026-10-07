@@ -61,7 +61,7 @@ export default function App() {
     const stopStatusLog = startStatusLog()
     const stopDeferredPreviews = startDeferredPreviews()
     const stopBrowserLayer = startBrowserLayer()
-    const { markFailed, markExited, markPathMissing, markAlive } = usePaneStore.getState()
+    const { markFailed, markExited, markPathMissing, markAlive, showDevServer, clearDevServer } = usePaneStore.getState()
     const subscriptions = [
       bridge.on('app.hello', (message) => {
         setHello(message.version, message.shells, message.home, message.persistence)
@@ -141,6 +141,7 @@ export default function App() {
         queryContext(message.pane)
       }),
       bridge.on('terminal.pathMissing', (message) => markPathMissing(message.pane, message.path, message.fallback)),
+      bridge.on('terminal.devServer', (message) => showDevServer(message.pane, message.url)),
       bridge.on('projects.listed', (message) => setProjects(message.root, message.projects, message.error ?? null)),
       bridge.on('projects.repositoriesFound', (message) => receiveProjectRepositories(message.request, message.sources)),
       bridge.on('projects.repositoryRemembered', (message) => receiveProjectRepositoryRemembered(message.project, message.repository)),
@@ -194,6 +195,7 @@ export default function App() {
       bridge.on('terminal.exit', (message) => {
         terminalRegistry.markExited(message.pane, message.code)
         markExited(message.pane, message.code)
+        clearDevServer(message.pane)
       }),
       bridge.on('error', (message) => {
         setStatus(message.message, StatusLevel.Error)

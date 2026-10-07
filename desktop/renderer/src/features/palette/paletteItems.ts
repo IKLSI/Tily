@@ -1,7 +1,7 @@
 import { longestWaitingFirst, waitedFor, waitingPanes } from '../agents/agentSummary'
 import { bridge } from '../../bridge/bridge'
 import type { GitContext, ShellProfile } from '../../bridge/messages'
-import { BrowserPlacement, openBrowser } from '../browser/browserActions'
+import { BrowserPlacement, openBrowser, openDevServer } from '../browser/browserActions'
 import { Command, revealWorkspacePanel, runCommand } from '../keyboard/shortcuts'
 import { DEFAULT_FONT_SIZE, MAX_FONT_SIZE, MIN_FONT_SIZE } from '../../model/appearance'
 import { activePane, activeTab, activeWorkspace, distinctWorkspaceName, FAVORITES_MAX, folderName, isLeaf, panesOf, RightPanelView, type Pane, type Session, type Tab, type Workspace } from '../../model/session'
@@ -18,6 +18,7 @@ import { RenameOrigin, useUiStore } from '../../stores/uiStore'
 import { closeOtherTabsKeepingText, closeTabKeepingText, closeTabsToRightKeepingText, closeWorkspaceKeepingText, duplicateTabKeepingLayout, movePaneToTab, restoreClosedTab, restoreClosedTabAt } from '../terminal/tabLifecycle'
 import { clearPaneScrollback, copyLastCommandOutput, joinPane } from '../terminal/terminalActions'
 import { terminalRegistry } from '../terminal/terminalRegistry'
+import { usePaneStore } from '../terminal/paneStore'
 import { OpenTarget } from '../../bridge/messages'
 import { copyPaneBranch, copyPanePath, openPaneFolder } from '../terminal/contextActions'
 import { WorktreePickerKind } from '../worktrees/worktreeStore'
@@ -111,11 +112,13 @@ const commandItems = (session: Session, shells: ShellProfile[]): PaletteItem[] =
   }
   if (tab) {
     const paneId = tab.active
+    const devServer = usePaneStore.getState().devServers[paneId]
     items.push(
       command('copy-path', 'Copier le chemin du pane actif', () => copyPanePath(paneId)),
       command('previous-command', 'Remonter à la commande précédente du pane actif', () => runCommand(Command.PreviousCommand), 'Alt + PgUp'),
       command('next-command', 'Descendre à la commande suivante du pane actif', () => runCommand(Command.NextCommand), 'Alt + PgDn'),
       command('copy-last-output', 'Copier la sortie de la dernière commande du pane actif', () => copyLastCommandOutput(paneId)),
+      ...(devServer ? [command('open-dev-server', `Ouvrir le serveur de dev dans un navigateur${SEPARATOR}${devServer}`, () => openDevServer(paneId, devServer))] : []),
       command('clear-scrollback', 'Effacer l’historique de défilement du pane actif', () => clearPaneScrollback(paneId)),
       command('open-file', 'Ouvrir un fichier du projet…', openFilePicker),
       command('open-editor', 'Ouvrir le dossier du pane actif dans l’éditeur', () => openPaneFolder(paneId, OpenTarget.Editor)),

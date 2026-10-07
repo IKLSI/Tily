@@ -17,6 +17,7 @@ public sealed class TerminalSession : IDisposable
 
     private readonly UnixPty _pty;
     private readonly OscCwdParser _cwdParser = new();
+    private readonly DevServerUrlDetector _devServerDetector = new();
     private readonly Thread _readerThread;
     private readonly Thread _exitThread;
     private readonly Thread _writerThread;
@@ -35,6 +36,7 @@ public sealed class TerminalSession : IDisposable
 
     public event Action<ReadOnlyMemory<byte>>? OutputReceived;
     public event Action<string>? CurrentDirectoryChanged;
+    public event Action<string>? DevServerDetected;
     public event Action<uint>? Exited;
 
     public TerminalSession(TerminalSessionOptions options)
@@ -42,6 +44,7 @@ public sealed class TerminalSession : IDisposable
         PaneId = options.PaneId;
         _pty = UnixPty.Start(options.Executable, options.Arguments, options.WorkingDirectory ?? Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), BuildEnvironment(options), options.Columns, options.Rows);
         _cwdParser.CurrentDirectoryChanged += HandleCurrentDirectoryChanged;
+        _devServerDetector.Detected += url => DevServerDetected?.Invoke(url);
         _readerThread = new Thread(ReadLoop) { IsBackground = true, Name = $"pty-reader-{PaneId}" };
         _readerThread.Start();
         _exitThread = new Thread(WaitForExit) { IsBackground = true, Name = $"pty-exit-{PaneId}" };
@@ -224,6 +227,7 @@ public sealed class TerminalSession : IDisposable
 
                 var chunk = buffer.AsMemory(0, (int)count);
                 _cwdParser.Feed(chunk.Span);
+                _devServerDetector.Feed(chunk.Span);
                 OutputReceived?.Invoke(chunk);
             }
         }

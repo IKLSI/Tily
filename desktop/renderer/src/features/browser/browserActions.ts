@@ -1,7 +1,7 @@
 import { bridge } from '../../bridge/bridge'
 import type { BrowserState } from '../../bridge/browserMessages'
 import { BLANK_PAGE, BrowserViewport } from '../../model/browser'
-import { activePane, activeTab, activeWorkspace, createBrowserPane, findPane, SplitAxis } from '../../model/session'
+import { activePane, activeTab, activeWorkspace, createBrowserPane, findPane, isBrowserPane, panesOf, SplitAxis } from '../../model/session'
 import { useBrowserStore } from './browserStore'
 import { StatusLevel, useHostStore } from '../../stores/hostStore'
 import { useSessionStore } from '../../stores/sessionStore'
@@ -61,6 +61,28 @@ export const receiveNewBrowserPane = (paneId: string, url: string): void => {
   const source = store.session ? findPane(store.session, paneId) : undefined
   if (source) {
     store.insertPaneBeside(paneId, SplitAxis.Horizontal, createBrowserPane(source.path, source.shell, url, source.viewport))
+  }
+}
+
+const originOf = (url: string | undefined): string | null => {
+  try {
+    return url ? new URL(url).origin : null
+  } catch {
+    return null
+  }
+}
+
+export const openDevServer = (paneId: string, url: string): void => {
+  const store = useSessionStore.getState()
+  if (!store.session) {
+    return
+  }
+  const tab = store.session.workspaces.flatMap((workspace) => workspace.tabs).find((candidate) => panesOf(candidate.tree).some((pane) => pane.id === paneId))
+  const existing = tab ? panesOf(tab.tree).find((pane) => isBrowserPane(pane) && originOf(pane.url) === originOf(url)) : undefined
+  if (existing) {
+    store.selectPane(existing.id)
+  } else {
+    receiveNewBrowserPane(paneId, url)
   }
 }
 
