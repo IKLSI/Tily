@@ -28,7 +28,6 @@ export interface WorktreeRemovalPane {
 export interface WorktreeFailure {
   message: string
   output?: string
-  lockedBy?: string[]
 }
 
 export interface WorktreeTask {

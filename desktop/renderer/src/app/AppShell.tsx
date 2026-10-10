@@ -35,12 +35,9 @@ import { DeleteConfirmDialog } from '../components/DeleteConfirmDialog'
 import { ErrorBoundary } from '../components/ErrorBoundary'
 import { recoverFromDialogError } from './dialogRecovery'
 import { EmptyState } from './EmptyState'
-import { GitConfirmDialog } from '../features/git/components/GitConfirmDialog'
-import { GitContextMenu } from '../features/git/components/GitContextMenu'
 import { LazyFilePreview } from '../features/preview/components/LazyFilePreview'
 import { UnsavedPreviewDialog } from '../features/preview/components/UnsavedPreviewDialog'
-import { GitDiffDrawer } from '../features/git/components/GitDiffDrawer'
-import { GitGraphView } from '../features/git/components/GitGraphView'
+import { GitConfirmDialog, GitContextMenu, GitDiffDrawer, GitGraphView } from './lazyViews'
 import { Header } from './Header'
 import { HeaderWorkspaces } from '../features/workspaces/components/HeaderWorkspaces'
 import { FilePicker } from '../features/explorer/components/FilePicker'
@@ -361,10 +358,12 @@ export function AppShell({ session }: AppShellProps) {
             <SplitView key={currentTab.id} node={zoomedPane ? { pane: zoomedPane } : currentTab.tree} zoomed={zoomedPane !== undefined} onToggleZoom={togglePaneZoom} activePaneId={currentTab.active} onFocus={selectPane} onClose={closePaneKeepingText} onSplit={handleSplit} onResize={handleResize} shells={availableShells} onRestart={restartPane} onRestartIn={restartPaneIn} onChangeShell={changePaneShell} onDismissState={dismissPaneState} />
           </ErrorBoundary>
           <ErrorBoundary resetKey={currentTab.id} className={OVERLAY_FALLBACK}>
-            {graphShown && <GitGraphView layout={session.gitGraph} />}
-            {gitShown && <GitDiffDrawer />}
+            <Suspense fallback={null}>
+              {graphShown && <GitGraphView layout={session.gitGraph} />}
+              {gitShown && <GitDiffDrawer />}
+              {gitShown && <GitContextMenu />}
+            </Suspense>
             {filesShown && <LazyFilePreview />}
-            {gitShown && <GitContextMenu />}
           </ErrorBoundary>
         </div>
       </>
@@ -430,7 +429,11 @@ export function AppShell({ session }: AppShellProps) {
         {paletteOpen && <CommandPalette session={session} shells={availableShells} onClose={handleClosePalette} onRun={handleRunPaletteItem} onToggleFavorite={toggleFavoriteCommand} />}
         {deleteRequest && <DeleteConfirmDialog request={deleteRequest} onConfirm={confirmDelete} onCancel={handleCancelDelete} />}
         <WorktreeDialogs />
-        {gitConfirmation && <GitConfirmDialog confirmation={gitConfirmation} onConfirm={handleConfirmGit} onCancel={handleCancelGit} />}
+        {gitConfirmation && (
+          <Suspense fallback={null}>
+            <GitConfirmDialog confirmation={gitConfirmation} onConfirm={handleConfirmGit} onCancel={handleCancelGit} />
+          </Suspense>
+        )}
         {closeConfirmation && <CloseConfirmDialog confirmation={closeConfirmation} onConfirm={confirmClose} onCancel={handleCancelClose} />}
         <PasteConfirmDialog />
         {unsavedPreview && <UnsavedPreviewDialog />}

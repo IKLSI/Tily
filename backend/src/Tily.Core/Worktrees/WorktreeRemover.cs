@@ -84,11 +84,11 @@ public sealed class WorktreeRemover
             }
         }
 
-        throw Locked(target, string.Empty, LockedFolder.LockingProcesses(LockedFolder.SampleFiles(target)));
+        throw Locked(target);
     }
 
-    private static WorktreeException Locked(string target, string output, IReadOnlyList<string> lockedBy) =>
-        new($"Le dossier du worktree est verrouillé : {target}. Fermez les programmes qui l’utilisent (shell ouvert dans le dossier, Visual Studio, dotnet, node…) puis réessayez.", WorktreeSteps.Removal, output, lockedBy);
+    private static WorktreeException Locked(string target) =>
+        new($"Le dossier du worktree est verrouillé : {target}. Fermez les programmes qui l’utilisent (shell ouvert dans le dossier, Visual Studio, dotnet, node…) puis réessayez.", WorktreeSteps.Removal);
 
     private static WorktreeStepModel DeleteBranch(GitRepository main, string? branch, bool keepBranch)
     {

@@ -46,7 +46,7 @@ export const useHostStore = create<HostState>()((set) => ({
   projectsError: null,
   contexts: {},
   unsaved: false,
-  persistence: { textIntervalSeconds: 30, linesPerPane: 10000, maxTextMebibytes: 256 },
+  persistence: { textIntervalSeconds: 30, linesPerPane: 1000, maxTextMebibytes: 256 },
   settingsSnapshot: null,
   pickedPath: null,
   setPickedPath: (pickedPath) => set({ pickedPath }),

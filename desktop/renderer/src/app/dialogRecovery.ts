@@ -13,7 +13,7 @@ import { useUiStore } from '../stores/uiStore'
 
 const DIALOG_ERROR_STATUS = 'Le dialogue a rencontré une erreur et a été fermé.'
 
-export const closeOpenDialogs = (): void => {
+const closeOpenDialogs = (): void => {
   const ui = useUiStore.getState()
   ui.closePalette()
   ui.closeProjectPicker()

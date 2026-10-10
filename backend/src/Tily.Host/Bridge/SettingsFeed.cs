@@ -12,18 +12,16 @@ public sealed class SettingsFeed
     private readonly SettingsService _service;
     private readonly Func<object> _describeAgents;
     private readonly Func<object> _describeMcp;
-    private readonly Func<object> _describeNotifications;
     private readonly Action<SettingsModel> _applied;
     private readonly Action<object> _post;
     private readonly Action<object> _postNow;
 
-    public SettingsFeed(HostLoop loop, string dataDirectory, Func<object> describeAgents, Func<object> describeMcp, Func<object> describeNotifications, Action<SettingsModel> applied, Action<object> post, Action<object> postNow)
+    public SettingsFeed(HostLoop loop, string dataDirectory, Func<object> describeAgents, Func<object> describeMcp, Action<SettingsModel> applied, Action<object> post, Action<object> postNow)
     {
         _loop = loop;
         _service = new SettingsService(dataDirectory);
         _describeAgents = describeAgents;
         _describeMcp = describeMcp;
-        _describeNotifications = describeNotifications;
         _applied = applied;
         _post = post;
         _postNow = postNow;
@@ -76,7 +74,6 @@ public sealed class SettingsFeed
             persistence = Persistence,
             agents = _describeAgents(),
             mcp = _describeMcp(),
-            notifications = _describeNotifications(),
             saved
         });
     }

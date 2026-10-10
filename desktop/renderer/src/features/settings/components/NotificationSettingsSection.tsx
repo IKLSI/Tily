@@ -1,5 +1,5 @@
 import type { ChangeEvent } from 'react'
-import { AttentionKind, type NotificationSettings, type SettingsSnapshot } from '../../../bridge/messages'
+import { AttentionKind, type NotificationSettings } from '../../../bridge/messages'
 import { InfoTip } from '../../../components/InfoTip'
 import { SETTINGS_LABEL, SETTINGS_ROW } from './settingsStyles'
 import { SoundSetting } from './SoundSetting'
@@ -7,14 +7,13 @@ import { SoundSetting } from './SoundSetting'
 interface NotificationSettingsSectionProps {
   sectionClassName: string
   notifications: NotificationSettings
-  availability: SettingsSnapshot['notifications']
   onChange: (patch: Partial<NotificationSettings>) => void
   onPickSound: () => void
   onPickDoneSound: () => void
   onTest: (kind: AttentionKind) => void
 }
 
-export function NotificationSettingsSection({ sectionClassName, notifications, availability, onChange, onPickSound, onPickDoneSound, onTest }: NotificationSettingsSectionProps) {
+export function NotificationSettingsSection({ sectionClassName, notifications, onChange, onPickSound, onPickDoneSound, onTest }: NotificationSettingsSectionProps) {
   const handleSystemNotificationChange = (event: ChangeEvent<HTMLInputElement>) => onChange({ systemNotification: event.target.checked })
   const handleDockBounceChange = (event: ChangeEvent<HTMLInputElement>) => onChange({ dockBounce: event.target.checked })
   const handleNotifyDoneChange = (event: ChangeEvent<HTMLInputElement>) => onChange({ notifyDone: event.target.checked })
@@ -31,12 +30,11 @@ export function NotificationSettingsSection({ sectionClassName, notifications, a
       </div>
       <span className={SETTINGS_ROW}>
         <label className="flex items-center gap-2">
-          <input type="checkbox" checked={notifications.systemNotification} disabled={!availability.toastAvailable} onChange={handleSystemNotificationChange} />
+          <input type="checkbox" checked={notifications.systemNotification} onChange={handleSystemNotificationChange} />
           <span className={SETTINGS_LABEL}>Notification macOS</span>
         </label>
         <InfoTip text="Un clic sur la notification rejoint le terminal de l’agent." />
       </span>
-      {!availability.toastAvailable && <p className="text-[11px] text-tily-warning">{`Notification macOS indisponible. Le son et le rebond de l’icône dans le Dock restent actifs. ${availability.toastError ?? ''}`}</p>}
       <span className={SETTINGS_ROW}>
         <label className="flex items-center gap-2">
           <input type="checkbox" checked={notifications.dockBounce} onChange={handleDockBounceChange} />

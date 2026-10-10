@@ -16,7 +16,6 @@ public sealed class BridgeCommandModel
     public string? Target { get; init; }
     public string? Url { get; init; }
     public string? Href { get; init; }
-    public string? Field { get; init; }
     public string? Title { get; init; }
     public string? Body { get; init; }
     public string? Location { get; init; }

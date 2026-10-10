@@ -1,5 +1,4 @@
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using Tily.Core.Session;
 
 namespace Tily.Core.Agents;
@@ -13,20 +12,6 @@ public sealed record NotificationSettingsModel(bool SystemNotification = true, s
     public static readonly NotificationSettingsModel Default = new(true, DefaultSound, true);
 
     public static readonly IReadOnlyList<string> SoundFileExtensions = [".aiff", ".aif", ".wav", ".mp3"];
-
-    [JsonPropertyName("windowsToast"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public bool? LegacyWindowsToast
-    {
-        get => null;
-        init => SystemNotification = value ?? SystemNotification;
-    }
-
-    [JsonPropertyName("taskbarFlash"), JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public bool? LegacyTaskbarFlash
-    {
-        get => null;
-        init => DockBounce = value ?? DockBounce;
-    }
 
     public bool UsesFile => IsSoundFilePath(Sound);
 

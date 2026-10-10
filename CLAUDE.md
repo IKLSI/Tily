@@ -28,7 +28,7 @@ cd desktop && pnpm build && pnpm start # compile le processus principal Electron
 
 `pnpm start` utilise l'hôte de `backend/src/Tily.Host/bin/Debug/net10.0/Tily` et l'interface de `desktop/renderer/dist` ; `TILY_BACKEND=<chemin>` remplace l'exécutable de l'hôte, `TILY_RENDERER_DEV_URL=http://localhost:5173` charge le serveur Vite.
 
-Toujours lancer `pnpm lint` et `pnpm build` (qui exécute `tsc -b`) dans `desktop/renderer/`, `pnpm build` dans `desktop/` et `dotnet test` (sur un Mac ou en CI) avant de committer. Sous Windows, le code compile mais la plupart des tests échouent (chemins POSIX, `/bin/zsh`, libc).
+Toujours lancer `pnpm lint` et `pnpm build` (qui exécute `tsc -b`) dans `desktop/renderer/`, `pnpm build` dans `desktop/` et `dotnet test` (sur un Mac ou en CI) avant de committer.
 
 `TILY_DATA_DIR` remplace le dossier de données `~/Library/Application Support/Tily` (session, préférences, états d'agents, intégration des shells) : l'utiliser pour lancer une instance isolée sans toucher à la session de l'utilisateur.
 

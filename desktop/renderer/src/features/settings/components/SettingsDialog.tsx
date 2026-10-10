@@ -218,7 +218,7 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
           <InfoTip text="Lance git fetch --all à l’ouverture de la vue Git et quand le pane actif passe à un autre dépôt, au plus une fois toutes les 5 minutes par dépôt. Un échec (hors ligne, authentification) reste silencieux." />
         </span>
       </section>
-      <NotificationSettingsSection sectionClassName={SECTION} notifications={settings.notifications} availability={current.notifications} onChange={updateNotifications} onPickSound={handlePickSound} onPickDoneSound={handlePickDoneSound} onTest={handleTestNotification} />
+      <NotificationSettingsSection sectionClassName={SECTION} notifications={settings.notifications} onChange={updateNotifications} onPickSound={handlePickSound} onPickDoneSound={handlePickDoneSound} onTest={handleTestNotification} />
       <AgentSettingsSection sectionClassName={SECTION} agents={current.agents} onInstallHooks={onInstallHooks} onRemoveHooks={onRemoveHooks} />
       <McpSettingsSection sectionClassName={SECTION} mcp={current.mcp} />
       <UpdateSettingsSection sectionClassName={SECTION} autoCheck={settings.updates.autoCheck} onAutoCheckChange={handleAutoCheckChange} />

@@ -8,20 +8,11 @@
 # Tooling and dependencies
 node_modules/
 dist/
-build/
-.codex/
-.agents/
 .DS_Store
-Thumbs.db
 *.log
 
-# Machine-local session data
-tily-configuration.json
-session*.json
-
-# Application Tily (socle)
-backend/src/**/bin/
-backend/src/**/obj/
-backend/tests/**/bin/
-backend/tests/**/obj/
-publish/
+# Build outputs
+backend/**/bin/
+backend/**/obj/
+backend/publish/
+desktop/release/

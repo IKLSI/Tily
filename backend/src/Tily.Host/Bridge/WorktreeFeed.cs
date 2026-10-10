@@ -189,8 +189,7 @@ public sealed class WorktreeFeed
                 operation,
                 step = failure.Step,
                 message = failure.Message,
-                output = failure.Output.Length > 0 ? failure.Output : null,
-                lockedBy = failure.LockedBy.Count > 0 ? failure.LockedBy : null
+                output = failure.Output.Length > 0 ? failure.Output : null
             });
         }
         catch (Exception exception) when (exception is GitCommandException or IOException or UnauthorizedAccessException)

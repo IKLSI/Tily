@@ -1,8 +1,7 @@
-import { memo } from 'react'
+import { memo, Suspense } from 'react'
 import { RightPanelView } from '../../../model/session'
 import { showPanelView } from '../rightPanel'
-import { FileExplorer } from '../../explorer/components/FileExplorer'
-import { GitPanel } from '../../git/components/GitPanel'
+import { FileExplorer, GitPanel } from '../../../app/lazyViews'
 import { Icon } from '../../../components/Icon'
 import { IconName } from '../../../components/iconName'
 import { PANEL_HEADER_BUTTON } from './rightPanelStyles'
@@ -58,7 +57,7 @@ export const RightPanel = memo(function RightPanel({ view, root, width, onClose,
           <Icon name={IconName.Close} />
         </button>
       </div>
-      {viewContent(view, root, onOpenTerminal)}
+      <Suspense fallback={null}>{viewContent(view, root, onOpenTerminal)}</Suspense>
     </aside>
   )
 })

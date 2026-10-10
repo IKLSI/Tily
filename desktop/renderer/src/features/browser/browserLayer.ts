@@ -1,7 +1,7 @@
 import { bridge } from '../../bridge/bridge'
 import { DIRECT_LETTER_KEYS } from '../keyboard/commands'
 import { BLANK_PAGE, BrowserViewport } from '../../model/browser'
-import { activeTab, activeWorkspace, findPane } from '../../model/session'
+import { activeTab, activeWorkspace, findPane, isBrowserPane, panesOf, type Session } from '../../model/session'
 import { useBrowserStore } from './browserStore'
 import { useHostStore } from '../../stores/hostStore'
 import { useSessionStore } from '../../stores/sessionStore'
@@ -26,6 +26,9 @@ interface Snapshot {
 }
 
 const slots = new Map<string, BrowserSlot>()
+
+const hasBrowserPane = (session: Session | null): boolean =>
+  session?.workspaces.some((workspace) => workspace.tabs.some((tab) => panesOf(tab.tree).some(isBrowserPane))) ?? false
 
 const intersects = (a: DOMRect, b: DOMRect): boolean => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom
 
@@ -175,11 +178,23 @@ export const disposeMissingBrowsers = (livePaneIds: Set<string>): void => {
 
 export const startBrowserLayer = (): (() => void) => {
   let handle = 0
+  let browsers = false
   const loop = () => {
     frame()
-    handle = requestAnimationFrame(loop)
+    handle = browsers || slots.size > 0 ? requestAnimationFrame(loop) : 0
   }
-  handle = requestAnimationFrame(loop)
+  const follow = (session: Session | null) => {
+    browsers = hasBrowserPane(session)
+    if (browsers && handle === 0) {
+      handle = requestAnimationFrame(loop)
+    }
+  }
+  follow(useSessionStore.getState().session)
+  const stopSession = useSessionStore.subscribe((state, previous) => {
+    if (state.session !== previous.session) {
+      follow(state.session)
+    }
+  })
   const stopLeader = useHostStore.subscribe((state, previous) => {
     if (previous.leaderActive && !state.leaderActive) {
       restoreBrowserFocus()
@@ -187,6 +202,7 @@ export const startBrowserLayer = (): (() => void) => {
   })
   return () => {
     cancelAnimationFrame(handle)
+    stopSession()
     stopLeader()
   }
 }

@@ -31,10 +31,10 @@ export const receiveWorktreeDone = (request: number | undefined, message: string
   useHostStore.getState().setStatus(warned ? `${message} ${warnings.join(' ')}` : message, warned ? StatusLevel.Warning : StatusLevel.Info)
 }
 
-export const receiveWorktreeFailed = (request: number | undefined, operation: WorktreeOperation, message: string, output: string | undefined, lockedBy: string[] | undefined): void => {
+export const receiveWorktreeFailed = (request: number | undefined, operation: WorktreeOperation, message: string, output: string | undefined): void => {
   const store = useWorktreeStore.getState()
   const task = store.takeTask(request)
-  const failure = { message, output, lockedBy }
+  const failure = { message, output }
   if (task?.removal && !store.removal) {
     store.setRemoval({ ...task.removal, failure })
   } else if (operation === WorktreeOperation.Create && task?.fromDialog && store.draft) {

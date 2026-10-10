@@ -51,19 +51,6 @@ public sealed class SessionRepositoryTests : IDisposable
     }
 
     [Fact]
-    public void Save_WhenClosedTabHasNoText_ThenWritesNoTextInTheSession()
-    {
-        var repository = new SessionRepository(_directory);
-        var session = SessionFactory.Initial();
-        session.Closed.Add(new ClosedTabModel { WorkspaceId = session.Active, WorkspaceName = "Général", Tab = SessionFactory.Tab("/Users/moi", "zsh") });
-
-        var saved = repository.Save(session);
-
-        Assert.True(saved.IsValid);
-        Assert.DoesNotContain("\"text\"", File.ReadAllText(repository.FilePath));
-    }
-
-    [Fact]
     public void Save_WhenInvalid_ThenRefusesAndKeepsPreviousFile()
     {
         var repository = new SessionRepository(_directory);

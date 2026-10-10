@@ -111,13 +111,12 @@ public sealed class TerminalFeed : IDisposable
     private void ReceiveDrop(BridgeCommandModel command)
     {
         var paths = (command.Paths ?? []).Where(path => Path.IsPathFullyQualified(path) && !path.Any(char.IsControl)).ToList();
-        _post(new { type = "terminal.dropped", pane = RequirePane(command), text = DroppedPaths.Format(paths, command.Shell ?? ShellCatalog.DefaultShellId) });
+        _post(new { type = "terminal.dropped", pane = RequirePane(command), text = DroppedPaths.Format(paths) });
     }
 
     private void SaveDroppedFile(BridgeCommandModel command)
     {
         var paneId = RequirePane(command);
-        var shellId = command.Shell ?? ShellCatalog.DefaultShellId;
         var name = command.Name ?? string.Empty;
         var data = command.Data ?? string.Empty;
         _queries.Enqueue(() =>
@@ -125,7 +124,7 @@ public sealed class TerminalFeed : IDisposable
             try
             {
                 var path = DroppedFiles.Default.Save(name, Convert.FromBase64String(data));
-                _post(new { type = "terminal.dropped", pane = paneId, text = DroppedPaths.Format([path], shellId) });
+                _post(new { type = "terminal.dropped", pane = paneId, text = DroppedPaths.Format([path]) });
             }
             catch (FormatException)
             {
@@ -141,7 +140,6 @@ public sealed class TerminalFeed : IDisposable
     private void PostDroppedPath(BridgeCommandModel command)
     {
         var paneId = RequirePane(command);
-        var shellId = command.Shell ?? ShellCatalog.DefaultShellId;
         if (command.Path is not { } path || path.Any(char.IsControl) || !Path.IsPathFullyQualified(path))
         {
             _post(new { type = "error", message = InvalidDroppedPath });
@@ -152,7 +150,7 @@ public sealed class TerminalFeed : IDisposable
         {
             if (File.Exists(path) || Directory.Exists(path))
             {
-                _post(new { type = "terminal.dropped", pane = paneId, text = DroppedPaths.Format([path], shellId) });
+                _post(new { type = "terminal.dropped", pane = paneId, text = DroppedPaths.Format([path]) });
             }
             else
             {

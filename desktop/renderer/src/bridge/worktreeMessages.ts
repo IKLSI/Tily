@@ -58,7 +58,7 @@ export type WorktreeHostMessage =
   | { type: 'worktrees.progress'; request?: number; operation: WorktreeOperation; message: string }
   | { type: 'worktrees.created'; request?: number; path: string; name: string; branch: string; install?: string }
   | { type: 'worktrees.done'; request?: number; operation: WorktreeOperation; message: string; warnings: string[] }
-  | { type: 'worktrees.failed'; request?: number; operation: WorktreeOperation; step: string; message: string; output?: string; lockedBy?: string[] }
+  | { type: 'worktrees.failed'; request?: number; operation: WorktreeOperation; step: string; message: string; output?: string }
   | { type: 'worktrees.purging'; name: string; files: number; elapsedMs: number }
   | { type: 'worktrees.purged'; names: string[]; files: number; elapsedMs: number; remaining: string[] }
 

@@ -5,6 +5,7 @@ import { bridge } from '../bridge/bridge'
 import { receiveBrowserFailure, receiveBrowserFocused, receiveBrowserState, receiveNewBrowserPane } from '../features/browser/browserActions'
 import { receiveBrowserKey } from '../features/browser/browserKeys'
 import { disposeMissingBrowsers, startBrowserLayer } from '../features/browser/browserLayer'
+import { preloadViews } from './lazyViews'
 import { dispatchReply } from '../bridge/requestListeners'
 import { AppShell } from './AppShell'
 import { ErrorBoundary } from '../components/ErrorBoundary'
@@ -61,6 +62,7 @@ export default function App() {
     const stopStatusLog = startStatusLog()
     const stopDeferredPreviews = startDeferredPreviews()
     const stopBrowserLayer = startBrowserLayer()
+    const stopPreload = preloadViews()
     const { markFailed, markExited, markPathMissing, markAlive, showDevServer, clearDevServer } = usePaneStore.getState()
     const subscriptions = [
       bridge.on('app.hello', (message) => {
@@ -90,7 +92,7 @@ export default function App() {
         setStatus(`Taille du texte des terminaux : ${message.fontSize} px`)
       }),
       bridge.on('settings.result', (message) => {
-        applySettings({ settings: message.settings, shellSettings: message.shellSettings, files: message.files, warnings: message.warnings, agents: message.agents, mcp: message.mcp, notifications: message.notifications }, message.shells, message.persistence)
+        applySettings({ settings: message.settings, shellSettings: message.shellSettings, files: message.files, warnings: message.warnings, agents: message.agents, mcp: message.mcp }, message.shells, message.persistence)
         if (!message.saved) {
           return
         }
@@ -177,7 +179,7 @@ export default function App() {
       }),
       bridge.on('worktrees.failed', (message) => {
         dispatchReply(message.type, message.request, message)
-        receiveWorktreeFailed(message.request, message.operation, message.message, message.output, message.lockedBy)
+        receiveWorktreeFailed(message.request, message.operation, message.message, message.output)
       }),
       bridge.on('worktrees.purging', (message) => receiveWorktreePurging(message.name, message.files, message.elapsedMs)),
       bridge.on('worktrees.purged', (message) => receiveWorktreePurged(message.names, message.files, message.elapsedMs, message.remaining)),
@@ -215,6 +217,7 @@ export default function App() {
       stopStatusLog()
       stopDeferredPreviews()
       stopBrowserLayer()
+      stopPreload()
       stopAutosave?.()
       subscriptions.forEach((unsubscribe) => unsubscribe())
     }

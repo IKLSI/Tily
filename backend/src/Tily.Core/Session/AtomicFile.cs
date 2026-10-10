@@ -18,7 +18,7 @@ public static class AtomicFile
                 stream.Flush(true);
             }
 
-            if (mode is { } unixMode && !OperatingSystem.IsWindows())
+            if (mode is { } unixMode)
             {
                 File.SetUnixFileMode(temporaryPath, unixMode);
             }
@@ -51,7 +51,7 @@ public static class AtomicFile
 
     private static UnixFileMode? ExistingMode(string filePath)
     {
-        if (OperatingSystem.IsWindows() || !File.Exists(filePath))
+        if (!File.Exists(filePath))
         {
             return null;
         }

@@ -537,7 +537,7 @@ Le texte restauré est accompagné d’un séparateur explicite, par exemple « 
 - Si les données sont corrompues, conserver le fichier fautif pour récupération et ouvrir une session de secours plutôt que l’écraser silencieusement. chaque enregistrement garde le précédent dans `session.previous.json` ; si `session.json` est illisible (par exemple vidé par une coupure de courant), cet avant-dernier enregistrement est restauré s’il est valide, sinon la session initiale ; les fichiers sont écrits sur le disque avant d’être renommés.
 - Si un dossier a disparu, conserver le pane et demander ou proposer un dossier de repli avec indication locale.
 
-**Décisions prises.** La valeur par défaut est de 10 000 lignes conservées par pane et de 256 Mio pour l’historique global ; ces deux limites sont configurables. Sauvegarder le texte toutes les 30 secondes, fréquence configurable. Conserver cinq onglets fermés restaurables et leur historique après redémarrage. À la fermeture d’un pane, d’un onglet, d’un workspace ou de l’application, utiliser l’arrêt forcé ; demander une confirmation si un serveur, un agent ou un programme est encore actif, puis arrêter tous les processus concernés.
+**Décisions prises.** La valeur par défaut est de 1 000 lignes conservées par pane et de 256 Mio pour l’historique global ; ces deux limites sont configurables. Sauvegarder le texte toutes les 30 secondes, fréquence configurable. Conserver cinq onglets fermés restaurables et leur historique après redémarrage. À la fermeture d’un pane, d’un onglet, d’un workspace ou de l’application, utiliser l’arrêt forcé ; demander une confirmation si un serveur, un agent ou un programme est encore actif, puis arrêter tous les processus concernés.
 
 ## 13. Configuration exportable
 

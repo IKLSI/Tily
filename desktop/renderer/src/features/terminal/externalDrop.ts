@@ -1,7 +1,5 @@
 import { bridge } from '../../bridge/bridge'
-import { allPanes, DEFAULT_SHELL } from '../../model/session'
 import { usePaneStore } from './paneStore'
-import { useSessionStore } from '../../stores/sessionStore'
 
 export const TREE_PATH_TYPE = 'application/x-tily-path'
 const FILES_TYPE = 'Files'
@@ -34,16 +32,11 @@ const openPaneIdUnder = (event: DragEvent): string | undefined => {
   return paneId && acceptsInput(paneId) ? paneId : undefined
 }
 
-const shellOf = (paneId: string): string => {
-  const { session } = useSessionStore.getState()
-  return (session ? allPanes(session).find((pane) => pane.id === paneId)?.shell : undefined) ?? DEFAULT_SHELL
-}
-
 export const insertPathIntoPane = (paneId: string, path: string): boolean => {
   if (!acceptsInput(paneId)) {
     return false
   }
-  bridge.send({ type: 'terminal.dropPath', pane: paneId, shell: shellOf(paneId), path })
+  bridge.send({ type: 'terminal.dropPath', pane: paneId, path })
   return true
 }
 
@@ -51,7 +44,7 @@ const sendFileContent = (paneId: string, file: File): void => {
   const reader = new FileReader()
   reader.onload = () => {
     const dataUrl = reader.result as string
-    bridge.send({ type: 'terminal.dropFile', pane: paneId, shell: shellOf(paneId), name: file.name, data: dataUrl.slice(dataUrl.indexOf(',') + 1) })
+    bridge.send({ type: 'terminal.dropFile', pane: paneId, name: file.name, data: dataUrl.slice(dataUrl.indexOf(',') + 1) })
   }
   reader.readAsDataURL(file)
 }
@@ -79,7 +72,7 @@ const handleDrop = (event: DragEvent): void => {
   } else if (paneId && files.length > 0) {
     const paths = bridge.pathsOf(files)
     if (paths.length > 0) {
-      bridge.send({ type: 'terminal.drop', pane: paneId, shell: shellOf(paneId), paths })
+      bridge.send({ type: 'terminal.drop', pane: paneId, paths })
     }
     files.filter((file) => bridge.pathsOf([file]).length === 0).forEach((file) => sendFileContent(paneId, file))
   }

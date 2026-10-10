@@ -45,7 +45,7 @@ public sealed class HostBridge : IDisposable
         _send = send;
         _writes = new BackgroundQueue(PostBackgroundError);
         _queries = new BackgroundQueue(PostBackgroundError);
-        _settings = new SettingsFeed(loop, dataDirectory, DescribeAgents, DescribeMcp, DescribeNotifications, ApplySettings, Post, PostNow);
+        _settings = new SettingsFeed(loop, dataDirectory, DescribeAgents, DescribeMcp, ApplySettings, Post, PostNow);
         _statusLog = new StatusLogFeed(dataDirectory, _writes, Post);
         _session = new SessionFeed(dataDirectory, ApplicationVersion, _settings, _statusLog, _writes, Post);
         _terminals = new TerminalManager(integrationDirectory: Path.Combine(dataDirectory, ShellIntegrationFolder));
@@ -268,8 +268,6 @@ public sealed class HostBridge : IDisposable
     private object DescribeAgents() => _agents.Describe();
 
     private object DescribeMcp() => _mcp.Describe();
-
-    private object DescribeNotifications() => _notifier.Describe();
 
     private void ListProjects(SettingsModel settings)
     {

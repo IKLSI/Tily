@@ -64,17 +64,6 @@ public sealed class SettingsServiceTests : IDisposable
     }
 
     [Fact]
-    public void Load_WhenNotificationFileUsesFormerKeys_ThenKeepsTheirValues()
-    {
-        var service = new SettingsService(_directory);
-        File.WriteAllText(Path.Combine(_directory, NotificationSettingsRepository.FileName), "{ \"windowsToast\": false, \"sound\": \"Ping\", \"taskbarFlash\": false }");
-
-        var settings = service.Load();
-
-        Assert.Equal(new NotificationSettingsModel(false, "Ping", false), settings.Notifications);
-    }
-
-    [Fact]
     public void Load_WhenNotificationFlagsMissing_ThenBothEnabled()
     {
         var service = new SettingsService(_directory);
@@ -87,7 +76,7 @@ public sealed class SettingsServiceTests : IDisposable
     }
 
     [Fact]
-    public void Save_WhenNotificationsSaved_ThenWritesOnlyNewKeys()
+    public void Save_WhenNotificationsSaved_ThenWritesTheirValues()
     {
         var service = new SettingsService(_directory);
         var settings = service.Load();
@@ -99,8 +88,6 @@ public sealed class SettingsServiceTests : IDisposable
 
         Assert.Contains("\"systemNotification\": false", written);
         Assert.Contains("\"dockBounce\": false", written);
-        Assert.DoesNotContain("windowsToast", written);
-        Assert.DoesNotContain("taskbarFlash", written);
     }
 
     [Fact]

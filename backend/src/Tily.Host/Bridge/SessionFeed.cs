@@ -52,9 +52,8 @@ public sealed class SessionFeed
     {
         var loaded = _sessions.Load();
         var session = loaded.Session ?? SessionFactory.Initial();
-        _texts.MoveClosedTabText(session);
         var text = _texts.Load();
-        var recovery = string.Join(" ", new[] { loaded.Error, text.Error, _statusLog.LoadError }.Where(error => error is not null));
+        var recovery = string.Join(" ", new[] { loaded.Error, _statusLog.LoadError }.Where(error => error is not null));
         _post(new
         {
             type = "app.hello",
@@ -62,7 +61,7 @@ public sealed class SessionFeed
             session,
             shells = ShellCatalog.Profiles(_settings.ShellPaths),
             home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
-            text = text.Text,
+            text,
             persistence = _settings.Persistence,
             appearance = _settings.Current.Appearance,
             statusLog = _statusLog.Entries(),

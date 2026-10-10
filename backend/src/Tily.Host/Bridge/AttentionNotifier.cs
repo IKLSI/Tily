@@ -10,8 +10,6 @@ public sealed class AttentionNotifier
 
     public bool WindowActive { get; set; } = true;
 
-    public object Describe() => new { toastAvailable = true, toastError = (string?)null };
-
     public void Notify(string paneId, IEnumerable<string?> lines, string sound, NotificationSettingsModel settings, bool force)
     {
         if (WindowActive && !force)

@@ -33,7 +33,6 @@ public sealed class ClosedTabModel
     public string WorkspaceName { get; set; } = string.Empty;
     public int Index { get; set; }
     public TabModel Tab { get; set; } = new();
-    public Dictionary<string, string>? Text { get; set; }
     public string? WorkspaceNote { get; set; }
 }
 
@@ -105,7 +104,6 @@ public static class SessionLimits
     public const int DefaultGitAuthorWidth = 130;
     public const int DefaultGitDateWidth = 120;
     public const int MaxClosedTabs = 5;
-    public const int MaxClosedTextChars = 2_000_000;
     public const int MaxFavorites = 50;
     public const int MaxFavoriteLength = 100;
     public const int MaxNoteChars = 100_000;

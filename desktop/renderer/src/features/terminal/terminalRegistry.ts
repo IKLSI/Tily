@@ -18,7 +18,8 @@ const MAX_WEBGL_CONTEXTS = 14
 const STABLE_CHUNK_LINES = 1000
 const CHUNK_SEPARATOR = '\x1b[0m\r\n'
 const SNAPSHOT_SCROLLBACK_LINES = 2000
-const DEFAULT_SCROLLBACK_LINES = 10000
+const DEFAULT_SCROLLBACK_LINES = 1000
+const SCROLL_SENSITIVITY = 2
 const NEWLINE = String.fromCharCode(13, 10)
 const ERASE_SCROLLBACK = '\x1b[3J'
 const CURSOR_HOME = '\x1b[H'
@@ -188,6 +189,7 @@ const createHandle = (pane: Pane): TerminalHandle => {
     fontFamily: fontStack(fontFamily),
     fontSize,
     scrollback: scrollbackLines,
+    scrollSensitivity: SCROLL_SENSITIVITY,
     theme: { background: '#121416', foreground: '#cdd1cd', cursor: '#8fb39f', selectionBackground: '#7a9f8b40', scrollbarSliderBackground: '#3d4346', scrollbarSliderHoverBackground: '#555e61', scrollbarSliderActiveBackground: '#555e61' },
     linkHandler: { activate: openLinkOnCtrlClick, allowNonHttpProtocols: true },
   })

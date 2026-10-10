@@ -1,6 +1,6 @@
 # Tests backend (xUnit)
 
-Projet : `backend/tests/Tily.Core.Tests`. Lancer avec `dotnet test backend/Tily.slnx` **sur macOS** (poste de développement ou CI `.github/workflows/macos.yml` sur `macos-latest`) : le code appelle libc et libproc, lance de vrais `/bin/zsh` et `/bin/bash` et suppose des chemins POSIX. Sous Windows, la solution compile mais la plupart des tests échouent. Le projet référence `Tily.Pty` pour que `tily-pty` soit copié à côté des tests, et `Tily.Host` pour tester les classes du pont (`Bridge/`).
+Projet : `backend/tests/Tily.Core.Tests`. Lancer avec `dotnet test backend/Tily.slnx` **sur macOS** (poste de développement ou CI `.github/workflows/macos.yml` sur `macos-latest`) : le code appelle libc et libproc, lance de vrais `/bin/zsh` et `/bin/bash` et suppose des chemins POSIX. Le projet référence `Tily.Pty` pour que `tily-pty` soit copié à côté des tests, et `Tily.Host` pour tester les classes du pont (`Bridge/`).
 
 ## Organisation
 
