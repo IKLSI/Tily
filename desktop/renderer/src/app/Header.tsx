@@ -35,11 +35,11 @@ export const Header = memo(function Header({ workspaceName, renaming, sidebarCol
       <div className="flex min-w-0 items-baseline gap-4">
         {!navigation &&
           (workspaceName === null ? (
-            <span className="text-[16px] text-tily-muted">Aucun workspace</span>
+            <span className="text-[15px] text-tily-muted">Aucun workspace</span>
           ) : renaming ? (
-            <InlineNameEditor value={workspaceName} label="Nom du workspace" className="w-64 text-[16px]" onCommit={onCommitRename} onCancel={onCancelRename} />
+            <InlineNameEditor value={workspaceName} label="Nom du workspace" className="w-64 text-[15px]" onCommit={onCommitRename} onCancel={onCancelRename} />
           ) : (
-            <EditableName name={workspaceName} className="text-[16px]" onClick={onStartRename} />
+            <EditableName name={workspaceName} className="text-[15px]" onClick={onStartRename} />
           ))}
       </div>
       {navigation && <div className={leaderActive ? 'hidden' : 'contents'}>{navigation}</div>}

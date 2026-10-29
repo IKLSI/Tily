@@ -84,7 +84,7 @@ export function GitRefRow({ rowKey, icon, name, meta, metaTip, tip, current = fa
       {pending ? <Spinner className="text-tily-green" /> : <Icon name={icon} className="shrink-0 text-tily-muted" />}
       <span className={`min-w-0 flex-1 truncate ${current ? 'font-semibold' : ''}`}>{name}</span>
       {meta && (
-        <span className="shrink-0 font-mono text-[11px] text-tily-muted" data-tip={metaTip}>
+        <span className="shrink-0 text-[11px] text-tily-muted" data-tip={metaTip}>
           {meta}
         </span>
       )}

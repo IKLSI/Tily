@@ -56,7 +56,7 @@ export function GitCommitSummary({ details, error, selected, stash }: GitCommitS
         onClick={handleSelect}
       >
         <span className="flex min-w-0 flex-1 items-baseline gap-[6px]">
-          <span className={`w-[12px] shrink-0 text-center font-mono text-[11px] font-semibold ${CHANGE_CLASSES[change.kind]}`} data-tip={change.oldPath ? `${CHANGE_LABELS[change.kind]} depuis ${change.oldPath}` : CHANGE_LABELS[change.kind]}>
+          <span className={`w-[12px] shrink-0 text-center text-[11px] font-semibold ${CHANGE_CLASSES[change.kind]}`} data-tip={change.oldPath ? `${CHANGE_LABELS[change.kind]} depuis ${change.oldPath}` : CHANGE_LABELS[change.kind]}>
             {CHANGE_LETTERS[change.kind]}
           </span>
           <span className="min-w-0 shrink truncate">{fileName(change.path)}</span>
@@ -69,10 +69,10 @@ export function GitCommitSummary({ details, error, selected, stash }: GitCommitS
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="flex shrink-0 flex-col gap-[6px] border-b border-tily-line px-[12px] py-[8px]">
-        <p className="text-[12.5px] font-semibold break-words text-tily-ink">{subjectOf(details.message)}</p>
+        <p className="text-[13px] font-semibold break-words text-tily-ink">{subjectOf(details.message)}</p>
         {body && <pre className="max-h-[160px] overflow-auto font-sans text-[12px] whitespace-pre-wrap text-tily-ink-soft">{body}</pre>}
         <div className="flex flex-wrap items-center gap-x-[12px] gap-y-[2px] text-[11px] text-tily-muted">
-          <button type="button" className="cursor-pointer font-mono text-tily-green-deep hover:underline" data-tip="Copier le SHA" onClick={handleCopySha}>
+          <button type="button" className="cursor-pointer text-tily-green-deep hover:underline" data-tip="Copier le SHA" onClick={handleCopySha}>
             {details.sha.slice(0, 12)}
           </button>
           <span data-tip={details.email}>{details.author}</span>

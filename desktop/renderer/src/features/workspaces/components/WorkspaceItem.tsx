@@ -147,7 +147,7 @@ export const WorkspaceItem = memo(function WorkspaceItem({ workspace, workspaceN
           </button>
         )}
         {!expanded && (
-          <span className="shrink-0 translate-y-px px-[2px] font-mono text-[11px] leading-none text-tily-muted tabular-nums" aria-hidden="true" data-tip={tabCountTip(tabs.length)}>
+          <span className="shrink-0 translate-y-px px-[2px] text-[11px] leading-none text-tily-muted tabular-nums" aria-hidden="true" data-tip={tabCountTip(tabs.length)}>
             {tabs.length}
           </span>
         )}

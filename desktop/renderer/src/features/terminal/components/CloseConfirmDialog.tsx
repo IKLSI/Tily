@@ -50,7 +50,7 @@ export function CloseConfirmDialog({ confirmation, onConfirm, onCancel }: CloseC
             {confirmation.panes.map((pane) => (
               <li key={pane.paneId} className="flex items-baseline gap-3 px-3 py-1.5">
                 <span className="min-w-0 flex-1 truncate text-[12px] text-tily-ink">{pane.label}</span>
-                <span className="max-w-[50%] shrink-0 truncate font-mono text-[11px] text-tily-muted">{pane.processes.join(', ')}</span>
+                <span className="max-w-[50%] shrink-0 truncate text-[11px] text-tily-muted">{pane.processes.join(', ')}</span>
               </li>
             ))}
           </ul>

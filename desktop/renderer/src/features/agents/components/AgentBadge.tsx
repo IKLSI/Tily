@@ -16,7 +16,7 @@ const STATE_CLASSES: Record<AgentState, string> = {
 
 export function AgentBadge({ agent }: AgentBadgeProps) {
   return (
-    <span role="status" className={`mr-1 inline-flex min-w-0 items-center gap-1 rounded border px-1.5 py-px text-[10px] leading-tight font-medium ${STATE_CLASSES[agent.state]}`} data-tip={describeAgent(agent)}>
+    <span role="status" className={`mr-1 inline-flex min-w-0 items-center gap-1 rounded border px-1.5 py-px text-[11px] leading-tight font-medium ${STATE_CLASSES[agent.state]}`} data-tip={describeAgent(agent)}>
       <AgentStateIcon state={agent.state} tip={describeAgent(agent)} size={11} />
       <span className="truncate @max-[420px]:hidden">{`${agentLabel(agent)} · ${STATE_LABELS[agent.state]}`}</span>
     </span>

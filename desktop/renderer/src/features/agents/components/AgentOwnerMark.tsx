@@ -20,7 +20,7 @@ export function AgentOwnerMark({ owner, compact = false }: AgentOwnerMarkProps) 
     )
   }
   return (
-    <span className="mr-1 inline-flex shrink-0 items-center gap-1 rounded border border-tily-line px-1 py-px text-[10px] leading-tight text-tily-muted @max-[420px]:hidden" data-tip={tip}>
+    <span className="mr-1 inline-flex shrink-0 items-center gap-1 rounded border border-tily-line px-1 py-px text-[11px] leading-tight text-tily-muted @max-[420px]:hidden" data-tip={tip}>
       <Icon name={IconName.Agent} size={ICON_SIZE} />
       {OWNER_LABEL}
     </span>
