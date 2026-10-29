@@ -213,7 +213,7 @@ export const TabBar = memo(function TabBar({ workspace, shells, renamingTabId, p
               <div
                 data-drop-workspace={workspace.id}
                 data-drop-tab={tab.id}
-                className={`flex min-w-[100px] items-center rounded-t-md border border-b-0 ${active ? 'border-tily-line bg-tily-panel text-tily-green-deep' : 'border-transparent text-tily-muted hover:bg-tily-green-hover'} ${draggingTabId === tab.id ? 'opacity-50' : ''}`}
+                className={`group flex min-w-[100px] items-center rounded-t-md border border-b-0 ${active ? 'border-tily-line bg-tily-panel text-tily-green-deep' : 'border-transparent text-tily-muted hover:bg-tily-green-hover'} ${draggingTabId === tab.id ? 'opacity-50' : ''}`}
                 onAuxClick={handleAuxClick}
                 onContextMenu={handleTabContextMenu}
               >
@@ -236,7 +236,7 @@ export const TabBar = memo(function TabBar({ workspace, shells, renamingTabId, p
                     {tab.owner && <AgentOwnerMark owner={tab.owner} compact />}
                   </button>
                 )}
-                <button type="button" className="shrink-0 cursor-pointer px-2 text-xs hover:text-tily-error" data-tip="Fermer l’onglet" onClick={handleClose}>
+                <button type="button" className={`shrink-0 cursor-pointer px-2 text-xs hover:text-tily-error ${active ? '' : 'opacity-0 group-hover:opacity-100 focus-visible:opacity-100'}`} data-tip="Fermer l’onglet" onClick={handleClose}>
                   ×
                 </button>
               </div>

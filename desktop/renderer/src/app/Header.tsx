@@ -23,7 +23,7 @@ export const Header = memo(function Header({ workspaceName, renaming, sidebarCol
   const sidebarTip = useShortcutTip(sidebarCollapsed ? 'Afficher les workspaces' : 'Masquer les workspaces', Command.ToggleSidebar)
   const settingsTip = useShortcutTip('Paramètres', Command.Settings)
   return (
-    <header className="relative flex h-[42px] shrink-0 items-center gap-4 border-b border-tily-line bg-tily-panel px-3 text-tily-ink">
+    <header className="relative flex h-[34px] shrink-0 items-center gap-4 border-b border-tily-line bg-tily-panel px-3 text-tily-ink">
       <button
         type="button"
         className="cursor-pointer rounded border border-tily-line px-2 text-lg leading-tight text-tily-muted hover:bg-tily-green-hover hover:text-tily-ink"

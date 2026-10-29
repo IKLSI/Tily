@@ -10,6 +10,7 @@ import { clearPaneScrollback, copyLastCommandOutput, copyPaneSelection, focusPan
 import { movePaneToNewTab } from '../tabLifecycle'
 import { openDevServer } from '../../browser/browserActions'
 import { ActionMenu } from '../../../components/ActionMenu'
+import { REVEALED_ON_HOVER } from '../../../components/paneHeaderStyles'
 import { TerminalPane } from './TerminalPane'
 import { AgentBadge } from '../../agents/components/AgentBadge'
 import { AgentOwnerMark } from '../../agents/components/AgentOwnerMark'
@@ -38,7 +39,6 @@ const HEADER_BUTTON = 'flex h-5 w-5 shrink-0 cursor-pointer items-center justify
 const BUTTON_SELECTOR = 'button'
 const SINGLE_CLICK = 1
 const SECONDARY_BUTTON = `${HEADER_BUTTON} @max-[280px]:hidden`
-const MUTED_BUTTON = 'opacity-40 hover:bg-transparent hover:text-tily-muted'
 const ICON_SIZE = 12
 const ICON_PROPS = { width: ICON_SIZE, height: ICON_SIZE, viewBox: '0 0 12 12', fill: 'none', stroke: 'currentColor', strokeWidth: 1.2, strokeLinecap: 'round', strokeLinejoin: 'round' } as const
 
@@ -115,8 +115,8 @@ const CloseIcon = () => (
 export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZoom, onFocus, onClose, onSplit, shells, onRestart, onRestartIn, onChangeShell, onDismissState }: PaneViewProps) {
   const paneState = usePaneStore((state) => state.states[pane.id])
   const tips = usePaneHeaderTips()
-  const gitTip = useShortcutTip('Clic : vue Git', Command.ToggleGit)
   const context = useHostStore((state) => state.contexts[pane.id])
+  const gitTip = useShortcutTip(context?.branch ? 'Ctrl+clic : vue Git' : 'Clic : vue Git', Command.ToggleGit)
   const agent = useAgentStore((state) => state.agents[pane.id])
   const devServers = usePaneStore((state) => state.devServers[pane.id]) ?? NO_DEV_SERVERS
   const [devServerMenuOpen, setDevServerMenuOpen] = useState(false)
@@ -133,7 +133,13 @@ export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZ
   }, [pane.id, covered])
 
   const handleHeaderMouseDown = () => onFocus(pane.id)
-  const handleOpenGit = () => openPanelView(RightPanelView.Git)
+  const handleBranchClick = (event: MouseEvent) => {
+    if (event.ctrlKey || !context?.branch) {
+      openPanelView(RightPanelView.Git)
+    } else {
+      copyPaneBranch(pane.id)
+    }
+  }
   const handleHeaderDoubleClick = (event: MouseEvent) => {
     if (!(event.target instanceof Element && event.target.closest(BUTTON_SELECTOR))) {
       onToggleZoom(pane.id)
@@ -173,7 +179,6 @@ export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZ
   const handleCopyPath = () => copyPanePath(pane.id)
   const handleOpenEditor = () => openPaneFolder(pane.id, OpenTarget.Editor)
   const handleOpenExplorer = () => openPaneFolder(pane.id, OpenTarget.Explorer)
-  const handleCopyBranch = () => copyPaneBranch(pane.id)
   const handleSplitSideBySide = () => onSplit(pane.id, SplitAxis.Horizontal)
   const handleSplitTopBottom = () => onSplit(pane.id, SplitAxis.Vertical)
   const handleClose = () => onClose(pane.id)
@@ -199,8 +204,9 @@ export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZ
     moveToNewTab: () => movePaneToNewTab(pane.id),
     close: handleClose,
   }
-  const branchTitle = context?.branch ? `Copier la branche « ${context.branch} »` : gitSummary(context)
+  const revealed = active ? '' : REVEALED_ON_HOVER
   const branchLabel = context?.branch ?? (context?.detachedHead ? DETACHED_LABEL : null)
+  const branchTip = context?.branch ? `Copier la branche « ${context.branch} » · ${gitTip}` : `${gitSummary(context)} · ${gitTip}`
   const { parent, folder } = pathParts(pane.path)
 
   return (
@@ -210,14 +216,14 @@ export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZ
       onFocus={handleFocusWithin}
     >
       <header
-        className="@container flex items-center gap-1 bg-tily-panel px-2 text-[11px] text-tily-muted select-none"
+        className="group @container flex items-center gap-1 bg-tily-panel px-2 text-[11px] text-tily-muted select-none"
         onMouseDown={handleHeaderMouseDown}
         onDoubleClick={handleHeaderDoubleClick}
       >
-        <span className="mr-1 min-w-[2em] truncate font-semibold text-tily-ink">{pane.shell}</span>
+        <span className="mr-1 min-w-[2em] truncate text-tily-muted">{pane.shell}</span>
         {agent && <AgentBadge agent={agent} />}
         {pane.owner && <AgentOwnerMark owner={pane.owner} />}
-        <span className="flex min-w-0 flex-1 whitespace-nowrap text-tily-green" data-tip={pane.path}>
+        <span className={`flex min-w-0 flex-1 whitespace-nowrap ${active ? 'text-tily-green' : 'text-tily-ink-soft'}`} data-tip={pane.path}>
           {parent && <span className="min-w-[1.2em] truncate">{parent}</span>}
           <span className={parent ? 'max-w-[calc(100%_-_1.2em)] shrink-0 truncate' : 'truncate'}>{folder}</span>
         </span>
@@ -225,9 +231,9 @@ export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZ
           <button
             type="button"
             className="flex max-w-[35%] min-w-0 shrink cursor-pointer items-center gap-1 rounded text-tily-muted hover:text-tily-ink @max-[520px]:hidden"
-            data-tip={`${gitSummary(context)} · ${gitTip}`}
-            aria-label={`${branchLabel} : ouvrir la vue Git`}
-            onClick={handleOpenGit}
+            data-tip={branchTip}
+            aria-label={context?.branch ? `Copier la branche ${context.branch}` : `${branchLabel} : ouvrir la vue Git`}
+            onClick={handleBranchClick}
           >
             <BranchIcon />
             <span className="truncate py-1 [text-box:trim-both_cap_alphabetic]">{branchLabel}</span>
@@ -250,23 +256,20 @@ export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZ
             {devServerMenuOpen && devServers.length > 1 && <ActionMenu label="Serveurs de dev détectés" items={devServerItems} align="right" onClose={handleCloseDevServerMenu} />}
           </div>
         )}
-        <button type="button" className={SECONDARY_BUTTON} data-tip={`Copier le chemin ${pane.path}`} aria-label="Copier le chemin" onClick={handleCopyPath}>
+        <button type="button" className={`${SECONDARY_BUTTON} ${revealed}`} data-tip={`Copier le chemin ${pane.path}`} aria-label="Copier le chemin" onClick={handleCopyPath}>
           <CopyIcon />
         </button>
-        <button type="button" className={SECONDARY_BUTTON} data-tip="Ouvrir dans l’éditeur" aria-label="Ouvrir dans l’éditeur" onClick={handleOpenEditor}>
+        <button type="button" className={`${SECONDARY_BUTTON} ${revealed}`} data-tip="Ouvrir dans l’éditeur" aria-label="Ouvrir dans l’éditeur" onClick={handleOpenEditor}>
           <EditorIcon />
         </button>
-        <button type="button" className={SECONDARY_BUTTON} data-tip="Ouvrir dans l’explorateur" aria-label="Ouvrir dans l’explorateur" onClick={handleOpenExplorer}>
+        <button type="button" className={`${SECONDARY_BUTTON} ${revealed}`} data-tip="Ouvrir dans l’explorateur" aria-label="Ouvrir dans l’explorateur" onClick={handleOpenExplorer}>
           <FolderIcon />
         </button>
-        <button type="button" className={`${SECONDARY_BUTTON} ${context?.branch ? '' : MUTED_BUTTON}`} data-tip={branchTitle} aria-label="Copier la branche Git" aria-disabled={!context?.branch} onClick={handleCopyBranch}>
-          <BranchIcon />
-        </button>
-        <span className="mx-1 h-3 w-px bg-tily-line @max-[280px]:hidden" aria-hidden="true" />
-        <button type="button" className={HEADER_BUTTON} data-tip={tips.splitSideBySide} aria-label="Split côte à côte" onClick={ignoringRepeatedClicks(handleSplitSideBySide)}>
+        <span className={`mx-1 h-3 w-px bg-tily-line @max-[280px]:hidden ${revealed}`} aria-hidden="true" />
+        <button type="button" className={`${HEADER_BUTTON} ${revealed}`} data-tip={tips.splitSideBySide} aria-label="Split côte à côte" onClick={ignoringRepeatedClicks(handleSplitSideBySide)}>
           <SplitIcon horizontal />
         </button>
-        <button type="button" className={HEADER_BUTTON} data-tip={tips.splitTopBottom} aria-label="Split haut / bas" onClick={ignoringRepeatedClicks(handleSplitTopBottom)}>
+        <button type="button" className={`${HEADER_BUTTON} ${revealed}`} data-tip={tips.splitTopBottom} aria-label="Split haut / bas" onClick={ignoringRepeatedClicks(handleSplitTopBottom)}>
           <SplitIcon horizontal={false} />
         </button>
         {zoomed && (
@@ -274,7 +277,7 @@ export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZ
             <UnzoomIcon />
           </button>
         )}
-        <button type="button" className={`${HEADER_BUTTON} hover:text-tily-error`} data-tip={tips.close} aria-label="Fermer le pane" onClick={ignoringRepeatedClicks(handleClose)}>
+        <button type="button" className={`${HEADER_BUTTON} hover:text-tily-error ${revealed}`} data-tip={tips.close} aria-label="Fermer le pane" onClick={ignoringRepeatedClicks(handleClose)}>
           <CloseIcon />
         </button>
       </header>
