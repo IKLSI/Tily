@@ -27,6 +27,12 @@ public static class BrowserPageScript
             if (key === ' ' || event.code === 'Space') {
               return 'Space';
             }
+            if (key === '+') {
+              return 'Plus';
+            }
+            if (key.length === 1 && key >= '!' && key <= '~') {
+              return key.toUpperCase();
+            }
             const letter = /^Key([A-Z])$/.exec(event.code);
             if (letter) {
               return letter[1];
@@ -34,12 +40,6 @@ public static class BrowserPageScript
             const digit = /^Digit([0-9])$/.exec(event.code);
             if (digit) {
               return digit[1];
-            }
-            if (key === '+') {
-              return 'Plus';
-            }
-            if (key.length === 1 && key >= '!' && key <= '~') {
-              return key.toUpperCase();
             }
             return key.length === 1 ? key.toUpperCase() : key;
           };

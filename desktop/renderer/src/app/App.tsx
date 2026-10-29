@@ -43,6 +43,7 @@ import {
 import { terminalRegistry } from '../features/terminal/terminalRegistry'
 import { receiveUpdateRestart, receiveUpdateState } from '../features/updates/updateActions'
 import { receiveStatusLogCleared, receiveStatusLogEntry, startStatusLog } from '../features/status-log/statusLogActions'
+import { useShortcutStore } from '../stores/shortcutStore'
 import { useStatusLogStore } from '../features/status-log/statusLogStore'
 import { forgetRemovedText, markTextSaveFailed, primeSessionText, startTextAutosave } from '../features/terminal/textPersistence'
 
@@ -67,6 +68,7 @@ export default function App() {
     const subscriptions = [
       bridge.on('app.hello', (message) => {
         setHello(message.version, message.shells, message.home, message.persistence)
+        useShortcutStore.getState().setShortcuts(message.shortcuts)
         useStatusLogStore.getState().load(message.statusLog)
         terminalRegistry.configure(message.persistence.linesPerPane)
         terminalRegistry.setFontSize(message.appearance.fontSize)
@@ -92,7 +94,8 @@ export default function App() {
         setStatus(`Taille du texte des terminaux : ${message.fontSize} px`)
       }),
       bridge.on('settings.result', (message) => {
-        applySettings({ settings: message.settings, shellSettings: message.shellSettings, files: message.files, warnings: message.warnings, agents: message.agents, mcp: message.mcp }, message.shells, message.persistence)
+        applySettings({ settings: message.settings, shellSettings: message.shellSettings, files: message.files, warnings: message.warnings, agents: message.agents, mcp: message.mcp, shortcutDefaults: message.shortcutDefaults }, message.shells, message.persistence)
+        useShortcutStore.getState().setShortcuts(message.settings.shortcuts)
         if (!message.saved) {
           return
         }
