@@ -2,6 +2,7 @@ using System.Text.Json;
 using Tily.Core.Session;
 using Tily.Core.Settings;
 using Tily.Core.Shell;
+using Tily.Core.Shortcuts;
 using Tily.Core.StatusLog;
 
 namespace Tily.Host.Bridge;
@@ -74,6 +75,7 @@ public sealed class SettingsFeed
             persistence = Persistence,
             agents = _describeAgents(),
             mcp = _describeMcp(),
+            shortcutDefaults = ShortcutSettingsModel.Default,
             saved
         });
     }

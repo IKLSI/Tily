@@ -64,6 +64,7 @@ public sealed class SessionFeed
             text,
             persistence = _settings.Persistence,
             appearance = _settings.Current.Appearance,
+            shortcuts = _settings.Current.Shortcuts,
             statusLog = _statusLog.Entries(),
             recovery = recovery.Length > 0 ? recovery : null
         });

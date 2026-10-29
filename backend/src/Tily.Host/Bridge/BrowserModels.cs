@@ -23,7 +23,6 @@ internal sealed class BrowserCommandModel
     public string? Title { get; init; }
     public string? Viewport { get; init; }
     public string? Level { get; init; }
-    public string? Shortcuts { get; init; }
     public string? Method { get; init; }
     public string? Error { get; init; }
     public JsonElement? Params { get; init; }

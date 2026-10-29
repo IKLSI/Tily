@@ -15,9 +15,11 @@ public sealed class BrowserFeed : IDisposable
     private readonly BrowserDriver _driver;
     private readonly Dictionary<string, BrowserView> _views = new();
     private readonly BrowserCallbacks _callbacks;
+    private readonly Func<IReadOnlyList<string>> _shortcutChords;
 
-    public BrowserFeed(HostLoop loop, Action<object> post, Action<object> sendToShell)
+    public BrowserFeed(HostLoop loop, Action<object> post, Action<object> sendToShell, Func<IReadOnlyList<string>> shortcutChords)
     {
+        _shortcutChords = shortcutChords;
         _loop = loop;
         _post = post;
         _driver = new BrowserDriver(sendToShell);
@@ -137,6 +139,22 @@ public sealed class BrowserFeed : IDisposable
         }
     }
 
+    public async void UpdateShortcuts()
+    {
+        var chords = _shortcutChords();
+        foreach (var view in _views.Values.ToList())
+        {
+            try
+            {
+                await view.UpdateShortcutsAsync(chords);
+            }
+            catch (Exception exception) when (exception is InvalidOperationException or ArgumentException or KeyNotFoundException)
+            {
+                _post(new { type = "error", message = $"Raccourcis non transmis au navigateur : {exception.Message}" });
+            }
+        }
+    }
+
     private async Task AttachAsync(BrowserCommandModel command)
     {
         var paneId = command.Pane ?? throw new InvalidOperationException("Identifiant de pane manquant.");
@@ -149,7 +167,7 @@ public sealed class BrowserFeed : IDisposable
         _views[paneId] = view;
         try
         {
-            await view.InitializeAsync(BrowserAddress.IsAllowed(command.Url) ? command.Url! : BrowserAddress.Blank, command.Shortcuts);
+            await view.InitializeAsync(BrowserAddress.IsAllowed(command.Url) ? command.Url! : BrowserAddress.Blank, _shortcutChords());
         }
         catch (Exception exception) when (exception is InvalidOperationException or ArgumentException or KeyNotFoundException)
         {

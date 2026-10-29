@@ -4,6 +4,7 @@ using Tily.Core.Context;
 using Tily.Core.Projects;
 using Tily.Core.Session;
 using Tily.Core.Settings;
+using Tily.Core.Shortcuts;
 using Tily.Core.StatusLog;
 using Tily.Core.Terminal;
 
@@ -59,7 +60,7 @@ public sealed class HostBridge : IDisposable
         _worktrees = new WorktreeFeed(Post, () => _settings.Current, _settings.RememberWorktreeFolder, _git.RefreshSoon, PostBackgroundError, dataDirectory);
         _updates = new UpdateFeed(Post, ApplicationVersion, dataDirectory);
         _mcp = new McpFeed(dataDirectory, _terminals.PaneOwnsProcess, Post, PostBackgroundError);
-        _browsers = new BrowserFeed(loop, Post, PostNow);
+        _browsers = new BrowserFeed(loop, Post, PostNow, () => ShortcutRules.InterceptedChords(_settings.Current.Shortcuts));
         _settings.ApplyCurrent();
         _terminalFeed = new TerminalFeed(loop, _terminals, _agents.Forget, _queries, Post, PostNow, new TerminalOutputWriter(JsonOptions.Encoder, sendUtf8Line));
     }
@@ -263,6 +264,7 @@ public sealed class HostBridge : IDisposable
         _session.UsePersistence(settings.Persistence);
         _terminals.UpdatePaths(_settings.ShellPaths);
         _updates.Configure(settings.Updates.AutoCheck);
+        _browsers.UpdateShortcuts();
     }
 
     private object DescribeAgents() => _agents.Describe();

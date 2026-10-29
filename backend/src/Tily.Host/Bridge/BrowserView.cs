@@ -17,6 +17,7 @@ internal sealed class BrowserView
     private readonly List<BrowserNavigationWaiter> _navigations = [];
     private (double X, double Y, double Width, double Height) _bounds;
     private bool _visible;
+    private string? _keysScriptId;
     private bool _shown;
     private bool _capturing;
     private bool _errorsScheduled;
@@ -42,7 +43,7 @@ internal sealed class BrowserView
     public bool CanGoBack { get; private set; }
     public bool CanGoForward { get; private set; }
 
-    public async Task InitializeAsync(string url, string? shortcutLetters)
+    public async Task InitializeAsync(string url, IReadOnlyList<string> shortcutChords)
     {
         await _driver.SendAsync("create", PaneId);
         foreach (var domain in new[] { "Runtime.enable", "Log.enable", "Network.enable", "Page.enable" })
@@ -51,12 +52,15 @@ internal sealed class BrowserView
         }
 
         await CdpAsync("Runtime.addBinding", new { name = BrowserPageScript.KeyBinding });
-        await CdpAsync("Page.addScriptToEvaluateOnNewDocument", new { source = BrowserPageScript.Keys(shortcutLetters) });
+        await InstallKeysAsync(shortcutChords, evaluateNow: false);
         Ready = true;
         await ApplyViewportAsync();
         await LayoutAsync();
         await _driver.SendAsync("navigate", PaneId, new { url });
     }
+
+    public Task UpdateShortcutsAsync(IReadOnlyList<string> shortcutChords) =>
+        Ready ? InstallKeysAsync(shortcutChords, evaluateNow: true) : Task.CompletedTask;
 
     public Task SetBoundsAsync(double x, double y, double width, double height, bool visible)
     {
@@ -302,6 +306,22 @@ internal sealed class BrowserView
         finally
         {
             _navigations.Remove(waiter);
+        }
+    }
+
+    private async Task InstallKeysAsync(IReadOnlyList<string> shortcutChords, bool evaluateNow)
+    {
+        var script = BrowserPageScript.Keys(shortcutChords);
+        if (_keysScriptId is not null)
+        {
+            await CdpAsync("Page.removeScriptToEvaluateOnNewDocument", new { identifier = _keysScriptId });
+        }
+
+        var added = await CdpAsync("Page.addScriptToEvaluateOnNewDocument", new { source = script });
+        _keysScriptId = added.TryGetProperty("identifier", out var identifier) ? identifier.GetString() : null;
+        if (evaluateNow)
+        {
+            await CdpAsync("Runtime.evaluate", new { expression = script });
         }
     }
 
