@@ -18,7 +18,6 @@ public sealed class BridgeCommandModel
     public string? Href { get; init; }
     public string? Title { get; init; }
     public string? Body { get; init; }
-    public string? Location { get; init; }
     public string? Name { get; init; }
     public string? Kind { get; init; }
     public string? Parent { get; init; }
@@ -71,6 +70,7 @@ public sealed class BridgeCommandModel
     public bool Confirmed { get; init; }
     public bool RememberFolder { get; init; }
     public bool Install { get; init; }
+    public bool Claude { get; init; }
     public bool Database { get; init; }
     public bool Remember { get; init; }
     public bool KeepBranch { get; init; }

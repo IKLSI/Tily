@@ -34,6 +34,7 @@ const handleBranchChange = (event: ChangeEvent<HTMLInputElement>) => changeWorkt
 const handleBaseChange = (event: ChangeEvent<HTMLSelectElement>) => changeWorktreeDraft({ base: event.target.value })
 const handleFolderChange = (event: ChangeEvent<HTMLInputElement>) => changeWorktreeFolder(event.target.value)
 const handleRememberFolderChange = (event: ChangeEvent<HTMLInputElement>) => changeWorktreeDraft({ rememberFolder: event.target.checked })
+const handleClaudeChange = (event: ChangeEvent<HTMLInputElement>) => changeWorktreeDraft({ claude: event.target.checked })
 const handleInstallChange = (event: ChangeEvent<HTMLInputElement>) => changeWorktreeDraft({ install: event.target.checked })
 const handleRepositoryChange = (event: ChangeEvent<HTMLSelectElement>) => changeWorktreeDraft({ repository: event.target.value })
 const handleRememberChange = (event: ChangeEvent<HTMLInputElement>) => changeWorktreeDraft({ remember: event.target.checked })
@@ -174,6 +175,10 @@ export function WorktreeDialog({ draft, sources, plan, planPending, busy, failur
             {plan?.error && <span className="text-[11px] text-tily-error">{plan.error}</span>}
           </fieldset>
           <fieldset className="flex flex-col gap-2" disabled={busy}>
+            <label className={RADIO_LABEL}>
+              <input type="checkbox" checked={draft.claude} onChange={handleClaudeChange} />
+              Lancer Claude Code dans le terminal du worktree (pnpm install tourne alors dans un pane en dessous)
+            </label>
             <label className={RADIO_LABEL}>
               <input type="checkbox" checked={draft.install} onChange={handleInstallChange} />
               Lancer pnpm install dans le terminal du worktree (si package.json existe)
