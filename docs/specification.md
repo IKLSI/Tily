@@ -286,7 +286,7 @@ Dans un pane où Tily détecte Claude Code ou Codex CLI, Maj + Entrée et Ctrl +
 
 ### Palette de commandes
 
-Ctrl + P ouvre la palette « Commandes & navigation ». Elle recherche les commandes et les éléments de navigation. ↑ / ↓ déplace la sélection ; Entrée exécute le résultat sélectionné ; Échap ferme la palette.
+Ctrl + P (raccourci par défaut, modifiable) ouvre la palette « Commandes & navigation ». Elle recherche les commandes et les éléments de navigation. ↑ / ↓ déplace la sélection ; Entrée exécute le résultat sélectionné ; Échap ferme la palette.
 
 - Sélection visible uniquement par un fond discret, sans barre latérale colorée.
 - Le résultat sélectionné reste visible lorsque la liste défile.
@@ -305,9 +305,9 @@ Quand plusieurs onglets d’un même workspace portent le même nom (par défaut
 
 ### Touche Leader
 
-Tily utilise une touche Leader. Le raccourci par défaut est **Cmd + K** (Ctrl + Espace reste accepté, mais macOS le réserve par défaut au changement de source de saisie) et son délai d’expiration est de **5 secondes**. Le mapping et le délai sont personnalisables.
+Tily utilise une touche Leader. Le raccourci par défaut est **Cmd + K** (Ctrl + Espace reste accepté, mais macOS le réserve par défaut au changement de source de saisie) et son délai d’expiration est de **5 secondes**. Le mapping et le délai sont personnalisables dans Paramètres, section « Raccourcis ».
 
-Chaque commande Leader dispose aussi d’un raccourci direct, sans passer par le Leader. Les raccourcis directs utilisent Ctrl + Maj + lettre (jamais Ctrl + lettre seul, réservé au shell) et Alt + flèche pour la navigation (Ctrl + Maj + flèche est utilisé par PSReadLine). Ctrl + Maj + C et Ctrl + Maj + V restent copier et coller ; Ctrl + V seul part au terminal, comme dans Terminal.app, pour que Claude Code y colle l’image du presse-papiers ; le split côte à côte direct utilise donc D.
+Chaque commande Leader dispose aussi d’un raccourci direct, sans passer par le Leader. Les raccourcis directs par défaut utilisent Ctrl + Maj + lettre (jamais Ctrl + lettre seul, réservé au shell) et Alt + flèche pour la navigation (Ctrl + Maj + flèche est utilisé par PSReadLine). Ctrl + Maj + C et Ctrl + Maj + V restent copier et coller ; Ctrl + V seul part au terminal, comme dans Terminal.app, pour que Claude Code y colle l’image du presse-papiers ; le split côte à côte direct utilise donc D.
 
 | Séquence Leader | Raccourci direct | Action |
 | --- | --- | --- |
@@ -337,6 +337,20 @@ Leader puis L, ou Ctrl + Maj + L, ouvre ou ferme le journal de la barre de statu
 Leader puis I, ou Ctrl + Maj + I, affiche la vue Agents du panneau de gauche, ou revient à la vue Workspaces (section 11, « Vue Agents »).
 
 Ctrl + Tab et Ctrl + Maj + Tab passent à l’onglet suivant ou précédent du workspace actif, en boucle. Ces combinaisons n’envoient au shell que Tab ou Maj + Tab, qui restent disponibles sans Ctrl.
+
+### Raccourcis modifiables
+
+La section « Raccourcis » des Paramètres liste toutes les commandes par groupe, avec un filtre. Chaque ligne porte deux colonnes, raccourci direct et touche après le Leader ; un clic sur une colonne passe en capture, la combinaison tapée est assignée, Échap annule la capture. La touche Leader et son délai (1 à 60 s) se règlent en tête de section. Les changements sont des brouillons : Enregistrer les applique et les écrit dans `shortcuts.json`, seuls les écarts aux défauts y figurent. Chaque ligne a un bouton de réinitialisation, et « Tout rétablir » remet les défauts.
+
+L’hôte valide ces règles, que l’écran applique aussi pour répondre sans attendre :
+
+- un raccourci direct passe par Ctrl, Alt ou Cmd, sauf touche de fonction (F1 à F24) ou Maj + touche non imprimable ; Ctrl + lettre seule reste au shell, sauf Ctrl + P pour la palette ;
+- Cmd est accepté comme modificateur, hors combinaisons réservées par macOS : Cmd + Q, W, H, M, C, V, X, A, Z, Cmd + virgule, Cmd + Tab, Cmd + Espace ;
+- sont aussi réservés : Ctrl + Maj + C et V (copier, coller), Ctrl + Espace (démarre toujours le Leader), Ctrl + Entrée et Maj + Entrée (retour à la ligne dans un agent), Alt + F4 ;
+- après le Leader, 1 à 9 (onglets) et Échap (annule) sont réservés, et la touche est seule, avec Maj au besoin ;
+- une combinaison déjà prise par une autre commande est refusée en nommant cette commande.
+
+Les libellés des infobulles, menus, de la palette, de l’aide du Leader et des messages de la barre de statut suivent les raccourcis en vigueur. Les panes navigateur interceptent dans la page les combinaisons en vigueur, quel qu’elles soient. L’export des préférences porte les raccourcis (clé `shortcuts` facultative à l’import, défauts si absente).
 
 Leader puis B, ou Ctrl + Maj + B, masque ou affiche le panneau des workspaces (WS-08), en rendant le focus au terminal s’il était dans le panneau ; quand il l’affiche, le focus va à l’onglet actif dans le panneau. « Aller au panneau des workspaces », dans la palette, y amène le focus sans le masquer.
 
@@ -547,7 +561,7 @@ Séparer trois ensembles :
 
 | Ensemble | Contenu |
 | --- | --- |
-| Préférences versionnables | Shells, chemins exécutables, paramètres, raccourcis, police, éditeur, dossier Projets et préférences visuelles. |
+| Préférences versionnables | Shells, chemins exécutables, paramètres, raccourcis (`shortcuts.json`), police, éditeur, dossier Projets et préférences visuelles. |
 | État de session local | Workspaces, onglets, chemins courants, sélection et disposition. |
 | Historique local | Texte terminal et éventuelles données nécessaires à la réouverture d’un onglet. |
 
