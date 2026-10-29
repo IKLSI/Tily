@@ -6,6 +6,8 @@ import { Icon } from '../../../components/Icon'
 import { IconName } from '../../../components/iconName'
 import { PANEL_HEADER_BUTTON } from './rightPanelStyles'
 import { WorkspaceNotes } from '../../workspaces/components/WorkspaceNotes'
+import { Command } from '../../keyboard/commands'
+import { shortcutText, withShortcut } from '../../keyboard/shortcutLabels'
 
 interface RightPanelProps {
   view: RightPanelView
@@ -15,10 +17,10 @@ interface RightPanelProps {
   onOpenTerminal: (path: string) => void
 }
 
-const VIEWS: { view: RightPanelView; label: string; shortcut: string }[] = [
-  { view: RightPanelView.Files, label: 'Fichiers', shortcut: 'Ctrl + Maj + E' },
-  { view: RightPanelView.Git, label: 'Git', shortcut: 'Ctrl + Maj + G' },
-  { view: RightPanelView.Notes, label: 'Notes', shortcut: 'Ctrl + Maj + O' },
+const VIEWS: { view: RightPanelView; label: string; command: Command }[] = [
+  { view: RightPanelView.Files, label: 'Fichiers', command: Command.ToggleExplorer },
+  { view: RightPanelView.Git, label: 'Git', command: Command.ToggleGit },
+  { view: RightPanelView.Notes, label: 'Notes', command: Command.ToggleNotes },
 ]
 
 const viewContent = (view: RightPanelView, root: string, onOpenTerminal: (path: string) => void) => {
@@ -44,7 +46,7 @@ export const RightPanel = memo(function RightPanel({ view, root, width, onClose,
               type="button"
               role="tab"
               aria-selected={selected}
-              data-tip={`${entry.label} (${entry.shortcut})`}
+              data-tip={withShortcut(entry.label, shortcutText(entry.command))}
               className={`cursor-pointer rounded-md px-[8px] py-[3px] text-[11px] font-semibold tracking-[0.06em] uppercase ${selected ? 'bg-tily-green-soft text-tily-green-deep' : 'text-tily-muted hover:bg-tily-green-hover hover:text-tily-ink'}`}
               onClick={handleSelect}
             >

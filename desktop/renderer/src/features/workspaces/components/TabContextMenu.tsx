@@ -2,7 +2,8 @@ import { isManuallyNamed, type Session } from '../../../model/session'
 import { useSessionStore } from '../../../stores/sessionStore'
 import type { ActionMenuItem } from '../../../components/ActionMenu'
 import { FloatingMenu } from '../../../components/FloatingMenu'
-import { MenuShortcut } from '../../../components/MenuShortcut'
+import { CommandShortcut, MenuShortcut } from '../../../components/MenuShortcut'
+import { Command } from '../../keyboard/commands'
 import { tabTransferItems } from './tabMenuItems'
 
 export interface TabMenuRequest {
@@ -34,8 +35,8 @@ const itemsFor = ({ tabId }: TabMenuRequest, position: number, count: number, ma
   { id: 'rename', label: 'Renommer', detail: <MenuShortcut keys="F2" />, run: () => actions.rename(tabId) },
   { id: 'auto-name', label: 'Reprendre le nom du dossier', disabled: !manual, run: () => useSessionStore.getState().resetTabName(tabId) },
   { id: 'duplicate', label: 'Dupliquer l’onglet', run: () => actions.duplicate(tabId) },
-  { id: 'move-left', label: 'Déplacer à gauche', detail: <MenuShortcut keys="Alt + ←" />, disabled: position <= 0, run: () => actions.shift(tabId, -1) },
-  { id: 'move-right', label: 'Déplacer à droite', detail: <MenuShortcut keys="Alt + →" />, disabled: position < 0 || position >= count - 1, run: () => actions.shift(tabId, 1) },
+  { id: 'move-left', label: 'Déplacer à gauche', detail: <CommandShortcut command={Command.MoveTabLeft} />, disabled: position <= 0, run: () => actions.shift(tabId, -1) },
+  { id: 'move-right', label: 'Déplacer à droite', detail: <CommandShortcut command={Command.MoveTabRight} />, disabled: position < 0 || position >= count - 1, run: () => actions.shift(tabId, 1) },
   ...tabTransferItems(session, tabId),
   { id: 'close', label: 'Fermer l’onglet', detail: <MenuShortcut keys="Clic milieu" />, run: () => actions.close(tabId) },
   { id: 'close-others', label: 'Fermer les autres onglets', disabled: count <= 1, run: () => actions.closeOthers(tabId) },

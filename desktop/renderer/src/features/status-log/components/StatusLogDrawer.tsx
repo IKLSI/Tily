@@ -5,6 +5,8 @@ import { clearStatusLog, closeStatusLog, copyStatusLog, entryFullDate, entryTime
 import { Icon } from '../../../components/Icon'
 import { IconName } from '../../../components/iconName'
 import { PANEL_HEADER_BUTTON, SECTION_TITLE } from '../../right-panel/components/rightPanelStyles'
+import { Command } from '../../keyboard/commands'
+import { useShortcutText } from '../../keyboard/shortcutLabels'
 
 export const STATUS_LOG_ID = 'status-log'
 
@@ -20,6 +22,7 @@ const LEVEL_CLASSES: Record<StatusLevel, string> = {
 const countLabel = (count: number): string => (count === 0 ? 'Aucun message' : count === 1 ? '1 message' : `${count} messages`)
 
 export function StatusLogDrawer() {
+  const toggleShortcut = useShortcutText(Command.ToggleStatusLog)
   const entries = useStatusLogStore((state) => state.entries)
   const listRef = useRef<HTMLDivElement>(null)
   const pinnedToBottom = useRef(true)
@@ -82,7 +85,7 @@ export function StatusLogDrawer() {
         <button type="button" className={TEXT_BUTTON} aria-disabled={empty} data-tip="Effacer tous les messages du journal" onClick={handleClear}>
           Effacer
         </button>
-        <button type="button" className={PANEL_HEADER_BUTTON} aria-label="Masquer le journal" data-tip="Masquer le journal (Échap, Ctrl + Maj + L)" onClick={closeStatusLog}>
+        <button type="button" className={PANEL_HEADER_BUTTON} aria-label="Masquer le journal" data-tip={`Masquer le journal (Échap${toggleShortcut ? `, ${toggleShortcut}` : ''})`} onClick={closeStatusLog}>
           <Icon name={IconName.Close} />
         </button>
       </div>

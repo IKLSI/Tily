@@ -2,6 +2,8 @@ import { useMemo } from 'react'
 import type { Project } from '../../../bridge/messages'
 import type { SearchItem } from '../../palette/searchFilter'
 import { SearchDialog } from '../../palette/components/SearchDialog'
+import { Command } from '../../keyboard/commands'
+import { useShortcutText, withShortcut } from '../../keyboard/shortcutLabels'
 
 interface ProjectPickerProps {
   projects: Project[]
@@ -21,6 +23,7 @@ export const PROJECTS_LOADING = 'Chargement des projets…'
 const hintOf = (project: Project): string => (project.worktree ? `${WORKTREE_HINT}${project.path}` : project.path)
 
 export function ProjectPicker({ projects, root, error, onClose, onSelect }: ProjectPickerProps) {
+  const settingsText = withShortcut('Paramètres', useShortcutText(Command.Settings))
   const items = useMemo<ProjectItem[]>(() => projects.map((project) => ({ id: project.path, label: project.name, hint: hintOf(project), project })), [projects])
   const handleRun = (item: ProjectItem) => onSelect(item.project, false)
   const handleRunInActiveWorkspace = (item: ProjectItem) => onSelect(item.project, true)
@@ -29,7 +32,7 @@ export function ProjectPicker({ projects, root, error, onClose, onSelect }: Proj
     <SearchDialog
       label="Ouvrir un projet"
       placeholder={root ? `Dossier dans ${root}…` : 'Dossier de projet…'}
-      emptyMessage={error ?? (root === '' ? PROJECTS_LOADING : projects.length === 0 ? `Aucun projet dans ${root} : le dossier des projets se change dans Paramètres (Leader puis ,).` : 'Aucun dossier ne correspond à la recherche.')}
+      emptyMessage={error ?? (root === '' ? PROJECTS_LOADING : projects.length === 0 ? `Aucun projet dans ${root} : le dossier des projets se change dans ${settingsText}.` : 'Aucun dossier ne correspond à la recherche.')}
       items={items}
       onClose={onClose}
       onRun={handleRun}

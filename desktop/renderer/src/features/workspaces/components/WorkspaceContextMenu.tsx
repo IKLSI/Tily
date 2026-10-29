@@ -5,7 +5,8 @@ import { requestWorktreeRemoval } from '../../worktrees/worktreeActions'
 import { closeOtherTabsKeepingText, closeTabsToRightKeepingText, FollowingTabs } from '../../terminal/tabLifecycle'
 import type { ActionMenuItem } from '../../../components/ActionMenu'
 import { FloatingMenu } from '../../../components/FloatingMenu'
-import { MenuShortcut } from '../../../components/MenuShortcut'
+import { CommandShortcut, MenuShortcut } from '../../../components/MenuShortcut'
+import { Command } from '../../keyboard/commands'
 import { tabTransferItems } from './tabMenuItems'
 import type { MenuPlace, PanelMenuRequest, WorkspacePanelActions } from './workspacePanel'
 
@@ -19,8 +20,8 @@ interface WorkspaceContextMenuProps {
 }
 
 const moveItems = ({ position, count }: MenuPlace, move: (offset: number) => void): ActionMenuItem[] => [
-  { id: 'move-up', label: 'Monter', detail: <MenuShortcut keys="Alt + ↑" />, disabled: position <= 0, run: () => move(-1) },
-  { id: 'move-down', label: 'Descendre', detail: <MenuShortcut keys="Alt + ↓" />, disabled: position < 0 || position >= count - 1, run: () => move(1) },
+  { id: 'move-up', label: 'Monter', detail: <CommandShortcut command={Command.MoveWorkspaceUp} />, disabled: position <= 0, run: () => move(-1) },
+  { id: 'move-down', label: 'Descendre', detail: <CommandShortcut command={Command.MoveWorkspaceDown} />, disabled: position < 0 || position >= count - 1, run: () => move(1) },
 ]
 
 const worktreeItems = (worktrees: WorktreeTarget[]): ActionMenuItem[] =>

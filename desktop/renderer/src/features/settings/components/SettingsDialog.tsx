@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ChangeEvent, type KeyboardEvent, type MouseEvent, type PointerEvent } from 'react'
-import { PickTarget, type AttentionKind, type ImportedPreferences, type NotificationSettings, type PersistenceSettings, type PickedPath, type Settings, type SettingsSnapshot, type TerminalFont } from '../../../bridge/messages'
+import { PickTarget, type AttentionKind, type ImportedPreferences, type NotificationSettings, type PersistenceSettings, type PickedPath, type Settings, type SettingsSnapshot, type ShortcutSettings, type TerminalFont } from '../../../bridge/messages'
 import type { WorktreeProjectFolder, WorktreeSettings } from '../../../bridge/worktreeMessages'
 import { revealInExplorer } from '../../explorer/fileExplorerActions'
 import { useHostStore } from '../../../stores/hostStore'
@@ -15,6 +15,7 @@ import { PersistenceSettingsSection } from './PersistenceSettingsSection'
 import { ProjectSettingsSection } from './ProjectSettingsSection'
 import { SETTINGS_HINT, SETTINGS_INPUT, SETTINGS_LABEL, SETTINGS_PRIMARY, SETTINGS_ROW, SETTINGS_SECONDARY } from './settingsStyles'
 import { ShellSettingsSection } from './ShellSettingsSection'
+import { ShortcutSettingsSection } from './ShortcutSettingsSection'
 import { UpdateSettingsSection } from './UpdateSettingsSection'
 
 interface SettingsDialogProps {
@@ -164,6 +165,7 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
       onTestNotification(draft.notifications, kind)
     }
   }
+  const handleShortcutsChange = (shortcuts: ShortcutSettings) => updateDraft({ shortcuts })
   const handleAutoCheckChange = (autoCheck: boolean) => updateDraft({ updates: { autoCheck } })
   const updateAppearance = (patch: Partial<Settings['appearance']>) => setDraft((current) => (current ? { ...current, appearance: { ...current.appearance, ...patch } } : current))
   const handleFontSizeChange = (fontSize: number) => updateAppearance({ fontSize })
@@ -218,6 +220,7 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
           <InfoTip text="Lance git fetch --all à l’ouverture de la vue Git et quand le pane actif passe à un autre dépôt, au plus une fois toutes les 5 minutes par dépôt. Un échec (hors ligne, authentification) reste silencieux." />
         </span>
       </section>
+      <ShortcutSettingsSection sectionClassName={SECTION} shortcuts={settings.shortcuts} defaults={current.shortcutDefaults} onChange={handleShortcutsChange} />
       <NotificationSettingsSection sectionClassName={SECTION} notifications={settings.notifications} onChange={updateNotifications} onPickSound={handlePickSound} onPickDoneSound={handlePickDoneSound} onTest={handleTestNotification} />
       <AgentSettingsSection sectionClassName={SECTION} agents={current.agents} onInstallHooks={onInstallHooks} onRemoveHooks={onRemoveHooks} />
       <McpSettingsSection sectionClassName={SECTION} mcp={current.mcp} />

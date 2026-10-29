@@ -14,6 +14,9 @@ import { TerminalPane } from './TerminalPane'
 import { AgentBadge } from '../../agents/components/AgentBadge'
 import { AgentOwnerMark } from '../../agents/components/AgentOwnerMark'
 import { PaneOverlay } from './PaneOverlay'
+import { Command } from '../../keyboard/commands'
+import { useShortcutTip } from '../../keyboard/shortcutLabels'
+import { usePaneHeaderTips } from '../paneHeaderTips'
 import { TerminalContextMenu, type TerminalMenuActions, type TerminalMenuRequest } from './TerminalContextMenu'
 
 interface PaneViewProps {
@@ -111,6 +114,8 @@ const CloseIcon = () => (
 
 export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZoom, onFocus, onClose, onSplit, shells, onRestart, onRestartIn, onChangeShell, onDismissState }: PaneViewProps) {
   const paneState = usePaneStore((state) => state.states[pane.id])
+  const tips = usePaneHeaderTips()
+  const gitTip = useShortcutTip('Clic : vue Git', Command.ToggleGit)
   const context = useHostStore((state) => state.contexts[pane.id])
   const agent = useAgentStore((state) => state.agents[pane.id])
   const devServers = usePaneStore((state) => state.devServers[pane.id]) ?? NO_DEV_SERVERS
@@ -220,7 +225,7 @@ export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZ
           <button
             type="button"
             className="flex max-w-[35%] min-w-0 shrink cursor-pointer items-center gap-1 rounded font-mono text-tily-muted hover:text-tily-ink @max-[520px]:hidden"
-            data-tip={`${gitSummary(context)} · Clic : vue Git (Ctrl + Maj + G)`}
+            data-tip={`${gitSummary(context)} · ${gitTip}`}
             aria-label={`${branchLabel} : ouvrir la vue Git`}
             onClick={handleOpenGit}
           >
@@ -258,18 +263,18 @@ export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZ
           <BranchIcon />
         </button>
         <span className="mx-1 h-3 w-px bg-tily-line @max-[280px]:hidden" aria-hidden="true" />
-        <button type="button" className={HEADER_BUTTON} data-tip="Split côte à côte (Ctrl + Maj + D)" aria-label="Split côte à côte" onClick={ignoringRepeatedClicks(handleSplitSideBySide)}>
+        <button type="button" className={HEADER_BUTTON} data-tip={tips.splitSideBySide} aria-label="Split côte à côte" onClick={ignoringRepeatedClicks(handleSplitSideBySide)}>
           <SplitIcon horizontal />
         </button>
-        <button type="button" className={HEADER_BUTTON} data-tip="Split haut / bas (Ctrl + Maj + H)" aria-label="Split haut / bas" onClick={ignoringRepeatedClicks(handleSplitTopBottom)}>
+        <button type="button" className={HEADER_BUTTON} data-tip={tips.splitTopBottom} aria-label="Split haut / bas" onClick={ignoringRepeatedClicks(handleSplitTopBottom)}>
           <SplitIcon horizontal={false} />
         </button>
         {zoomed && (
-          <button type="button" className={`${HEADER_BUTTON} text-tily-green`} data-tip="Réduire le pane et revoir les autres (Ctrl + Maj + M)" aria-label="Réduire le pane" onClick={handleToggleZoom}>
+          <button type="button" className={`${HEADER_BUTTON} text-tily-green`} data-tip={tips.reduce} aria-label="Réduire le pane" onClick={handleToggleZoom}>
             <UnzoomIcon />
           </button>
         )}
-        <button type="button" className={`${HEADER_BUTTON} hover:text-tily-error`} data-tip="Fermer le pane (Ctrl + Maj + X)" aria-label="Fermer le pane" onClick={ignoringRepeatedClicks(handleClose)}>
+        <button type="button" className={`${HEADER_BUTTON} hover:text-tily-error`} data-tip={tips.close} aria-label="Fermer le pane" onClick={ignoringRepeatedClicks(handleClose)}>
           <CloseIcon />
         </button>
       </header>

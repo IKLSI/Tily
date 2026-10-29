@@ -11,6 +11,8 @@ import { Icon } from '../../../components/Icon'
 import { IconName } from '../../../components/iconName'
 import { Spinner } from '../../../components/Spinner'
 import { STATUS_LOG_ID, StatusLogDrawer } from './StatusLogDrawer'
+import { Command } from '../../keyboard/commands'
+import { useShortcutTip } from '../../keyboard/shortcutLabels'
 
 const STATUS_CLASSES: Record<StatusLevel, string> = {
   [StatusLevel.Info]: 'text-tily-muted',
@@ -26,6 +28,7 @@ export const StatusBar = memo(function StatusBar() {
   const worktreeBusy = worktreeTasks > 0
   const waiting = worktreeTasks - 1
   const logOpen = useStatusLogStore((state) => state.open)
+  const logTip = useShortcutTip(logOpen ? 'Masquer le journal' : 'Afficher le journal des messages', Command.ToggleStatusLog)
   const spinning = Boolean(busy) || worktreeBusy
 
   return (
@@ -40,7 +43,7 @@ export const StatusBar = memo(function StatusBar() {
           className="flex h-full min-w-0 flex-1 cursor-pointer items-center gap-[6px] px-3 text-left hover:bg-tily-green-hover"
           onClick={toggleStatusLog}
         >
-          <span className="flex shrink-0" data-tip={logOpen ? 'Masquer le journal (Ctrl + Maj + L)' : 'Afficher le journal des messages (Ctrl + Maj + L)'}>
+          <span className="flex shrink-0" data-tip={logTip}>
             <Icon name={IconName.Chevron} size={10} className={`text-tily-muted transition-transform ${logOpen ? 'rotate-90' : '-rotate-90'}`} />
           </span>
           {spinning && <Spinner size={10} className="shrink-0 text-tily-green" />}

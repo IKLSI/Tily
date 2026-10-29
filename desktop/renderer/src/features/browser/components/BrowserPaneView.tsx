@@ -7,6 +7,7 @@ import { useBrowserStore } from '../browserStore'
 import { useUiStore } from '../../../stores/uiStore'
 import { AgentOwnerMark } from '../../agents/components/AgentOwnerMark'
 import { BrowserAddressBar } from './BrowserAddressBar'
+import { usePaneHeaderTips } from '../../terminal/paneHeaderTips'
 
 interface BrowserPaneViewProps {
   pane: Pane
@@ -101,6 +102,7 @@ const focusBlocked = (): boolean => {
 
 export const BrowserPaneView = memo(function BrowserPaneView({ pane, active, zoomed, onToggleZoom, onFocus, onClose, onSplit }: BrowserPaneViewProps) {
   const state = useBrowserStore((store) => store.states[pane.id])
+  const tips = usePaneHeaderTips()
   const snapshot = useBrowserStore((store) => store.snapshots[pane.id])
   const failure = useBrowserStore((store) => store.failures[pane.id])
   const editing = useBrowserStore((store) => store.editingUrl === pane.id)
@@ -176,18 +178,18 @@ export const BrowserPaneView = memo(function BrowserPaneView({ pane, active, zoo
           <DevToolsIcon />
         </button>
         <span className="mx-1 h-3 w-px bg-tily-line @max-[280px]:hidden" aria-hidden="true" />
-        <button type="button" className={HEADER_BUTTON} data-tip="Split côte à côte (Ctrl + Maj + D)" aria-label="Split côte à côte" onClick={ignoringRepeatedClicks(handleSplitSideBySide)}>
+        <button type="button" className={HEADER_BUTTON} data-tip={tips.splitSideBySide} aria-label="Split côte à côte" onClick={ignoringRepeatedClicks(handleSplitSideBySide)}>
           <SplitIcon horizontal />
         </button>
-        <button type="button" className={HEADER_BUTTON} data-tip="Split haut / bas (Ctrl + Maj + H)" aria-label="Split haut / bas" onClick={ignoringRepeatedClicks(handleSplitTopBottom)}>
+        <button type="button" className={HEADER_BUTTON} data-tip={tips.splitTopBottom} aria-label="Split haut / bas" onClick={ignoringRepeatedClicks(handleSplitTopBottom)}>
           <SplitIcon horizontal={false} />
         </button>
         {zoomed && (
-          <button type="button" className={`${HEADER_BUTTON} text-tily-green`} data-tip="Réduire le pane et revoir les autres (Ctrl + Maj + M)" aria-label="Réduire le pane" onClick={handleToggleZoom}>
+          <button type="button" className={`${HEADER_BUTTON} text-tily-green`} data-tip={tips.reduce} aria-label="Réduire le pane" onClick={handleToggleZoom}>
             <UnzoomIcon />
           </button>
         )}
-        <button type="button" className={`${HEADER_BUTTON} hover:text-tily-error`} data-tip="Fermer le pane (Ctrl + Maj + X)" aria-label="Fermer le pane" onClick={ignoringRepeatedClicks(handleClose)}>
+        <button type="button" className={`${HEADER_BUTTON} hover:text-tily-error`} data-tip={tips.close} aria-label="Fermer le pane" onClick={ignoringRepeatedClicks(handleClose)}>
           <CloseIcon />
         </button>
       </header>

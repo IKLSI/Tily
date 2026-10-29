@@ -2,6 +2,8 @@ import { memo, type ReactNode } from 'react'
 import { EditableName } from '../components/EditableName'
 import { InlineNameEditor } from '../components/InlineNameEditor'
 import { LeaderHints } from '../features/keyboard/components/LeaderHints'
+import { Command } from '../features/keyboard/commands'
+import { useShortcutTip } from '../features/keyboard/shortcutLabels'
 import { UpdateButton } from '../features/updates/components/UpdateButton'
 
 interface HeaderProps {
@@ -18,12 +20,14 @@ interface HeaderProps {
 }
 
 export const Header = memo(function Header({ workspaceName, renaming, sidebarCollapsed, leaderActive, navigation, onToggleSidebar, onOpenSettings, onStartRename, onCommitRename, onCancelRename }: HeaderProps) {
+  const sidebarTip = useShortcutTip(sidebarCollapsed ? 'Afficher les workspaces' : 'Masquer les workspaces', Command.ToggleSidebar)
+  const settingsTip = useShortcutTip('Paramètres', Command.Settings)
   return (
     <header className="relative flex h-[42px] shrink-0 items-center gap-4 border-b border-tily-line bg-tily-panel px-3 text-tily-ink">
       <button
         type="button"
         className="cursor-pointer rounded border border-tily-line px-2 text-lg leading-tight text-tily-muted hover:bg-tily-green-hover hover:text-tily-ink"
-        data-tip={sidebarCollapsed ? 'Afficher les workspaces (Ctrl + Maj + B)' : 'Masquer les workspaces (Ctrl + Maj + B)'}
+        data-tip={sidebarTip}
         onClick={onToggleSidebar}
       >
         ☰
@@ -45,7 +49,7 @@ export const Header = memo(function Header({ workspaceName, renaming, sidebarCol
         <button
           type="button"
           className="flex cursor-pointer items-center gap-1.5 rounded border border-tily-line px-2 text-tily-muted hover:bg-tily-green-hover hover:text-tily-ink"
-          data-tip="Paramètres (Leader puis ,)"
+          data-tip={settingsTip}
           onClick={onOpenSettings}
         >
           <span className="text-lg leading-tight">⚙</span>

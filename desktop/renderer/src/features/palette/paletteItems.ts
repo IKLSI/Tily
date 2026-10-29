@@ -3,6 +3,7 @@ import { bridge } from '../../bridge/bridge'
 import type { GitContext, ShellProfile } from '../../bridge/messages'
 import { BrowserPlacement, openBrowser, openDevServer } from '../browser/browserActions'
 import { Command, revealWorkspacePanel, runCommand } from '../keyboard/shortcuts'
+import { shortcutText } from '../keyboard/shortcutLabels'
 import { DEFAULT_FONT_SIZE, MAX_FONT_SIZE, MIN_FONT_SIZE } from '../../model/appearance'
 import { activePane, activeTab, activeWorkspace, distinctWorkspaceName, FAVORITES_MAX, folderName, isLeaf, panesOf, RightPanelView, type Pane, type Session, type Tab, type Workspace } from '../../model/session'
 import { openPanelView } from '../right-panel/rightPanel'
@@ -69,27 +70,27 @@ const commandItems = (session: Session, shells: ShellProfile[]): PaletteItem[] =
   const workspace = activeWorkspace(session)
   const tab = workspace ? activeTab(workspace) : undefined
   const items: PaletteItem[] = [
-    command('new-tab', 'Nouvel onglet', () => runCommand(Command.NewTab), 'Ctrl + Maj + T'),
+    command('new-tab', 'Nouvel onglet', () => runCommand(Command.NewTab), shortcutText(Command.NewTab)),
     ...shells.map((shell) => command(`new-tab-${shell.id}`, `Nouvel onglet${SEPARATOR}${shell.name}`, () => store.newTab(shell.id))),
-    command('split-x', 'Split côte à côte', () => runCommand(Command.SplitSideBySide), 'Ctrl + Maj + D'),
-    command('split-y', 'Split haut / bas', () => runCommand(Command.SplitTopBottom), 'Ctrl + Maj + H'),
-    command('browser-beside', 'Navigateur côte à côte', () => runCommand(Command.OpenBrowser), 'Leader puis U'),
+    command('split-x', 'Split côte à côte', () => runCommand(Command.SplitSideBySide), shortcutText(Command.SplitSideBySide)),
+    command('split-y', 'Split haut / bas', () => runCommand(Command.SplitTopBottom), shortcutText(Command.SplitTopBottom)),
+    command('browser-beside', 'Navigateur côte à côte', () => runCommand(Command.OpenBrowser), shortcutText(Command.OpenBrowser)),
     command('browser-below', 'Navigateur en dessous', () => openBrowser(BrowserPlacement.Below)),
     command('browser-tab', 'Navigateur dans un nouvel onglet', () => openBrowser(BrowserPlacement.Tab)),
-    command('close-pane', 'Fermer le pane actif', () => runCommand(Command.ClosePane), 'Ctrl + Maj + X'),
-    command('toggle-zoom', 'Agrandir / réduire le pane actif', () => runCommand(Command.TogglePaneZoom), 'Ctrl + Maj + M'),
-    command('join-waiting', 'Rejoindre l’agent en attente suivant', () => runCommand(Command.JoinWaitingAgent), 'Ctrl + Maj + A'),
-    command('next-tab', 'Onglet suivant', () => runCommand(Command.NextTab), 'Ctrl + Tab'),
-    command('previous-tab', 'Onglet précédent', () => runCommand(Command.PreviousTab), 'Ctrl + Maj + Tab'),
-    command('new-workspace', 'Nouveau workspace', () => runCommand(Command.NewWorkspace), 'Ctrl + Maj + W'),
-    command('projects', 'Ouvrir un projet', () => runCommand(Command.Projects), 'Leader puis F'),
-    command('create-worktree', 'Créer un worktree…', () => runCommand(Command.CreateWorktree), 'Leader puis N'),
+    command('close-pane', 'Fermer le pane actif', () => runCommand(Command.ClosePane), shortcutText(Command.ClosePane)),
+    command('toggle-zoom', 'Agrandir / réduire le pane actif', () => runCommand(Command.TogglePaneZoom), shortcutText(Command.TogglePaneZoom)),
+    command('join-waiting', 'Rejoindre l’agent en attente suivant', () => runCommand(Command.JoinWaitingAgent), shortcutText(Command.JoinWaitingAgent)),
+    command('next-tab', 'Onglet suivant', () => runCommand(Command.NextTab), shortcutText(Command.NextTab)),
+    command('previous-tab', 'Onglet précédent', () => runCommand(Command.PreviousTab), shortcutText(Command.PreviousTab)),
+    command('new-workspace', 'Nouveau workspace', () => runCommand(Command.NewWorkspace), shortcutText(Command.NewWorkspace)),
+    command('projects', 'Ouvrir un projet', () => runCommand(Command.Projects), shortcutText(Command.Projects)),
+    command('create-worktree', 'Créer un worktree…', () => runCommand(Command.CreateWorktree), shortcutText(Command.CreateWorktree)),
     command('open-worktree', 'Ouvrir un worktree…', () => openWorktreePicker(WorktreePickerKind.Open)),
-    command('toggle-explorer', 'Afficher / masquer les fichiers', () => runCommand(Command.ToggleExplorer), 'Ctrl + Maj + E'),
-    command('toggle-git', 'Afficher / masquer Git', () => runCommand(Command.ToggleGit), 'Ctrl + Maj + G'),
-    command('toggle-notes', 'Afficher / masquer les notes du workspace', () => runCommand(Command.ToggleNotes), 'Ctrl + Maj + O'),
-    command('toggle-status-log', 'Afficher / masquer le journal des messages', () => runCommand(Command.ToggleStatusLog), 'Ctrl + Maj + L'),
-    command('settings', 'Paramètres', () => runCommand(Command.Settings), 'Leader puis ,'),
+    command('toggle-explorer', 'Afficher / masquer les fichiers', () => runCommand(Command.ToggleExplorer), shortcutText(Command.ToggleExplorer)),
+    command('toggle-git', 'Afficher / masquer Git', () => runCommand(Command.ToggleGit), shortcutText(Command.ToggleGit)),
+    command('toggle-notes', 'Afficher / masquer les notes du workspace', () => runCommand(Command.ToggleNotes), shortcutText(Command.ToggleNotes)),
+    command('toggle-status-log', 'Afficher / masquer le journal des messages', () => runCommand(Command.ToggleStatusLog), shortcutText(Command.ToggleStatusLog)),
+    command('settings', 'Paramètres', () => runCommand(Command.Settings), shortcutText(Command.Settings)),
     command('settings-export', 'Exporter les préférences…', () => {
       runCommand(Command.Settings)
       bridge.send({ type: 'settings.export' })
@@ -98,8 +99,8 @@ const commandItems = (session: Session, shells: ShellProfile[]): PaletteItem[] =
       runCommand(Command.Settings)
       bridge.send({ type: 'settings.import' })
     }),
-    command('restore-tab', 'Rouvrir le dernier onglet fermé', restoreClosedTab, 'Ctrl + Maj + Z'),
-    command('toggle-sidebar', session.sidebarCollapsed ? 'Afficher les workspaces' : 'Masquer les workspaces', () => runCommand(Command.ToggleSidebar), 'Ctrl + Maj + B'),
+    command('restore-tab', 'Rouvrir le dernier onglet fermé', restoreClosedTab, shortcutText(Command.RestoreTab)),
+    command('toggle-sidebar', session.sidebarCollapsed ? 'Afficher les workspaces' : 'Masquer les workspaces', () => runCommand(Command.ToggleSidebar), shortcutText(Command.ToggleSidebar)),
     command('focus-sidebar', 'Aller au panneau des workspaces', revealWorkspacePanel),
   ]
   if (workspace) {
@@ -115,8 +116,8 @@ const commandItems = (session: Session, shells: ShellProfile[]): PaletteItem[] =
     const devServers = usePaneStore.getState().devServers[paneId] ?? []
     items.push(
       command('copy-path', 'Copier le chemin du pane actif', () => copyPanePath(paneId)),
-      command('previous-command', 'Remonter à la commande précédente du pane actif', () => runCommand(Command.PreviousCommand), 'Alt + PgUp'),
-      command('next-command', 'Descendre à la commande suivante du pane actif', () => runCommand(Command.NextCommand), 'Alt + PgDn'),
+      command('previous-command', 'Remonter à la commande précédente du pane actif', () => runCommand(Command.PreviousCommand), shortcutText(Command.PreviousCommand)),
+      command('next-command', 'Descendre à la commande suivante du pane actif', () => runCommand(Command.NextCommand), shortcutText(Command.NextCommand)),
       command('copy-last-output', 'Copier la sortie de la dernière commande du pane actif', () => copyLastCommandOutput(paneId)),
       ...devServers.map((url) => command(`open-dev-server-${url}`, `Ouvrir le serveur de dev dans un navigateur${SEPARATOR}${url}`, () => openDevServer(paneId, url))),
       command('clear-scrollback', 'Effacer l’historique de défilement du pane actif', () => clearPaneScrollback(paneId)),
@@ -137,12 +138,12 @@ const commandItems = (session: Session, shells: ShellProfile[]): PaletteItem[] =
     }
     if (!isLeaf(tab.tree)) {
       items.push(
-        command('equalize-panes', 'Égaliser les panes de l’onglet', () => runCommand(Command.EqualizePanes), 'Leader puis ='),
-        command('swap-pane-left', 'Échanger le pane actif avec son voisin de gauche', () => runCommand(Command.SwapPaneLeft), 'Leader puis Maj + ←'),
-        command('swap-pane-right', 'Échanger le pane actif avec son voisin de droite', () => runCommand(Command.SwapPaneRight), 'Leader puis Maj + →'),
-        command('swap-pane-up', 'Échanger le pane actif avec son voisin du haut', () => runCommand(Command.SwapPaneUp), 'Leader puis Maj + ↑'),
-        command('swap-pane-down', 'Échanger le pane actif avec son voisin du bas', () => runCommand(Command.SwapPaneDown), 'Leader puis Maj + ↓'),
-        command('move-pane-to-new-tab', 'Déplacer le pane actif dans un nouvel onglet', () => runCommand(Command.MovePaneToNewTab), 'Leader puis !'),
+        command('equalize-panes', 'Égaliser les panes de l’onglet', () => runCommand(Command.EqualizePanes), shortcutText(Command.EqualizePanes)),
+        command('swap-pane-left', 'Échanger le pane actif avec son voisin de gauche', () => runCommand(Command.SwapPaneLeft), shortcutText(Command.SwapPaneLeft)),
+        command('swap-pane-right', 'Échanger le pane actif avec son voisin de droite', () => runCommand(Command.SwapPaneRight), shortcutText(Command.SwapPaneRight)),
+        command('swap-pane-up', 'Échanger le pane actif avec son voisin du haut', () => runCommand(Command.SwapPaneUp), shortcutText(Command.SwapPaneUp)),
+        command('swap-pane-down', 'Échanger le pane actif avec son voisin du bas', () => runCommand(Command.SwapPaneDown), shortcutText(Command.SwapPaneDown)),
+        command('move-pane-to-new-tab', 'Déplacer le pane actif dans un nouvel onglet', () => runCommand(Command.MovePaneToNewTab), shortcutText(Command.MovePaneToNewTab)),
       )
     }
     items.push(
