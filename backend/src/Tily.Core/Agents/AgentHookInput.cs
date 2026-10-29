@@ -17,6 +17,12 @@ public static class AgentHookInput
     public static string? Text(JsonNode? node) =>
         node is JsonValue value && value.TryGetValue<string>(out var text) ? text : null;
 
+    public static string Question(JsonNode? toolInput)
+    {
+        var question = toolInput?["questions"] is JsonArray { Count: > 0 } questions ? ScalarText(questions[0]?["question"]) : null;
+        return string.IsNullOrWhiteSpace(question) ? "Question posée." : question;
+    }
+
     public static string? ToolDetail(JsonNode? toolInput)
     {
         if (toolInput is null)
@@ -26,11 +32,6 @@ public static class AgentHookInput
 
         if (toolInput is JsonObject input)
         {
-            if (input["questions"] is JsonArray { Count: > 0 } questions)
-            {
-                return ScalarText(questions[0]?["question"]) ?? string.Empty;
-            }
-
             foreach (var name in DetailProperties)
             {
                 var text = ScalarText(input[name]);

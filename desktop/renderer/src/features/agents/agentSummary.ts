@@ -20,13 +20,13 @@ export interface WaitingPane {
   label: string
   folder: string
   detail: string
+  reason: string
   agent: PaneAgent
 }
 
 interface AttentionNotice {
   title: string
   body: string
-  location: string
 }
 
 export type AgentMap = Record<string, PaneAgent>
@@ -38,10 +38,12 @@ export const describeAgent = (agent: PaneAgent): string => {
   return [base, agent.message, agent.detail].filter(Boolean).join(' — ')
 }
 
-export const attentionNotice = (pane: WaitingPane, agent: PaneAgent, branch: string | null | undefined): AttentionNotice => ({
-  title: agent.message ?? `${agentLabel(agent)} : ${STATE_LABELS[agent.state]}`,
-  body: agent.detail ?? '',
-  location: [`${pane.workspaceName} › ${pane.tabName}`, pane.folder, branch].filter(Boolean).join(' · '),
+export const attentionReason = (agent: PaneAgent): string =>
+  agent.state === AgentState.Done ? STATE_LABELS[agent.state] : (agent.message ?? STATE_LABELS[agent.state])
+
+export const attentionNotice = (pane: WaitingPane): AttentionNotice => ({
+  title: `${pane.workspaceName} › ${pane.tabName}`,
+  body: pane.reason,
 })
 
 const STATE_PRIORITY: AgentState[] = [AgentState.Waiting, AgentState.Error, AgentState.Working, AgentState.Unknown, AgentState.Done]
@@ -130,10 +132,18 @@ export const waitedFor = (elapsedMs: number): string => {
   if (minutes < 1) {
     return 'depuis moins d’une minute'
   }
-  if (minutes < MINUTES_PER_HOUR) {
-    return `depuis ${minutes} min`
+  return `depuis ${waitedShort(elapsedMs)}`
+}
+
+export const waitedShort = (elapsedMs: number): string => {
+  const minutes = Math.floor(elapsedMs / MINUTE_MS)
+  if (minutes < 1) {
+    return '< 1 min'
   }
-  return `depuis ${Math.floor(minutes / MINUTES_PER_HOUR)} h ${String(minutes % MINUTES_PER_HOUR).padStart(2, '0')}`
+  if (minutes < MINUTES_PER_HOUR) {
+    return `${minutes} min`
+  }
+  return `${Math.floor(minutes / MINUTES_PER_HOUR)} h ${String(minutes % MINUTES_PER_HOUR).padStart(2, '0')}`
 }
 
 export const longestWaitingFirst = (panes: WaitingPane[], since: Record<string, number>, now: number): WaitingPane[] =>
@@ -155,6 +165,7 @@ export const panesInState = (session: Session, agents: AgentMap, state: AgentSta
                 label: `${workspace.name} › ${tab.name} › ${folderName(pane.path)}`,
                 folder: folderName(pane.path),
                 detail: describeAgent(agent),
+                reason: attentionReason(agent),
                 agent,
               },
             ]

@@ -31,11 +31,22 @@ public sealed class AgentMonitorTests : IDisposable
     public void Resolve_WhenClaudeReportsMultilineDetail_ThenDetailIsSingleLine()
     {
         var started = DateTime.UtcNow.AddMinutes(-1);
-        File.WriteAllText(_states.FilePathFor("pane-a"), "{ \"agent\": \"claude\", \"state\": \"waiting\", \"message\": \"Autorisation demandée : Bash\", \"detail\": \"git add .\\n  git push   --force\" }");
+        File.WriteAllText(_states.FilePathFor("pane-a"), "{ \"agent\": \"claude\", \"state\": \"waiting\", \"message\": \"Autorisation : Bash\", \"detail\": \"git add .\\n  git push   --force\" }");
 
         var agents = _monitor.Resolve([new PaneProbeModel("pane-a", started, ["node"])]);
 
-        Assert.Equal(new PaneAgentModel("pane-a", "claude", AgentState.Waiting, "Autorisation demandée : Bash", "git add . git push --force"), agents.Single());
+        Assert.Equal(new PaneAgentModel("pane-a", "claude", AgentState.Waiting, "Autorisation : Bash", "git add . git push --force"), agents.Single());
+    }
+
+    [Fact]
+    public void Resolve_WhenClaudeReportsMultilineQuestion_ThenMessageIsSingleLine()
+    {
+        var started = DateTime.UtcNow.AddMinutes(-1);
+        File.WriteAllText(_states.FilePathFor("pane-a"), "{ \"agent\": \"claude\", \"state\": \"waiting\", \"message\": \"Quelle base ?\\n  Choisir   une option\" }");
+
+        var message = _monitor.Resolve([new PaneProbeModel("pane-a", started, ["node"])]).Single().Message;
+
+        Assert.Equal("Quelle base ? Choisir une option", message);
     }
 
     [Fact]

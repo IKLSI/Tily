@@ -73,10 +73,11 @@ public sealed class AgentHookHandler
     {
         "SessionStart" => ("unknown", null, null),
         "UserPromptSubmit" or "PostToolUse" => ("working", null, null),
-        "PreToolUse" when toolName == "AskUserQuestion" => (WaitingState, "Question posée.", AgentHookInput.ToolDetail(hook["tool_input"])),
+        "PreToolUse" when toolName == "AskUserQuestion" => (WaitingState, AgentHookInput.Question(hook["tool_input"]), null),
         "Stop" => ("done", null, AgentHookInput.LastAssistantText(hook)),
         "StopFailure" => ("error", "Erreur signalée par Claude Code.", null),
-        "PermissionRequest" => (WaitingState, $"Autorisation demandée : {toolName}", AgentHookInput.ToolDetail(hook["tool_input"])),
+        "PermissionRequest" when toolName == "AskUserQuestion" => (WaitingState, AgentHookInput.Question(hook["tool_input"]), null),
+        "PermissionRequest" => (WaitingState, $"Autorisation : {toolName}", AgentHookInput.ToolDetail(hook["tool_input"])),
         "Notification" => NotificationState(AgentHookInput.Text(hook["notification_type"])),
         _ => null
     };

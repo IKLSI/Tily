@@ -1,7 +1,6 @@
 import { AgentState, AttentionKind } from '../../bridge/messages'
 import { bridge } from '../../bridge/bridge'
 import { agentKey, useAgentStore } from './agentStore'
-import { useHostStore } from '../../stores/hostStore'
 import { useSessionStore } from '../../stores/sessionStore'
 import { attentionNotice, panesInState, waitingPanes, type WaitingPane } from './agentSummary'
 
@@ -24,11 +23,7 @@ export const startAttentionNotifier = (): (() => void) =>
     const completed = done.filter((pane) => !pane.agent.interrupted)
     const justFinished = completed.filter((pane) => !finished.has(pane.paneId))
     finished = new Set(completed.map((pane) => pane.paneId))
-    const { contexts } = useHostStore.getState()
-    const raise = (pane: WaitingPane, kind: AttentionKind) => {
-      const notice = attentionNotice(pane, pane.agent, contexts[pane.paneId]?.branch)
-      bridge.send({ type: 'attention.raise', pane: pane.paneId, kind, ...notice })
-    }
+    const raise = (pane: WaitingPane, kind: AttentionKind) => bridge.send({ type: 'attention.raise', pane: pane.paneId, kind, ...attentionNotice(pane) })
     fresh.forEach((pane) => raise(pane, AttentionKind.Waiting))
     justFinished.forEach((pane) => raise(pane, AttentionKind.Done))
   })
