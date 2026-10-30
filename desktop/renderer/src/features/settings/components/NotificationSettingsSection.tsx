@@ -1,11 +1,13 @@
 import type { ChangeEvent } from 'react'
 import { AttentionKind, type NotificationSettings } from '../../../bridge/messages'
 import { InfoTip } from '../../../components/InfoTip'
-import { SETTINGS_LABEL, SETTINGS_ROW } from './settingsStyles'
+import { SettingsField } from './SettingsField'
+import { SettingsPanel } from './SettingsPanel'
+import { SETTINGS_CHECKBOX, SETTINGS_ROW } from './settingsStyles'
 import { SoundSetting } from './SoundSetting'
 
 interface NotificationSettingsSectionProps {
-  sectionClassName: string
+  title: string
   notifications: NotificationSettings
   onChange: (patch: Partial<NotificationSettings>) => void
   onPickSound: () => void
@@ -13,7 +15,10 @@ interface NotificationSettingsSectionProps {
   onTest: (kind: AttentionKind) => void
 }
 
-export function NotificationSettingsSection({ sectionClassName, notifications, onChange, onPickSound, onPickDoneSound, onTest }: NotificationSettingsSectionProps) {
+const CHECKBOX_ROW = `${SETTINGS_ROW} min-h-[30px]`
+const SOUND_TIP = 'Un fichier .aiff, .wav ou .mp3 se donne par son chemin absolu ; un chemin invalide revient au son par défaut à l’enregistrement.'
+
+export function NotificationSettingsSection({ title, notifications, onChange, onPickSound, onPickDoneSound, onTest }: NotificationSettingsSectionProps) {
   const handleSystemNotificationChange = (event: ChangeEvent<HTMLInputElement>) => onChange({ systemNotification: event.target.checked })
   const handleDockBounceChange = (event: ChangeEvent<HTMLInputElement>) => onChange({ dockBounce: event.target.checked })
   const handleNotifyDoneChange = (event: ChangeEvent<HTMLInputElement>) => onChange({ notifyDone: event.target.checked })
@@ -23,34 +28,39 @@ export function NotificationSettingsSection({ sectionClassName, notifications, o
   const handleTestDone = () => onTest(AttentionKind.Done)
 
   return (
-    <section className="flex flex-col gap-2">
-      <div className={SETTINGS_ROW}>
-        <h3 className={sectionClassName}>Notifications</h3>
-        <InfoTip text="Attente : quand un agent a besoin de vous et que Tily n’est pas la fenêtre active ; les cartes dans Tily restent toujours affichées. Fin : chaque fois qu’un agent termine, avec son dernier message." />
-      </div>
-      <span className={SETTINGS_ROW}>
-        <label className="flex items-center gap-2">
-          <input type="checkbox" checked={notifications.systemNotification} onChange={handleSystemNotificationChange} />
-          <span className={SETTINGS_LABEL}>Notification macOS</span>
-        </label>
-        <InfoTip text="Un clic sur la notification rejoint le terminal de l’agent." />
-      </span>
-      <span className={SETTINGS_ROW}>
-        <label className="flex items-center gap-2">
-          <input type="checkbox" checked={notifications.dockBounce} onChange={handleDockBounceChange} />
-          <span className={SETTINGS_LABEL}>Faire rebondir l’icône de Tily dans le Dock</span>
-        </label>
-        <InfoTip text="Aussi à la fin d’une commande de plus de 10 s." />
-      </span>
-      <SoundSetting label="Son joué à chaque nouvelle attente" sound={notifications.sound} placeholder="/Users/vous/Music/attention.aiff" testTip="Joue le son, fait rebondir l’icône dans le Dock et affiche la notification macOS si elle est disponible, avec les réglages ci-dessus, sans enregistrer" onChange={handleSoundChange} onPick={onPickSound} onTest={handleTestWaiting} />
-      <span className={SETTINGS_ROW}>
-        <label className="flex items-center gap-2">
+    <SettingsPanel title={title}>
+      <SettingsField label="Attente d’un agent" tip="Quand un agent a besoin de vous et que Tily n’est pas la fenêtre active ; les cartes dans Tily restent toujours affichées.">
+        <div className="flex flex-col">
+          <span className={CHECKBOX_ROW}>
+            <label className={SETTINGS_CHECKBOX}>
+              <input type="checkbox" checked={notifications.systemNotification} onChange={handleSystemNotificationChange} />
+              Notification macOS
+            </label>
+            <InfoTip text="Un clic sur la notification rejoint le terminal de l’agent." />
+          </span>
+          <span className={CHECKBOX_ROW}>
+            <label className={SETTINGS_CHECKBOX}>
+              <input type="checkbox" checked={notifications.dockBounce} onChange={handleDockBounceChange} />
+              Rebond de l’icône dans le Dock
+            </label>
+            <InfoTip text="Aussi à la fin d’une commande de plus de 10 s." />
+          </span>
+        </div>
+      </SettingsField>
+      <SettingsField label="Son d’attente" tip={SOUND_TIP}>
+        <SoundSetting label="Son d’attente" sound={notifications.sound} placeholder="/Users/vous/Music/attention.aiff" testTip="Joue le son, fait rebondir l’icône dans le Dock et affiche la notification macOS si elle est disponible, avec les réglages ci-dessus, sans enregistrer" onChange={handleSoundChange} onPick={onPickSound} onTest={handleTestWaiting} />
+      </SettingsField>
+      <SettingsField label="Fin d’un agent" tip="Chaque fois qu’un agent termine, avec son dernier message, même si Tily est la fenêtre active.">
+        <label className={SETTINGS_CHECKBOX}>
           <input type="checkbox" checked={notifications.notifyDone} onChange={handleNotifyDoneChange} />
-          <span className={SETTINGS_LABEL}>Notifier quand un agent a terminé</span>
+          Notifier
         </label>
-        <InfoTip text="Même si Tily est la fenêtre active." />
-      </span>
-      {notifications.notifyDone && <SoundSetting label="Son joué quand un agent a terminé" sound={notifications.doneSound} placeholder="/Users/vous/Music/termine.aiff" testTip="Joue le son de fin et affiche la notification de fin, avec les réglages ci-dessus, sans enregistrer" onChange={handleDoneSoundChange} onPick={onPickDoneSound} onTest={handleTestDone} />}
-    </section>
+      </SettingsField>
+      {notifications.notifyDone && (
+        <SettingsField label="Son de fin" tip={SOUND_TIP}>
+          <SoundSetting label="Son de fin" sound={notifications.doneSound} placeholder="/Users/vous/Music/termine.aiff" testTip="Joue le son de fin et affiche la notification de fin, avec les réglages ci-dessus, sans enregistrer" onChange={handleDoneSoundChange} onPick={onPickDoneSound} onTest={handleTestDone} />
+        </SettingsField>
+      )}
+    </SettingsPanel>
   )
 }

@@ -1,21 +1,21 @@
-import { useEffect, useRef, useState, type ChangeEvent, type KeyboardEvent, type MouseEvent, type PointerEvent } from 'react'
+import { useEffect, useRef, useState, type KeyboardEvent, type MouseEvent, type PointerEvent } from 'react'
 import { PickTarget, type AttentionKind, type ImportedPreferences, type NotificationSettings, type PersistenceSettings, type PickedPath, type Settings, type SettingsSnapshot, type ShortcutSettings, type TerminalFont } from '../../../bridge/messages'
 import type { WorktreeProjectFolder, WorktreeSettings } from '../../../bridge/worktreeMessages'
 import { revealInExplorer } from '../../explorer/fileExplorerActions'
 import { useHostStore } from '../../../stores/hostStore'
 import { keepTabInside } from '../../../components/focusTrap'
-import { InfoTip } from '../../../components/InfoTip'
+import { Icon } from '../../../components/Icon'
+import { IconName } from '../../../components/iconName'
 import { AgentSettingsSection } from './AgentSettingsSection'
-import { AppearanceSettingsSection } from './AppearanceSettingsSection'
-import { BrowseButton } from './BrowseButton'
-import { McpSettingsSection } from './McpSettingsSection'
 import { NotificationSettingsSection } from './NotificationSettingsSection'
-import { NUMBER_FIELDS, numberTextOf, valueWithin, type NumberTexts } from './persistenceFields'
-import { PersistenceSettingsSection } from './PersistenceSettingsSection'
+import { NUMBER_FIELDS, numberFieldId, numberTextOf, valueWithin, type NumberField, type NumberTexts } from './persistenceFields'
 import { ProjectSettingsSection } from './ProjectSettingsSection'
-import { SETTINGS_HINT, SETTINGS_INPUT, SETTINGS_LABEL, SETTINGS_PRIMARY, SETTINGS_ROW, SETTINGS_SECONDARY } from './settingsStyles'
+import { SettingsNav } from './SettingsNav'
+import { SETTINGS_SECTION_LABELS, SettingsSection, settingsTabId } from './settingsSections'
+import { SETTINGS_HINT, SETTINGS_ICON_BUTTON, SETTINGS_PRIMARY, SETTINGS_SECONDARY } from './settingsStyles'
 import { ShellSettingsSection } from './ShellSettingsSection'
 import { ShortcutSettingsSection } from './ShortcutSettingsSection'
+import { TerminalSettingsSection } from './TerminalSettingsSection'
 import { UpdateSettingsSection } from './UpdateSettingsSection'
 
 interface SettingsDialogProps {
@@ -38,9 +38,7 @@ const PROJECTS_ROOT_FIELD = 'projectsRoot'
 const WORKTREE_FOLDER_FIELD = 'worktreeFolder'
 const SOUND_FIELD = 'notificationSound'
 const DONE_SOUND_FIELD = 'notificationDoneSound'
-const EDITOR_ID = 'settings-editor'
-
-const SECTION = 'text-[11px] font-semibold tracking-wide text-tily-muted uppercase'
+const PANEL_ID = 'settings-panel'
 
 const comparable = (settings: Settings): Settings => ({ ...settings, shells: Object.fromEntries(Object.entries(settings.shells).filter(([, path]) => path.trim().length > 0)) })
 
@@ -54,8 +52,8 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
   const [importWarnings, setImportWarnings] = useState<string[]>([])
   const [numberTexts, setNumberTexts] = useState<NumberTexts>({})
   const [closeHeld, setCloseHeld] = useState(false)
+  const [section, setSection] = useState(SettingsSection.Shells)
   const dialogRef = useRef<HTMLDivElement>(null)
-  const numberInputsRef = useRef<Partial<Record<keyof PersistenceSettings, HTMLInputElement | null>>>({})
   if (snapshot !== seenSnapshot) {
     setSeenSnapshot(snapshot)
     setDraft(snapshot ? structuredClone(snapshot.settings) : null)
@@ -87,7 +85,7 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
   const loaded = draft !== null
   useEffect(() => {
     if (loaded) {
-      dialogRef.current?.querySelector<HTMLInputElement>('input')?.focus()
+      dialogRef.current?.querySelector<HTMLInputElement>('[role="tabpanel"] input')?.focus()
     }
   }, [loaded])
 
@@ -113,7 +111,9 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
   const invalidNumber = draft ? NUMBER_FIELDS.find((field) => valueWithin(numberTextOf(numberTexts, draft.persistence, field), field) === null) : undefined
   const handleSave = () => {
     if (invalidNumber) {
-      numberInputsRef.current[invalidNumber.key]?.focus()
+      setSection(SettingsSection.Terminals)
+      const fieldId = numberFieldId(invalidNumber.key)
+      requestAnimationFrame(() => document.getElementById(fieldId)?.focus())
     } else if (draft) {
       onSave(draft)
     }
@@ -151,12 +151,18 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
   const handlePickWorktreeFolder = () => onPick(WORKTREE_FOLDER_FIELD, PickTarget.Folder)
   const handlePickShell = (shellId: string) => onPick(`${SHELL_FIELD_PREFIX}${shellId}`, PickTarget.File)
   const handleShellChange = (shellId: string, path: string) => setDraft((current) => (current ? { ...current, shells: { ...current.shells, [shellId]: path } } : current))
-  const handleEditorChange = (event: ChangeEvent<HTMLInputElement>) => updateDraft({ editor: event.target.value })
+  const handleEditorChange = (editor: string) => updateDraft({ editor })
   const handleProjectsRootChange = (projectsRoot: string) => updateDraft({ projectsRoot })
   const handleWorktreeFoldersChange = (worktreeFolders: WorktreeProjectFolder[]) => updateDraft({ worktreeFolders })
-  const handleAutoFetchChange = (event: ChangeEvent<HTMLInputElement>) => updateDraft({ git: { autoFetch: event.target.checked } })
+  const handleAutoFetchChange = (autoFetch: boolean) => updateDraft({ git: { autoFetch } })
   const handleNumberTextChange = (key: keyof PersistenceSettings, text: string) => setNumberTexts((current) => ({ ...current, [key]: text }))
-  const handlePersistenceChange = (persistence: PersistenceSettings) => updateDraft({ persistence })
+  const handleNumberChange = (field: NumberField, text: string) => {
+    handleNumberTextChange(field.key, text)
+    const value = valueWithin(text, field)
+    if (draft && value !== null) {
+      updateDraft({ persistence: { ...draft.persistence, [field.key]: value } })
+    }
+  }
   const updateNotifications = (patch: Partial<NotificationSettings>) => setDraft((current) => (current ? { ...current, notifications: { ...current.notifications, ...patch } } : current))
   const handlePickSound = () => onPick(SOUND_FIELD, PickTarget.Sound)
   const handlePickDoneSound = () => onPick(DONE_SOUND_FIELD, PickTarget.Sound)
@@ -177,6 +183,26 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
     }
   }
 
+  const renderSection = (settings: Settings, current: SettingsSnapshot) => {
+    const title = SETTINGS_SECTION_LABELS[section]
+    switch (section) {
+      case SettingsSection.Shells:
+        return <ShellSettingsSection title={title} shellSettings={current.shellSettings} shells={settings.shells} editor={settings.editor} onShellChange={handleShellChange} onEditorChange={handleEditorChange} onPickShell={handlePickShell} onPickEditor={handlePickEditor} />
+      case SettingsSection.Terminals:
+        return <TerminalSettingsSection title={title} fontSize={settings.appearance.fontSize} fontFamily={settings.appearance.fontFamily} numberText={(field) => numberTextOf(numberTexts, settings.persistence, field)} onFontSizeChange={handleFontSizeChange} onFontFamilyChange={handleFontFamilyChange} onNumberChange={handleNumberChange} />
+      case SettingsSection.Shortcuts:
+        return <ShortcutSettingsSection title={title} shortcuts={settings.shortcuts} defaults={current.shortcutDefaults} onChange={handleShortcutsChange} />
+      case SettingsSection.Projects:
+        return <ProjectSettingsSection title={title} projectsRoot={settings.projectsRoot} worktrees={settings.worktrees} worktreeFolders={settings.worktreeFolders} autoFetch={settings.git.autoFetch} onProjectsRootChange={handleProjectsRootChange} onWorktreesChange={updateWorktrees} onWorktreeFoldersChange={handleWorktreeFoldersChange} onAutoFetchChange={handleAutoFetchChange} onPickProjectsRoot={handlePickProjectsRoot} onPickWorktreeFolder={handlePickWorktreeFolder} />
+      case SettingsSection.Notifications:
+        return <NotificationSettingsSection title={title} notifications={settings.notifications} onChange={updateNotifications} onPickSound={handlePickSound} onPickDoneSound={handlePickDoneSound} onTest={handleTestNotification} />
+      case SettingsSection.Agents:
+        return <AgentSettingsSection title={title} agents={current.agents} mcp={current.mcp} onInstallHooks={onInstallHooks} onRemoveHooks={onRemoveHooks} />
+      case SettingsSection.Updates:
+        return <UpdateSettingsSection title={title} autoCheck={settings.updates.autoCheck} onAutoCheckChange={handleAutoCheckChange} />
+    }
+  }
+
   const renderBody = (settings: Settings, current: SettingsSnapshot) => (
     <>
       {importSource && <p className="rounded border border-tily-green/50 bg-tily-paper px-3 py-2 text-[12px] text-tily-green">Préférences lues depuis {importSource}. Rien n’est écrit tant que vous n’enregistrez pas ; Enregistrer remplace la configuration actuelle.</p>}
@@ -194,62 +220,35 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
           ))}
         </ul>
       )}
-      <ShellSettingsSection sectionClassName={SECTION} shellSettings={current.shellSettings} shells={settings.shells} onShellChange={handleShellChange} onPickShell={handlePickShell} />
-      <AppearanceSettingsSection sectionClassName={SECTION} fontSize={settings.appearance.fontSize} fontFamily={settings.appearance.fontFamily} onFontSizeChange={handleFontSizeChange} onFontFamilyChange={handleFontFamilyChange} />
-      <section className="flex flex-col gap-2">
-        <h3 className={SECTION}>Éditeur</h3>
-        <div className="flex flex-col gap-1">
-          <label htmlFor={EDITOR_ID} className={SETTINGS_LABEL}>
-            Commande d’ouverture d’un dossier
-          </label>
-          <span className="flex gap-1">
-            <input id={EDITOR_ID} type="text" className={SETTINGS_INPUT} value={settings.editor} placeholder="code" spellCheck={false} onChange={handleEditorChange} />
-            <BrowseButton tip="Choisir l’exécutable de l’éditeur" onClick={handlePickEditor} />
-          </span>
-        </div>
-      </section>
-      <PersistenceSettingsSection sectionClassName={SECTION} persistence={settings.persistence} numberTexts={numberTexts} inputs={numberInputsRef} onNumberTextChange={handleNumberTextChange} onPersistenceChange={handlePersistenceChange} />
-      <ProjectSettingsSection sectionClassName={SECTION} settings={settings} onProjectsRootChange={handleProjectsRootChange} onPickProjectsRoot={handlePickProjectsRoot} onWorktreesChange={updateWorktrees} onWorktreeFoldersChange={handleWorktreeFoldersChange} onPickWorktreeFolder={handlePickWorktreeFolder} />
-      <section className="flex flex-col gap-2">
-        <h3 className={SECTION}>Git</h3>
-        <span className={SETTINGS_ROW}>
-          <label className="flex items-center gap-2">
-            <input type="checkbox" checked={settings.git.autoFetch} onChange={handleAutoFetchChange} />
-            <span className={SETTINGS_LABEL}>Fetch automatique à l’ouverture de la vue Git</span>
-          </label>
-          <InfoTip text="Lance git fetch --all à l’ouverture de la vue Git et quand le pane actif passe à un autre dépôt, au plus une fois toutes les 5 minutes par dépôt. Un échec (hors ligne, authentification) reste silencieux." />
-        </span>
-      </section>
-      <ShortcutSettingsSection sectionClassName={SECTION} shortcuts={settings.shortcuts} defaults={current.shortcutDefaults} onChange={handleShortcutsChange} />
-      <NotificationSettingsSection sectionClassName={SECTION} notifications={settings.notifications} onChange={updateNotifications} onPickSound={handlePickSound} onPickDoneSound={handlePickDoneSound} onTest={handleTestNotification} />
-      <AgentSettingsSection sectionClassName={SECTION} agents={current.agents} onInstallHooks={onInstallHooks} onRemoveHooks={onRemoveHooks} />
-      <McpSettingsSection sectionClassName={SECTION} mcp={current.mcp} />
-      <UpdateSettingsSection sectionClassName={SECTION} autoCheck={settings.updates.autoCheck} onAutoCheckChange={handleAutoCheckChange} />
+      <div key={section}>{renderSection(settings, current)}</div>
     </>
   )
 
   return (
     <div className="absolute inset-0 z-30 flex items-start justify-center bg-tily-paper/60 pt-[6vh]" onPointerDown={handleBackdropPointerDown} onMouseDown={handleBackdropMouseDown}>
-      <div ref={dialogRef} role="dialog" aria-label="Paramètres" className="flex max-h-[86vh] w-[640px] max-w-[94vw] flex-col rounded-lg border border-tily-line bg-tily-panel shadow-xl" onKeyDown={handleKeyDown}>
+      <div ref={dialogRef} role="dialog" aria-label="Paramètres" className="flex h-[min(86vh,680px)] w-[780px] max-w-[94vw] flex-col rounded-lg border border-tily-line bg-tily-panel shadow-xl" onKeyDown={handleKeyDown}>
         <div className="flex items-baseline justify-between border-b border-tily-line px-4 py-3">
           <h2 className="text-[15px] font-semibold text-tily-ink">
             Paramètres
-            {version && <span className="ml-2 text-[12px] font-normal text-tily-muted">{`Tily ${version}`}</span>}
+            {version && <span className="ml-2 text-[12px] font-normal text-tily-muted">{`· Tily ${version}`}</span>}
           </h2>
           <span className={SETTINGS_HINT}>Ctrl + Entrée enregistre · Échap ferme</span>
         </div>
-        <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-4 py-4">
-          {draft && snapshot ? renderBody(draft, snapshot) : <p className={SETTINGS_HINT}>Chargement des réglages…</p>}
+        <div className="flex min-h-0 flex-1">
+          <SettingsNav section={section} panelId={PANEL_ID} onSelect={setSection} />
+          <div id={PANEL_ID} role="tabpanel" aria-labelledby={settingsTabId(section)} className="flex min-w-0 flex-1 flex-col gap-4 overflow-y-auto px-5 py-4">
+            {draft && snapshot ? renderBody(draft, snapshot) : <p className={SETTINGS_HINT}>Chargement des réglages…</p>}
+          </div>
         </div>
         <div className="flex items-center gap-2 border-t border-tily-line px-4 py-3">
-          <button type="button" className={SETTINGS_SECONDARY} data-tip="Lit un fichier de préférences JSON et remplit le formulaire sans rien écrire" onClick={onImport}>
-            Importer…
+          <button type="button" className={SETTINGS_ICON_BUTTON} aria-label="Importer" data-tip="Importer : lit un fichier de préférences JSON et remplit le formulaire sans rien écrire" onClick={onImport}>
+            <Icon name={IconName.Pull} />
           </button>
-          <button type="button" className={SETTINGS_SECONDARY} data-tip="Écrit la configuration enregistrée (sans les modifications en cours) dans un fichier JSON versionné" onClick={onExport}>
-            Exporter…
+          <button type="button" className={SETTINGS_ICON_BUTTON} aria-label="Exporter" data-tip="Exporter : écrit la configuration enregistrée (sans les modifications en cours) dans un fichier JSON versionné" onClick={onExport}>
+            <Icon name={IconName.Push} />
           </button>
-          <button type="button" className={SETTINGS_SECONDARY} aria-disabled={!snapshot} data-tip="Ouvre le Finder sur le dossier des fichiers de réglages, pour les sauvegarder ou les modifier à la main" onClick={handleRevealFiles}>
-            Afficher les fichiers
+          <button type="button" className={SETTINGS_ICON_BUTTON} aria-label="Afficher les fichiers" aria-disabled={!snapshot} data-tip="Afficher les fichiers : ouvre le Finder sur le dossier des fichiers de réglages, pour les sauvegarder ou les modifier à la main" onClick={handleRevealFiles}>
+            <Icon name={IconName.Folder} />
           </button>
           <span role="status" className="ml-auto text-[11px] text-tily-warning">
             {closeHeld && unsaved ? 'Modifications non enregistrées : Enregistrer, ou Annuler pour les abandonner.' : ''}

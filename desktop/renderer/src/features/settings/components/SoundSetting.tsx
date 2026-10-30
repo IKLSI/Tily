@@ -2,7 +2,7 @@ import type { ChangeEvent } from 'react'
 import { NotificationSound } from '../../../bridge/messages'
 import { Icon } from '../../../components/Icon'
 import { IconName } from '../../../components/iconName'
-import { SETTINGS_BROWSE, SETTINGS_HINT, SETTINGS_INPUT, SETTINGS_LABEL, SETTINGS_SECONDARY } from './settingsStyles'
+import { SETTINGS_BROWSE, SETTINGS_INPUT, SETTINGS_SECONDARY } from './settingsStyles'
 
 interface SoundSettingProps {
   label: string
@@ -43,10 +43,9 @@ export function SoundSetting({ label, sound, placeholder, testTip, onChange, onP
   const handlePathChange = (event: ChangeEvent<HTMLInputElement>) => onChange(event.target.value)
 
   return (
-    <label className="flex flex-col gap-1">
-      <span className={SETTINGS_LABEL}>{label}</span>
-      <span className="flex gap-2">
-        <select className={SETTINGS_INPUT} value={custom ? CUSTOM_SOUND : sound} onChange={handleSelect}>
+    <>
+      <span className="flex gap-1">
+        <select className={SETTINGS_INPUT} value={custom ? CUSTOM_SOUND : sound} aria-label={label} onChange={handleSelect}>
           {Object.values(NotificationSound).map((known) => (
             <option key={known} value={known}>
               {SOUND_LABELS[known]}
@@ -54,19 +53,18 @@ export function SoundSetting({ label, sound, placeholder, testTip, onChange, onP
           ))}
           <option value={CUSTOM_SOUND}>Fichier son de mon ordinateur…</option>
         </select>
-        <button type="button" className={SETTINGS_SECONDARY} data-tip={testTip} onClick={onTest}>
+        <button type="button" className={`${SETTINGS_SECONDARY} shrink-0`} data-tip={testTip} onClick={onTest}>
           Tester
         </button>
       </span>
       {custom && (
         <span className="flex gap-1">
-          <input type="text" className={SETTINGS_INPUT} value={sound} placeholder={placeholder} spellCheck={false} onChange={handlePathChange} />
+          <input type="text" className={SETTINGS_INPUT} value={sound} placeholder={placeholder} spellCheck={false} aria-label={`${label} : fichier son`} onChange={handlePathChange} />
           <button type="button" className={SETTINGS_BROWSE} aria-label={PICK_TIP} data-tip={PICK_TIP} onClick={onPick}>
             <Icon name={IconName.More} />
           </button>
         </span>
       )}
-      {custom && <span className={SETTINGS_HINT}>Fichier .aiff, .wav ou .mp3 uniquement (chemin absolu). Un chemin invalide revient au son par défaut à l’enregistrement.</span>}
-    </label>
+    </>
   )
 }
