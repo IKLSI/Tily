@@ -40,7 +40,7 @@ export function TerminalSettingsSection({ title, fontSize, fontFamily, numberTex
       </SettingsField>
       <SettingsField label="Taille du texte" tip="En pixels, pour tous les terminaux." htmlFor={FONT_SIZE_ID}>
         <span className="flex items-center gap-2">
-          <span className="w-[150px] shrink-0">
+          <span className="w-[190px] shrink-0">
             <select id={FONT_SIZE_ID} className={SETTINGS_INPUT} value={fontSize} onChange={handleFontSizeChange}>
               {FONT_SIZES.map((size) => (
                 <option key={size} value={size}>
