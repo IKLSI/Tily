@@ -1,5 +1,7 @@
 import { memo, type ReactNode } from 'react'
 import { EditableName } from '../components/EditableName'
+import { Icon } from '../components/Icon'
+import { IconName } from '../components/iconName'
 import { InlineNameEditor } from '../components/InlineNameEditor'
 import { LeaderHints } from '../features/keyboard/components/LeaderHints'
 import { Command } from '../features/keyboard/commands'
@@ -26,11 +28,12 @@ export const Header = memo(function Header({ workspaceName, renaming, sidebarCol
     <header className="relative flex h-[34px] shrink-0 items-center gap-4 border-b border-tily-line bg-tily-panel px-3 text-tily-ink">
       <button
         type="button"
-        className="cursor-pointer rounded border border-tily-line px-2 text-lg leading-tight text-tily-muted hover:bg-tily-green-hover hover:text-tily-ink"
+        aria-label={sidebarCollapsed ? 'Afficher les workspaces' : 'Masquer les workspaces'}
+        className="flex h-[26px] cursor-pointer items-center rounded border border-tily-line px-2 text-tily-muted hover:bg-tily-green-hover hover:text-tily-ink"
         data-tip={sidebarTip}
         onClick={onToggleSidebar}
       >
-        ☰
+        <Icon name={IconName.Menu} size={14} />
       </button>
       <div className="flex min-w-0 items-baseline gap-4">
         {!navigation &&
@@ -48,11 +51,11 @@ export const Header = memo(function Header({ workspaceName, renaming, sidebarCol
         <UpdateButton />
         <button
           type="button"
-          className="flex cursor-pointer items-center gap-1.5 rounded border border-tily-line px-2 text-tily-muted hover:bg-tily-green-hover hover:text-tily-ink"
+          className="flex h-[26px] cursor-pointer items-center gap-1.5 rounded border border-tily-line px-2 text-tily-muted hover:bg-tily-green-hover hover:text-tily-ink"
           data-tip={settingsTip}
           onClick={onOpenSettings}
         >
-          <span className="text-lg leading-tight">⚙</span>
+          <Icon name={IconName.Settings} className="translate-y-px" />
           <span className="text-xs">Paramètres</span>
         </button>
       </div>

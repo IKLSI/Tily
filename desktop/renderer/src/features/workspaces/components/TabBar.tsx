@@ -236,8 +236,8 @@ export const TabBar = memo(function TabBar({ workspace, shells, renamingTabId, p
                     {tab.owner && <AgentOwnerMark owner={tab.owner} compact />}
                   </button>
                 )}
-                <button type="button" className={`shrink-0 cursor-pointer px-2 text-xs hover:text-tily-error ${active ? '' : 'opacity-0 group-hover:opacity-100 focus-visible:opacity-100'}`} data-tip="Fermer l’onglet" onClick={handleClose}>
-                  ×
+                <button type="button" className={`flex shrink-0 cursor-pointer items-center self-stretch px-2 hover:text-tily-error ${active ? '' : 'opacity-0 group-hover:opacity-100 focus-visible:opacity-100'}`} aria-label="Fermer l’onglet" data-tip="Fermer l’onglet" onClick={handleClose}>
+                  <Icon name={IconName.Close} size={10} />
                 </button>
               </div>
             </Fragment>
@@ -251,13 +251,14 @@ export const TabBar = memo(function TabBar({ workspace, shells, renamingTabId, p
           type="button"
           aria-haspopup="menu"
           aria-expanded={menuOpen}
-          className="cursor-pointer rounded px-2 py-1 text-base hover:bg-tily-green-hover"
+          aria-label="Nouvel onglet"
+          className="flex size-[26px] cursor-pointer items-center justify-center rounded hover:bg-tily-green-hover"
           data-tip={`Nouvel onglet zsh (${newTabShortcut ? `${newTabShortcut} ; ` : ''}clic droit : choisir le shell ou un navigateur ; double-clic dans l’espace vide de la barre : nouvel onglet)`}
           onClick={handleNewDefault}
           onContextMenu={handleContextMenu}
           onKeyDown={handleAddKeyDown}
         >
-          +
+          <Icon name={IconName.Plus} />
         </button>
         {menuOpen && <ShellMenu shells={shells} onSelect={handleSelectShell} onBrowser={handleNewBrowser} onClose={handleCloseMenu} />}
       </div>
@@ -269,7 +270,7 @@ export const TabBar = memo(function TabBar({ workspace, shells, renamingTabId, p
         data-tip={withShortcut(`${panelOpen ? 'Masquer' : 'Afficher'} le panneau Fichiers / Git / Notes`, panelShortcuts)}
         onClick={onTogglePanel}
       >
-        <Icon name={IconName.Explorer} size={14} />
+        <Icon name={IconName.Explorer} className="translate-y-px" />
         <span>Fichiers / Git / Notes</span>
       </button>
       {tabMenu && (

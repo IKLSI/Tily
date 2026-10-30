@@ -7,6 +7,8 @@ import { repositoryLabel, sameFolder } from '../worktreePaths'
 import { keepTabInside } from '../../../components/focusTrap'
 import { SETTINGS_BROWSE, SETTINGS_BUTTON, SETTINGS_HINT, SETTINGS_INPUT, SETTINGS_LABEL, SETTINGS_SECONDARY } from '../../settings/components/settingsStyles'
 import { Spinner } from '../../../components/Spinner'
+import { Icon } from '../../../components/Icon'
+import { IconName } from '../../../components/iconName'
 import { WorktreeFailureDetails } from './WorktreeFailureDetails'
 
 interface WorktreeDialogProps {
@@ -93,7 +95,7 @@ export function WorktreeDialog({ draft, sources, plan, planPending, busy, failur
   return (
     <div className="absolute inset-0 z-30 flex items-start justify-center bg-tily-paper/60 pt-[10vh]" onPointerDown={handleBackdropPointerDown} onMouseDown={handleBackdropMouseDown}>
       <form role="dialog" aria-label="Créer un worktree" className="flex max-h-[80vh] w-[560px] max-w-[94vw] flex-col rounded-lg border border-tily-line bg-tily-panel shadow-xl" onKeyDown={keepTabInside} onSubmit={handleSubmit}>
-        <div className="flex items-center justify-between border-b border-tily-line px-4 py-3">
+        <div className="flex items-baseline justify-between border-b border-tily-line px-4 py-3">
           <h2 className="text-[15px] font-semibold text-tily-ink">Créer un worktree</h2>
           <span className={SETTINGS_HINT}>Entrée crée · Échap ferme</span>
         </div>
@@ -162,7 +164,7 @@ export function WorktreeDialog({ draft, sources, plan, planPending, busy, failur
             <span className="flex gap-1">
               <input type="text" className={SETTINGS_INPUT} value={draft.folder ?? plan?.folder ?? ''} spellCheck={false} aria-label="Dossier des worktrees" onChange={handleFolderChange} />
               <button type="button" className={SETTINGS_BROWSE} aria-label="Choisir le dossier des worktrees" data-tip="Choisir le dossier des worktrees" onClick={pickWorktreeFolder}>
-                …
+                <Icon name={IconName.More} />
               </button>
             </span>
             {folderChanged(draft, plan) && (
