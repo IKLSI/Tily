@@ -13,7 +13,7 @@ import { GitChangesView } from './GitChangesView'
 import { GitCommitDetail } from './GitCommitDetail'
 import { GitHeader } from './GitHeader'
 import { GitPromptBar } from './GitPromptBar'
-import { GIT_SECONDARY, SECTION_TITLE } from '../../right-panel/components/rightPanelStyles'
+import { GIT_SECONDARY, SECTION_HEADING } from '../../right-panel/components/rightPanelStyles'
 
 interface GitPanelProps {
   folder: string
@@ -90,8 +90,8 @@ export function GitPanel({ folder }: GitPanelProps) {
           <GitCommitDetail state={state} busy={busy} />
         ) : (
           <>
-            <div className="flex h-[30px] shrink-0 items-center gap-[8px] border-y border-tily-line px-[12px]">
-              <span className={SECTION_TITLE}>Modifications</span>
+            <div className="mt-[6px] flex h-[30px] shrink-0 items-center gap-[8px] px-[12px]">
+              <span className={SECTION_HEADING}>Modifications</span>
               <span className="text-[11px] text-tily-muted">{changeCount > 0 ? plural(changeCount, 'fichier', 'fichiers') : 'aucune'}</span>
             </div>
             <GitChangesView state={state} busy={busy} />

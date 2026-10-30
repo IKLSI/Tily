@@ -3,6 +3,7 @@ import { filterSearchItems, type SearchItem } from '../searchFilter'
 import { keepTabInside } from '../../../components/focusTrap'
 import { Icon } from '../../../components/Icon'
 import { IconName } from '../../../components/iconName'
+import { InfoTip } from '../../../components/InfoTip'
 
 interface SearchDialogProps<T extends SearchItem> {
   label: string
@@ -87,20 +88,27 @@ export function SearchDialog<T extends SearchItem>({ label, placeholder, emptyMe
   return (
     <div className="absolute inset-0 z-30 flex items-start justify-center bg-tily-paper/60 pt-[12vh]" onPointerDown={handleBackdropPointerDown}>
       <div role="dialog" aria-label={label} className="flex max-h-[70vh] w-[560px] max-w-[92vw] flex-col rounded-lg border border-tily-line bg-tily-panel p-2 shadow-xl" onKeyDown={keepTabInside}>
-        <input
-          type="text"
-          role="combobox"
-          aria-autocomplete="list"
-          aria-expanded="true"
-          aria-controls={LISTBOX_ID}
-          aria-activedescendant={selectedItem ? `${RESULT_ID_PREFIX}${selected}` : undefined}
-          autoFocus
-          placeholder={placeholder}
-          value={query}
-          className="rounded border border-tily-focus bg-tily-paper px-3 py-2 text-[13px] text-tily-ink outline-none placeholder:text-tily-muted"
-          onChange={handleQueryChange}
-          onKeyDown={handleKeyDown}
-        />
+        <div className="relative flex flex-col">
+          <input
+            type="text"
+            role="combobox"
+            aria-autocomplete="list"
+            aria-expanded="true"
+            aria-controls={LISTBOX_ID}
+            aria-activedescendant={selectedItem ? `${RESULT_ID_PREFIX}${selected}` : undefined}
+            autoFocus
+            placeholder={placeholder}
+            value={query}
+            className={`rounded border border-tily-focus bg-tily-paper py-2 pl-3 text-[13px] text-tily-ink outline-none placeholder:text-tily-muted ${footer ? 'pr-9' : 'pr-3'}`}
+            onChange={handleQueryChange}
+            onKeyDown={handleKeyDown}
+          />
+          {footer && (
+            <span className="absolute top-1/2 right-3 flex -translate-y-1/2">
+              <InfoTip text={footer} />
+            </span>
+          )}
+        </div>
         <div ref={listRef} id={LISTBOX_ID} role="listbox" aria-label="Résultats" className="mt-2 min-h-0 flex-1 overflow-y-auto">
           {filtered.length === 0 && <p className="px-3 py-2 text-[11px] text-tily-muted">{emptyMessage}</p>}
           {filtered.map((item, index) => {
@@ -143,7 +151,6 @@ export function SearchDialog<T extends SearchItem>({ label, placeholder, emptyMe
           })}
           {hidden > 0 && <p className="px-3 py-2 text-[11px] text-tily-muted">{hidden === 1 ? '1 autre résultat' : `${hidden} autres résultats`} : précisez la recherche.</p>}
         </div>
-        {footer && <p className="mt-2 border-t border-tily-line px-3 pt-2 text-[11px] text-tily-muted">{footer}</p>}
         <p role="status" className={notice ? 'mt-2 border-t border-tily-line px-3 pt-2 text-[11px] text-tily-warning' : undefined}>
           {notice}
         </p>

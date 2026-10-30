@@ -1,6 +1,6 @@
 import { memo, useCallback, useEffect, useRef, useState, type MouseEvent } from 'react'
 import { OpenTarget, type ShellProfile } from '../../../bridge/messages'
-import { RightPanelView, SplitAxis, type Pane } from '../../../model/session'
+import { DEFAULT_SHELL, RightPanelView, SplitAxis, type Pane } from '../../../model/session'
 import { openPanelView } from '../../right-panel/rightPanel'
 import { useAgentStore } from '../../agents/agentStore'
 import { useHostStore } from '../../../stores/hostStore'
@@ -63,12 +63,9 @@ const FolderIcon = () => (
 )
 
 const DETACHED_LABEL = 'HEAD détachée'
-const LAST_FOLDER = /^(.+?)(\/[^/]+\/?)$/
+const LAST_FOLDER = /([^/]+)\/*$/
 
-const pathParts = (path: string): { parent: string; folder: string } => {
-  const match = LAST_FOLDER.exec(path)
-  return { parent: match?.[1] ?? '', folder: match?.[2] ?? path }
-}
+const lastFolder = (path: string): string => LAST_FOLDER.exec(path)?.[1] ?? path
 
 const BranchIcon = () => (
   <svg {...ICON_PROPS} aria-hidden="true">
@@ -207,7 +204,6 @@ export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZ
   const revealed = active ? '' : REVEALED_ON_HOVER
   const branchLabel = context?.branch ?? (context?.detachedHead ? DETACHED_LABEL : null)
   const branchTip = context?.branch ? `Copier la branche « ${context.branch} » · ${gitTip}` : `${gitSummary(context)} · ${gitTip}`
-  const { parent, folder } = pathParts(pane.path)
 
   return (
     <section
@@ -221,7 +217,7 @@ export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZ
         onDoubleClick={handleHeaderDoubleClick}
       >
         <span className="flex min-w-0 flex-1 items-baseline gap-1">
-          <span className="mr-1 min-w-[2em] truncate text-tily-muted">{pane.shell}</span>
+          {pane.shell !== DEFAULT_SHELL && <span className="mr-1 min-w-[2em] truncate text-tily-muted">{pane.shell}</span>}
           {agent && (
             <span className="flex min-w-0 self-center">
               <AgentBadge agent={agent} />
@@ -232,9 +228,8 @@ export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZ
               <AgentOwnerMark owner={pane.owner} />
             </span>
           )}
-          <span className={`flex min-w-0 flex-1 whitespace-nowrap ${active ? 'text-tily-green' : 'text-tily-ink-soft'}`} data-tip={pane.path}>
-            {parent && <span className="min-w-[1.2em] truncate">{parent}</span>}
-            <span className={parent ? 'max-w-[calc(100%_-_1.2em)] shrink-0 truncate' : 'truncate'}>{folder}</span>
+          <span className={`min-w-0 flex-1 truncate whitespace-nowrap ${active ? 'text-tily-green' : 'text-tily-ink-soft'}`} data-tip={pane.path}>
+            {lastFolder(pane.path)}
           </span>
         </span>
         {branchLabel && (

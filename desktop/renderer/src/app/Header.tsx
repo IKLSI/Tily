@@ -37,6 +37,7 @@ export const Header = memo(function Header({ workspaceName, renaming, sidebarCol
       </button>
       <div className="flex min-w-0 items-baseline gap-4">
         {!navigation &&
+          (sidebarCollapsed || renaming) &&
           (workspaceName === null ? (
             <span className="text-[15px] text-tily-muted">Aucun workspace</span>
           ) : renaming ? (
@@ -51,12 +52,12 @@ export const Header = memo(function Header({ workspaceName, renaming, sidebarCol
         <UpdateButton />
         <button
           type="button"
-          className="flex h-[26px] cursor-pointer items-center gap-1.5 rounded border border-tily-line px-2 text-tily-muted hover:bg-tily-green-hover hover:text-tily-ink"
+          aria-label="Paramètres"
+          className="flex h-[26px] cursor-pointer items-center rounded border border-tily-line px-2 text-tily-muted hover:bg-tily-green-hover hover:text-tily-ink"
           data-tip={settingsTip}
           onClick={onOpenSettings}
         >
-          <Icon name={IconName.Settings} className="translate-y-px" />
-          <span className="text-xs">Paramètres</span>
+          <Icon name={IconName.Settings} size={14} />
         </button>
       </div>
     </header>

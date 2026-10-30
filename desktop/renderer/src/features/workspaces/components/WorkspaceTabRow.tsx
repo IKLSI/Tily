@@ -37,7 +37,7 @@ const SHELL_LABELS: Record<string, string> = { bash: 'bash' }
 const SHELL_NAMES: Record<string, string> = { bash: 'bash' }
 
 const WORKTREE_TIP = 'Créer un worktree de ce projet'
-const NO_REPOSITORY_TIP = 'Créer un worktree : le dossier du pane actif de cet onglet n’est pas dans un dépôt Git'
+const NO_REPOSITORY_TIP = 'Pane actif hors d’un dépôt Git'
 
 export function WorkspaceTabRow({ workspaceId, tab, siblings, active, renaming, dragging, dropBefore, currentPaneId, agents, actions, onOpenMenu }: WorkspaceTabRowProps) {
   const summary = tabAgents(tab, agents)
@@ -128,7 +128,7 @@ export function WorkspaceTabRow({ workspaceId, tab, siblings, active, renaming, 
               {lead}
             </span>
             <TruncatedName name={tab.name} siblings={siblings} className="flex-1" />
-            {tab.owner && <AgentOwnerMark owner={tab.owner} compact />}
+            {tab.owner && <AgentOwnerMark owner={tab.owner} />}
             {customShell && <span className="shrink-0 text-[11px] text-tily-muted/70 @max-[260px]:hidden">{SHELL_LABELS[customShell] ?? customShell}</span>}
           </button>
         )}

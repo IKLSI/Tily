@@ -28,7 +28,7 @@ export const StatusBar = memo(function StatusBar() {
   const worktreeBusy = worktreeTasks > 0
   const waiting = worktreeTasks - 1
   const logOpen = useStatusLogStore((state) => state.open)
-  const logTip = useShortcutTip(logOpen ? 'Masquer le journal' : 'Afficher le journal des messages', Command.ToggleStatusLog)
+  const logTip = useShortcutTip(logOpen ? 'Masquer le journal' : 'Afficher le journal', Command.ToggleStatusLog)
   const spinning = Boolean(busy) || worktreeBusy
 
   return (

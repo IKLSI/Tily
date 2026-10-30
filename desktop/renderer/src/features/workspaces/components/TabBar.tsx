@@ -233,7 +233,7 @@ export const TabBar = memo(function TabBar({ workspace, shells, renamingTabId, p
                   >
                     {agentSummary ? <AgentStateIcon state={agentSummary.state} tip={agentSummary.tip} /> : commandNotice && <CommandNoticeIcon notice={commandNotice} />}
                     <span className="min-w-0 truncate">{tab.name}</span>
-                    {tab.owner && <AgentOwnerMark owner={tab.owner} compact />}
+                    {tab.owner && <AgentOwnerMark owner={tab.owner} />}
                   </button>
                 )}
                 <button type="button" className={`flex shrink-0 cursor-pointer items-center self-stretch px-2 hover:text-tily-error ${active ? '' : 'opacity-0 group-hover:opacity-100 focus-visible:opacity-100'}`} aria-label="Fermer l’onglet" data-tip="Fermer l’onglet" onClick={handleClose}>

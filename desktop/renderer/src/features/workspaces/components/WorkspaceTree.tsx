@@ -30,7 +30,7 @@ const handleCreateWorktree = (): void => openWorktreePicker(WorktreePickerKind.S
 
 export function WorkspaceTree({ session, renamingWorkspaceId, renamingTabId, actions }: WorkspaceTreeProps) {
   const projectsTip = useShortcutTip('Ouvrir un projet', Command.Projects)
-  const worktreeTip = useShortcutTip('Créer un worktree depuis un projet', Command.CreateWorktree)
+  const worktreeTip = useShortcutTip('Créer un worktree', Command.CreateWorktree)
   const newWorkspaceTip = useShortcutTip('Nouveau workspace', Command.NewWorkspace)
   const { draggingTabId, tabDropTarget, springWorkspaceIds, draggingWorkspaceId, workspaceDropTarget } = useUiStore(
     useShallow((state) => ({
