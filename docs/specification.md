@@ -50,7 +50,7 @@ Tily vert en thème sombre : fonds gris anthracite, accent vert sauge désaturé
 | En-tête compact | Identité de l’application, nom du workspace éditable inline, accès à la palette, bouton de visibilité du panneau. |
 | Barre d’onglets | Onglets du workspace actif, bouton « + », actions compactes de split et actions du dossier. |
 | Zone de travail | Panes et séparateurs, occupant la hauteur restante. |
-| En-tête d’un pane | Shell, dossier courant et action de fermeture ; chemin tronqué si nécessaire et consultable intégralement. |
+| En-tête d’un pane | Dernier dossier du chemin (chemin complet en infobulle), shell s’il n’est pas celui par défaut, et action de fermeture. |
 | Panneau gauche | Workspaces, chevrons de dépliage, onglets enfants, accès aux projets et indications d’attention ; ou, au choix, la vue Agents (section 11). |
 
 Le titre de la fenêtre, visible dans le menu Fenêtre, Mission Control et Cmd + Tab, est toujours « Tily » : il ne reprend ni le workspace, ni l’onglet, ni le dossier du terminal.
@@ -386,7 +386,7 @@ Les actions utilisent le **dossier du pane actif**, jamais un hypothétique doss
 
 Montrer le chemin ciblé dans le menu ou la zone d’actions. Afficher explicitement « Aucun dépôt Git », « Aucune branche » ou « HEAD détachée » selon le contexte. Désactiver ou masquer les actions Git hors dépôt ; ne jamais afficher une branche fictive.
 
-L’en-tête de chaque pane affiche la branche Git de son dossier, ou « HEAD détachée », à côté du chemin ; rien hors d’un dépôt. Elle est relue après chaque commande, pour suivre un `git switch` ou un `wtr`. Dans un pane de moins de 520 px de large, elle est masquée et reste disponible dans la palette (« Copier la branche »). Un clic sur la branche la copie, Ctrl + clic ouvre la vue Git. Quand le chemin est trop long, c’est le dossier parent qui est tronqué et le dernier dossier reste entier (`C:\Users\m…\repo`), et le chemin complet reste en infobulle. Dans un pane de moins de 280 px, les boutons Copier le chemin, Ouvrir dans l’éditeur, Ouvrir dans l’explorateur sont masqués (ils restent dans la palette) pour que Split et Fermer restent visibles ; sous 420 px, le badge d’un agent n’en garde que l’icône (son état reste en infobulle), et le nom du shell se tronque au besoin. Dans la palette, l’entrée de chaque pane rappelle aussi sa branche, qu’on peut donc taper pour le retrouver.
+L’en-tête de chaque pane affiche la branche Git de son dossier, ou « HEAD détachée », à côté du chemin ; rien hors d’un dépôt. Elle est relue après chaque commande, pour suivre un `git switch` ou un `wtr`. Dans un pane de moins de 520 px de large, elle est masquée et reste disponible dans la palette (« Copier la branche »). Un clic sur la branche la copie, Ctrl + clic ouvre la vue Git. Seul le dernier dossier du chemin est affiché, le chemin complet restant en infobulle. Dans un pane de moins de 280 px, les boutons Copier le chemin, Ouvrir dans l’éditeur, Ouvrir dans l’explorateur sont masqués (ils restent dans la palette) pour que Split et Fermer restent visibles ; le badge d’un agent n’est qu’une icône (son état est en infobulle), et le nom du shell, affiché seulement s’il n’est pas zsh, se tronque au besoin. Dans la palette, l’entrée de chaque pane rappelle aussi sa branche, qu’on peut donc taper pour le retrouver.
 
 ### Gestion des worktrees
 
