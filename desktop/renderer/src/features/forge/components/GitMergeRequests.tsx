@@ -8,6 +8,7 @@ import { PANEL_HEADER_BUTTON } from '../../right-panel/components/rightPanelStyl
 import { branchKey, useForgeStore } from '../forgeStore'
 import { listMergeRequests, openMergeRequest, refreshMergeRequests, requestBranchMergeRequests, toggleMergeRequests } from '../mergeRequestActions'
 import { filterActive, filterMergeRequests } from '../mergeRequestFilter'
+import { openMergeRequestForm } from '../mergeRequestFormActions'
 import { kindNoun, sectionTitle } from '../mergeRequestLabels'
 import { MergeRequestFilters } from './MergeRequestFilters'
 import { MergeRequestPill } from './MergeRequestPill'
@@ -43,6 +44,7 @@ export function GitMergeRequests({ root, branch }: GitMergeRequestsProps) {
   const items = list ? currentFirst(filterMergeRequests(list.items, filter), branch) : []
   const error = current?.error ?? (list ? null : (branchResult?.error ?? null))
   const count = list ? (filterActive(filter) ? `${items.length}/${list.items.length}` : `${list.items.length}${list.truncated ? '+' : ''}`) : ''
+  const handleCreate = () => openMergeRequestForm(root, branch ?? undefined)
   const handleRefresh = () => refreshMergeRequests(root, branch)
   const handleOpenList = (event: MouseEvent) => {
     if (forge) {
@@ -71,6 +73,11 @@ export function GitMergeRequests({ root, branch }: GitMergeRequestsProps) {
         {forge && (
           <button type="button" className={PANEL_HEADER_BUTTON} data-tip={listLabel} aria-label={listLabel} onClick={handleOpenList}>
             <Icon name={forge.kind === ForgeKind.GitHub ? IconName.GitHub : IconName.GitLab} />
+          </button>
+        )}
+        {branchResult?.creatable && branch && (
+          <button type="button" className={PANEL_HEADER_BUTTON} data-tip={`Créer une ${noun} depuis « ${branch} »`} aria-label={`Créer une ${noun} depuis ${branch}`} onClick={handleCreate}>
+            <Icon name={IconName.Plus} />
           </button>
         )}
         <button type="button" className={PANEL_HEADER_BUTTON} data-tip={`Actualiser les ${noun}`} aria-label={`Actualiser les ${noun}`} onClick={handleRefresh}>

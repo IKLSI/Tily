@@ -23,6 +23,7 @@ import { usePaneStore } from '../terminal/paneStore'
 import { OpenTarget } from '../../bridge/messages'
 import { copyPaneBranch, copyPanePath, openPaneFolder } from '../terminal/contextActions'
 import { WorktreePickerKind } from '../worktrees/worktreeStore'
+import { createMergeRequestLabel, openMergeRequestForm } from '../forge/mergeRequestFormActions'
 import { openWorktreePicker, requestWorktreeRemoval } from '../worktrees/worktreeActions'
 import { worktreeTarget } from '../worktrees/worktreePaths'
 import type { SearchItem } from './searchFilter'
@@ -135,6 +136,10 @@ const commandItems = (session: Session, shells: ShellProfile[]): PaletteItem[] =
     if (context?.worktreeRoot) {
       const { path, name } = worktreeTarget(context.worktreeRoot)
       items.push(command('remove-worktree', `Supprimer ce worktree${SEPARATOR}${name}…`, () => requestWorktreeRemoval(path, context.branch ?? undefined)))
+    }
+    if (context?.branch) {
+      const { branch } = context
+      items.push(command('create-merge-request', `${createMergeRequestLabel(activePane(tab).path, branch)}…`, () => openMergeRequestForm(activePane(tab).path, branch), `depuis ${branch}`))
     }
     if (!isLeaf(tab.tree)) {
       items.push(

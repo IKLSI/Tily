@@ -14,6 +14,7 @@ import { REVEALED_ON_HOVER } from '../../../components/paneHeaderStyles'
 import { TerminalPane } from './TerminalPane'
 import { AgentBadge } from '../../agents/components/AgentBadge'
 import { AgentOwnerMark } from '../../agents/components/AgentOwnerMark'
+import { CreateMergeRequestButton } from '../../forge/components/CreateMergeRequestButton'
 import { MergeRequestPill } from '../../forge/components/MergeRequestPill'
 import { PaneOverlay } from './PaneOverlay'
 import { Command } from '../../keyboard/commands'
@@ -246,6 +247,7 @@ export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZ
           </button>
         )}
         {context?.branch && <MergeRequestPill path={pane.path} branch={context.branch} className="@max-[520px]:hidden" />}
+        {context?.branch && <CreateMergeRequestButton path={pane.path} branch={context.branch} className="@max-[520px]:hidden" />}
         {singleDevServer && (
           <div className="relative flex">
             <button

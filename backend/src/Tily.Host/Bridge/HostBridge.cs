@@ -58,7 +58,7 @@ public sealed class HostBridge : IDisposable
         _preview = new FilePreviewFeed(() => _settings.Current.Editor, Post, PostBackgroundError);
         _previewRequests = new PreviewRequestFeed(dataDirectory, Post);
         _git = new GitFeed(Post, () => _settings.Current.Git.AutoFetch, PostBackgroundError);
-        _forge = new ForgeFeed(Post, PostBackgroundError);
+        _forge = new ForgeFeed(Post, () => _settings.Current.Worktrees.DefaultBase, _git.RefreshSoon, PostBackgroundError);
         _worktrees = new WorktreeFeed(Post, () => _settings.Current, _settings.RememberWorktreeFolder, _git.RefreshSoon, PostBackgroundError, dataDirectory);
         _updates = new UpdateFeed(Post, ApplicationVersion, dataDirectory);
         _mcp = new McpFeed(dataDirectory, _terminals.PaneOwnsProcess, Post, PostBackgroundError);

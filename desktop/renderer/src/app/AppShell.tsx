@@ -19,6 +19,7 @@ import { useGitStore } from '../features/git/gitStore'
 import { usePreviewStore } from '../features/preview/previewStore'
 import { useMcpConsentStore } from '../features/mcp/mcpConsentStore'
 import { usePasteStore } from '../features/terminal/pasteStore'
+import { mergeRequestFormOpen } from '../features/forge/mergeRequestFormStore'
 import { worktreeModalOpen } from '../features/worktrees/worktreeStore'
 import { filePickerOpen } from '../features/explorer/filePickerStore'
 import { commitPickerOpen } from '../features/git/commitPickerStore'
@@ -51,6 +52,7 @@ import { Tooltip } from '../components/Tooltip'
 import type { WorkspacePanelActions } from '../features/workspaces/components/workspacePanel'
 import type { HeaderWorkspaceActions } from '../features/workspaces/components/workspaceStrip'
 import { WorkspaceTree } from '../features/workspaces/components/WorkspaceTree'
+import { MergeRequestDialog } from '../features/forge/components/MergeRequestDialog'
 import { WorktreeDialogs } from '../features/worktrees/components/WorktreeDialogs'
 
 const ProjectPickers = lazy(() => import('../features/projects/components/ProjectPickers').then((module) => ({ default: module.ProjectPickers })))
@@ -201,7 +203,7 @@ const handleDialogError = (): void => {
 
 const confirmationOpen = (): boolean => {
   const { settingsOpen, closeConfirmation } = useUiStore.getState()
-  return settingsOpen || closeConfirmation !== null || useExplorerStore.getState().deleteRequest !== null || useGitStore.getState().confirmation !== null || usePasteStore.getState().request !== null || useMcpConsentStore.getState().queue.length > 0 || worktreeModalOpen() || filePickerOpen() || commitPickerOpen() || usePreviewStore.getState().pendingAction !== null
+  return settingsOpen || closeConfirmation !== null || useExplorerStore.getState().deleteRequest !== null || useGitStore.getState().confirmation !== null || usePasteStore.getState().request !== null || useMcpConsentStore.getState().queue.length > 0 || worktreeModalOpen() || mergeRequestFormOpen() || filePickerOpen() || commitPickerOpen() || usePreviewStore.getState().pendingAction !== null
 }
 
 const modalOpen = (): boolean => {
@@ -429,6 +431,7 @@ export function AppShell({ session }: AppShellProps) {
         {paletteOpen && <CommandPalette session={session} shells={availableShells} onClose={handleClosePalette} onRun={handleRunPaletteItem} onToggleFavorite={toggleFavoriteCommand} />}
         {deleteRequest && <DeleteConfirmDialog request={deleteRequest} onConfirm={confirmDelete} onCancel={handleCancelDelete} />}
         <WorktreeDialogs />
+        <MergeRequestDialog />
         {gitConfirmation && (
           <Suspense fallback={null}>
             <GitConfirmDialog confirmation={gitConfirmation} onConfirm={handleConfirmGit} onCancel={handleCancelGit} />

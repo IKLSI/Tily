@@ -51,7 +51,7 @@ public sealed record MergeRequestQueryModel(int Limit, string? SourceBranch = nu
 
 public sealed record MergeRequestListModel(ForgeRemoteModel Forge, IReadOnlyList<MergeRequestModel> Items, bool Truncated, string? CurrentUser);
 
-public sealed record BranchMergeRequestsModel(ForgeRemoteModel? Forge, IReadOnlyList<MergeRequestModel> Items, string? Error);
+public sealed record BranchMergeRequestsModel(ForgeRemoteModel? Forge, IReadOnlyList<MergeRequestModel> Items, string? Error, bool Creatable = false);
 
 public sealed record ForgeOutputModel(int ExitCode, string Output, string Error)
 {
