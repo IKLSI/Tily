@@ -7,7 +7,7 @@ import { branchMenu, remoteBranchMenu, stashMenu, tagMenu, worktreeMenu, worktre
 import { folderName } from '../../../model/session'
 import { openWorktree, openWorktreeDialog, requestWorktreeRemoval } from '../../worktrees/worktreeActions'
 import { sameFolder } from '../../worktrees/worktreePaths'
-import { promptNewBranch, promptNewTag, promptStash, switchToBranch, switchToRemote } from '../gitRefActions'
+import { promptNewBranch, promptNewTag, promptStash, activateBranch, activateRemote } from '../gitRefActions'
 import { applyRefSelection, deleteSelectedRefs, GitRefScope, refKey, refMenu, selectAllRefs } from '../gitRefSelection'
 import { openGitMenu, revealCommit } from '../gitRequests'
 import { GitSelectMode } from '../gitRows'
@@ -147,11 +147,7 @@ export function GitRefsSidebar({ state, width }: GitRefsSidebarProps) {
     const key = localKey(branch)
     const worktree = worktreeOfBranch(branch.name, state)
     const linked = worktree && !branch.current ? worktree : undefined
-    const handleActivate = () => {
-      if (!branch.current) {
-        switchToBranch(branch)
-      }
-    }
+    const handleActivate = () => activateBranch(branch)
     return (
       <GitRefRow
         key={key}
@@ -176,7 +172,7 @@ export function GitRefsSidebar({ state, width }: GitRefsSidebarProps) {
   }
   const renderRemoteBranch = (branch: GitRemoteBranch, label: string, depth: number) => {
     const key = remoteKey(branch)
-    const handleActivate = () => switchToRemote(branch)
+    const handleActivate = () => activateRemote(branch)
     return (
       <GitRefRow
         key={key}
