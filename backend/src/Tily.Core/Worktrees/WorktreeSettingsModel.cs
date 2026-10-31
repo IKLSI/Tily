@@ -4,7 +4,7 @@ namespace Tily.Core.Worktrees;
 
 public sealed record WorktreeSettingsModel(string Folder, string DefaultBase)
 {
-    public const string DefaultBaseBranch = "develop";
+    public const string DefaultBaseBranch = "main";
 
     public static readonly WorktreeSettingsModel Default = new(string.Empty, DefaultBaseBranch);
 

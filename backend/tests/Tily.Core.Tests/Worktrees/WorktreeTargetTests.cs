@@ -49,10 +49,10 @@ public sealed class WorktreeTargetTests
     }
 
     [Fact]
-    public void Normalized_WhenBaseEmpty_ThenFallsBackToDevelop()
+    public void Normalized_WhenBaseEmpty_ThenFallsBackToMain()
     {
         var settings = new WorktreeSettingsModel(" ", " ").Normalized();
 
-        Assert.Equal(new WorktreeSettingsModel(string.Empty, "develop"), settings);
+        Assert.Equal(new WorktreeSettingsModel(string.Empty, "main"), settings);
     }
 }
