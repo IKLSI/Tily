@@ -18,11 +18,11 @@ public sealed class DatabaseConfigTests : IDisposable
     }
 
     [Fact]
-    public void Parse_WhenInitialCatalog_ThenSqlServerWithIntegratedSecurity()
+    public void Parse_WhenInitialCatalog_ThenNull()
     {
         var info = DatabaseInfoModel.Parse(@"Data Source=.\SQLEXPRESS;Initial Catalog=Gestion;Integrated Security=SSPI", "Web.config", "DomainContext");
 
-        Assert.Equal((DatabaseProvider.SqlServer, "Gestion", true), (info!.Provider, info.SourceDb, info.IntegratedSecurity));
+        Assert.Null(info);
     }
 
     [Fact]
@@ -76,11 +76,11 @@ public sealed class DatabaseConfigTests : IDisposable
     [Fact]
     public void Locate_WhenWebConfig_ThenReadsDomainContext()
     {
-        Write("Site/Web.config", "<configuration><connectionStrings><add name=\"Logs\" connectionString=\"Server=s;Initial Catalog=Logs\" /><add name=\"DomainContext\" connectionString=\"Server=s;Initial Catalog=Metier;User Id=u;Password=p\" /></connectionStrings></configuration>");
+        Write("Site/Web.config", "<configuration><connectionStrings><add name=\"Logs\" connectionString=\"Server=s;Database=Logs;Username=u\" /><add name=\"DomainContext\" connectionString=\"Server=s;Database=Metier;Username=u;Password=p\" /></connectionStrings></configuration>");
 
         var info = DatabaseConfigLocator.Locate(_root);
 
-        Assert.Equal(("Metier", DatabaseProvider.SqlServer), (info!.SourceDb, info.Provider));
+        Assert.Equal(("Metier", DatabaseProvider.PostgreSql), (info!.SourceDb, info.Provider));
     }
 
     [Fact]
@@ -93,17 +93,6 @@ public sealed class DatabaseConfigTests : IDisposable
         ConnectionRewriter.Rewrite(info, "app_vue", _root);
 
         Assert.Equal(("{ \"ConnectionStrings\": { \"DefaultConnection\": \"Host=h;Database=app_vue;Username=u\" } }", "PROJECT_NAME=app\r\nPOSTGRES_DB=app_vue\r\nAUTRE=1\r\n"), (File.ReadAllText(config), File.ReadAllText(Path.Combine(_root, ".env"))));
-    }
-
-    [Fact]
-    public void Rewrite_WhenSqlServer_ThenReplacesInitialCatalogOnly()
-    {
-        var config = Write("Site/Web.config", "<add name=\"DefaultConnection\" connectionString=\"Server=s;Initial Catalog=Metier;Database=Metier\" />");
-        var info = new DatabaseInfoModel(DatabaseProvider.SqlServer, "Metier", "s", null, null, null, true, config, "DefaultConnection");
-
-        ConnectionRewriter.Rewrite(info, "Metier_vue", _root);
-
-        Assert.Equal("<add name=\"DefaultConnection\" connectionString=\"Server=s;Initial Catalog=Metier_vue;Database=Metier\" />", File.ReadAllText(config));
     }
 
     [Theory]
@@ -120,7 +109,7 @@ public sealed class DatabaseConfigTests : IDisposable
     [Fact]
     public void Target_WhenPostgreSqlNameTooLong_ThenTruncatesTo63()
     {
-        var info = new DatabaseInfoModel(DatabaseProvider.PostgreSql, new string('a', 60), null, null, null, null, false, "a.json", null);
+        var info = new DatabaseInfoModel(DatabaseProvider.PostgreSql, new string('a', 60), null, null, null, null, "a.json", null);
 
         var target = DatabaseNames.Target(info, "feat/vue");
 
@@ -130,9 +119,9 @@ public sealed class DatabaseConfigTests : IDisposable
     [Fact]
     public void Identifiers_WhenNameHasDelimiters_ThenEscapesThem()
     {
-        var quoted = (DatabaseNames.PostgreSqlIdentifier("a\"b"), DatabaseNames.SqlServerIdentifier("a]b"), DatabaseNames.Literal("a'b"));
+        var quoted = (DatabaseNames.PostgreSqlIdentifier("a\"b"), DatabaseNames.Literal("a'b"));
 
-        Assert.Equal(("\"a\"\"b\"", "[a]]b]", "'a''b'"), quoted);
+        Assert.Equal(("\"a\"\"b\"", "'a''b'"), quoted);
     }
 
     private string Write(string relativePath, string content)

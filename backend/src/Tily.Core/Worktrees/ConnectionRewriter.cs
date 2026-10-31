@@ -11,17 +11,7 @@ public static partial class ConnectionRewriter
         var changed = new List<string>();
         if (File.Exists(info.ConfigFile) && WorktreeFiles.Read(info.ConfigFile) is { } content)
         {
-            string[] keys = info.Provider == DatabaseProvider.PostgreSql ? ["Database"] : ["Initial Catalog", "Database"];
-            var updated = content;
-            foreach (var key in keys)
-            {
-                var pattern = $"""({Regex.Escape(key)}\s*=\s*){Regex.Escape(info.SourceDb)}(?=[;"'\s\\]|$)""";
-                updated = Regex.Replace(content, pattern, match => match.Groups[1].Value + targetDb, RegexOptions.IgnoreCase);
-                if (updated != content)
-                {
-                    break;
-                }
-            }
+            var updated = Regex.Replace(content, DatabasePattern(info.SourceDb), match => match.Groups[1].Value + targetDb, RegexOptions.IgnoreCase);
 
             if (updated != content)
             {
@@ -43,6 +33,9 @@ public static partial class ConnectionRewriter
 
         return changed;
     }
+
+    private static string DatabasePattern(string sourceDb) =>
+        $"""(Database\s*=\s*){Regex.Escape(sourceDb)}(?=[;"'\s\\]|$)""";
 
     [GeneratedRegex(@"^(\s*POSTGRES_DB\s*=)[^\r\n]*", RegexOptions.Multiline)]
     private static partial Regex PostgresDatabase();

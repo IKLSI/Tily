@@ -6,7 +6,6 @@ public static partial class DatabaseNames
 {
     private const int SlugMaxLength = 40;
     private const int PostgreSqlMaxLength = 63;
-    private const int SqlServerMaxLength = 128;
     private const string EmptySlug = "wt";
 
     public static string Slug(string value)
@@ -23,8 +22,7 @@ public static partial class DatabaseNames
     public static string Target(DatabaseInfoModel info, string branch)
     {
         var target = $"{info.SourceDb}_{Slug(WorktreeTarget.Slug(branch))}";
-        var maxLength = info.Provider == DatabaseProvider.PostgreSql ? PostgreSqlMaxLength : SqlServerMaxLength;
-        return target.Length > maxLength ? target[..maxLength] : target;
+        return target.Length > PostgreSqlMaxLength ? target[..PostgreSqlMaxLength] : target;
     }
 
     public static string Require(string name) =>
@@ -33,8 +31,6 @@ public static partial class DatabaseNames
             : name;
 
     public static string PostgreSqlIdentifier(string name) => $"\"{Require(name).Replace("\"", "\"\"")}\"";
-
-    public static string SqlServerIdentifier(string name) => $"[{Require(name).Replace("]", "]]")}]";
 
     public static string Literal(string value) => $"'{Require(value).Replace("'", "''")}'";
 

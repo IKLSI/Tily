@@ -186,7 +186,7 @@ export function WorktreeDialog({ draft, sources, plan, planPending, busy, failur
                   <input type="checkbox" checked={draft.database} onChange={handleDatabaseChange} />
                   Répliquer la base
                 </label>
-                <InfoTip text="PostgreSQL sous Docker ou SQL Server." />
+                <InfoTip text="PostgreSQL sous Docker." />
               </span>
             </div>
           </fieldset>

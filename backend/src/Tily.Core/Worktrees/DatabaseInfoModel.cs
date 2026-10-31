@@ -2,8 +2,7 @@ namespace Tily.Core.Worktrees;
 
 public enum DatabaseProvider
 {
-    PostgreSql,
-    SqlServer
+    PostgreSql
 }
 
 public sealed record DatabaseInfoModel(
@@ -13,11 +12,10 @@ public sealed record DatabaseInfoModel(
     string? Port,
     string? User,
     string? Password,
-    bool IntegratedSecurity,
     string ConfigFile,
     string? ConnKey)
 {
-    public string ProviderLabel => Provider == DatabaseProvider.PostgreSql ? "PostgreSQL" : "SQL Server";
+    public string ProviderLabel => "PostgreSQL";
 
     public static DatabaseInfoModel? Parse(string connection, string configFile, string? connKey)
     {
@@ -39,15 +37,13 @@ public sealed record DatabaseInfoModel(
         var hasUsername = values.ContainsKey("username");
         DatabaseProvider? provider = hasHost || (hasServer && hasUsername && !hasCatalog)
             ? DatabaseProvider.PostgreSql
-            : hasCatalog || hasServer ? DatabaseProvider.SqlServer : null;
-        var sourceDb = provider == DatabaseProvider.SqlServer && hasCatalog ? values["initial catalog"] : values.GetValueOrDefault("database");
+            : null;
+        var sourceDb = values.GetValueOrDefault("database");
         if (provider is null || string.IsNullOrWhiteSpace(sourceDb))
         {
             return null;
         }
 
-        var integrated = First("integrated security", "trusted_connection") is { } security
-            && (security.Equals("true", StringComparison.OrdinalIgnoreCase) || security.Equals("sspi", StringComparison.OrdinalIgnoreCase) || security.Equals("yes", StringComparison.OrdinalIgnoreCase));
         return new DatabaseInfoModel(
             provider.Value,
             sourceDb,
@@ -55,7 +51,6 @@ public sealed record DatabaseInfoModel(
             First("port"),
             First("username", "user id", "userid", "uid"),
             First("password", "pwd"),
-            integrated,
             configFile,
             connKey);
     }

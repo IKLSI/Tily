@@ -1,5 +1,3 @@
-using Microsoft.Data.SqlClient;
-
 namespace Tily.Core.Worktrees;
 
 public sealed record ReplicatedDatabaseModel(DatabaseInfoModel? Info, string Reason);
@@ -9,7 +7,7 @@ public sealed class WorktreeDatabase
     private readonly IReadOnlyList<IDatabaseReplicator> _replicators;
 
     public WorktreeDatabase(IReadOnlyList<IDatabaseReplicator>? replicators = null) =>
-        _replicators = replicators ?? [new PostgresDockerReplicator(), new SqlServerReplicator()];
+        _replicators = replicators ?? [new PostgresDockerReplicator()];
 
     public WorktreeStepModel Replicate(string path, string branch, string project)
     {
@@ -65,7 +63,7 @@ public sealed class WorktreeDatabase
         {
             return action();
         }
-        catch (Exception exception) when (exception is WorktreeException or SqlException or IOException or InvalidOperationException or UnauthorizedAccessException)
+        catch (Exception exception) when (exception is WorktreeException or IOException or InvalidOperationException or UnauthorizedAccessException)
         {
             return new DatabaseOutcomeModel(false, $"{failure} : {exception.Message}");
         }
