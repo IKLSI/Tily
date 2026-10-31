@@ -1,4 +1,4 @@
-import { findWorkspace, panesOf, tabAt, type Tab } from '../../model/session'
+import { activeTab, activeWorkspace, findWorkspace, panesOf, tabAt, type Tab } from '../../model/session'
 import { useHostStore } from '../../stores/hostStore'
 import { useSessionStore } from '../../stores/sessionStore'
 import { useUiStore } from '../../stores/uiStore'
@@ -8,6 +8,7 @@ import { keepClosedTabText, takeClosedTabText } from './textPersistence'
 import { focusPane } from './terminalActions'
 import { restoreHint } from '../keyboard/shortcutLabels'
 
+const CLAUDE_COMMAND = 'claude'
 const PANE_ALONE_STATUS = 'Ce pane est déjà seul dans son onglet.'
 const PANE_MOVED_STATUS = 'Pane déplacé dans un nouvel onglet : son terminal continue de tourner.'
 
@@ -24,6 +25,15 @@ const tabOfPaneId = (paneId: string) =>
     .getState()
     .session?.workspaces.flatMap((workspace) => workspace.tabs)
     .find((tab) => panesOf(tab.tree).some((pane) => pane.id === paneId))
+
+export const openClaudeTab = (shell: string): void => {
+  useSessionStore.getState().newTab(shell)
+  const { session } = useSessionStore.getState()
+  const workspace = session ? activeWorkspace(session) : undefined
+  if (workspace) {
+    terminalRegistry.runAtStart(activeTab(workspace).active, CLAUDE_COMMAND)
+  }
+}
 
 export const movePaneToNewTab = (paneId: string): void => {
   const tab = tabOfPaneId(paneId)

@@ -73,6 +73,7 @@ const commandItems = (session: Session, shells: ShellProfile[]): PaletteItem[] =
   const tab = workspace ? activeTab(workspace) : undefined
   const items: PaletteItem[] = [
     command('new-tab', 'Nouvel onglet', () => runCommand(Command.NewTab), shortcutText(Command.NewTab)),
+    command('new-claude-tab', 'Nouvel onglet Claude Code', () => runCommand(Command.NewClaudeTab), shortcutText(Command.NewClaudeTab)),
     ...shells.map((shell) => command(`new-tab-${shell.id}`, `Nouvel onglet${SEPARATOR}${shell.name}`, () => store.newTab(shell.id))),
     command('split-x', 'Split côte à côte', () => runCommand(Command.SplitSideBySide), shortcutText(Command.SplitSideBySide)),
     command('split-y', 'Split haut / bas', () => runCommand(Command.SplitTopBottom), shortcutText(Command.SplitTopBottom)),
