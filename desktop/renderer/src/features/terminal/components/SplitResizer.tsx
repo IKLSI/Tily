@@ -86,7 +86,7 @@ export function SplitResizer({ axis, ratio, containerRef, onResize }: SplitResiz
       onKeyDown={handleKeyDown}
     >
       <div
-        className={`rounded bg-tily-line group-hover:bg-tily-green group-focus-visible:bg-tily-focus ${horizontal ? 'h-full w-px group-hover:w-0.5 group-focus-visible:w-0.5' : 'h-px w-full group-hover:h-0.5 group-focus-visible:h-0.5'}`}
+        className={`rounded-tily-sm bg-tily-line group-hover:bg-tily-green group-focus-visible:bg-tily-focus ${horizontal ? 'h-full w-px group-hover:w-0.5 group-focus-visible:w-0.5' : 'h-px w-full group-hover:h-0.5 group-focus-visible:h-0.5'}`}
       />
     </div>
   )

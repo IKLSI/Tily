@@ -102,7 +102,7 @@ export function WorkspaceTabRow({ workspaceId, tab, siblings, active, renaming, 
       <div
         data-drop-workspace={workspaceId}
         data-drop-tab={tab.id}
-        className={`group relative flex h-[28px] items-center rounded-md pr-[2px] pl-[6px] select-none before:absolute before:top-1/2 before:-left-[7px] before:h-px before:w-[6px] before:bg-tily-line ${rowState} ${dragging ? 'opacity-40' : ''}`}
+        className={`group relative flex h-[28px] items-center rounded-tily pr-[2px] pl-[6px] select-none before:absolute before:top-1/2 before:-left-[7px] before:h-px before:w-[6px] before:bg-tily-line ${rowState} ${dragging ? 'opacity-40' : ''}`}
         onContextMenu={handleContextMenu}
       >
         {renaming ? (

@@ -26,7 +26,7 @@ export function CreateMergeRequestButton({ path, branch, className = '' }: Creat
   return (
     <button
       type="button"
-      className={`flex shrink-0 cursor-pointer items-center gap-[3px] rounded font-mono text-tily-muted hover:text-tily-ink hover:underline ${className}`}
+      className={`flex shrink-0 cursor-pointer items-center gap-[3px] rounded-tily-sm font-mono text-tily-muted hover:text-tily-ink hover:underline ${className}`}
       data-tip={`Créer une ${noun} depuis « ${branch} »`}
       aria-label={`Créer une ${noun} depuis ${branch}`}
       onClick={handleClick}

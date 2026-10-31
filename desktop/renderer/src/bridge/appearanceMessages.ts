@@ -10,10 +10,14 @@ export interface TerminalTheme {
   selectionBackground: string
 }
 
-export interface AccentTheme {
-  accent: string
+export interface AccentScheme {
   tokens: Record<string, string>
   terminal: TerminalTheme
+}
+
+export interface AccentTheme extends AccentScheme {
+  accent: string
+  light: AccentScheme
 }
 
 export interface AppearanceState {

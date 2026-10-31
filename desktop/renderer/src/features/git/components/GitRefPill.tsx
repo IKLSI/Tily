@@ -60,7 +60,7 @@ export function GitRefPill({ label, text, color, onMenu, onActivate }: GitRefPil
       data-git-drop-kind={movable ? label.kind : undefined}
       data-git-drop-name={movable ? label.name : undefined}
       data-tip={refLabelTip(label)}
-      className={`flex h-[20px] min-w-0 shrink items-center gap-[4px] rounded px-[5px] text-[11px] ${laneTint(color, label.current)} ${label.current ? 'font-semibold text-tily-ink' : 'text-tily-ink-soft'} ${dropTarget ? 'outline-2 outline-tily-focus' : ''} ${dragged || pending ? 'opacity-50' : ''} ${hoverClass}`}
+      className={`flex h-[20px] min-w-0 shrink items-center gap-[4px] rounded-tily-sm px-[5px] text-[11px] ${laneTint(color, label.current)} ${label.current ? 'font-semibold text-tily-ink' : 'text-tily-ink-soft'} ${dropTarget ? 'outline-2 outline-tily-focus' : ''} ${dragged || pending ? 'opacity-50' : ''} ${hoverClass}`}
       onPointerDown={handlePointerDown}
       onContextMenu={handleContextMenu}
       onDoubleClick={handleDoubleClick}

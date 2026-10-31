@@ -44,7 +44,7 @@ const handleRepositoryChange = (event: ChangeEvent<HTMLSelectElement>) => change
 const handleRememberChange = (event: ChangeEvent<HTMLInputElement>) => changeWorktreeDraft({ remember: event.target.checked })
 const handleDatabaseChange = (event: ChangeEvent<HTMLInputElement>) => changeWorktreeDraft({ database: event.target.checked })
 
-const modeButton = (pressed: boolean) => `h-[22px] cursor-pointer rounded px-2.5 text-[12px] ${pressed ? 'bg-tily-green-soft text-tily-green-deep' : 'text-tily-ink-soft hover:bg-tily-green-hover'}`
+const modeButton = (pressed: boolean) => `h-[22px] cursor-pointer rounded-tily-sm px-2.5 text-[12px] ${pressed ? 'bg-tily-green-soft text-tily-green-deep' : 'text-tily-ink-soft hover:bg-tily-green-hover'}`
 
 const branchOptions = (label: string, branches: string[]) =>
   branches.length > 0 && (
@@ -97,8 +97,8 @@ export function WorktreeDialog({ draft, sources, plan, planPending, busy, failur
   }
 
   return (
-    <div className="absolute inset-0 z-30 flex items-start justify-center bg-tily-paper/60 pt-[10vh]" onPointerDown={handleBackdropPointerDown} onMouseDown={handleBackdropMouseDown}>
-      <form role="dialog" aria-label="Créer un worktree" className="flex max-h-[80vh] w-[560px] max-w-[94vw] flex-col rounded-lg border border-tily-line bg-tily-panel shadow-xl" onKeyDown={keepTabInside} onSubmit={handleSubmit}>
+    <div className="absolute inset-0 z-30 flex items-start justify-center bg-black/30 backdrop-blur-[3px] pt-[10vh]" onPointerDown={handleBackdropPointerDown} onMouseDown={handleBackdropMouseDown}>
+      <form role="dialog" aria-label="Créer un worktree" className="flex max-h-[80vh] w-[560px] max-w-[94vw] flex-col rounded-tily-lg border border-tily-line bg-tily-panel shadow-tily-dialog" onKeyDown={keepTabInside} onSubmit={handleSubmit}>
         <div className="flex items-center gap-2 border-b border-tily-line px-4 py-3">
           <h2 className="flex min-w-0 items-baseline gap-2 text-[15px] font-semibold text-tily-ink">
             Créer un worktree
@@ -132,7 +132,7 @@ export function WorktreeDialog({ draft, sources, plan, planPending, busy, failur
           </fieldset>
           <span className={ROW_LABEL}>Branche</span>
           <fieldset className="flex min-w-0 flex-col gap-2" disabled={busy}>
-            <div className="flex self-start rounded border border-tily-line p-[2px]" role="group" aria-label="Type de branche">
+            <div className="flex self-start rounded-tily-sm border border-tily-line p-[2px]" role="group" aria-label="Type de branche">
               <button type="button" aria-pressed={creating} className={modeButton(creating)} onClick={handleNewMode}>
                 Nouvelle
               </button>

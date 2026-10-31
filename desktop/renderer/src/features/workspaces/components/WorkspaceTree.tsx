@@ -24,7 +24,7 @@ interface WorkspaceTreeProps {
 }
 
 const NAME_SEPARATOR = '\n'
-const HEADER_BUTTON = 'flex size-[24px] cursor-pointer items-center justify-center rounded-md text-tily-muted hover:bg-tily-green-hover hover:text-tily-ink'
+const HEADER_BUTTON = 'flex size-[24px] cursor-pointer items-center justify-center rounded-tily text-tily-muted hover:bg-tily-green-hover hover:text-tily-ink'
 
 const handleCreateWorktree = (): void => openWorktreePicker(WorktreePickerKind.Source)
 
@@ -58,7 +58,7 @@ export function WorkspaceTree({ session, renamingWorkspaceId, renamingTabId, act
 
   return (
     <aside className="@container flex h-full min-h-0 flex-col bg-tily-paper" style={{ width: session.sidebar }}>
-      <div className="flex h-[36px] shrink-0 items-center gap-[2px] pr-[6px] pl-[12px] text-[11px] font-semibold tracking-[0.06em] text-tily-muted uppercase">
+      <div className="flex h-[36px] shrink-0 items-center gap-[2px] pr-[6px] pl-[12px] text-[12px] font-semibold text-tily-muted">
         <span className="flex-1">Workspaces</span>
         <button type="button" className={HEADER_BUTTON} aria-label="Ouvrir un projet" data-tip={projectsTip} onClick={actions.openProjects}>
           <Icon name={IconName.Project} />

@@ -37,7 +37,7 @@ export function GitGraphToolbar({ state, referencesShown, onToggleReferences }: 
         role="radio"
         aria-checked={entry.scope === scope}
         data-tip={entry.tip}
-        className={`rounded px-[7px] py-[1px] text-[11px] ${entry.scope === scope ? 'bg-tily-green-soft text-tily-green-deep' : 'text-tily-muted hover:text-tily-ink'}`}
+        className={`rounded-tily-sm px-[7px] py-[1px] text-[11px] ${entry.scope === scope ? 'bg-tily-green-soft text-tily-green-deep' : 'text-tily-muted hover:text-tily-ink'}`}
         onClick={handleScope}
       >
         {entry.label}
@@ -65,7 +65,7 @@ export function GitGraphToolbar({ state, referencesShown, onToggleReferences }: 
       <button type="button" className={PANEL_HEADER_BUTTON} aria-label="Rechercher un commit" data-tip="Rechercher un commit" aria-disabled={!history || history.commits.length === 0} onClick={handleSearch}>
         <Icon name={IconName.Search} />
       </button>
-      <div role="radiogroup" aria-label="Branches affichées" className="flex shrink-0 rounded-md bg-tily-paper p-[2px]">
+      <div role="radiogroup" aria-label="Branches affichées" className="flex shrink-0 rounded-tily bg-tily-paper p-[2px]">
         {SCOPES.map(renderScope)}
       </div>
       <button type="button" className={PANEL_HEADER_BUTTON} aria-label="Fermer le graphe" data-tip="Fermer le graphe (Échap)" onClick={hideGitGraph}>

@@ -86,8 +86,8 @@ export function SearchDialog<T extends SearchItem>({ label, placeholder, emptyMe
   const handleResultPointerDown = (event: PointerEvent<HTMLButtonElement>) => event.preventDefault()
 
   return (
-    <div className="absolute inset-0 z-30 flex items-start justify-center bg-tily-paper/60 pt-[12vh]" onPointerDown={handleBackdropPointerDown}>
-      <div role="dialog" aria-label={label} className="flex max-h-[70vh] w-[560px] max-w-[92vw] flex-col rounded-lg border border-tily-line bg-tily-panel p-2 shadow-xl" onKeyDown={keepTabInside}>
+    <div className="absolute inset-0 z-30 flex items-start justify-center bg-black/30 backdrop-blur-[3px] pt-[12vh]" onPointerDown={handleBackdropPointerDown}>
+      <div role="dialog" aria-label={label} className="flex max-h-[70vh] w-[560px] max-w-[92vw] flex-col rounded-tily-lg border border-tily-line bg-tily-panel p-2 shadow-tily-dialog" onKeyDown={keepTabInside}>
         <div className="relative flex flex-col">
           <input
             type="text"
@@ -99,7 +99,7 @@ export function SearchDialog<T extends SearchItem>({ label, placeholder, emptyMe
             autoFocus
             placeholder={placeholder}
             value={query}
-            className={`rounded border border-tily-focus bg-tily-paper py-2 pl-3 text-[13px] text-tily-ink outline-none placeholder:text-tily-muted ${footer ? 'pr-9' : 'pr-3'}`}
+            className={`rounded-tily-sm border border-tily-focus bg-tily-paper py-2 pl-3 text-[13px] text-tily-ink outline-none placeholder:text-tily-muted ${footer ? 'pr-9' : 'pr-3'}`}
             onChange={handleQueryChange}
             onKeyDown={handleKeyDown}
           />
@@ -125,7 +125,7 @@ export function SearchDialog<T extends SearchItem>({ label, placeholder, emptyMe
                 id={`${RESULT_ID_PREFIX}${index}`}
                 role="option"
                 aria-selected={isSelected}
-                className={`flex w-full items-baseline gap-2 rounded pl-3 pr-1 text-[13px] ${isSelected ? 'bg-tily-green-soft text-tily-green-deep' : 'text-tily-ink'}`}
+                className={`flex w-full items-baseline gap-2 rounded-tily-sm pl-3 pr-1 text-[13px] ${isSelected ? 'bg-tily-green-soft text-tily-green-deep' : 'text-tily-ink'}`}
                 onPointerMove={handleHover}
               >
                 <button type="button" tabIndex={-1} className="flex min-w-0 flex-1 cursor-pointer items-baseline gap-3 py-2 text-left focus:outline-none" onPointerDown={handleResultPointerDown} onClick={handleClick}>
@@ -139,7 +139,7 @@ export function SearchDialog<T extends SearchItem>({ label, placeholder, emptyMe
                     aria-pressed={item.favorite}
                     aria-label={item.favorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
                     data-tip={item.favorite ? 'Retirer des favoris (Ctrl + Entrée)' : 'Ajouter aux favoris (Ctrl + Entrée)'}
-                    className={`flex size-6 shrink-0 translate-y-px cursor-pointer items-center justify-center self-center rounded hover:bg-tily-green-hover focus:outline-none ${item.favorite ? 'text-tily-warning' : 'text-tily-muted opacity-50 hover:opacity-100'}`}
+                    className={`flex size-6 shrink-0 translate-y-px cursor-pointer items-center justify-center self-center rounded-tily-sm hover:bg-tily-green-hover focus:outline-none ${item.favorite ? 'text-tily-warning' : 'text-tily-muted opacity-50 hover:opacity-100'}`}
                     onPointerDown={handleResultPointerDown}
                     onClick={handleToggleFavorite}
                   >

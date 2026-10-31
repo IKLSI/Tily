@@ -44,7 +44,7 @@ export function GitWorkingTreeRow({ state, graph, selected, layout, onSelect, on
         <span className="shrink-0 text-tily-muted italic" data-tip="Modifications de l’arbre de travail">
           {'// WIP'}
         </span>
-        {state.operation && <span className="shrink-0 rounded bg-tily-warning/15 px-[6px] text-[11px] text-tily-warning">{`${OPERATION_LABELS[state.operation]} en cours`}</span>}
+        {state.operation && <span className="shrink-0 rounded-tily-sm bg-tily-warning/15 px-[6px] text-[11px] text-tily-warning">{`${OPERATION_LABELS[state.operation]} en cours`}</span>}
         {renderCount(counts.conflicts, '!', plural(counts.conflicts, 'fichier en conflit', 'fichiers en conflit'), 'text-tily-error')}
         {renderCount(counts.added, '+', plural(counts.added, 'fichier ajouté ou non suivi', 'fichiers ajoutés ou non suivis'), 'text-tily-green')}
         {renderCount(counts.modified, '~', plural(counts.modified, 'fichier modifié', 'fichiers modifiés'), 'text-tily-warning')}

@@ -83,8 +83,8 @@ export function MergeRequestDialog() {
   const submitLabel = editing ? (submitting ? 'Enregistrement…' : 'Enregistrer') : submitting ? 'Création…' : 'Créer'
 
   return (
-    <div className="absolute inset-0 z-30 flex items-start justify-center bg-tily-paper/60 pt-[6vh]">
-      <form role="dialog" aria-label={title} className="flex max-h-[88vh] w-[680px] max-w-[94vw] flex-col rounded-lg border border-tily-line bg-tily-panel shadow-xl" onKeyDown={handleFormKeyDown} onSubmit={handleSubmit}>
+    <div className="absolute inset-0 z-30 flex items-start justify-center bg-black/30 backdrop-blur-[3px] pt-[6vh]">
+      <form role="dialog" aria-label={title} className="flex max-h-[88vh] w-[680px] max-w-[94vw] flex-col rounded-tily-lg border border-tily-line bg-tily-panel shadow-tily-dialog" onKeyDown={handleFormKeyDown} onSubmit={handleSubmit}>
         <div className="flex items-center justify-between gap-3 border-b border-tily-line px-4 py-3">
           <div className="flex min-w-0 flex-col">
             <h2 className="text-[15px] font-semibold text-tily-ink">{title}</h2>

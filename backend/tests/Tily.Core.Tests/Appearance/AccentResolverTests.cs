@@ -17,7 +17,7 @@ public sealed class AccentResolverTests : IDisposable
     {
         var state = AccentResolver.Resolve(AppearanceSettingsModel.Default);
 
-        Assert.Equal(AccentPresets.Sage, state.Theme.Accent);
+        Assert.Equal(AccentPresets.System, state.Theme.Accent);
     }
 
     [Fact]
@@ -25,7 +25,7 @@ public sealed class AccentResolverTests : IDisposable
     {
         var state = AccentResolver.Resolve(AppearanceSettingsModel.Default with { Accent = "#c98fa5" });
 
-        Assert.Equal(("#c98fa5", AccentPresets.Sage), (state.Theme.Accent, state.DefaultColor));
+        Assert.Equal(("#c98fa5", AccentPresets.System), (state.Theme.Accent, state.DefaultColor));
     }
 
     [Fact]

@@ -42,6 +42,9 @@ interface TabBarProps {
 }
 
 const MIDDLE_BUTTON = 1
+const CORNER = "before:pointer-events-none before:absolute before:bottom-0 before:size-[10px] before:content-[''] after:pointer-events-none after:absolute after:bottom-0 after:size-[10px] after:content-['']"
+const ACTIVE_TAB = `z-10 bg-tily-panel text-tily-ink ${CORNER} before:-left-[10px] before:[background:radial-gradient(circle_at_0_0,transparent_9.5px,var(--color-tily-panel)_10px)] after:-right-[10px] after:[background:radial-gradient(circle_at_100%_0,transparent_9.5px,var(--color-tily-panel)_10px)]`
+const INACTIVE_TAB = "text-tily-muted hover:bg-tily-green-hover/70 hover:text-tily-ink"
 const RENAME_KEY = 'F2'
 const NEIGHBOUR_KEYS: Record<string, number> = { ArrowLeft: -1, ArrowRight: 1 }
 
@@ -166,11 +169,11 @@ export const TabBar = memo(function TabBar({ workspace, shells, renamingTabId, p
       stripRef.current.scrollLeft += event.deltaY
     }
   }
-  const dropLine = (targeted: boolean) => `h-6 w-0.5 shrink-0 rounded ${targeted ? 'bg-tily-focus' : 'bg-transparent'}`
+  const dropLine = (targeted: boolean) => `h-6 w-0.5 shrink-0 rounded-tily-sm ${targeted ? 'bg-tily-focus' : 'bg-transparent'}`
 
   return (
-    <div data-drop-workspace={workspace.id} className="flex shrink-0 items-center gap-0.5 px-2 pt-1 select-none" onMouseDown={handleBarMouseDown} onDoubleClick={handleEmptyDoubleClick}>
-      <div ref={stripRef} role="tablist" className="flex min-w-0 items-center gap-0.5 overflow-x-auto [scrollbar-width:none]" style={{ maskImage: maskOf(fade) }} onWheel={handleWheel} onScroll={handleStripScroll}>
+    <div data-drop-workspace={workspace.id} className="flex shrink-0 items-end gap-1 px-3 pt-1.5 select-none" onMouseDown={handleBarMouseDown} onDoubleClick={handleEmptyDoubleClick}>
+      <div ref={stripRef} role="tablist" className="flex min-w-0 items-end gap-0.5 overflow-x-auto [scrollbar-width:none]" style={{ maskImage: maskOf(fade) }} onWheel={handleWheel} onScroll={handleStripScroll}>
         {workspace.tabs.map((tab) => {
           const active = tab.id === workspace.active
           const targeted = isDropTarget(tabDropTarget, workspace.id, tab.id)
@@ -214,7 +217,7 @@ export const TabBar = memo(function TabBar({ workspace, shells, renamingTabId, p
               <div
                 data-drop-workspace={workspace.id}
                 data-drop-tab={tab.id}
-                className={`group flex min-w-[100px] items-center rounded-t-md border border-b-0 ${active ? 'border-tily-line bg-tily-panel text-tily-green-deep' : 'border-transparent text-tily-muted hover:bg-tily-green-hover'} ${draggingTabId === tab.id ? 'opacity-50' : ''}`}
+                className={`group relative -mb-px flex min-w-[120px] max-w-[220px] items-center rounded-t-[10px] transition-colors duration-150 ${active ? ACTIVE_TAB : INACTIVE_TAB} ${draggingTabId === tab.id ? 'opacity-50' : ''}`}
                 onAuxClick={handleAuxClick}
                 onContextMenu={handleTabContextMenu}
               >
@@ -226,7 +229,7 @@ export const TabBar = memo(function TabBar({ workspace, shells, renamingTabId, p
                     role="tab"
                     aria-selected={active}
                     data-tip={`${tab.name} · ${activePane(tab).path} · ${paneCountLabel(panesOf(tab.tree).length)} · Double-clic pour renommer, glisser pour déplacer`}
-                    className="flex min-w-0 flex-1 cursor-pointer items-center gap-1.5 px-3 py-2 text-left text-[12px]"
+                    className="flex min-w-0 flex-1 cursor-pointer items-center gap-1.5 py-2 pr-1 pl-3.5 text-left text-[12px] font-medium"
                     onClick={handleSelect}
                     onDoubleClick={handleStartRename}
                     onPointerDown={handlePointerDown}
@@ -239,7 +242,7 @@ export const TabBar = memo(function TabBar({ workspace, shells, renamingTabId, p
                     {tab.owner && <AgentOwnerMark owner={tab.owner} />}
                   </button>
                 )}
-                <button type="button" className={`flex shrink-0 cursor-pointer items-center self-stretch px-2 hover:text-tily-error ${active ? '' : 'opacity-0 group-hover:opacity-100 focus-visible:opacity-100'}`} aria-label="Fermer l’onglet" data-tip="Fermer l’onglet" onClick={handleClose}>
+                <button type="button" className={`mr-1.5 flex size-[18px] shrink-0 cursor-pointer items-center justify-center rounded-full text-tily-muted hover:bg-black/10 hover:text-tily-ink dark:hover:bg-white/10 ${active ? '' : 'opacity-0 group-hover:opacity-100 focus-visible:opacity-100'}`} aria-label="Fermer l’onglet" data-tip="Fermer l’onglet" onClick={handleClose}>
                   <Icon name={IconName.Close} size={10} />
                 </button>
               </div>
@@ -255,7 +258,7 @@ export const TabBar = memo(function TabBar({ workspace, shells, renamingTabId, p
           aria-haspopup="menu"
           aria-expanded={menuOpen}
           aria-label="Nouvel onglet"
-          className="flex size-[26px] cursor-pointer items-center justify-center rounded hover:bg-tily-green-hover"
+          className="mb-1 flex size-[28px] cursor-pointer items-center justify-center rounded-tily text-tily-muted hover:bg-tily-green-hover hover:text-tily-ink"
           data-tip={`Nouvel onglet zsh (${newTabShortcut ? `${newTabShortcut} ; ` : ''}clic droit : choisir le shell ou un navigateur ; double-clic dans l’espace vide de la barre : nouvel onglet)`}
           onClick={handleNewDefault}
           onContextMenu={handleContextMenu}
@@ -269,12 +272,11 @@ export const TabBar = memo(function TabBar({ workspace, shells, renamingTabId, p
         type="button"
         aria-pressed={panelOpen}
         aria-label={panelOpen ? 'Masquer le panneau de droite' : 'Afficher le panneau de droite'}
-        className={`mb-1 ml-auto flex h-[26px] shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-md px-2 text-xs hover:bg-tily-green-hover hover:text-tily-ink ${panelOpen ? 'text-tily-green-deep' : 'text-tily-muted'}`}
+        className={`mb-1 ml-auto flex size-[28px] shrink-0 cursor-pointer items-center justify-center rounded-tily text-xs hover:bg-tily-green-hover hover:text-tily-ink ${panelOpen ? 'text-tily-green-deep' : 'text-tily-muted'}`}
         data-tip={withShortcut(`${panelOpen ? 'Masquer' : 'Afficher'} le panneau Fichiers / Git / Notes`, panelShortcuts)}
         onClick={onTogglePanel}
       >
         <Icon name={IconName.Explorer} className="translate-y-px" />
-        <span>Fichiers / Git / Notes</span>
       </button>
       {tabMenu && (
         <TabContextMenu

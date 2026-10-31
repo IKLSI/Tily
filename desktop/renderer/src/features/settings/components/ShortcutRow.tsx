@@ -15,7 +15,7 @@ interface ShortcutRowProps {
   onReset: (entry: CommandEntry) => void
 }
 
-const RESET = 'flex size-5 shrink-0 cursor-pointer items-center justify-center self-center rounded text-tily-muted hover:bg-tily-green-hover hover:text-tily-ink'
+const RESET = 'flex size-5 shrink-0 cursor-pointer items-center justify-center self-center rounded-tily-sm text-tily-muted hover:bg-tily-green-hover hover:text-tily-ink'
 
 const readLeaderKey = (event: KeyboardEvent): string | null => (event.ctrlKey || event.altKey ? chordOf(event) : leaderKeyOf(event))
 

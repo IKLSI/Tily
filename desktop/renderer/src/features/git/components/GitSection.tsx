@@ -21,7 +21,7 @@ export function GitSection({ title, count, expanded, nested = false, tip, action
           type="button"
           aria-expanded={expanded}
           data-tip={tip}
-          className={`flex min-w-0 flex-1 cursor-pointer items-center gap-[4px] rounded text-left ${nested ? 'text-[12px] text-tily-ink-soft' : 'text-[11px] font-semibold tracking-[0.06em] text-tily-ink uppercase'} hover:text-tily-ink`}
+          className={`flex min-w-0 flex-1 cursor-pointer items-center gap-[4px] rounded-tily-sm text-left ${nested ? 'text-[12px] text-tily-ink-soft' : 'text-[11px] font-semibold tracking-[0.06em] text-tily-ink uppercase'} hover:text-tily-ink`}
           onClick={onToggle}
         >
           <Icon name={IconName.Chevron} size={10} className={`shrink-0 transition-transform ${nested ? '' : 'translate-y-[0.5px]'} ${expanded ? 'rotate-90' : ''}`} />

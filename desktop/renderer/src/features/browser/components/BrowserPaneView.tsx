@@ -20,7 +20,7 @@ interface BrowserPaneViewProps {
   onSplit: (paneId: string, axis: SplitAxis) => void
 }
 
-const HEADER_BUTTON = 'flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded hover:bg-tily-green-hover hover:text-tily-ink disabled:cursor-default disabled:opacity-40 disabled:hover:bg-transparent'
+const HEADER_BUTTON = 'flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded-tily-sm hover:bg-tily-green-hover hover:text-tily-ink disabled:cursor-default disabled:opacity-40 disabled:hover:bg-transparent'
 const SECONDARY_BUTTON = `${HEADER_BUTTON} @max-[280px]:hidden`
 const BUTTON_SELECTOR = 'button, input'
 const SINGLE_CLICK = 1
@@ -153,7 +153,7 @@ export const BrowserPaneView = memo(function BrowserPaneView({ pane, active, zoo
     <section
       ref={sectionRef}
       data-pane-id={pane.id}
-      className={`grid h-full min-h-0 grid-cols-1 grid-rows-[24px_1fr] overflow-hidden rounded-md border bg-tily-terminal ${active ? 'border-tily-green' : 'border-tily-line'}`}
+      className={`grid h-full min-h-0 grid-cols-1 grid-rows-[24px_1fr] overflow-hidden rounded-tily border bg-tily-terminal ${active ? 'border-tily-green' : 'border-tily-line'}`}
     >
       <header className="group @container flex items-center gap-1 bg-tily-panel px-2 text-[11px] text-tily-muted select-none" onMouseDown={handleHeaderMouseDown} onDoubleClick={handleHeaderDoubleClick}>
         <span className="shrink-0 text-tily-ink" aria-hidden="true">
@@ -168,7 +168,7 @@ export const BrowserPaneView = memo(function BrowserPaneView({ pane, active, zoo
         </button>
         <BrowserAddressBar url={state?.url ?? pane.url} editing={editing} onNavigate={handleNavigate} onLeave={handleLeaveAddress} />
         {errors > 0 && (
-          <button type="button" className="flex h-5 shrink-0 cursor-pointer items-center gap-1 rounded px-1 text-tily-error hover:bg-tily-green-hover" data-tip={`${errorsLabel(errors)} depuis le dernier chargement`} aria-label={errorsLabel(errors)} onClick={handleDevTools}>
+          <button type="button" className="flex h-5 shrink-0 cursor-pointer items-center gap-1 rounded-tily-sm px-1 text-tily-error hover:bg-tily-green-hover" data-tip={`${errorsLabel(errors)} depuis le dernier chargement`} aria-label={errorsLabel(errors)} onClick={handleDevTools}>
             <ErrorIcon />
             {errors}
           </button>
@@ -197,7 +197,7 @@ export const BrowserPaneView = memo(function BrowserPaneView({ pane, active, zoo
       </header>
       <div data-browser-body={pane.id} className="relative min-h-0 overflow-hidden" onMouseDown={handleBodyMouseDown}>
         {snapshot && <img src={snapshot} alt="" className="mx-auto block h-full" style={{ width: mobile ? 'min(390px, 100%)' : '100%' }} onLoad={handleSnapshotLoad} />}
-        {failure && <p className="absolute inset-x-4 top-4 rounded border border-tily-line bg-tily-panel p-3 text-[12px] text-tily-error">{failure}</p>}
+        {failure && <p className="absolute inset-x-4 top-4 rounded-tily-sm border border-tily-line bg-tily-panel p-3 text-[12px] text-tily-error">{failure}</p>}
       </div>
     </section>
   )

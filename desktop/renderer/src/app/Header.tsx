@@ -3,6 +3,7 @@ import { EditableName } from '../components/EditableName'
 import { Icon } from '../components/Icon'
 import { IconName } from '../components/iconName'
 import { InlineNameEditor } from '../components/InlineNameEditor'
+import { useFullscreen } from '../components/useFullscreen'
 import { LeaderHints } from '../features/keyboard/components/LeaderHints'
 import { Command } from '../features/keyboard/commands'
 import { useShortcutTip } from '../features/keyboard/shortcutLabels'
@@ -23,19 +24,20 @@ interface HeaderProps {
 
 export const Header = memo(function Header({ workspaceName, renaming, sidebarCollapsed, leaderActive, navigation, onToggleSidebar, onOpenSettings, onStartRename, onCommitRename, onCancelRename }: HeaderProps) {
   const sidebarTip = useShortcutTip(sidebarCollapsed ? 'Afficher les workspaces' : 'Masquer les workspaces', Command.ToggleSidebar)
+  const fullscreen = useFullscreen()
   const settingsTip = useShortcutTip('Paramètres', Command.Settings)
   return (
-    <header className="relative flex h-[34px] shrink-0 items-center gap-4 border-b border-tily-line bg-tily-panel px-3 text-tily-ink">
+    <header className={`relative flex h-[44px] shrink-0 items-center gap-3 border-b border-tily-line bg-tily-panel pr-3 text-tily-ink [-webkit-app-region:drag] ${fullscreen ? 'pl-3' : 'pl-[84px]'}`}>
       <button
         type="button"
         aria-label={sidebarCollapsed ? 'Afficher les workspaces' : 'Masquer les workspaces'}
-        className="flex h-[26px] cursor-pointer items-center rounded border border-tily-line px-2 text-tily-muted hover:bg-tily-green-hover hover:text-tily-ink"
+        className="flex h-[28px] cursor-pointer items-center rounded-tily-sm px-2 text-tily-muted [-webkit-app-region:no-drag] hover:bg-tily-green-hover hover:text-tily-ink"
         data-tip={sidebarTip}
         onClick={onToggleSidebar}
       >
         <Icon name={IconName.Menu} size={14} />
       </button>
-      <div className="flex min-w-0 items-baseline gap-4">
+      <div className="flex min-w-0 items-baseline gap-4 [-webkit-app-region:no-drag]">
         {!navigation &&
           (sidebarCollapsed || renaming) &&
           (workspaceName === null ? (
@@ -48,12 +50,12 @@ export const Header = memo(function Header({ workspaceName, renaming, sidebarCol
       </div>
       {navigation && <div className={leaderActive ? 'hidden' : 'contents'}>{navigation}</div>}
       {leaderActive && <LeaderHints />}
-      <div className="ml-auto flex shrink-0 items-center gap-2">
+      <div className="ml-auto flex shrink-0 items-center gap-2 [-webkit-app-region:no-drag]">
         <UpdateButton />
         <button
           type="button"
           aria-label="Paramètres"
-          className="flex h-[26px] cursor-pointer items-center rounded border border-tily-line px-2 text-tily-muted hover:bg-tily-green-hover hover:text-tily-ink"
+          className="flex h-[28px] cursor-pointer items-center rounded-tily-sm px-2 text-tily-muted [-webkit-app-region:no-drag] hover:bg-tily-green-hover hover:text-tily-ink"
           data-tip={settingsTip}
           onClick={onOpenSettings}
         >

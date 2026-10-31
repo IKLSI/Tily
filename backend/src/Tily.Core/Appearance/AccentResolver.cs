@@ -15,7 +15,7 @@ public static class AccentResolver
 {
     public static AppearanceStateModel Resolve(AppearanceSettingsModel appearance)
     {
-        var defaultColor = AccentPresets.Sage;
+        var defaultColor = AccentPresets.System;
         var theme = AccentTheme.Build(HexColor.Normalize(appearance.Accent) ?? defaultColor);
         return new AppearanceStateModel(theme, defaultColor);
     }

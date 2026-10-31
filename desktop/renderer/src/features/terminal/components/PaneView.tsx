@@ -1,9 +1,10 @@
 import { memo, useCallback, useEffect, useRef, useState, type MouseEvent } from 'react'
 import { OpenTarget, type ShellProfile } from '../../../bridge/messages'
-import { DEFAULT_SHELL, RightPanelView, SplitAxis, type Pane } from '../../../model/session'
+import { activeTab, activeWorkspace, DEFAULT_SHELL, panesOf, RightPanelView, SplitAxis, type Pane } from '../../../model/session'
 import { openPanelView } from '../../right-panel/rightPanel'
 import { useAgentStore } from '../../agents/agentStore'
 import { useHostStore } from '../../../stores/hostStore'
+import { useSessionStore } from '../../../stores/sessionStore'
 import { usePaneStore } from '../paneStore'
 import { copyPaneBranch, copyPanePath, gitSummary, openPaneFolder, queryContext } from '../contextActions'
 import { clearPaneScrollback, copyLastCommandOutput, copyPaneSelection, focusPane, hasPaneSelection, pasteIntoPane, selectAllInPane, setPaneTerminalTabbable } from '../terminalActions'
@@ -38,7 +39,7 @@ interface PaneViewProps {
   onDismissState: (paneId: string) => void
 }
 
-const HEADER_BUTTON = 'flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded hover:bg-tily-green-hover hover:text-tily-ink'
+const HEADER_BUTTON = 'flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded-tily-sm hover:bg-tily-green-hover hover:text-tily-ink'
 const BUTTON_SELECTOR = 'button'
 const SINGLE_CLICK = 1
 const SECONDARY_BUTTON = `${HEADER_BUTTON} @max-[280px]:hidden`
@@ -122,6 +123,11 @@ export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZ
   const [devServerMenuOpen, setDevServerMenuOpen] = useState(false)
   const devServerButtonRef = useRef<HTMLButtonElement>(null)
   const [menu, setMenu] = useState<TerminalMenuRequest | null>(null)
+  const tabName = useSessionStore((state) => {
+    const workspace = state.session ? activeWorkspace(state.session) : undefined
+    const tab = workspace ? activeTab(workspace) : undefined
+    return tab && panesOf(tab.tree).length === 1 ? tab.name : null
+  })
 
   useEffect(() => {
     queryContext(pane.id)
@@ -205,13 +211,14 @@ export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZ
     close: handleClose,
   }
   const revealed = active ? '' : REVEALED_ON_HOVER
+  const folderName = lastFolder(pane.path)
   const branchLabel = context?.branch ?? (context?.detachedHead ? DETACHED_LABEL : null)
   const branchTip = context?.branch ? `Copier la branche « ${context.branch} » · ${gitTip}` : `${gitSummary(context)} · ${gitTip}`
 
   return (
     <section
       data-pane-id={pane.id}
-      className={`grid h-full min-h-0 grid-cols-1 grid-rows-[24px_1fr] overflow-hidden rounded-md border bg-tily-terminal ${active ? 'border-tily-green' : 'border-tily-line'}`}
+      className={`grid h-full min-h-0 grid-cols-1 grid-rows-[30px_1fr] overflow-hidden rounded-tily-lg border bg-tily-terminal transition-[border-color,box-shadow] duration-200 ${active ? 'border-tily-green/60 shadow-[0_0_0_1px_color-mix(in_srgb,var(--color-tily-green)_10%,transparent)]' : 'border-tily-line'}`}
       onFocus={handleFocusWithin}
     >
       <header
@@ -232,13 +239,13 @@ export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZ
             </span>
           )}
           <span className={`min-w-0 flex-1 truncate whitespace-nowrap ${active ? 'text-tily-green' : 'text-tily-ink-soft'}`} data-tip={pane.path}>
-            {lastFolder(pane.path)}
+            {folderName !== tabName && folderName}
           </span>
         </span>
         {branchLabel && (
           <button
             type="button"
-            className="flex max-w-[35%] min-w-0 shrink cursor-pointer items-center gap-1 rounded text-tily-muted hover:text-tily-ink @max-[520px]:hidden"
+            className="flex max-w-[35%] min-w-0 shrink cursor-pointer items-center gap-1 rounded-tily-sm text-tily-muted hover:text-tily-ink @max-[520px]:hidden"
             data-tip={branchTip}
             aria-label={context?.branch ? `Copier la branche ${context.branch}` : `${branchLabel} : ouvrir la vue Git`}
             onClick={handleBranchClick}

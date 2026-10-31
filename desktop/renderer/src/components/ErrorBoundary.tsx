@@ -12,7 +12,7 @@ interface ErrorBoundaryState {
 }
 
 const RECOVERY_INTERVAL_MS = 1_000
-const BUTTON = 'cursor-pointer rounded border border-tily-line px-3 py-1.5 text-[12px] text-tily-ink hover:bg-tily-green-hover'
+const BUTTON = 'cursor-pointer rounded-tily-sm border border-tily-line px-3 py-1.5 text-[12px] text-tily-ink hover:bg-tily-green-hover'
 
 export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   state: ErrorBoundaryState = { error: null }

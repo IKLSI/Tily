@@ -18,7 +18,7 @@ interface WorktreeFolderSettingsProps {
 
 const PATH_SEPARATOR = '/'
 const FOLDER_ID = 'settings-worktree-folder'
-const REMOVE = 'flex size-6 shrink-0 cursor-pointer items-center justify-center rounded text-tily-muted hover:bg-tily-green-hover hover:text-tily-ink'
+const REMOVE = 'flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-tily-sm text-tily-muted hover:bg-tily-green-hover hover:text-tily-ink'
 
 export function WorktreeFolderSettings({ worktrees, folders, projectsRoot, onChange, onFoldersChange, onPickFolder }: WorktreeFolderSettingsProps) {
   const handleFolderChange = (event: ChangeEvent<HTMLInputElement>) => onChange({ folder: event.target.value })

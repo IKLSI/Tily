@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, ipcMain } from 'electron'
+import { app, BrowserWindow, dialog, ipcMain, nativeTheme } from 'electron'
 import { Backend } from './backend'
 import { BrowserPanes } from './browserPanes'
 import { pickPath, pickPreferencesToExport, pickPreferencesToImport } from './dialogs'
@@ -14,7 +14,8 @@ const SEND_CHANNEL = 'tily:send'
 const MESSAGE_CHANNEL = 'tily:message'
 const SHELL_PREFIX = '{"type":"host.'
 const PREVIEW_LOADED_PREFIX = '{"type":"preview.loaded"'
-const BACKGROUND = '#17191B'
+const DARK_BACKGROUND = '#161719'
+const LIGHT_BACKGROUND = '#fbfbfc'
 const RESTART_DELAY_MS = 1_000
 const RESTART_WINDOW_MS = 60_000
 const MAX_RESTARTS = 3
@@ -91,8 +92,10 @@ const createWindow = (): BrowserWindow =>
     width: 1480,
     height: 900,
     show: false,
-    backgroundColor: BACKGROUND,
+    backgroundColor: nativeTheme.shouldUseDarkColors ? DARK_BACKGROUND : LIGHT_BACKGROUND,
     title: 'Tily',
+    titleBarStyle: 'hiddenInset',
+    trafficLightPosition: { x: 16, y: 14 },
     webPreferences: { preload: preloadScript(), contextIsolation: true, sandbox: true, spellcheck: false },
   })
 

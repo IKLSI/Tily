@@ -58,8 +58,8 @@ export function WorktreeRemoveDialog({ removal }: WorktreeRemoveDialogProps) {
   }
 
   return (
-    <div className="absolute inset-0 z-30 flex items-start justify-center bg-tily-paper/60 pt-[12vh]" onPointerDown={handleBackdropPointerDown}>
-      <div role="alertdialog" aria-label={title} className="flex max-h-[76vh] w-[540px] max-w-[94vw] flex-col rounded-lg border border-tily-line bg-tily-panel shadow-xl" onKeyDown={keepTabInside}>
+    <div className="absolute inset-0 z-30 flex items-start justify-center bg-black/30 backdrop-blur-[3px] pt-[12vh]" onPointerDown={handleBackdropPointerDown}>
+      <div role="alertdialog" aria-label={title} className="flex max-h-[76vh] w-[540px] max-w-[94vw] flex-col rounded-tily-lg border border-tily-line bg-tily-panel shadow-tily-dialog" onKeyDown={keepTabInside}>
         <div className="flex items-baseline justify-between border-b border-tily-line px-4 py-3">
           <h2 className="truncate text-[15px] font-semibold text-tily-ink">{title}</h2>
         </div>
@@ -96,7 +96,7 @@ export function WorktreeRemoveDialog({ removal }: WorktreeRemoveDialogProps) {
             <>
               <span className={ROW_LABEL}>Panes</span>
               <div className="flex min-w-0 flex-col gap-2">
-                <ul className="flex flex-col divide-y divide-tily-line rounded border border-tily-line bg-tily-paper">
+                <ul className="flex flex-col divide-y divide-tily-line rounded-tily-sm border border-tily-line bg-tily-paper">
                   {panes.map((pane) => (
                     <li key={pane.paneId} className="flex min-h-[28px] items-center gap-2 px-3 py-1 text-[12px] text-tily-ink">
                       <span className="min-w-0 flex-1 truncate">{pane.label}</span>

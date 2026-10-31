@@ -8,56 +8,99 @@
 }
 
 @theme {
-  --color-tily-paper: #17191b;
-  --color-tily-panel: #1e2123;
-  --color-tily-line: #2c3033;
-  --color-tily-ink: #d8dbd7;
-  --color-tily-ink-soft: #a3a9a5;
-  --color-tily-muted: #848b87;
-  --color-tily-green: #7a9f8b;
-  --color-tily-green-deep: #a9c4b4;
-  --color-tily-green-soft: #262d2a;
-  --color-tily-green-hover: #24282a;
-  --color-tily-focus: #8fb39f;
-  --color-tily-terminal: #121416;
-  --color-tily-terminal-ink: #cdd1cd;
+  --color-tily-paper: #161719;
+  --color-tily-panel: #1e1f22;
+  --color-tily-line: #2e3035;
+  --color-tily-ink: #dcdee2;
+  --color-tily-ink-soft: #a6a9b0;
+  --color-tily-muted: #82858d;
+  --color-tily-green: #0a84ff;
+  --color-tily-green-deep: #8cc2ff;
+  --color-tily-green-soft: #1d2a3d;
+  --color-tily-green-hover: #26282d;
+  --color-tily-focus: #4da3ff;
+  --color-tily-terminal: #121315;
+  --color-tily-terminal-ink: #d3d5da;
   --color-tily-page: #ffffff;
-  --color-tily-scrollbar: #3d4346;
-  --color-tily-scrollbar-hover: #555e61;
-  --color-tily-warning: #c9a65f;
-  --color-tily-error: #c98078;
-  --color-tily-forge-merged: #a98fc9;
-  --color-tily-status-working: #3fd37c;
-  --color-tily-status-waiting: #f5b83d;
-  --color-tily-status-done: #7ee2b8;
-  --color-tily-status-error: #f07a70;
-  --color-tily-status-unknown: #9aa3a0;
-  --color-tily-diff-added: #1d3025;
-  --color-tily-diff-added-ink: #a8d8b3;
-  --color-tily-diff-removed: #3a2427;
-  --color-tily-diff-removed-ink: #e8aaa3;
-  --color-tily-diff-added-selected: #2b4a37;
-  --color-tily-diff-removed-selected: #573238;
-  --color-tily-lane-0: #7a9f8b;
-  --color-tily-lane-1: #7f9fc9;
-  --color-tily-lane-2: #c9a65f;
-  --color-tily-lane-3: #a98fc9;
-  --color-tily-lane-4: #6fb3b0;
-  --color-tily-lane-5: #c98fa5;
-  --color-tily-lane-6: #9fbf6f;
-  --color-tily-lane-7: #c9906a;
-  --color-tily-syntax-keyword: #c98fa5;
-  --color-tily-syntax-string: #a9c4b4;
-  --color-tily-syntax-number: #c9a65f;
-  --color-tily-syntax-title: #7f9fc9;
-  --color-tily-syntax-attr: #6fb3b0;
-  --color-tily-syntax-comment: #6d746f;
-  --font-sans: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-  --font-mono: Menlo, 'Symbols Nerd Font Mono', monospace;
+  --color-tily-scrollbar: #3d4046;
+  --color-tily-scrollbar-hover: #565a62;
+  --color-tily-warning: #ffd60a;
+  --color-tily-error: #ff6961;
+  --color-tily-forge-merged: #bf5af2;
+  --color-tily-status-working: #32d74b;
+  --color-tily-status-waiting: #ffb340;
+  --color-tily-status-done: #63e6be;
+  --color-tily-status-error: #ff6961;
+  --color-tily-status-unknown: #98989d;
+  --color-tily-diff-added: #17301f;
+  --color-tily-diff-added-ink: #8fe0a5;
+  --color-tily-diff-removed: #3a1f23;
+  --color-tily-diff-removed-ink: #ff9d96;
+  --color-tily-diff-added-selected: #23472f;
+  --color-tily-diff-removed-selected: #572a30;
+  --color-tily-lane-0: #0a84ff;
+  --color-tily-lane-1: #5e9bff;
+  --color-tily-lane-2: #ffd60a;
+  --color-tily-lane-3: #bf5af2;
+  --color-tily-lane-4: #40c8e0;
+  --color-tily-lane-5: #ff6482;
+  --color-tily-lane-6: #86d65c;
+  --color-tily-lane-7: #ff9f0a;
+  --color-tily-syntax-keyword: #ff7ab2;
+  --color-tily-syntax-string: #fc6a5d;
+  --color-tily-syntax-number: #d0bf69;
+  --color-tily-syntax-title: #6bdfff;
+  --color-tily-syntax-attr: #75b6ff;
+  --color-tily-syntax-comment: #7f8c98;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+  --font-mono: 'SF Mono', Menlo, 'Symbols Nerd Font Mono', monospace;
+  --radius-tily-sm: 6px;
+  --radius-tily: 8px;
+  --radius-tily-lg: 12px;
+  --shadow-tily-popover: 0 0 0 0.5px rgb(0 0 0 / 0.28), 0 8px 24px rgb(0 0 0 / 0.32), 0 2px 6px rgb(0 0 0 / 0.2);
+  --shadow-tily-dialog: 0 0 0 0.5px rgb(0 0 0 / 0.3), 0 24px 64px rgb(0 0 0 / 0.45), 0 4px 12px rgb(0 0 0 / 0.25);
+  --shadow-tily-control: 0 0.5px 1px rgb(0 0 0 / 0.2);
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --color-tily-page: #ffffff;
+    --color-tily-warning: #b25000;
+    --color-tily-error: #d70015;
+    --color-tily-forge-merged: #8944ab;
+    --color-tily-status-working: #248a3d;
+    --color-tily-status-waiting: #c93400;
+    --color-tily-status-done: #0e8a6b;
+    --color-tily-status-error: #d70015;
+    --color-tily-status-unknown: #6e6e73;
+    --color-tily-diff-added: #e3f6e8;
+    --color-tily-diff-added-ink: #1c6b32;
+    --color-tily-diff-removed: #fde7e7;
+    --color-tily-diff-removed-ink: #b3261e;
+    --color-tily-diff-added-selected: #c8ecd2;
+    --color-tily-diff-removed-selected: #f9cfcf;
+    --color-tily-lane-0: #007aff;
+    --color-tily-lane-1: #3a6fd8;
+    --color-tily-lane-2: #b58900;
+    --color-tily-lane-3: #8944ab;
+    --color-tily-lane-4: #0e8fa2;
+    --color-tily-lane-5: #d6336c;
+    --color-tily-lane-6: #4c9a2a;
+    --color-tily-lane-7: #c26a00;
+    --color-tily-syntax-keyword: #ad3da4;
+    --color-tily-syntax-string: #c41a16;
+    --color-tily-syntax-number: #1c00cf;
+    --color-tily-syntax-title: #0b4f79;
+    --color-tily-syntax-attr: #326d74;
+    --color-tily-syntax-comment: #6c7986;
+    --shadow-tily-popover: 0 0 0 0.5px rgb(0 0 0 / 0.14), 0 8px 24px rgb(0 0 0 / 0.16), 0 2px 6px rgb(0 0 0 / 0.08);
+    --shadow-tily-dialog: 0 0 0 0.5px rgb(0 0 0 / 0.16), 0 24px 64px rgb(0 0 0 / 0.22), 0 4px 12px rgb(0 0 0 / 0.1);
+    --shadow-tily-control: 0 0.5px 1px rgb(0 0 0 / 0.12);
+  }
 }
 
 html {
-  color-scheme: dark;
+  color-scheme: light dark;
 }
 
 html,
@@ -70,6 +113,8 @@ body,
   color: var(--color-tily-ink);
   font-family: var(--font-sans);
   font-size: 13px;
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: 'kern', 'liga', 'calt';
 }
 
 .xterm {
@@ -92,7 +137,7 @@ body,
 
 ::-webkit-scrollbar-thumb {
   border: 2px solid transparent;
-  border-radius: 5px;
+  border-radius: 6px;
   background: var(--color-tily-scrollbar) padding-box;
 }
 
@@ -111,8 +156,27 @@ html[data-git-dragging] * {
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-tily-focus);
-  outline-offset: -2px;
+  outline: 3px solid color-mix(in srgb, var(--color-tily-focus) 55%, transparent);
+  outline-offset: -1px;
+  border-radius: 6px;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--color-tily-green) 35%, transparent);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  button,
+  [role='menuitem'],
+  [role='tab'],
+  [role='option'],
+  .cursor-pointer {
+    transition:
+      background-color 120ms ease-out,
+      color 120ms ease-out,
+      border-color 120ms ease-out,
+      box-shadow 120ms ease-out;
+  }
 }
 
 [data-git-graph-list]:focus-visible {
@@ -295,4 +359,23 @@ html[data-git-dragging] * {
 
 .hljs-deletion {
   color: var(--color-tily-diff-removed-ink);
+}
+
+@keyframes tily-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  [role='dialog'],
+  [role='alertdialog'],
+  [role='menu'] {
+    animation: tily-pop 140ms ease-out;
+  }
 }

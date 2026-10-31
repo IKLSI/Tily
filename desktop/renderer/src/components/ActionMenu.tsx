@@ -56,7 +56,7 @@ export function ActionMenu({ label, items, emptyMessage, header, align = 'left',
       ref={menuRef}
       role="menu"
       aria-label={label}
-      className={`absolute top-full z-20 mt-1 w-max max-w-[360px] min-w-[190px] rounded-md border border-tily-line bg-tily-panel p-1 shadow-lg ${align === 'right' ? 'right-0' : 'left-0'} ${scrollable ? 'max-h-[min(50vh,360px)] overflow-y-auto' : ''}`}
+      className={`absolute top-full z-20 mt-1 w-max max-w-[360px] min-w-[190px] rounded-tily border border-tily-line bg-tily-panel p-1 shadow-tily-popover ${align === 'right' ? 'right-0' : 'left-0'} ${scrollable ? 'max-h-[min(50vh,360px)] overflow-y-auto' : ''}`}
       onKeyDown={handleKeyDown}
     >
       {header}
@@ -68,7 +68,7 @@ export function ActionMenu({ label, items, emptyMessage, header, align = 'left',
           role="menuitem"
           tabIndex={-1}
           disabled={item.disabled}
-          className="flex w-full cursor-pointer items-baseline gap-3 rounded px-3 py-2 text-left text-[12px] text-tily-ink hover:bg-tily-green-hover focus:bg-tily-green-soft focus:text-tily-green-deep focus:outline-none disabled:cursor-default disabled:text-tily-muted disabled:opacity-60 disabled:hover:bg-transparent"
+          className="flex w-full cursor-pointer items-baseline gap-3 rounded-tily-sm px-3 py-1.5 text-left text-[12px] text-tily-ink hover:bg-tily-green-hover focus:bg-tily-green-soft focus:text-tily-green-deep focus:outline-none disabled:cursor-default disabled:text-tily-muted disabled:opacity-60 disabled:hover:bg-transparent"
           onClick={item.run}
         >
           <span className="min-w-0 flex-1 truncate">{item.label}</span>

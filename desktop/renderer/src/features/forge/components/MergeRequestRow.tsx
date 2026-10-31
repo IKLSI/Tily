@@ -29,7 +29,7 @@ export const MergeRequestRow = memo(function MergeRequestRow({ path, kind, item,
         type="button"
         data-tip={mergeRequestTip(item)}
         aria-label={`${item.reference} ${item.title} : ${statusText(item)}`}
-        className={`flex w-full cursor-pointer flex-col gap-[3px] rounded px-[8px] py-[5px] text-left hover:bg-tily-green-hover focus-visible:bg-tily-green-soft ${current ? 'bg-tily-green-soft' : ''}`}
+        className={`flex w-full cursor-pointer flex-col gap-[3px] rounded-tily-sm px-[8px] py-[5px] text-left hover:bg-tily-green-hover focus-visible:bg-tily-green-soft ${current ? 'bg-tily-green-soft' : ''}`}
         onClick={handleClick}
         onContextMenu={handleContextMenu}
       >

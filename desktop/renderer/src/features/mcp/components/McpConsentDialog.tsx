@@ -4,7 +4,7 @@ import { useMcpConsentStore, type McpConsentRequest } from '../mcpConsentStore'
 import { keepTabInside } from '../../../components/focusTrap'
 
 const ARM_DELAY_MS = 600
-const BUTTON = 'cursor-pointer rounded border px-3 py-1.5 text-[12px]'
+const BUTTON = 'cursor-pointer rounded-tily-sm border px-3 py-1.5 text-[12px]'
 const PRIMARY = `${BUTTON} border-tily-green text-tily-green-deep hover:bg-tily-green-soft aria-disabled:cursor-default aria-disabled:opacity-50`
 const SECONDARY = `${BUTTON} border-tily-line text-tily-ink hover:bg-tily-green-hover`
 const LABEL = 'text-[11px] text-tily-muted'
@@ -45,8 +45,8 @@ function McpConsentContent({ request, waiting }: { request: McpConsentRequest; w
   }
 
   return (
-    <div className="absolute inset-0 z-40 flex items-start justify-center bg-tily-paper/60 pt-[12vh]">
-      <div role="alertdialog" aria-label={TITLE} className="flex max-h-[76vh] w-[560px] max-w-[94vw] flex-col rounded-lg border border-tily-line bg-tily-panel shadow-xl" onKeyDown={keepTabInside}>
+    <div className="absolute inset-0 z-40 flex items-start justify-center bg-black/30 backdrop-blur-[3px] pt-[12vh]">
+      <div role="alertdialog" aria-label={TITLE} className="flex max-h-[76vh] w-[560px] max-w-[94vw] flex-col rounded-tily-lg border border-tily-line bg-tily-panel shadow-tily-dialog" onKeyDown={keepTabInside}>
         <div className="flex items-baseline justify-between border-b border-tily-line px-4 py-3">
           <h2 className="text-[15px] font-semibold text-tily-ink">{TITLE}</h2>
         </div>
@@ -59,7 +59,7 @@ function McpConsentContent({ request, waiting }: { request: McpConsentRequest; w
             <dt className={LABEL}>Cible</dt>
             <dd className={VALUE}>{request.target}</dd>
           </dl>
-          {request.detail && <pre className="overflow-x-auto rounded border border-tily-line bg-tily-terminal px-3 py-2 font-mono text-[12px] whitespace-pre-wrap text-tily-terminal-ink">{request.detail}</pre>}
+          {request.detail && <pre className="overflow-x-auto rounded-tily-sm border border-tily-line bg-tily-terminal px-3 py-2 font-mono text-[12px] whitespace-pre-wrap text-tily-terminal-ink">{request.detail}</pre>}
           <p className="text-[11px] text-tily-muted">Sans réponse dans les 2 minutes, la demande est refusée.{waiting > 0 ? ` ${waitingLabel(waiting)}` : ''}</p>
         </div>
         <div className="flex items-center justify-end gap-2 border-t border-tily-line px-4 py-3">

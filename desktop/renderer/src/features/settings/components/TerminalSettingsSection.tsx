@@ -49,7 +49,7 @@ export function TerminalSettingsSection({ title, fontSize, fontFamily, numberTex
               ))}
             </select>
           </span>
-          <span className="min-w-0 flex-1 overflow-hidden rounded border border-tily-line bg-tily-terminal px-2 py-1 whitespace-nowrap text-tily-terminal-ink" style={{ fontFamily: fontStack(fontFamily), fontSize }}>
+          <span className="min-w-0 flex-1 overflow-hidden rounded-tily-sm border border-tily-line bg-tily-terminal px-2 py-1 whitespace-nowrap text-tily-terminal-ink" style={{ fontFamily: fontStack(fontFamily), fontSize }}>
             ~/Developer % git status
           </span>
         </span>

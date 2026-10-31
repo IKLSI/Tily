@@ -111,7 +111,7 @@ export const WorkspaceItem = memo(function WorkspaceItem({ workspace, workspaceN
     <div className={`relative mb-[8px] ${draggingSelf ? 'opacity-50' : ''}`} data-workspace-slot={id}>
       {dropBefore && <span aria-hidden="true" className={PANEL_DROP_LINE} />}
       <div
-        className={`group flex h-[30px] cursor-pointer items-center gap-[4px] rounded-md px-[2px] select-none ${rowStateOf(!expanded && isDropTarget(dropTarget, id), here)}`}
+        className={`group flex h-[30px] cursor-pointer items-center gap-[4px] rounded-tily px-[2px] select-none ${rowStateOf(!expanded && isDropTarget(dropTarget, id), here)}`}
         data-drop-workspace={id}
         data-spring-workspace={expanded ? undefined : id}
         onClick={handleSelect}
@@ -124,7 +124,7 @@ export const WorkspaceItem = memo(function WorkspaceItem({ workspace, workspaceN
           aria-controls={tabsId}
           aria-label={`${expanded ? 'Replier' : 'Afficher'} ${tabs.length === 1 ? 'l’onglet' : `les ${tabs.length} onglets`} de ${name}`}
           data-tip={toggleTip(expanded, tabs.length)}
-          className="flex size-[20px] shrink-0 cursor-pointer items-center justify-center rounded text-tily-muted hover:text-tily-ink"
+          className="flex size-[20px] shrink-0 cursor-pointer items-center justify-center rounded-tily-sm text-tily-muted hover:text-tily-ink"
           onClick={handleToggle}
         >
           <Icon name={IconName.Chevron} size={10} className={`translate-y-[0.5px] transition-transform duration-[120ms] ease-out ${expanded ? 'rotate-90' : ''}`} />

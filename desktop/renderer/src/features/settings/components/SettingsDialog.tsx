@@ -227,16 +227,16 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
 
   const renderBody = (settings: Settings, current: SettingsSnapshot) => (
     <>
-      {importSource && <p className="rounded border border-tily-green/50 bg-tily-paper px-3 py-2 text-[12px] text-tily-green">Préférences lues depuis {importSource}. Rien n’est écrit tant que vous n’enregistrez pas ; Enregistrer remplace la configuration actuelle.</p>}
+      {importSource && <p className="rounded-tily-sm border border-tily-green/50 bg-tily-paper px-3 py-2 text-[12px] text-tily-green">Préférences lues depuis {importSource}. Rien n’est écrit tant que vous n’enregistrez pas ; Enregistrer remplace la configuration actuelle.</p>}
       {importWarnings.length > 0 && (
-        <ul className="rounded border border-tily-warning/50 bg-tily-paper px-3 py-2 text-[12px] text-tily-warning">
+        <ul className="rounded-tily-sm border border-tily-warning/50 bg-tily-paper px-3 py-2 text-[12px] text-tily-warning">
           {importWarnings.map((warning) => (
             <li key={warning}>{warning}</li>
           ))}
         </ul>
       )}
       {current.warnings.length > 0 && (
-        <ul className="rounded border border-tily-warning/50 bg-tily-paper px-3 py-2 text-[12px] text-tily-warning">
+        <ul className="rounded-tily-sm border border-tily-warning/50 bg-tily-paper px-3 py-2 text-[12px] text-tily-warning">
           {current.warnings.map((warning) => (
             <li key={warning}>{warning}</li>
           ))}
@@ -247,8 +247,8 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
   )
 
   return (
-    <div className="absolute inset-0 z-30 flex items-start justify-center bg-tily-paper/60 pt-[6vh]" onPointerDown={handleBackdropPointerDown} onMouseDown={handleBackdropMouseDown}>
-      <div ref={dialogRef} role="dialog" aria-label="Paramètres" className="flex h-[min(86vh,680px)] w-[780px] max-w-[94vw] flex-col rounded-lg border border-tily-line bg-tily-panel shadow-xl" onKeyDown={handleKeyDown}>
+    <div className="absolute inset-0 z-30 flex items-start justify-center bg-black/30 backdrop-blur-[3px] pt-[6vh]" onPointerDown={handleBackdropPointerDown} onMouseDown={handleBackdropMouseDown}>
+      <div ref={dialogRef} role="dialog" aria-label="Paramètres" className="flex h-[min(86vh,680px)] w-[780px] max-w-[94vw] flex-col rounded-tily-lg border border-tily-line bg-tily-panel shadow-tily-dialog" onKeyDown={handleKeyDown}>
         <div className="flex items-baseline justify-between border-b border-tily-line px-4 py-3">
           <h2 className="text-[15px] font-semibold text-tily-ink">
             Paramètres

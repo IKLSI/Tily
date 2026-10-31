@@ -28,8 +28,8 @@ export function AttentionToasts({ waiting, onJoin, onDismiss }: AttentionToastsP
         const handleDismiss = () => onDismiss(pane.paneId)
         const elapsed = now - (since[pane.paneId] ?? now)
         return (
-          <div key={pane.paneId} role="status" className="pointer-events-auto flex items-start gap-1 rounded-lg border border-tily-status-waiting/60 bg-tily-panel py-1 pr-1.5 pl-1 text-[12px] shadow-xl hover:border-tily-status-waiting">
-            <button type="button" className="flex min-w-0 flex-1 cursor-pointer flex-col gap-0.5 rounded px-2 py-1 text-left hover:bg-tily-green-hover" aria-label={`Rejoindre ${pane.label} : ${pane.reason}`} data-tip={`Rejoindre ${pane.label}`} onClick={handleJoin}>
+          <div key={pane.paneId} role="status" className="pointer-events-auto flex items-start gap-1 rounded-tily-lg border border-tily-status-waiting/60 bg-tily-panel py-1 pr-1.5 pl-1 text-[12px] shadow-tily-popover hover:border-tily-status-waiting">
+            <button type="button" className="flex min-w-0 flex-1 cursor-pointer flex-col gap-0.5 rounded-tily-sm px-2 py-1 text-left hover:bg-tily-green-hover" aria-label={`Rejoindre ${pane.label} : ${pane.reason}`} data-tip={`Rejoindre ${pane.label}`} onClick={handleJoin}>
               <span className="flex w-full items-center gap-2">
                 <AgentStateIcon state={AgentState.Waiting} />
                 <span className="min-w-0 flex-1 truncate font-semibold text-tily-ink">{`${pane.workspaceName} › ${pane.tabName}`}</span>
@@ -39,7 +39,7 @@ export function AttentionToasts({ waiting, onJoin, onDismiss }: AttentionToastsP
               </span>
               <span className="w-full truncate pl-5 text-tily-muted" data-tip={pane.reason}>{pane.reason}</span>
             </button>
-            <button type="button" className="mt-1.5 flex size-[18px] shrink-0 cursor-pointer items-center justify-center rounded text-tily-muted hover:bg-tily-green-hover hover:text-tily-ink" aria-label="Ignorer cette notification" data-tip="Ignorer la notification" onClick={handleDismiss}>
+            <button type="button" className="mt-1.5 flex size-[18px] shrink-0 cursor-pointer items-center justify-center rounded-tily-sm text-tily-muted hover:bg-tily-green-hover hover:text-tily-ink" aria-label="Ignorer cette notification" data-tip="Ignorer la notification" onClick={handleDismiss}>
               <Icon name={IconName.Close} size={10} />
             </button>
           </div>

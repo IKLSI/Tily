@@ -61,7 +61,7 @@ import { WorktreeDialogs } from '../features/worktrees/components/WorktreeDialog
 const ProjectPickers = lazy(() => import('../features/projects/components/ProjectPickers').then((module) => ({ default: module.ProjectPickers })))
 const SettingsDialog = lazy(() => import('../features/settings/components/SettingsDialog').then((module) => ({ default: module.SettingsDialog })))
 
-const OVERLAY_FALLBACK = 'absolute bottom-10 left-1/2 z-50 flex -translate-x-1/2 flex-col items-center gap-3 rounded border border-tily-line bg-tily-panel p-4 text-center shadow-lg'
+const OVERLAY_FALLBACK = 'absolute bottom-10 left-1/2 z-50 flex -translate-x-1/2 flex-col items-center gap-3 rounded-tily-sm border border-tily-line bg-tily-panel p-4 text-center shadow-tily-popover'
 const PANEL_FALLBACK = 'flex w-72 shrink-0 flex-col items-center justify-center gap-3 border-l border-tily-line bg-tily-panel p-4 text-center'
 
 interface AppShellProps {
@@ -358,7 +358,7 @@ export function AppShell({ session }: AppShellProps) {
           onNew={newTab}
           onMove={moveTab}
         />
-        <div className="relative min-h-0 flex-1 border-t border-tily-line bg-tily-panel p-1">
+        <div className="relative min-h-0 flex-1 border-t border-tily-line bg-tily-panel p-2">
           <ErrorBoundary resetKey={currentTab.id}>
             <SplitView key={currentTab.id} node={zoomedPane ? { pane: zoomedPane } : currentTab.tree} zoomed={zoomedPane !== undefined} onToggleZoom={togglePaneZoom} activePaneId={currentTab.active} onFocus={selectPane} onClose={closePaneKeepingText} onSplit={handleSplit} onResize={handleResize} shells={availableShells} onRestart={restartPane} onRestartIn={restartPaneIn} onChangeShell={changePaneShell} onDismissState={dismissPaneState} />
           </ErrorBoundary>

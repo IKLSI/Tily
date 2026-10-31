@@ -24,7 +24,7 @@ export function EditMergeRequestButton({ path, item, kind, className = '' }: Edi
   }
 
   return (
-    <button type="button" className={`flex shrink-0 cursor-pointer items-center rounded p-[2px] text-tily-muted hover:text-tily-ink ${className}`} data-tip={label} aria-label={label} onClick={handleClick}>
+    <button type="button" className={`flex shrink-0 cursor-pointer items-center rounded-tily-sm p-[2px] text-tily-muted hover:text-tily-ink ${className}`} data-tip={label} aria-label={label} onClick={handleClick}>
       <Icon name={IconName.Pencil} size={10} />
     </button>
   )

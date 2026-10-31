@@ -47,7 +47,7 @@ export const RightPanel = memo(function RightPanel({ view, root, width, onClose,
               role="tab"
               aria-selected={selected}
               data-tip={withShortcut(entry.label, shortcutText(entry.command))}
-              className={`cursor-pointer rounded-md px-[8px] py-[3px] text-[11px] font-semibold tracking-[0.06em] uppercase ${selected ? 'bg-tily-green-soft text-tily-green-deep' : 'text-tily-muted hover:bg-tily-green-hover hover:text-tily-ink'}`}
+              className={`cursor-pointer rounded-tily px-[10px] py-[4px] text-[12px] font-medium ${selected ? 'bg-tily-green-soft text-tily-green-deep' : 'text-tily-muted hover:bg-tily-green-hover hover:text-tily-ink'}`}
               onClick={handleSelect}
             >
               {entry.label}

@@ -51,7 +51,7 @@ export function HeaderWorkspaceItem({ workspace, siblings, counts, agents, activ
   return (
     <div
       data-strip-item={id}
-      className={`flex h-[28px] w-max shrink-0 cursor-pointer items-center gap-[6px] rounded-md px-[8px] select-none ${placementOf(shown)} ${stateOf(active)}`}
+      className={`flex h-[28px] w-max shrink-0 cursor-pointer items-center gap-[6px] rounded-tily px-[8px] select-none ${placementOf(shown)} ${stateOf(active)}`}
       onClick={handleSelect}
     >
       {renaming ? (

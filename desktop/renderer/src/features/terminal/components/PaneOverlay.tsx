@@ -24,7 +24,7 @@ const PANE_SELECTOR = '[data-pane-id]'
 const ACTIVATION_GUARD_MS = 600
 const ACTIVATION_KEYS = new Set(['Enter', ' '])
 
-const BUTTON = 'cursor-pointer rounded border px-3 py-1.5 text-[12px]'
+const BUTTON = 'cursor-pointer rounded-tily-sm border px-3 py-1.5 text-[12px]'
 const PRIMARY = `${BUTTON} border-tily-green text-tily-green-deep hover:bg-tily-green-soft`
 const SECONDARY = `${BUTTON} border-tily-line text-tily-ink hover:bg-tily-green-hover`
 const DANGER = `${BUTTON} border-tily-line text-tily-muted hover:text-tily-error`

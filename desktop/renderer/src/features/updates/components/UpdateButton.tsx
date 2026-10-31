@@ -27,7 +27,7 @@ export function UpdateButton() {
     <>
       <button
         type="button"
-        className={`flex cursor-pointer items-center gap-1.5 rounded border px-2 py-[3px] hover:bg-tily-green-soft ${tone}`}
+        className={`flex cursor-pointer items-center gap-1.5 rounded-tily-sm border px-2 py-[3px] hover:bg-tily-green-soft ${tone}`}
         data-tip={failed && info.error ? info.error : `Tily ${release.version} est disponible (version actuelle ${info.current})`}
         onClick={showUpdateDialog}
       >

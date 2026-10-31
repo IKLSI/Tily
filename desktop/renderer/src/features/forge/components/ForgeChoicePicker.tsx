@@ -14,7 +14,7 @@ interface ForgeChoicePickerProps {
   onToggle: (id: string) => void
 }
 
-const CHIP = 'flex max-w-[220px] items-center gap-[4px] rounded border border-tily-line bg-tily-paper py-[1px] pr-[2px] pl-[6px] text-[11px] text-tily-ink'
+const CHIP = 'flex max-w-[220px] items-center gap-[4px] rounded-tily-sm border border-tily-line bg-tily-paper py-[1px] pr-[2px] pl-[6px] text-[11px] text-tily-ink'
 
 const POPUP_WIDTH = 320
 const POPUP_MARGIN = 8
@@ -149,7 +149,7 @@ export function ForgeChoicePicker({ label, options, selected, multiple, emptyMes
           <span key={id} className={CHIP}>
             {colorDot(options.find((option) => option.id === id)?.color)}
             <span className="truncate">{optionLabel(options, id)}</span>
-            <button type="button" className="cursor-pointer rounded p-[1px] text-tily-muted hover:text-tily-ink" aria-label={`Retirer ${optionLabel(options, id)}`} disabled={disabled} onClick={() => onToggle(id)}>
+            <button type="button" className="cursor-pointer rounded-tily-sm p-[1px] text-tily-muted hover:text-tily-ink" aria-label={`Retirer ${optionLabel(options, id)}`} disabled={disabled} onClick={() => onToggle(id)}>
               <Icon name={IconName.Close} size={9} />
             </button>
           </span>
@@ -160,7 +160,7 @@ export function ForgeChoicePicker({ label, options, selected, multiple, emptyMes
           aria-haspopup="listbox"
           aria-expanded={open}
           disabled={disabled}
-          className="flex h-[22px] cursor-pointer items-center gap-[4px] rounded border border-dashed border-tily-line px-[6px] text-[11px] text-tily-ink-soft hover:bg-tily-green-hover disabled:cursor-default disabled:opacity-50"
+          className="flex h-[22px] cursor-pointer items-center gap-[4px] rounded-tily-sm border border-dashed border-tily-line px-[6px] text-[11px] text-tily-ink-soft hover:bg-tily-green-hover disabled:cursor-default disabled:opacity-50"
           onClick={handleOpen}
         >
           <Icon name={multiple || selected.length === 0 ? IconName.Plus : IconName.Pencil} size={9} />
@@ -168,7 +168,7 @@ export function ForgeChoicePicker({ label, options, selected, multiple, emptyMes
         </button>
       </div>
       {open && placement && (
-        <div ref={popupRef} className="fixed z-40 flex flex-col gap-1 rounded-md border border-tily-line bg-tily-panel p-1 shadow-lg" style={{ ...placement.style, width: POPUP_WIDTH }}>
+        <div ref={popupRef} className="fixed z-40 flex flex-col gap-1 rounded-tily border border-tily-line bg-tily-panel p-1 shadow-tily-popover" style={{ ...placement.style, width: POPUP_WIDTH }}>
           <input
             type="text"
             className={SETTINGS_INPUT}
@@ -192,7 +192,7 @@ export function ForgeChoicePicker({ label, options, selected, multiple, emptyMes
                 tabIndex={-1}
                 data-index={index}
                 aria-selected={selected.includes(option.id)}
-                className={`flex w-full cursor-pointer items-center gap-2 rounded px-2 py-[5px] text-left text-xs text-tily-ink hover:bg-tily-green-hover ${index === activeIndex ? 'bg-tily-green-soft' : ''}`}
+                className={`flex w-full cursor-pointer items-center gap-2 rounded-tily-sm px-2 py-[5px] text-left text-xs text-tily-ink hover:bg-tily-green-hover ${index === activeIndex ? 'bg-tily-green-soft' : ''}`}
                 onPointerEnter={() => setActive(index)}
                 onClick={() => choose(option.id)}
               >

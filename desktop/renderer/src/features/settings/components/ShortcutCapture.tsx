@@ -13,10 +13,10 @@ interface ShortcutCaptureProps {
 
 const CANCEL_KEY = 'Escape'
 const TAB_KEY = 'Tab'
-const CAPTURE = 'min-w-0 flex-1 cursor-pointer truncate rounded border px-2 py-1 text-left text-[12px] outline-none'
+const CAPTURE = 'min-w-0 flex-1 cursor-pointer truncate rounded-tily-sm border px-2 py-1 text-left text-[12px] outline-none'
 const IDLE = `${CAPTURE} border-tily-line bg-tily-paper text-tily-ink hover:bg-tily-green-hover focus:border-tily-focus`
 const ACTIVE = `${CAPTURE} border-tily-focus bg-tily-green-soft text-tily-green-deep`
-const CLEAR = 'flex size-4 shrink-0 cursor-pointer items-center justify-center rounded text-tily-muted hover:bg-tily-green-hover hover:text-tily-error'
+const CLEAR = 'flex size-4 shrink-0 cursor-pointer items-center justify-center rounded-tily-sm text-tily-muted hover:bg-tily-green-hover hover:text-tily-error'
 
 const isPlain = (event: KeyboardEvent<HTMLButtonElement>): boolean => !event.ctrlKey && !event.altKey && !event.shiftKey && !event.metaKey
 

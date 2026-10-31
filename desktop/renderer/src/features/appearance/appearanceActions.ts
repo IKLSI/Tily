@@ -1,5 +1,6 @@
 import { bridge } from '../../bridge/bridge'
-import type { AppearanceCatalog, AppearanceState, FolderProject } from '../../bridge/appearanceMessages'
+import type { ITheme } from '@xterm/xterm'
+import type { AccentScheme, AppearanceCatalog, AppearanceState, FolderProject } from '../../bridge/appearanceMessages'
 import { focusActivePane } from '../explorer/fileExplorerActions'
 import { activePane, activeTab, type Session, type Workspace } from '../../model/session'
 import { useAppearanceStore, type ColorTarget } from '../../stores/appearanceStore'
@@ -15,10 +16,52 @@ export const workspacePath = (workspace: Workspace): string => activePane(active
 
 const followedPaths = (session: Session | null): string[] => [...new Set((session?.workspaces ?? []).map(workspacePath))].sort()
 
-export const receiveAppearance = (state: AppearanceState): void => {
+const LIGHT_ANSI: ITheme = {
+  black: '#1d1d1f',
+  red: '#c4261d',
+  green: '#1f8a3b',
+  yellow: '#8a6d00',
+  blue: '#0b5fd1',
+  magenta: '#a3329b',
+  cyan: '#0c7c8c',
+  white: '#8e8e93',
+  brightBlack: '#636366',
+  brightRed: '#e0352b',
+  brightGreen: '#248a3d',
+  brightYellow: '#a07800',
+  brightBlue: '#0a6cf0',
+  brightMagenta: '#bf3fb5',
+  brightCyan: '#0e8fa2',
+  brightWhite: '#48484a',
+}
+
+const scheme = window.matchMedia('(prefers-color-scheme: light)')
+let currentState: AppearanceState | null = null
+
+const terminalTheme = (colors: AccentScheme, light: boolean): ITheme => ({
+  ...colors.terminal,
+  ...(light ? LIGHT_ANSI : {}),
+  scrollbarSliderBackground: colors.tokens['scrollbar'],
+  scrollbarSliderHoverBackground: colors.tokens['scrollbar-hover'],
+  scrollbarSliderActiveBackground: colors.tokens['scrollbar-hover'],
+})
+
+const applyScheme = (): void => {
+  if (!currentState) {
+    return
+  }
+  const light = scheme.matches
+  const colors = light ? currentState.theme.light : currentState.theme
   const root = document.documentElement.style
-  Object.entries(state.theme.tokens).forEach(([token, color]) => root.setProperty(`${TOKEN_PREFIX}${token}`, color))
-  terminalRegistry.setTheme(state.theme.terminal)
+  Object.entries(colors.tokens).forEach(([token, color]) => root.setProperty(`${TOKEN_PREFIX}${token}`, color))
+  terminalRegistry.setTheme(terminalTheme(colors, light))
+}
+
+scheme.addEventListener('change', applyScheme)
+
+export const receiveAppearance = (state: AppearanceState): void => {
+  currentState = state
+  applyScheme()
   useAppearanceStore.getState().setState(state)
 }
 

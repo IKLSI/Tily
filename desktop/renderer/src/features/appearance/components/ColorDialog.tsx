@@ -63,8 +63,8 @@ function ColorContent({ workspace, tab, folder }: ColorContentProps) {
   }
 
   return (
-    <div className="absolute inset-0 z-40 flex items-start justify-center bg-tily-paper/60 pt-[12vh]" onPointerDown={handleBackdropPointerDown}>
-      <div role="dialog" aria-label={title} className="flex w-[460px] max-w-[94vw] flex-col rounded-lg border border-tily-line bg-tily-panel shadow-xl" onKeyDown={keepTabInside}>
+    <div className="absolute inset-0 z-40 flex items-start justify-center bg-black/30 backdrop-blur-[3px] pt-[12vh]" onPointerDown={handleBackdropPointerDown}>
+      <div role="dialog" aria-label={title} className="flex w-[460px] max-w-[94vw] flex-col rounded-tily-lg border border-tily-line bg-tily-panel shadow-tily-dialog" onKeyDown={keepTabInside}>
         <div className="flex items-center gap-1.5 border-b border-tily-line px-4 py-3">
           <h2 className="min-w-0 truncate text-[15px] font-semibold text-tily-ink">{title}</h2>
           <InfoTip text={tab ? TAB_TIP : WORKSPACE_TIP} />

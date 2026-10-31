@@ -23,7 +23,7 @@ const PAGE_SANDBOX = 'allow-scripts allow-popups'
 
 const TextEditor = lazy(() => import('./TextEditor').then((module) => ({ default: module.TextEditor })))
 
-const BANNER_BUTTON = 'shrink-0 cursor-pointer rounded border border-tily-line px-[8px] py-[1px] text-[12px] text-tily-ink hover:bg-tily-green-hover'
+const BANNER_BUTTON = 'shrink-0 cursor-pointer rounded-tily-sm border border-tily-line px-[8px] py-[1px] text-[12px] text-tily-ink hover:bg-tily-green-hover'
 
 
 const handleClose = () => closePreview(focusFileTree)
@@ -114,9 +114,9 @@ export function FilePreviewDrawer() {
   const editorLanguage = preview?.kind === PreviewKind.Markdown ? MARKDOWN_LANGUAGE : preview?.language
 
   return (
-    <aside aria-label="Aperçu du fichier" data-preview-drawer="" className={`absolute inset-y-0 right-0 z-20 flex ${expanded ? 'w-full' : 'w-[min(920px,100%)]'} flex-col border-l border-tily-line bg-tily-panel shadow-2xl`} onKeyDown={handleKeyDown}>
+    <aside aria-label="Aperçu du fichier" data-preview-drawer="" className={`absolute inset-y-0 right-0 z-20 flex ${expanded ? 'w-full' : 'w-[min(920px,100%)]'} flex-col border-l border-tily-line bg-tily-panel shadow-tily-popover`} onKeyDown={handleKeyDown}>
       <header className="flex h-[36px] shrink-0 items-center gap-[8px] border-b border-tily-line pr-[6px] pl-[12px]">
-        {preview && !preview.error && <span className="shrink-0 rounded bg-tily-paper px-[6px] py-[1px] text-[11px] text-tily-muted">{preview.kind === PreviewKind.Image && imageSize ? `${KIND_LABELS[preview.kind]} · ${imageSize}` : KIND_LABELS[preview.kind]}</span>}
+        {preview && !preview.error && <span className="shrink-0 rounded-tily-sm bg-tily-paper px-[6px] py-[1px] text-[11px] text-tily-muted">{preview.kind === PreviewKind.Image && imageSize ? `${KIND_LABELS[preview.kind]} · ${imageSize}` : KIND_LABELS[preview.kind]}</span>}
         <span className="min-w-0 flex-1 truncate text-[12px] font-semibold text-tily-ink" data-tip={path}>
           {name}
           {dirty && <span className="ml-[8px] text-[11px] font-normal text-tily-warning">Modifié</span>}

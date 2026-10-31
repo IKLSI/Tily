@@ -11,7 +11,7 @@ import { useShortcutText } from '../../keyboard/shortcutLabels'
 export const STATUS_LOG_ID = 'status-log'
 
 const BOTTOM_TOLERANCE_PX = 8
-const TEXT_BUTTON = 'cursor-pointer rounded-md px-[8px] py-[3px] text-[11px] text-tily-muted hover:bg-tily-green-hover hover:text-tily-ink aria-disabled:cursor-default aria-disabled:opacity-40 aria-disabled:hover:bg-transparent aria-disabled:hover:text-tily-muted'
+const TEXT_BUTTON = 'cursor-pointer rounded-tily px-[8px] py-[3px] text-[11px] text-tily-muted hover:bg-tily-green-hover hover:text-tily-ink aria-disabled:cursor-default aria-disabled:opacity-40 aria-disabled:hover:bg-transparent aria-disabled:hover:text-tily-muted'
 
 const LEVEL_CLASSES: Record<StatusLevel, string> = {
   [StatusLevel.Info]: 'text-tily-ink-soft',

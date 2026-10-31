@@ -13,7 +13,7 @@ interface MergeRequestFiltersProps {
 }
 
 const SEARCH_INPUT =
-  'h-[24px] min-w-[100px] flex-1 rounded border border-tily-line bg-tily-panel px-2 text-[12px] text-tily-ink outline-none placeholder:text-tily-muted focus:border-tily-focus'
+  'h-[24px] min-w-[100px] flex-1 rounded-tily-sm border border-tily-line bg-tily-panel px-2 text-[12px] text-tily-ink outline-none placeholder:text-tily-muted focus:border-tily-focus'
 
 const handleTextChange = (event: ChangeEvent<HTMLInputElement>) => setMergeRequestText(event.target.value)
 
@@ -47,7 +47,7 @@ export function MergeRequestFilters({ items, currentUser }: MergeRequestFiltersP
       <MergeRequestFacetButton label="Labels" options={labels} selected={filter.labels} emptyMessage="Aucun label dans la liste" onToggle={toggleMergeRequestLabel} />
       <MergeRequestFacetButton label="Assignés" options={assignees} selected={filter.assignees} emptyMessage="Aucun assigné dans la liste" onToggle={toggleMergeRequestAssignee} />
       {filterActive(filter) && (
-        <button type="button" className="flex size-[24px] cursor-pointer items-center justify-center rounded text-tily-muted hover:bg-tily-green-hover hover:text-tily-ink" aria-label="Effacer les filtres" data-tip="Effacer les filtres" onClick={clearMergeRequestFilters}>
+        <button type="button" className="flex size-[24px] cursor-pointer items-center justify-center rounded-tily-sm text-tily-muted hover:bg-tily-green-hover hover:text-tily-ink" aria-label="Effacer les filtres" data-tip="Effacer les filtres" onClick={clearMergeRequestFilters}>
           <Icon name={IconName.Close} />
         </button>
       )}

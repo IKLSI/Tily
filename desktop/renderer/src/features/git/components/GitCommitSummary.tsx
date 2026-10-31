@@ -14,7 +14,7 @@ interface GitCommitSummaryProps {
   actions: ReactNode
 }
 
-const CARD = 'mx-[8px] flex shrink-0 flex-col gap-[6px] rounded-md border border-tily-line bg-tily-panel px-[12px] py-[10px]'
+const CARD = 'mx-[8px] flex shrink-0 flex-col gap-[6px] rounded-tily border border-tily-line bg-tily-panel px-[12px] py-[10px]'
 
 const subjectOf = (message: string): string => message.split('\n')[0] ?? ''
 
