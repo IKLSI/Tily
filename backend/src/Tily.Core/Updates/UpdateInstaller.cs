@@ -14,8 +14,9 @@ public static class UpdateInstaller
     public const string Script = """
         #!/bin/sh
         set -u
-        exec </dev/null >/dev/null 2>&1
         DMG="$1"
+        exec </dev/null >"$(dirname "$DMG")/../update.log" 2>&1
+        set -x
         APP="$2"
         PID="$3"
         BUNDLE_ID="$4"
@@ -45,7 +46,8 @@ public static class UpdateInstaller
         fi
         rmdir "$MOUNT" 2>/dev/null
         rm -f "$DMG" "$0"
-        open "$APP"
+        sleep 1
+        open -n "$APP"
         """;
 
     public static string? BundleOf(string appDirectory)

@@ -57,7 +57,7 @@ public sealed class UpdateInstallerTests
         Assert.Contains("kill -0 \"$PID\"", UpdateInstaller.Script);
         Assert.Contains("hdiutil attach", UpdateInstaller.Script);
         Assert.Contains("ditto \"$SOURCE\" \"$STAGED\"", UpdateInstaller.Script);
-        Assert.Contains("open \"$APP\"", UpdateInstaller.Script);
+        Assert.Contains("open -n \"$APP\"", UpdateInstaller.Script);
     }
 
     [Fact]
