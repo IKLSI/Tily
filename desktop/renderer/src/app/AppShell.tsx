@@ -52,6 +52,7 @@ import { Tooltip } from '../components/Tooltip'
 import type { WorkspacePanelActions } from '../features/workspaces/components/workspacePanel'
 import type { HeaderWorkspaceActions } from '../features/workspaces/components/workspaceStrip'
 import { WorkspaceTree } from '../features/workspaces/components/WorkspaceTree'
+import { MergeRequestContextMenu } from '../features/forge/components/MergeRequestContextMenu'
 import { MergeRequestDialog } from '../features/forge/components/MergeRequestDialog'
 import { WorktreeDialogs } from '../features/worktrees/components/WorktreeDialogs'
 
@@ -432,6 +433,7 @@ export function AppShell({ session }: AppShellProps) {
         {deleteRequest && <DeleteConfirmDialog request={deleteRequest} onConfirm={confirmDelete} onCancel={handleCancelDelete} />}
         <WorktreeDialogs />
         <MergeRequestDialog />
+        <MergeRequestContextMenu />
         {gitConfirmation && (
           <Suspense fallback={null}>
             <GitConfirmDialog confirmation={gitConfirmation} onConfirm={handleConfirmGit} onCancel={handleCancelGit} />

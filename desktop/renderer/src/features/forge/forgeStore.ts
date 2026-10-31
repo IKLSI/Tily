@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { BranchMergeRequests, MergeRequestList } from '../../bridge/forgeMessages'
+import type { BranchMergeRequests, ForgeKind, MergeRequest, MergeRequestList } from '../../bridge/forgeMessages'
 
 export interface MergeRequestFilter {
   labels: string[]
@@ -15,16 +15,26 @@ export interface MergeRequestListing {
   error: string | null
 }
 
+export interface MergeRequestMenuRequest {
+  x: number
+  y: number
+  path: string
+  kind: ForgeKind | undefined
+  items: MergeRequest[]
+}
+
 interface ForgeState {
   expanded: boolean
   listing: MergeRequestListing | null
   filter: MergeRequestFilter
   branches: Record<string, BranchMergeRequests>
+  menu: MergeRequestMenuRequest | null
   setExpanded: (expanded: boolean) => void
   startListing: (path: string, request: number) => void
   finishListing: (request: number, list: MergeRequestList | null, error: string | null) => void
   setFilter: (filter: Partial<MergeRequestFilter>) => void
   setBranch: (key: string, result: BranchMergeRequests) => void
+  setMenu: (menu: MergeRequestMenuRequest | null) => void
 }
 
 const DEFAULT_FILTER: MergeRequestFilter = { labels: [], assignees: [], text: '' }
@@ -36,6 +46,7 @@ export const useForgeStore = create<ForgeState>()((set) => ({
   listing: null,
   filter: DEFAULT_FILTER,
   branches: {},
+  menu: null,
   setExpanded: (expanded) => set({ expanded }),
   startListing: (path, request) =>
     set((state) => {
@@ -50,4 +61,5 @@ export const useForgeStore = create<ForgeState>()((set) => ({
   setFilter: (filter) => set((state) => ({ filter: { ...state.filter, ...filter } })),
   setBranch: (key, result) =>
     set((state) => (JSON.stringify(state.branches[key]) === JSON.stringify(result) ? state : { branches: { ...state.branches, [key]: result } })),
+  setMenu: (menu) => set({ menu }),
 }))

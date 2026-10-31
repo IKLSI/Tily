@@ -10,6 +10,7 @@ import { listMergeRequests, openMergeRequest, refreshMergeRequests, requestBranc
 import { filterActive, filterMergeRequests } from '../mergeRequestFilter'
 import { openMergeRequestForm } from '../mergeRequestFormActions'
 import { kindNoun, sectionTitle } from '../mergeRequestLabels'
+import { BranchEditMergeRequestButton } from './BranchEditMergeRequestButton'
 import { MergeRequestFilters } from './MergeRequestFilters'
 import { MergeRequestPill } from './MergeRequestPill'
 import { MergeRequestRow } from './MergeRequestRow'
@@ -70,6 +71,7 @@ export function GitMergeRequests({ root, branch }: GitMergeRequestsProps) {
         {current?.loading && <Spinner />}
         <span className="ml-auto" />
         {branch && <MergeRequestPill path={root} branch={branch} className="min-w-0 text-[11px]" />}
+        {branch && <BranchEditMergeRequestButton path={root} branch={branch} />}
         {forge && (
           <button type="button" className={PANEL_HEADER_BUTTON} data-tip={listLabel} aria-label={listLabel} onClick={handleOpenList}>
             <Icon name={forge.kind === ForgeKind.GitHub ? IconName.GitHub : IconName.GitLab} />
@@ -96,7 +98,7 @@ export function GitMergeRequests({ root, branch }: GitMergeRequestsProps) {
                 ) : (
                   items.map((item) => (
                     <div key={item.number} role="listitem">
-                      <MergeRequestRow item={item} current={item.sourceBranch === branch} />
+                      <MergeRequestRow path={root} kind={forge?.kind} item={item} current={item.sourceBranch === branch} />
                     </div>
                   ))
                 )}

@@ -23,7 +23,8 @@ import { usePaneStore } from '../terminal/paneStore'
 import { OpenTarget } from '../../bridge/messages'
 import { copyPaneBranch, copyPanePath, openPaneFolder } from '../terminal/contextActions'
 import { WorktreePickerKind } from '../worktrees/worktreeStore'
-import { createMergeRequestLabel, openMergeRequestForm } from '../forge/mergeRequestFormActions'
+import { branchKey, useForgeStore } from '../forge/forgeStore'
+import { canEditMergeRequest, createMergeRequestLabel, editMergeRequestLabel, openMergeRequestEditForm, openMergeRequestForm } from '../forge/mergeRequestFormActions'
 import { openWorktreePicker, requestWorktreeRemoval } from '../worktrees/worktreeActions'
 import { worktreeTarget } from '../worktrees/worktreePaths'
 import type { SearchItem } from './searchFilter'
@@ -139,7 +140,12 @@ const commandItems = (session: Session, shells: ShellProfile[]): PaletteItem[] =
     }
     if (context?.branch) {
       const { branch } = context
-      items.push(command('create-merge-request', `${createMergeRequestLabel(activePane(tab).path, branch)}…`, () => openMergeRequestForm(activePane(tab).path, branch), `depuis ${branch}`))
+      const { path } = activePane(tab)
+      items.push(command('create-merge-request', `${createMergeRequestLabel(path, branch)}…`, () => openMergeRequestForm(path, branch), `depuis ${branch}`))
+      const branchResult = useForgeStore.getState().branches[branchKey(path, branch)]
+      branchResult?.items
+        .filter(canEditMergeRequest)
+        .forEach((item) => items.push(command(`edit-merge-request-${item.number}`, editMergeRequestLabel(item, branchResult.forge?.kind), () => openMergeRequestEditForm(path, item), item.title)))
     }
     if (!isLeaf(tab.tree)) {
       items.push(
