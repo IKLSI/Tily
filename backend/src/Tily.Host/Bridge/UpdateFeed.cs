@@ -48,7 +48,11 @@ public sealed class UpdateFeed : IDisposable
         _http = UpdateClient.CreateHttpClient(currentVersion);
         _client = new UpdateClient(_http);
         _timer = new Timer(_ => _ = CheckAsync(false));
-        _ = Task.Run(() => UpdateClient.Clean(_downloadDirectory));
+        _ = Task.Run(() =>
+        {
+            UpdateClient.Clean(_downloadDirectory);
+            UpdateInstaller.CleanStaged(_appDirectory);
+        });
     }
 
     public void Configure(bool autoCheck)
@@ -192,6 +196,11 @@ public sealed class UpdateFeed : IDisposable
         try
         {
             var path = await _client.DownloadAsync(installer, _downloadDirectory, ReportProgress, download.Token);
+            if (_installable)
+            {
+                await Task.Run(() => UpdateInstaller.Stage(path, _appDirectory), download.Token);
+            }
+
             lock (_gate)
             {
                 _installerPath = path;

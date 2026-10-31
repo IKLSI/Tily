@@ -55,18 +55,29 @@ public sealed class UpdateInstallerTests
     public void Script_WhenRendered_ThenWaitsReplacesAndRelaunches()
     {
         Assert.Contains("kill -0 \"$PID\"", UpdateInstaller.Script);
-        Assert.Contains("hdiutil attach", UpdateInstaller.Script);
-        Assert.Contains("ditto \"$SOURCE\" \"$STAGED\"", UpdateInstaller.Script);
+        Assert.Contains("mv \"$STAGED\" \"$APP\"", UpdateInstaller.Script);
         Assert.Contains("open -n \"$APP\"", UpdateInstaller.Script);
+        Assert.DoesNotContain("hdiutil", UpdateInstaller.Script);
+        Assert.DoesNotContain("ditto", UpdateInstaller.Script);
     }
 
     [Fact]
-    public void Script_WhenRendered_ThenChecksBundleIdentifierAndKeepsPreviousApplicationUntilReplaced()
+    public void Script_WhenRendered_ThenKeepsPreviousApplicationUntilReplaced()
     {
-        Assert.Contains("Print :CFBundleIdentifier", UpdateInstaller.Script);
-        Assert.Contains("= \"$BUNDLE_ID\"", UpdateInstaller.Script);
         Assert.Contains("mv \"$APP\" \"$PREVIOUS\"", UpdateInstaller.Script);
         Assert.Contains("mv \"$PREVIOUS\" \"$APP\"", UpdateInstaller.Script);
         Assert.DoesNotContain("rm -rf \"$APP\" && mv", UpdateInstaller.Script);
+    }
+
+    [Fact]
+    public void StagedPath_WhenBundleGiven_ThenSitsBesideIt() =>
+        Assert.Equal("/Applications/Tily.app.update", UpdateInstaller.StagedPath("/Applications/Tily.app"));
+
+    [Fact]
+    public void Stage_WhenNotInsideApplication_ThenFailsInFrench()
+    {
+        var exception = Assert.Throws<UpdateException>(() => UpdateInstaller.Stage("/tmp/Tily-1.0.0-arm64.dmg", AppContext.BaseDirectory));
+
+        Assert.Equal("Tily ne tourne pas depuis une application installée : mise à jour impossible.", exception.Message);
     }
 }
