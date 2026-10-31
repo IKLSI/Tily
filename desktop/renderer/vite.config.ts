@@ -5,5 +5,6 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: { port: 5173, strictPort: true },
-  build: { target: 'chrome120', sourcemap: 'hidden' },
+  css: { devSourcemap: true },
+  build: { target: 'chrome120', sourcemap: 'hidden', chunkSizeWarningLimit: 1500 },
 })

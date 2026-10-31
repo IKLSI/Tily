@@ -30,7 +30,7 @@ export function StatusLogDrawer() {
   const numbered = entries.map((entry, position) => ({ entry, position }))
   const shown = problemsOnly ? numbered.filter(({ entry }) => entry.level !== StatusLevel.Info) : numbered
   const empty = entries.length === 0
-  const now = new Date()
+  const [now] = useState(() => new Date())
 
   useLayoutEffect(() => {
     const list = listRef.current

@@ -5,6 +5,7 @@ import { changeMergeRequestBranches, setMergeRequestPush } from '../mergeRequest
 import { commitsNotice, publicationNotice } from '../mergeRequestFormOptions'
 import { kindNoun, MERGE_REQUEST_LINK_HINT } from '../mergeRequestLabels'
 import { SETTINGS_HINT, SETTINGS_INPUT, SETTINGS_LABEL } from '../../settings/components/settingsStyles'
+import { InfoTip } from '../../../components/InfoTip'
 import { Spinner } from '../../../components/Spinner'
 
 interface MergeRequestBranchFieldsProps {
@@ -84,10 +85,10 @@ export function MergeRequestBranchFields({ data, fields, branch, push, comparing
         )}
         {pushNotice && (
           <>
-            <span className="text-[11px] text-tily-warning">{pushNotice}</span>
             <label className={CHECK_LABEL}>
               <input type="checkbox" checked={push} onChange={handlePushChange} />
               {editing ? 'Pousser la branche avant d’enregistrer' : 'Pousser la branche avant de créer'}
+              <InfoTip text={pushNotice} />
             </label>
           </>
         )}

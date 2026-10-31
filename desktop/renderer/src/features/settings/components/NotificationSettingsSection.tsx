@@ -50,7 +50,7 @@ export function NotificationSettingsSection({ title, notifications, onChange, on
       <SettingsField label="Son d’attente" tip={SOUND_TIP}>
         <SoundSetting label="Son d’attente" sound={notifications.sound} placeholder="/Users/vous/Music/attention.aiff" testTip="Joue le son, fait rebondir l’icône dans le Dock et affiche la notification macOS si elle est disponible, avec les réglages ci-dessus, sans enregistrer" onChange={handleSoundChange} onPick={onPickSound} onTest={handleTestWaiting} />
       </SettingsField>
-      <SettingsField label="Fin d’un agent" tip="Chaque fois qu’un agent termine, avec son dernier message, même si Tily est la fenêtre active.">
+      <SettingsField label="Fin d’un agent" tip="Chaque fois qu’un agent termine, même si Tily est la fenêtre active.">
         <label className={SETTINGS_CHECKBOX}>
           <input type="checkbox" checked={notifications.notifyDone} onChange={handleNotifyDoneChange} />
           Notifier
