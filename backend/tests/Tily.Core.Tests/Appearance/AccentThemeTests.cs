@@ -57,7 +57,7 @@ public sealed class AccentThemeTests
     {
         var theme = AccentTheme.Build(AccentPresets.Sage);
 
-        Assert.Equal(new TerminalThemeModel(theme.Tokens["terminal"], theme.Tokens["terminal-ink"], theme.Tokens["focus"], "#7a9f8b40"), theme.Terminal);
+        Assert.Equal(new TerminalThemeModel(theme.Tokens["terminal"], theme.Tokens["terminal-ink"], theme.Tokens["terminal-ink"], "#7a9f8b40"), theme.Terminal);
     }
 
     private static int Distance(string first, string second)

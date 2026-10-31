@@ -228,7 +228,7 @@ export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZ
       >
         <span className="flex min-w-0 flex-1 items-baseline gap-1">
           {pane.shell !== DEFAULT_SHELL && <span className="mr-1 min-w-[2em] truncate text-tily-muted">{pane.shell}</span>}
-          {agent && (
+          {agent && tabName === null && (
             <span className="flex min-w-0 self-center">
               <AgentBadge agent={agent} />
             </span>

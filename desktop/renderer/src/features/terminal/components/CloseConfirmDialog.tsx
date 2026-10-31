@@ -9,7 +9,7 @@ interface CloseConfirmDialogProps {
   onCancel: () => void
 }
 
-const BUTTON = 'cursor-pointer rounded-tily-sm border px-3 py-1.5 text-[12px]'
+const BUTTON = 'cursor-pointer rounded-tily-sm border px-3 py-1.5 text-[12px] focus-visible:outline-none'
 const DANGER = `${BUTTON} border-tily-error text-tily-error hover:bg-tily-green-hover`
 const SECONDARY = `${BUTTON} border-tily-line text-tily-ink hover:bg-tily-green-hover`
 

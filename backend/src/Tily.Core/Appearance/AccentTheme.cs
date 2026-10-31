@@ -65,7 +65,7 @@ public static class AccentTheme
         var accentHex = lightness == source.Lightness && chroma == source.Chroma ? normalized : new OklchColor(lightness, chroma, source.Hue).ToHex();
         var tokens = Shades.ToDictionary(shade => shade.Token, shade => new OklchColor(shade.Lightness, ShadeChroma(shade.Token, chroma) * shade.ChromaRatio, source.Hue).ToHex());
         tokens[AccentToken] = accentHex;
-        var terminal = new TerminalThemeModel(tokens["terminal"], tokens["terminal-ink"], tokens["focus"], accentHex + SelectionAlpha);
+        var terminal = new TerminalThemeModel(tokens["terminal"], tokens["terminal-ink"], tokens["terminal-ink"], accentHex + SelectionAlpha);
         return new AccentThemeModel(accentHex, tokens, terminal, BuildLight(source));
     }
 
@@ -78,7 +78,7 @@ public static class AccentTheme
         var accentHex = new OklchColor(lightness, accentChroma, source.Hue).ToHex();
         var tokens = LightShades.ToDictionary(shade => shade.Token, shade => new OklchColor(shade.Lightness, ShadeChroma(shade.Token, accentChroma) * shade.ChromaRatio, source.Hue).ToHex());
         tokens[AccentToken] = accentHex;
-        var terminal = new TerminalThemeModel(tokens["terminal"], tokens["terminal-ink"], tokens["focus"], accentHex + LightSelectionAlpha);
+        var terminal = new TerminalThemeModel(tokens["terminal"], tokens["terminal-ink"], tokens["terminal-ink"], accentHex + LightSelectionAlpha);
         return new AccentSchemeModel(tokens, terminal);
     }
 }
