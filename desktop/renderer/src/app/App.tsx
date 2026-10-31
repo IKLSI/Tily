@@ -19,6 +19,7 @@ import { useUiStore } from '../stores/uiStore'
 import { receiveActivity, receiveApplicationClosing } from '../features/terminal/closeGuard'
 import { receiveQueriedActivity } from '../features/terminal/paneActivity'
 import { queryContext, receiveContext } from '../features/terminal/contextActions'
+import { receiveBranchMergeRequests, receiveMergeRequestList } from '../features/forge/mergeRequestActions'
 import { startExternalDrops } from '../features/terminal/externalDrop'
 import { receiveCreated, receiveDeleted, receiveGitMarks, receiveListing, receiveRenamed } from '../features/explorer/fileExplorerActions'
 import { receiveProjectFiles } from '../features/explorer/projectFileActions'
@@ -161,6 +162,8 @@ export default function App() {
       bridge.on('preview.requested', receivePreviewRequest),
       bridge.on('preview.saved', receivePreviewSaved),
       bridge.on('preview.saveFailed', receivePreviewSaveFailed),
+      bridge.on('forge.listed', (message) => receiveMergeRequestList(message.request, message.list, message.error)),
+      bridge.on('forge.branchListed', (message) => receiveBranchMergeRequests(message.path, message.branch, message.result)),
       bridge.on('git.state', (message) => receiveGitState(message.path, message.state, message.error, message.displayRoot)),
       bridge.on('git.changed', (message) => receiveGitChanged(message.path)),
       bridge.on('git.history', (message) => receiveGitHistory(message.history, message.error)),

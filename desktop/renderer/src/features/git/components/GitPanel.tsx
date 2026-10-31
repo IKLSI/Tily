@@ -11,6 +11,7 @@ import { useGitStore } from '../gitStore'
 import { GitBanners } from './GitBanners'
 import { GitChangesView } from './GitChangesView'
 import { GitCommitDetail } from './GitCommitDetail'
+import { GitMergeRequests } from '../../forge/components/GitMergeRequests'
 import { GitHeader } from './GitHeader'
 import { GitPromptBar } from './GitPromptBar'
 import { GIT_SECONDARY, SECTION_HEADING } from '../../right-panel/components/rightPanelStyles'
@@ -81,20 +82,24 @@ export function GitPanel({ folder }: GitPanelProps) {
       )
     }
     const changeCount = state.stagedTotal + state.unstagedTotal + state.conflicts.length
+    const mergeRequests = <GitMergeRequests root={state.root} branch={state.head.detached ? null : (state.head.branch ?? null)} />
     return (
       <>
         <GitHeader state={state} busy={busy} />
         <GitBanners state={state} busy={busy} />
         {prompt && <GitPromptBar key={`${prompt.kind}\n${prompt.target ?? ''}`} prompt={prompt} />}
         {commit ? (
-          <GitCommitDetail state={state} busy={busy} />
+          <>
+            <GitCommitDetail state={state} busy={busy} />
+            {mergeRequests}
+          </>
         ) : (
           <>
             <div className="mt-[6px] flex h-[30px] shrink-0 items-center gap-[8px] px-[12px]">
               <span className={SECTION_HEADING}>Modifications</span>
               <span className="text-[11px] text-tily-muted">{changeCount > 0 ? plural(changeCount, 'fichier', 'fichiers') : 'aucune'}</span>
             </div>
-            <GitChangesView state={state} busy={busy} />
+            <GitChangesView state={state} busy={busy} footer={mergeRequests} />
           </>
         )}
       </>

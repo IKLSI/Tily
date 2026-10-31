@@ -1,4 +1,4 @@
-import { useMemo, useState, type KeyboardEvent } from 'react'
+import { useMemo, useState, type KeyboardEvent, type ReactNode } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { GitDiffSource, type GitState } from '../../../bridge/gitMessages'
 import { changeMenu, changeMenuLabel, discardSelection, toggleSelection } from '../gitChangeMenu'
@@ -17,6 +17,7 @@ import { ROW_ACTION, ROW_STAGE_BUTTON, ROW_UNSTAGE_BUTTON } from '../../right-pa
 interface GitChangesViewProps {
   state: GitState
   busy: string | null
+  footer: ReactNode
 }
 
 const KEYBOARD_TIP = 'Entrée : diff · Espace : stage ou unstage · Suppr : abandonner · Ctrl ou Maj + clic : sélection multiple · clic droit : actions'
@@ -54,7 +55,7 @@ const openSelectionMenu = (rows: GitChangeRow[], row: GitChangeRow, x: number, y
   openGitMenu({ x, y, label: changeMenuLabel(selected), items: changeMenu(selected, state), restoreFocus })
 }
 
-export function GitChangesView({ state, busy }: GitChangesViewProps) {
+export function GitChangesView({ state, busy, footer }: GitChangesViewProps) {
   const { file, commit, selection } = useGitStore(useShallow((store) => ({ file: store.file, commit: store.commit, selection: store.changeSelection.keys })))
   const [focusKey, setFocusKey] = useState<string | null>(null)
   const rows = useMemo(() => changeRows(state.conflicts, state.staged, state.unstaged), [state.conflicts, state.staged, state.unstaged])
@@ -172,6 +173,7 @@ export function GitChangesView({ state, busy }: GitChangesViewProps) {
           </>
         )}
       </div>
+      {footer}
       <GitCommitBox state={state} busy={busy} />
     </div>
   )

@@ -14,6 +14,7 @@ import { REVEALED_ON_HOVER } from '../../../components/paneHeaderStyles'
 import { TerminalPane } from './TerminalPane'
 import { AgentBadge } from '../../agents/components/AgentBadge'
 import { AgentOwnerMark } from '../../agents/components/AgentOwnerMark'
+import { MergeRequestPill } from '../../forge/components/MergeRequestPill'
 import { PaneOverlay } from './PaneOverlay'
 import { Command } from '../../keyboard/commands'
 import { useShortcutTip } from '../../keyboard/shortcutLabels'
@@ -244,6 +245,7 @@ export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZ
             <span className="truncate py-1 [text-box:trim-both_cap_alphabetic]">{branchLabel}</span>
           </button>
         )}
+        {context?.branch && <MergeRequestPill path={pane.path} branch={context.branch} className="@max-[520px]:hidden" />}
         {singleDevServer && (
           <div className="relative flex">
             <button

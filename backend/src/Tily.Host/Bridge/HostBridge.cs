@@ -32,6 +32,7 @@ public sealed class HostBridge : IDisposable
     private readonly FilePreviewFeed _preview;
     private readonly PreviewRequestFeed _previewRequests;
     private readonly GitFeed _git;
+    private readonly ForgeFeed _forge;
     private readonly WorktreeFeed _worktrees;
     private readonly UpdateFeed _updates;
     private readonly StatusLogFeed _statusLog;
@@ -57,6 +58,7 @@ public sealed class HostBridge : IDisposable
         _preview = new FilePreviewFeed(() => _settings.Current.Editor, Post, PostBackgroundError);
         _previewRequests = new PreviewRequestFeed(dataDirectory, Post);
         _git = new GitFeed(Post, () => _settings.Current.Git.AutoFetch, PostBackgroundError);
+        _forge = new ForgeFeed(Post, PostBackgroundError);
         _worktrees = new WorktreeFeed(Post, () => _settings.Current, _settings.RememberWorktreeFolder, _git.RefreshSoon, PostBackgroundError, dataDirectory);
         _updates = new UpdateFeed(Post, ApplicationVersion, dataDirectory);
         _mcp = new McpFeed(dataDirectory, _terminals.PaneOwnsProcess, Post, PostBackgroundError);
@@ -186,6 +188,9 @@ public sealed class HostBridge : IDisposable
                 break;
             case var type when type.StartsWith("git.", StringComparison.Ordinal):
                 _git.Handle(command);
+                break;
+            case var type when type.StartsWith("forge.", StringComparison.Ordinal):
+                _forge.Handle(command);
                 break;
             case "projects.repositories":
             case "projects.rememberRepository":
