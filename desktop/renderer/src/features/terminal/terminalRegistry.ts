@@ -1,4 +1,4 @@
-import { Terminal, type IMarker } from '@xterm/xterm'
+import { Terminal, type IMarker, type ITheme } from '@xterm/xterm'
 import { FitAddon } from '@xterm/addon-fit'
 import { WebglAddon } from '@xterm/addon-webgl'
 import { Unicode11Addon } from '@xterm/addon-unicode11'
@@ -17,6 +17,7 @@ const ACK_THRESHOLD = 256 * 1024
 const MAX_WEBGL_CONTEXTS = 14
 const STABLE_CHUNK_LINES = 1000
 const CHUNK_SEPARATOR = '\x1b[0m\r\n'
+const SCROLLBAR_THEME: ITheme = { scrollbarSliderBackground: '#3d4346', scrollbarSliderHoverBackground: '#555e61', scrollbarSliderActiveBackground: '#555e61' }
 const SNAPSHOT_SCROLLBACK_LINES = 2000
 const DEFAULT_SCROLLBACK_LINES = 1000
 const SCROLL_SENSITIVITY = 2
@@ -66,6 +67,7 @@ const initialCommands = new Map<string, string>()
 let scrollbackLines = DEFAULT_SCROLLBACK_LINES
 let fontSize = DEFAULT_FONT_SIZE
 let fontFamily: string = DEFAULT_FONT_FAMILY
+let theme: ITheme = { background: '#121416', foreground: '#cdd1cd', cursor: '#8fb39f', selectionBackground: '#7a9f8b40' }
 let webglUnavailable = false
 
 const start = (handle: TerminalHandle, pane: Pane): void => {
@@ -190,7 +192,7 @@ const createHandle = (pane: Pane): TerminalHandle => {
     fontSize,
     scrollback: scrollbackLines,
     scrollSensitivity: SCROLL_SENSITIVITY,
-    theme: { background: '#121416', foreground: '#cdd1cd', cursor: '#8fb39f', selectionBackground: '#7a9f8b40', scrollbarSliderBackground: '#3d4346', scrollbarSliderHoverBackground: '#555e61', scrollbarSliderActiveBackground: '#555e61' },
+    theme: { ...theme, ...SCROLLBAR_THEME },
     linkHandler: { activate: openLinkOnCtrlClick, allowNonHttpProtocols: true },
   })
   const fit = new FitAddon()
@@ -239,6 +241,13 @@ export const terminalRegistry = {
       if (handle.terminal.element?.isConnected) {
         handle.fit.fit()
       }
+    })
+  },
+
+  setTheme(next: ITheme): void {
+    theme = next
+    handles.forEach((handle) => {
+      handle.terminal.options.theme = { ...theme, ...SCROLLBAR_THEME }
     })
   },
 

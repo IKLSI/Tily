@@ -101,6 +101,9 @@ public sealed class SettingsFeed
         _applied(settings);
     }
 
+    public void SaveProjectColor(string project, string? color) =>
+        Current.Appearance = _service.SaveAppearance(Current.Appearance.WithProjectColor(project, color));
+
     private void SaveFontSize(BridgeCommandModel command)
     {
         Current.Appearance = _service.SaveAppearance(Current.Appearance with { FontSize = command.FontSize });

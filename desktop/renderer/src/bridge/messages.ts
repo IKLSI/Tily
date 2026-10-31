@@ -1,4 +1,5 @@
 import type { Session } from '../model/session'
+import type { AppearanceCatalog, AppearanceHostMessage, AppearanceWebMessage } from './appearanceMessages'
 import type { BrowserHostMessage, BrowserWebMessage } from './browserMessages'
 import type { ForgeHostMessage, ForgeWebMessage } from './forgeMessages'
 import type { GitChangeKind, GitHostMessage, GitSettings, GitWebMessage } from './gitMessages'
@@ -79,9 +80,11 @@ export interface ShortcutSettings {
   bindings: Record<string, ShortcutBinding>
 }
 
-interface AppearanceSettings {
+export interface AppearanceSettings {
   fontSize: number
   fontFamily: TerminalFont
+  accent?: string
+  projectColors: Record<string, string>
 }
 
 export interface PersistenceSettings {
@@ -196,7 +199,7 @@ export interface PaneAgent {
 
 export type HostToWebMessage =
   | { type: 'appearance.changed'; fontSize: number }
-  | { type: 'app.hello'; version: string; session: Session; shells: ShellProfile[]; home: string; text: Record<string, string>; persistence: PersistenceSettings; appearance: AppearanceSettings; shortcuts: ShortcutSettings; statusLog: StatusLogEntry[]; recovery?: string }
+  | { type: 'app.hello'; version: string; session: Session; shells: ShellProfile[]; home: string; text: Record<string, string>; persistence: PersistenceSettings; appearance: AppearanceSettings; theme: AppearanceCatalog; shortcuts: ShortcutSettings; statusLog: StatusLogEntry[]; recovery?: string }
   | { type: 'app.closing'; activity: PaneActivity[] }
   | { type: 'session.saved' }
   | { type: 'session.saveFailed'; message: string }
@@ -224,6 +227,7 @@ export type HostToWebMessage =
   | { type: 'files.deleted'; path: string }
   | { type: 'files.searched'; path: string; root: string; files: string[]; changed: string[]; truncated: boolean; error?: string }
   | { type: 'error'; pane?: string; message: string }
+  | AppearanceHostMessage
   | GitHostMessage
   | ForgeHostMessage
   | PreviewHostMessage
@@ -274,6 +278,7 @@ export type WebToHostMessage =
   | { type: 'files.delete'; path: string; parent: string }
   | { type: 'window.close' }
   | { type: 'window.closeCancel' }
+  | AppearanceWebMessage
   | GitWebMessage
   | ForgeWebMessage
   | PreviewWebMessage

@@ -18,6 +18,7 @@ import { IconName } from '../../../components/iconName'
 import { InlineNameEditor } from '../../../components/InlineNameEditor'
 import { ShellMenu } from '../../terminal/components/ShellMenu'
 import { TabContextMenu, type TabMenuActions, type TabMenuRequest } from './TabContextMenu'
+import { HIGHLIGHT_SHAPE, highlightStyle } from './highlightStyle'
 import { beginTabDrag, isDropTarget, type MoveTabHandler } from './tabDrag'
 import { Command } from '../../keyboard/commands'
 import { usePanelShortcuts, useShortcutText, withShortcut } from '../../keyboard/shortcutLabels'
@@ -232,7 +233,9 @@ export const TabBar = memo(function TabBar({ workspace, shells, renamingTabId, p
                     onKeyDown={handleTabKeyDown}
                   >
                     {agentSummary ? <AgentStateIcon state={agentSummary.state} tip={agentSummary.tip} /> : commandNotice && <CommandNoticeIcon notice={commandNotice} />}
-                    <span className="min-w-0 truncate">{tab.name}</span>
+                    <span className={tab.color ? `min-w-0 truncate ${HIGHLIGHT_SHAPE}` : 'min-w-0 truncate'} style={highlightStyle(tab.color)}>
+                      {tab.name}
+                    </span>
                     {tab.owner && <AgentOwnerMark owner={tab.owner} />}
                   </button>
                 )}

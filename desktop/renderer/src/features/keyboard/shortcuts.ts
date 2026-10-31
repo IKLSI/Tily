@@ -17,6 +17,7 @@ import { startWorktreeCreation } from '../worktrees/worktreeActions'
 import { openProjectPicker } from '../projects/projectOpenActions'
 import { toggleStatusLog } from '../status-log/statusLogActions'
 import { useShortcutStore } from '../../stores/shortcutStore'
+import { SettingsSection } from '../settings/components/settingsSections'
 import { Command } from './commands'
 import { runContextCommand } from './contextCommands'
 import { chordOf, isModifierKey, leaderKeyOf } from './keyChords'
@@ -147,9 +148,9 @@ const toggleSidebar = (): void => {
   toggle()
 }
 
-const openSettings = (): void => {
+const openSettings = (section = SettingsSection.Shells): void => {
   bridge.send({ type: 'settings.get' })
-  useUiStore.getState().openSettings()
+  useUiStore.getState().openSettings(section)
 }
 
 const FOCUS_DIRECTIONS: Partial<Record<Command, Direction>> = {
@@ -200,6 +201,9 @@ export const runCommand = (command: Command): void => {
       break
     case Command.Settings:
       openSettings()
+      break
+    case Command.AppearanceSettings:
+      openSettings(SettingsSection.Appearance)
       break
     case Command.SettingsExport:
       openSettings()

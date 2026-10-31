@@ -9,6 +9,7 @@ import { preloadViews } from './lazyViews'
 import { dispatchReply } from '../bridge/requestListeners'
 import { AppShell } from './AppShell'
 import { ErrorBoundary } from '../components/ErrorBoundary'
+import { receiveAppearance, receiveAppearanceCatalog, receiveProjects, startAppearanceProjects } from '../features/appearance/appearanceActions'
 import { receiveMcpRequest } from '../features/mcp/mcpRequests'
 import { allPanes, restoredSessionLabel } from '../model/session'
 import { useAgentStore } from '../features/agents/agentStore'
@@ -65,11 +66,13 @@ export default function App() {
     const stopStatusLog = startStatusLog()
     const stopDeferredPreviews = startDeferredPreviews()
     const stopBrowserLayer = startBrowserLayer()
+    const stopAppearanceProjects = startAppearanceProjects()
     const stopPreload = preloadViews()
     const { markFailed, markExited, markPathMissing, markAlive, showDevServer, clearDevServer } = usePaneStore.getState()
     const subscriptions = [
       bridge.on('app.hello', (message) => {
         setHello(message.version, message.shells, message.home, message.persistence)
+        receiveAppearanceCatalog(message.theme)
         useShortcutStore.getState().setShortcuts(message.shortcuts)
         useStatusLogStore.getState().load(message.statusLog)
         terminalRegistry.configure(message.persistence.linesPerPane)
@@ -91,6 +94,8 @@ export default function App() {
           restoreSession()
         })
       }),
+      bridge.on('appearance.theme', (message) => receiveAppearance(message.state)),
+      bridge.on('appearance.projectsResolved', (message) => receiveProjects(message.projects)),
       bridge.on('appearance.changed', (message) => {
         terminalRegistry.setFontSize(message.fontSize)
         setStatus(`Taille du texte des terminaux : ${message.fontSize} px`)
@@ -228,6 +233,7 @@ export default function App() {
       stopStatusLog()
       stopDeferredPreviews()
       stopBrowserLayer()
+      stopAppearanceProjects()
       stopPreload()
       stopAutosave?.()
       subscriptions.forEach((unsubscribe) => unsubscribe())

@@ -31,6 +31,8 @@ import { AttentionToasts } from '../features/agents/components/AttentionToasts'
 import { CloseConfirmDialog } from '../features/terminal/components/CloseConfirmDialog'
 import { McpConsentDialog } from '../features/mcp/components/McpConsentDialog'
 import { PasteConfirmDialog } from '../features/terminal/components/PasteConfirmDialog'
+import { ColorDialog } from '../features/appearance/components/ColorDialog'
+import { useAppearanceStore } from '../stores/appearanceStore'
 import { CommandPalette } from '../features/palette/components/CommandPalette'
 import { DeleteConfirmDialog } from '../components/DeleteConfirmDialog'
 import { ErrorBoundary } from '../components/ErrorBoundary'
@@ -204,7 +206,7 @@ const handleDialogError = (): void => {
 
 const confirmationOpen = (): boolean => {
   const { settingsOpen, closeConfirmation } = useUiStore.getState()
-  return settingsOpen || closeConfirmation !== null || useExplorerStore.getState().deleteRequest !== null || useGitStore.getState().confirmation !== null || usePasteStore.getState().request !== null || useMcpConsentStore.getState().queue.length > 0 || worktreeModalOpen() || mergeRequestFormOpen() || filePickerOpen() || commitPickerOpen() || usePreviewStore.getState().pendingAction !== null
+  return settingsOpen || closeConfirmation !== null || useExplorerStore.getState().deleteRequest !== null || useGitStore.getState().confirmation !== null || usePasteStore.getState().request !== null || useAppearanceStore.getState().colorTarget !== null || useMcpConsentStore.getState().queue.length > 0 || worktreeModalOpen() || mergeRequestFormOpen() || filePickerOpen() || commitPickerOpen() || usePreviewStore.getState().pendingAction !== null
 }
 
 const modalOpen = (): boolean => {
@@ -441,6 +443,7 @@ export function AppShell({ session }: AppShellProps) {
         )}
         {closeConfirmation && <CloseConfirmDialog confirmation={closeConfirmation} onConfirm={confirmClose} onCancel={handleCancelClose} />}
         <PasteConfirmDialog />
+        <ColorDialog />
         {unsavedPreview && <UnsavedPreviewDialog />}
         <McpConsentDialog />
       </ErrorBoundary>

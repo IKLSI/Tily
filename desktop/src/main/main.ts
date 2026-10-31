@@ -19,7 +19,7 @@ const RESTART_DELAY_MS = 1_000
 const RESTART_WINDOW_MS = 60_000
 const MAX_RESTARTS = 3
 const ALLOWED_PERMISSIONS = new Set(['clipboard-read', 'clipboard-sanitized-write'])
-const WEB_MESSAGE_TYPES = new Set(['app.ready', 'session.save', 'text.save', 'settings.get', 'settings.save', 'appearance.fontSize', 'link.open', 'window.close', 'window.closeCancel'])
+const WEB_MESSAGE_TYPES = new Set(['app.ready', 'session.save', 'text.save', 'settings.get', 'settings.save', 'appearance.fontSize', 'appearance.projects', 'appearance.preview', 'appearance.projectColor', 'link.open', 'window.close', 'window.closeCancel'])
 const WEB_MESSAGE_PREFIXES = ['attention.', 'agents.', 'mcp.', 'terminal.', 'projects.', 'context.', 'files.', 'preview.', 'git.', 'worktrees.', 'forge.', 'update.', 'statusLog.', 'browser.']
 
 interface ShellMessage {

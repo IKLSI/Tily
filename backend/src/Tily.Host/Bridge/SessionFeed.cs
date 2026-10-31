@@ -13,17 +13,19 @@ public sealed class SessionFeed
     private readonly string _version;
     private readonly SessionRepository _sessions;
     private readonly SettingsFeed _settings;
+    private readonly AppearanceFeed _appearance;
     private readonly StatusLogFeed _statusLog;
     private readonly BackgroundQueue _writes;
     private readonly Action<object> _post;
     private PaneTextRepository _texts;
 
-    public SessionFeed(string dataDirectory, string version, SettingsFeed settings, StatusLogFeed statusLog, BackgroundQueue writes, Action<object> post)
+    public SessionFeed(string dataDirectory, string version, SettingsFeed settings, AppearanceFeed appearance, StatusLogFeed statusLog, BackgroundQueue writes, Action<object> post)
     {
         _dataDirectory = dataDirectory;
         _version = version;
         _sessions = new SessionRepository(dataDirectory);
         _settings = settings;
+        _appearance = appearance;
         _statusLog = statusLog;
         _writes = writes;
         _post = post;
@@ -64,6 +66,7 @@ public sealed class SessionFeed
             text,
             persistence = _settings.Persistence,
             appearance = _settings.Current.Appearance,
+            theme = _appearance.Hello(),
             shortcuts = _settings.Current.Shortcuts,
             statusLog = _statusLog.Entries(),
             recovery = recovery.Length > 0 ? recovery : null

@@ -4,6 +4,7 @@ import type { ActionMenuItem } from '../../../components/ActionMenu'
 import { FloatingMenu } from '../../../components/FloatingMenu'
 import { CommandShortcut, MenuShortcut } from '../../../components/MenuShortcut'
 import { Command } from '../../keyboard/commands'
+import { openTabColor } from '../../appearance/appearanceActions'
 import { tabTransferItems } from './tabMenuItems'
 
 export interface TabMenuRequest {
@@ -35,6 +36,7 @@ const itemsFor = ({ tabId }: TabMenuRequest, position: number, count: number, ma
   { id: 'rename', label: 'Renommer', detail: <MenuShortcut keys="F2" />, run: () => actions.rename(tabId) },
   { id: 'auto-name', label: 'Reprendre le nom du dossier', disabled: !manual, run: () => useSessionStore.getState().resetTabName(tabId) },
   { id: 'duplicate', label: 'Dupliquer l’onglet', run: () => actions.duplicate(tabId) },
+  { id: 'color', label: 'Couleur…', run: () => openTabColor(tabId) },
   { id: 'move-left', label: 'Déplacer à gauche', detail: <CommandShortcut command={Command.MoveTabLeft} />, disabled: position <= 0, run: () => actions.shift(tabId, -1) },
   { id: 'move-right', label: 'Déplacer à droite', detail: <CommandShortcut command={Command.MoveTabRight} />, disabled: position < 0 || position >= count - 1, run: () => actions.shift(tabId, 1) },
   ...tabTransferItems(session, tabId),

@@ -38,6 +38,7 @@ public sealed class HostBridge : IDisposable
     private readonly StatusLogFeed _statusLog;
     private readonly McpFeed _mcp;
     private readonly BrowserFeed _browsers;
+    private readonly AppearanceFeed _appearance;
     private readonly BackgroundQueue _writes;
     private readonly BackgroundQueue _queries;
 
@@ -48,8 +49,9 @@ public sealed class HostBridge : IDisposable
         _writes = new BackgroundQueue(PostBackgroundError);
         _queries = new BackgroundQueue(PostBackgroundError);
         _settings = new SettingsFeed(loop, dataDirectory, DescribeAgents, DescribeMcp, ApplySettings, Post, PostNow);
+        _appearance = new AppearanceFeed(_settings, Post, PostBackgroundError);
         _statusLog = new StatusLogFeed(dataDirectory, _writes, Post);
-        _session = new SessionFeed(dataDirectory, ApplicationVersion, _settings, _statusLog, _writes, Post);
+        _session = new SessionFeed(dataDirectory, ApplicationVersion, _settings, _appearance, _statusLog, _writes, Post);
         _terminals = new TerminalManager(integrationDirectory: Path.Combine(dataDirectory, ShellIntegrationFolder));
         _windowClose = new WindowCloseFeed(loop, _terminals, PostNow);
         _agents = new AgentStateFeed(dataDirectory, _terminals, Post);
@@ -135,6 +137,9 @@ public sealed class HostBridge : IDisposable
             case "settings.save":
             case "appearance.fontSize":
                 _settings.Handle(command);
+                break;
+            case var type when type.StartsWith("appearance.", StringComparison.Ordinal):
+                _appearance.Handle(command);
                 break;
             case "attention.raise":
                 RaiseAttention(RequirePane(command), command);
@@ -270,6 +275,7 @@ public sealed class HostBridge : IDisposable
         _terminals.UpdatePaths(_settings.ShellPaths);
         _updates.Configure(settings.Updates.AutoCheck);
         _browsers.UpdateShortcuts();
+        _appearance.Refresh();
     }
 
     private object DescribeAgents() => _agents.Describe();

@@ -10,6 +10,7 @@ import { isDropTarget } from './tabDrag'
 import { beginWorkspaceDrag } from './workspaceDrag'
 import { TruncatedName } from '../../../components/TruncatedName'
 import { WorkspaceStatus } from './WorkspaceStatus'
+import { useWorkspaceHighlight } from './useWorkspaceHighlight'
 import { CommandNoticeIcon } from '../../terminal/components/CommandNoticeIcon'
 import { useCommandStore } from '../../terminal/commandStore'
 import { workspaceCommandNotice } from '../../terminal/commandNotices'
@@ -50,6 +51,7 @@ const nameColorOf = (selected: boolean, here: boolean): string => {
 
 export const WorkspaceItem = memo(function WorkspaceItem({ workspace, workspaceNames, selected, renaming, renamingTabId, springOpen, agents, draggingTabId, dropTarget, draggingSelf, dropBefore, actions, onOpenMenu }: WorkspaceItemProps) {
   const { id, name, tabs } = workspace
+  const highlight = useWorkspaceHighlight(workspace)
   const expanded = springOpen || (workspace.expanded ?? selected)
   const commandNotice = useCommandStore((state) => workspaceCommandNotice(workspace, state.notices))
   const here = selected && !expanded
@@ -143,7 +145,7 @@ export const WorkspaceItem = memo(function WorkspaceItem({ workspace, workspaceN
             onDoubleClick={handleRename}
             onKeyDown={handleNameKeyDown}
           >
-            <TruncatedName name={name} siblings={workspaceNames} className="flex-1" />
+            <TruncatedName name={name} siblings={workspaceNames} className="flex-1" highlight={highlight} />
           </button>
         )}
         {preview && (

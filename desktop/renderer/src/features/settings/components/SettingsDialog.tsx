@@ -1,12 +1,15 @@
 import { useEffect, useRef, useState, type KeyboardEvent, type MouseEvent, type PointerEvent } from 'react'
+import { bridge } from '../../../bridge/bridge'
 import { PickTarget, type AttentionKind, type ImportedPreferences, type NotificationSettings, type PersistenceSettings, type PickedPath, type Settings, type SettingsSnapshot, type ShortcutSettings, type TerminalFont } from '../../../bridge/messages'
 import type { WorktreeProjectFolder, WorktreeSettings } from '../../../bridge/worktreeMessages'
 import { revealInExplorer } from '../../explorer/fileExplorerActions'
 import { useHostStore } from '../../../stores/hostStore'
+import { useUiStore } from '../../../stores/uiStore'
 import { keepTabInside } from '../../../components/focusTrap'
 import { Icon } from '../../../components/Icon'
 import { IconName } from '../../../components/iconName'
 import { AgentSettingsSection } from './AgentSettingsSection'
+import { AppearanceSettingsSection } from './AppearanceSettingsSection'
 import { NotificationSettingsSection } from './NotificationSettingsSection'
 import { NUMBER_FIELDS, numberFieldId, numberTextOf, valueWithin, type NumberField, type NumberTexts } from './persistenceFields'
 import { ProjectSettingsSection } from './ProjectSettingsSection'
@@ -52,8 +55,24 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
   const [importWarnings, setImportWarnings] = useState<string[]>([])
   const [numberTexts, setNumberTexts] = useState<NumberTexts>({})
   const [closeHeld, setCloseHeld] = useState(false)
-  const [section, setSection] = useState(SettingsSection.Shells)
+  const [openedSection] = useState(() => useUiStore.getState().settingsSection)
+  const [section, setSection] = useState(openedSection)
   const dialogRef = useRef<HTMLDivElement>(null)
+  const savedRef = useRef(false)
+  const savedAccentRef = useRef(snapshot?.settings.appearance.accent)
+
+  useEffect(() => {
+    savedAccentRef.current = snapshot?.settings.appearance.accent
+  }, [snapshot])
+
+  useEffect(
+    () => () => {
+      if (!savedRef.current) {
+        bridge.send({ type: 'appearance.preview', color: savedAccentRef.current })
+      }
+    },
+    [],
+  )
   if (snapshot !== seenSnapshot) {
     setSeenSnapshot(snapshot)
     setDraft(snapshot ? structuredClone(snapshot.settings) : null)
@@ -115,6 +134,7 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
       const fieldId = numberFieldId(invalidNumber.key)
       requestAnimationFrame(() => document.getElementById(fieldId)?.focus())
     } else if (draft) {
+      savedRef.current = true
       onSave(draft)
     }
   }
@@ -190,6 +210,8 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
         return <ShellSettingsSection title={title} shellSettings={current.shellSettings} shells={settings.shells} editor={settings.editor} onShellChange={handleShellChange} onEditorChange={handleEditorChange} onPickShell={handlePickShell} onPickEditor={handlePickEditor} />
       case SettingsSection.Terminals:
         return <TerminalSettingsSection title={title} fontSize={settings.appearance.fontSize} fontFamily={settings.appearance.fontFamily} numberText={(field) => numberTextOf(numberTexts, settings.persistence, field)} onFontSizeChange={handleFontSizeChange} onFontFamilyChange={handleFontFamilyChange} onNumberChange={handleNumberChange} />
+      case SettingsSection.Appearance:
+        return <AppearanceSettingsSection title={title} appearance={settings.appearance} onChange={updateAppearance} />
       case SettingsSection.Shortcuts:
         return <ShortcutSettingsSection title={title} shortcuts={settings.shortcuts} defaults={current.shortcutDefaults} onChange={handleShortcutsChange} />
       case SettingsSection.Projects:

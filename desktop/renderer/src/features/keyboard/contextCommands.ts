@@ -1,5 +1,6 @@
 import { bridge } from '../../bridge/bridge'
 import { OpenTarget } from '../../bridge/messages'
+import { openColorDialog } from '../appearance/appearanceActions'
 import { BrowserPlacement, openBrowser } from '../browser/browserActions'
 import { refreshFolders } from '../explorer/fileExplorerActions'
 import { openFilePicker } from '../explorer/projectFileActions'
@@ -120,6 +121,12 @@ export const runContextCommand = (command: Command): void => {
       break
     case Command.RenameWorkspace:
       withWorkspace((workspace) => useUiStore.getState().startRenamingWorkspace(workspace.id, RenameOrigin.Header))
+      break
+    case Command.WorkspaceColor:
+      withWorkspace((workspace) => openColorDialog({ workspaceId: workspace.id }))
+      break
+    case Command.TabColor:
+      withWorkspace((workspace) => openColorDialog({ workspaceId: workspace.id, tabId: activeTab(workspace).id }))
       break
     case Command.MoveWorkspaceUp:
       withWorkspace((workspace) => useSessionStore.getState().moveWorkspace(workspace.id, -1))

@@ -94,6 +94,7 @@ const commandItems = (session: Session, shells: ShellProfile[]): PaletteItem[] =
     command('toggle-notes', 'Afficher / masquer les notes du workspace', () => runCommand(Command.ToggleNotes), shortcutText(Command.ToggleNotes)),
     command('toggle-status-log', 'Afficher / masquer le journal des messages', () => runCommand(Command.ToggleStatusLog), shortcutText(Command.ToggleStatusLog)),
     command('settings', 'Paramètres', () => runCommand(Command.Settings), shortcutText(Command.Settings)),
+    command('appearance-settings', 'Couleur de Tily…', () => runCommand(Command.AppearanceSettings), shortcutText(Command.AppearanceSettings)),
     command('settings-export', 'Exporter les préférences…', () => {
       runCommand(Command.Settings)
       bridge.send({ type: 'settings.export' })
@@ -109,6 +110,7 @@ const commandItems = (session: Session, shells: ShellProfile[]): PaletteItem[] =
   if (workspace) {
     items.push(
       command('rename-workspace', 'Renommer le workspace', () => ui.startRenamingWorkspace(workspace.id, RenameOrigin.Header)),
+      command('workspace-color', `Couleur du workspace ou du projet…${SEPARATOR}${workspace.name}`, () => runCommand(Command.WorkspaceColor), shortcutText(Command.WorkspaceColor)),
       command('move-workspace-up', 'Monter le workspace', () => store.moveWorkspace(workspace.id, -1)),
       command('move-workspace-down', 'Descendre le workspace', () => store.moveWorkspace(workspace.id, 1)),
       command('close-workspace', `Fermer le workspace${SEPARATOR}${workspace.name}`, () => closeWorkspaceKeepingText(workspace.id)),
@@ -161,6 +163,7 @@ const commandItems = (session: Session, shells: ShellProfile[]): PaletteItem[] =
     items.push(
       command('rename-tab', 'Renommer l’onglet', () => ui.startRenamingTab(tab.id)),
       command('duplicate-tab', 'Dupliquer l’onglet', () => duplicateTabKeepingLayout(tab.id)),
+      command('tab-color', `Couleur de l’onglet…${SEPARATOR}${tab.name}`, () => runCommand(Command.TabColor), shortcutText(Command.TabColor)),
       command('close-tab', 'Fermer l’onglet', () => closeTabKeepingText(tab.id)),
     )
     if (tab.manual) {
