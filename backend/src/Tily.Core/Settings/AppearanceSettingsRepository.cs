@@ -9,8 +9,8 @@ public sealed record AppearanceSettingsModel(int FontSize = AppearanceSettingsMo
     public const int DefaultFontSize = 12;
     public const int MinFontSize = 8;
     public const int MaxFontSize = 32;
-    public const string DefaultFontFamily = "Menlo";
-    public static readonly IReadOnlyList<string> FontFamilies = [DefaultFontFamily, "Monaco", "Courier New", "CaskaydiaCove Nerd Font", "MesloLGS Nerd Font", "Hack Nerd Font", "JetBrainsMono Nerd Font", "FiraCode Nerd Font"];
+    public const string DefaultFontFamily = "JetBrainsMono Nerd Font";
+    public static readonly IReadOnlyList<string> FontFamilies = ["Menlo", "Monaco", "Courier New", "CaskaydiaCove Nerd Font", "MesloLGS Nerd Font", "Hack Nerd Font", DefaultFontFamily, "FiraCode Nerd Font"];
 
     public static readonly AppearanceSettingsModel Default = new();
 

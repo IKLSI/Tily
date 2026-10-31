@@ -42,7 +42,6 @@ import { LazyFilePreview } from '../features/preview/components/LazyFilePreview'
 import { UnsavedPreviewDialog } from '../features/preview/components/UnsavedPreviewDialog'
 import { GitConfirmDialog, GitContextMenu, GitDiffDrawer, GitGraphView } from './lazyViews'
 import { Header } from './Header'
-import { HeaderWorkspaces } from '../features/workspaces/components/HeaderWorkspaces'
 import { FilePicker } from '../features/explorer/components/FilePicker'
 import { CommitPicker } from '../features/git/components/CommitPicker'
 import { RightPanel } from '../features/right-panel/components/RightPanel'
@@ -52,7 +51,6 @@ import { StatusBar } from '../features/status-log/components/StatusBar'
 import { TabBar } from '../features/workspaces/components/TabBar'
 import { Tooltip } from '../components/Tooltip'
 import type { WorkspacePanelActions } from '../features/workspaces/components/workspacePanel'
-import type { HeaderWorkspaceActions } from '../features/workspaces/components/workspaceStrip'
 import { WorkspaceTree } from '../features/workspaces/components/WorkspaceTree'
 import { MergeRequestContextMenu } from '../features/forge/components/MergeRequestContextMenu'
 import { MergeRequestDialog } from '../features/forge/components/MergeRequestDialog'
@@ -126,19 +124,6 @@ const handleSplit = (paneId: string, axis: SplitAxis): void => {
 }
 
 const handleJoinPane = (paneId: string): void => joinPane(paneId)
-
-const handleSelectWorkspace = (workspaceId: string): void => {
-  useSessionStore.getState().selectWorkspace(workspaceId)
-  focusActivePane()
-}
-
-const headerActions: HeaderWorkspaceActions = {
-  select: handleSelectWorkspace,
-  joinPane: handleJoinPane,
-  startRename: (workspaceId) => useUiStore.getState().startRenamingWorkspace(workspaceId, RenameOrigin.Header),
-  commitRename: handleCommitRename,
-  cancelRename: finishRename,
-}
 
 const handleNewWorkspace = (): void => {
   const { session, newWorkspace } = useSessionStore.getState()
@@ -382,11 +367,6 @@ export function AppShell({ session }: AppShellProps) {
         renaming={workspace !== undefined && renamingWorkspaceId === workspace.id && renameOrigin === RenameOrigin.Header}
         sidebarCollapsed={session.sidebarCollapsed}
         leaderActive={leaderActive}
-        navigation={
-          session.sidebarCollapsed && workspace ? (
-            <HeaderWorkspaces workspaces={session.workspaces} activeId={session.active} renamingId={renameOrigin === RenameOrigin.Header ? renamingWorkspaceId : null} actions={headerActions} />
-          ) : null
-        }
         onToggleSidebar={handleToggleSidebar}
         onOpenSettings={handleOpenSettings}
         onStartRename={handleStartRenameFromHeader}

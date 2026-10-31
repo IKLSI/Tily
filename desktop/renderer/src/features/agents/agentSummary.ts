@@ -1,5 +1,5 @@
 import { AgentState, type PaneAgent } from '../../bridge/messages'
-import { folderName, panesOf, type Session, type Tab, type Workspace } from '../../model/session'
+import { folderName, panesOf, type Session, type Tab } from '../../model/session'
 
 const AGENT_LABELS: Record<string, string> = { claude: 'Claude Code', codex: 'Codex CLI' }
 
@@ -70,50 +70,6 @@ export const tabAgents = (tab: Tab, agents: AgentMap): { state: AgentState; tip:
   const state = dominantState(countStates(panesOf(tab.tree), agents))
   return state ? { state, tip: described.map(describeAgent).join(' · ') } : null
 }
-
-export const workspaceStateCounts = (workspace: Workspace, agents: AgentMap): StateCounts =>
-  countStates(
-    workspace.tabs.flatMap((tab) => panesOf(tab.tree)),
-    agents,
-  )
-
-interface StateAlert {
-  state: AgentState
-  count: number
-}
-
-interface WorkspaceSummary {
-  alerts: StateAlert[]
-  activity: AgentState | undefined
-}
-
-const ALERT_STATES: AgentState[] = [AgentState.Waiting, AgentState.Error]
-
-const ACTIVITY_STATES: AgentState[] = [AgentState.Working, AgentState.Done]
-
-export const workspaceSummary = (counts: StateCounts): WorkspaceSummary => ({
-  alerts: ALERT_STATES.filter((state) => (counts[state] ?? 0) > 0).map((state) => ({ state, count: counts[state] ?? 0 })),
-  activity: ACTIVITY_STATES.find((state) => (counts[state] ?? 0) > 0),
-})
-
-export const alertStateCounts = (workspaces: Workspace[], agents: AgentMap): StateCounts => {
-  const counts = countStates(
-    workspaces.flatMap((workspace) => workspace.tabs.flatMap((tab) => panesOf(tab.tree))),
-    agents,
-  )
-  const alerts: StateCounts = {}
-  for (const state of ALERT_STATES) {
-    if (counts[state]) {
-      alerts[state] = counts[state]
-    }
-  }
-  return alerts
-}
-
-export const stateBreakdown = (counts: StateCounts): string =>
-  STATE_PRIORITY.filter((state) => (counts[state] ?? 0) > 0)
-    .map((state) => `${STATE_LABELS[state]} : ${counts[state]}`)
-    .join(' · ')
 
 export const nextPaneInState = (tabs: Tab[], agents: AgentMap, state: AgentState, currentPaneId?: string): string | undefined => {
   const candidates = tabs

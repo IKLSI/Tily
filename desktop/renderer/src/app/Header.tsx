@@ -1,4 +1,4 @@
-import { memo, type ReactNode } from 'react'
+import { memo } from 'react'
 import { EditableName } from '../components/EditableName'
 import { Icon } from '../components/Icon'
 import { IconName } from '../components/iconName'
@@ -14,7 +14,6 @@ interface HeaderProps {
   renaming: boolean
   sidebarCollapsed: boolean
   leaderActive: boolean
-  navigation: ReactNode
   onToggleSidebar: () => void
   onOpenSettings: () => void
   onStartRename: () => void
@@ -22,7 +21,7 @@ interface HeaderProps {
   onCancelRename: () => void
 }
 
-export const Header = memo(function Header({ workspaceName, renaming, sidebarCollapsed, leaderActive, navigation, onToggleSidebar, onOpenSettings, onStartRename, onCommitRename, onCancelRename }: HeaderProps) {
+export const Header = memo(function Header({ workspaceName, renaming, sidebarCollapsed, leaderActive, onToggleSidebar, onOpenSettings, onStartRename, onCommitRename, onCancelRename }: HeaderProps) {
   const sidebarTip = useShortcutTip(sidebarCollapsed ? 'Afficher les workspaces' : 'Masquer les workspaces', Command.ToggleSidebar)
   const fullscreen = useFullscreen()
   const settingsTip = useShortcutTip('Paramètres', Command.Settings)
@@ -38,8 +37,7 @@ export const Header = memo(function Header({ workspaceName, renaming, sidebarCol
         <Icon name={IconName.Menu} size={14} />
       </button>
       <div className="flex min-w-0 items-baseline gap-4 [-webkit-app-region:no-drag]">
-        {!navigation &&
-          (sidebarCollapsed || renaming) &&
+        {(sidebarCollapsed || renaming) &&
           (workspaceName === null ? (
             <span className="text-[15px] text-tily-muted">Aucun workspace</span>
           ) : renaming ? (
@@ -48,7 +46,6 @@ export const Header = memo(function Header({ workspaceName, renaming, sidebarCol
             <EditableName name={workspaceName} className="text-[15px]" onClick={onStartRename} />
           ))}
       </div>
-      {navigation && <div className={leaderActive ? 'hidden' : 'contents'}>{navigation}</div>}
       {leaderActive && <LeaderHints />}
       <div className="ml-auto flex shrink-0 items-center gap-2 [-webkit-app-region:no-drag]">
         <UpdateButton />

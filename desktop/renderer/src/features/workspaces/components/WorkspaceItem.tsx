@@ -1,6 +1,5 @@
 import { memo, type KeyboardEvent, type MouseEvent, type PointerEvent } from 'react'
-import type { AgentState } from '../../../bridge/messages'
-import { nextPaneInState, workspaceStateCounts, type AgentMap } from '../../agents/agentSummary'
+import type { AgentMap } from '../../agents/agentSummary'
 import { activeTab, notePreview, type Workspace } from '../../../model/session'
 import type { TabDropTarget } from '../../../stores/uiStore'
 import { Icon } from '../../../components/Icon'
@@ -9,7 +8,6 @@ import { InlineNameEditor } from '../../../components/InlineNameEditor'
 import { isDropTarget } from './tabDrag'
 import { beginWorkspaceDrag } from './workspaceDrag'
 import { TruncatedName } from '../../../components/TruncatedName'
-import { WorkspaceStatus } from './WorkspaceStatus'
 import { useWorkspaceHighlight } from './useWorkspaceHighlight'
 import { CommandNoticeIcon } from '../../terminal/components/CommandNoticeIcon'
 import { useCommandStore } from '../../terminal/commandStore'
@@ -77,12 +75,6 @@ export const WorkspaceItem = memo(function WorkspaceItem({ workspace, workspaceN
   const handleOpenNotes = (event: MouseEvent) => {
     event.stopPropagation()
     actions.openNotes(id)
-  }
-  const handleJoin = (state: AgentState) => {
-    const paneId = nextPaneInState(tabs, agents, state, currentPaneId)
-    if (paneId) {
-      actions.joinPane(paneId)
-    }
   }
   const handleContextMenu = (event: MouseEvent) => {
     event.preventDefault()
@@ -154,7 +146,6 @@ export const WorkspaceItem = memo(function WorkspaceItem({ workspace, workspaceN
           </button>
         )}
         {!expanded && commandNotice && <CommandNoticeIcon notice={commandNotice} />}
-        <WorkspaceStatus counts={workspaceStateCounts(workspace, agents)} onJoin={handleJoin} />
         <span className="relative flex shrink-0">
           <button type="button" className={`peer ${PANEL_CLOSE_BUTTON}`} data-tip="Fermer le workspace" aria-label={`Fermer le workspace ${name}`} onClick={handleClose}>
             <Icon name={IconName.Close} size={10} />

@@ -32,7 +32,7 @@ export function SplitView({ node, path = ROOT_PATH, zoomed = false, onToggleZoom
     return <BrowserPaneView pane={node.pane} active={node.pane.id === activePaneId} zoomed={zoomed} onToggleZoom={onToggleZoom} onFocus={onFocus} onClose={onClose} onSplit={onSplit} />
   }
   if (isLeaf(node)) {
-    return <PaneView pane={node.pane} active={node.pane.id === activePaneId} zoomed={zoomed} onToggleZoom={onToggleZoom} onFocus={onFocus} onClose={onClose} onSplit={onSplit} shells={shells} onRestart={onRestart} onRestartIn={onRestartIn} onChangeShell={onChangeShell} onDismissState={onDismissState} />
+    return <PaneView pane={node.pane} active={node.pane.id === activePaneId} alone={path.length === 0} zoomed={zoomed} onToggleZoom={onToggleZoom} onFocus={onFocus} onClose={onClose} onSplit={onSplit} shells={shells} onRestart={onRestart} onRestartIn={onRestartIn} onChangeShell={onChangeShell} onDismissState={onDismissState} />
   }
   const horizontal = node.axis === SplitAxis.Horizontal
   const handleResize = (ratio: number) => onResize(path, ratio)

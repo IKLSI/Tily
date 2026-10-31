@@ -5,6 +5,7 @@ import { tabAgents } from '../../agents/agentSummary'
 import { BrowserPlacement, openBrowser } from '../../browser/browserActions'
 import { activePane, DEFAULT_SHELL, paneCountLabel, panesOf, type Workspace } from '../../../model/session'
 import { useAgentStore } from '../../agents/agentStore'
+import { useSessionStore } from '../../../stores/sessionStore'
 import { useUiStore } from '../../../stores/uiStore'
 import { AgentOwnerMark } from '../../agents/components/AgentOwnerMark'
 import { AgentStateIcon } from '../../agents/components/AgentStateIcon'
@@ -90,6 +91,7 @@ export const TabBar = memo(function TabBar({ workspace, shells, renamingTabId, p
   const pressedEmptyRef = useRef(false)
   const { draggingTabId, tabDropTarget } = useUiStore(useShallow((state) => ({ draggingTabId: state.draggingTabId, tabDropTarget: state.tabDropTarget })))
   const agents = useAgentStore((state) => state.agents)
+  const sidebarCollapsed = useSessionStore((state) => state.session?.sidebarCollapsed ?? false)
   const commandNotices = useCommandStore((state) => state.notices)
   const activeIndex = workspace.tabs.findIndex((tab) => tab.id === workspace.active)
 
@@ -235,7 +237,7 @@ export const TabBar = memo(function TabBar({ workspace, shells, renamingTabId, p
                     onPointerDown={handlePointerDown}
                     onKeyDown={handleTabKeyDown}
                   >
-                    {agentSummary ? <AgentStateIcon state={agentSummary.state} tip={agentSummary.tip} /> : commandNotice && <CommandNoticeIcon notice={commandNotice} />}
+                    {agentSummary && sidebarCollapsed ? <AgentStateIcon state={agentSummary.state} tip={agentSummary.tip} /> : commandNotice && <CommandNoticeIcon notice={commandNotice} />}
                     <span className={tab.color ? `min-w-0 truncate ${HIGHLIGHT_SHAPE}` : 'min-w-0 truncate'} style={highlightStyle(tab.color)}>
                       {tab.name}
                     </span>

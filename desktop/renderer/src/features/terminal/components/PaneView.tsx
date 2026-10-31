@@ -27,6 +27,7 @@ import { TerminalContextMenu, type TerminalMenuActions, type TerminalMenuRequest
 interface PaneViewProps {
   pane: Pane
   active: boolean
+  alone?: boolean
   zoomed: boolean
   onToggleZoom: (paneId: string) => void
   onFocus: (paneId: string) => void
@@ -113,7 +114,7 @@ const CloseIcon = () => (
   </svg>
 )
 
-export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZoom, onFocus, onClose, onSplit, shells, onRestart, onRestartIn, onChangeShell, onDismissState }: PaneViewProps) {
+export const PaneView = memo(function PaneView({ pane, active, alone = false, zoomed, onToggleZoom, onFocus, onClose, onSplit, shells, onRestart, onRestartIn, onChangeShell, onDismissState }: PaneViewProps) {
   const paneState = usePaneStore((state) => state.states[pane.id])
   const tips = usePaneHeaderTips()
   const context = useHostStore((state) => state.contexts[pane.id])
@@ -218,7 +219,7 @@ export const PaneView = memo(function PaneView({ pane, active, zoomed, onToggleZ
   return (
     <section
       data-pane-id={pane.id}
-      className={`grid h-full min-h-0 grid-cols-1 grid-rows-[30px_1fr] overflow-hidden rounded-tily-lg border bg-tily-terminal transition-[border-color,box-shadow] duration-200 ${active ? 'border-tily-green/60 shadow-[0_0_0_1px_color-mix(in_srgb,var(--color-tily-green)_10%,transparent)]' : 'border-tily-line'}`}
+      className={`grid h-full min-h-0 grid-cols-1 grid-rows-[30px_1fr] overflow-hidden rounded-tily-lg border bg-tily-terminal transition-[border-color] duration-200 ${active && !alone ? 'border-tily-green/60' : 'border-tily-line'}`}
       onFocus={handleFocusWithin}
     >
       <header

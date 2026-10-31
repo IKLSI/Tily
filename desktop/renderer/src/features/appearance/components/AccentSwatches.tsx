@@ -20,10 +20,13 @@ export function AccentSwatches({ presets, value, fallback, fallbackLabel, onChan
 
   return (
     <div role="group" aria-label="Couleur" className="flex flex-wrap items-center gap-2 py-1">
-      <button type="button" aria-pressed={value === undefined} className={value === undefined ? `${FALLBACK} ${SELECTED}` : FALLBACK} onClick={handleFallback}>
-        {fallback && <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: fallback }} />}
-        {fallbackLabel}
-      </button>
+      {fallback ? (
+        <button type="button" aria-label={fallbackLabel} aria-pressed={value === undefined} data-tip={fallbackLabel} className={value === undefined ? `${SWATCH} ${SELECTED}` : SWATCH} style={{ backgroundColor: fallback }} onClick={handleFallback} />
+      ) : (
+        <button type="button" aria-pressed={value === undefined} className={value === undefined ? `${FALLBACK} ${SELECTED}` : FALLBACK} onClick={handleFallback}>
+          {fallbackLabel}
+        </button>
+      )}
       {presets.map((preset) => {
         const selected = preset.color === value
         const handleClick = () => onChange(preset.color)
