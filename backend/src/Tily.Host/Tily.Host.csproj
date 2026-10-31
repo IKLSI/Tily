@@ -5,10 +5,17 @@
     <RootNamespace>Tily.Host</RootNamespace>
     <AssemblyName>Tily</AssemblyName>
     <Version>3.0.5</Version>
+    <ConcurrentGarbageCollection>false</ConcurrentGarbageCollection>
+    <TieredPGO>false</TieredPGO>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Tily.Core\Tily.Core.csproj" />
     <ProjectReference Include="..\Tily.Mcp\Tily.Mcp.csproj" />
     <ProjectReference Include="..\Tily.Pty\Tily.Pty.csproj" />
   </ItemGroup>
+  <Target Name="RemoveDebuggerLibraries" AfterTargets="ComputeResolvedFilesToPublishList">
+    <ItemGroup>
+      <ResolvedFileToPublish Remove="@(ResolvedFileToPublish)" Condition="'%(Filename)' == 'libmscordbi' Or '%(Filename)' == 'libmscordaccore'" />
+    </ItemGroup>
+  </Target>
 </Project>

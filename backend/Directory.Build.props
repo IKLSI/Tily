@@ -6,4 +6,7 @@
     <NoWarn>$(NoWarn);SYSLIB1054;CA1416</NoWarn>
     <SatelliteResourceLanguages>fr;en</SatelliteResourceLanguages>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <DebugType>none</DebugType>
+  </PropertyGroup>
 </Project>
