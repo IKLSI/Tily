@@ -27,7 +27,7 @@ mac:
   extendInfo:
     NSAppleEventsUsageDescription: Tily pilote le Finder pour placer les fichiers dans la Corbeille.
 dmg:
-  format: ULMO
+  format: ULFO
   artifactName: Tily-${version}-${arch}.dmg
 publish:
   provider: github
