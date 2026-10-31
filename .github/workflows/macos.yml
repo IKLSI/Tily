@@ -13,19 +13,19 @@ jobs:
   check:
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.0.x
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: ~/.nuget/packages
           key: nuget-${{ runner.os }}-${{ hashFiles('backend/**/*.csproj', 'backend/Directory.Build.props') }}
           restore-keys: nuget-${{ runner.os }}-
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         with:
           version: 12
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: pnpm
@@ -43,6 +43,9 @@ jobs:
         run: |
           pnpm install --frozen-lockfile
           pnpm build
+      - name: Configuration de packaging
+        working-directory: desktop
+        run: pnpm exec electron-builder --mac --dir --publish never -c.mac.identity=null
       - name: Tests
         run: dotnet test backend/Tily.slnx
 
@@ -53,25 +56,32 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.0.x
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: ~/.nuget/packages
           key: nuget-${{ runner.os }}-${{ hashFiles('backend/**/*.csproj', 'backend/Directory.Build.props') }}
           restore-keys: nuget-${{ runner.os }}-
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         with:
           version: 12
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: pnpm
           cache-dependency-path: |
             desktop/pnpm-lock.yaml
             desktop/renderer/pnpm-lock.yaml
+      - uses: actions/cache@v6
+        with:
+          path: |
+            ~/Library/Caches/electron
+            ~/Library/Caches/electron-builder
+          key: electron-${{ runner.os }}-${{ hashFiles('desktop/pnpm-lock.yaml') }}
+          restore-keys: electron-${{ runner.os }}-
       - name: Paquet
         run: sh scripts/build-mac.sh
       - name: Release
@@ -87,7 +97,7 @@ jobs:
             'xattr -cr /Applications/Tily.app' \
             '```')
           gh release create "$GITHUB_REF_NAME" desktop/release/*.dmg --notes "$NOTES" --generate-notes || gh release upload "$GITHUB_REF_NAME" desktop/release/*.dmg --clobber
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: Tily-dmg
           path: desktop/release/*.dmg
