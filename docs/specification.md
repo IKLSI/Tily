@@ -23,7 +23,7 @@ Claude Code, lancé par l’utilisateur dans un pane, peut lire et organiser Til
 - Modèles de workspace et mode focus dédié.
 - Recherche globale dans le contenu des fichiers du projet.
 - Recherche dans la sortie des terminaux.
-- Catalogue de thèmes : Tily a un seul thème, vert et sombre, avec panneau en arborescence.
+- Catalogue de thèmes : Tily n’a qu’un seul thème, qui suit l’apparence du système (clair ou sombre), avec panneau en arborescence.
 
 ## 2. Modèle fonctionnel
 
@@ -43,7 +43,7 @@ Utiliser des identifiants stables indépendants des noms. Deux workspaces ou ong
 
 ## 3. Direction visuelle et disposition
 
-Tily vert en thème sombre : fonds gris anthracite, accent vert sauge désaturé, terminaux sombres, en-tête compact, panneau gauche en arborescence. Maximiser l’espace disponible pour les terminaux.
+Thème clair ou sombre selon l’apparence du système : fonds gris neutres à légère teinte, accent bleu système par défaut, terminaux assortis, barre de titre intégrée à l’en-tête (feux tricolores dans la fenêtre), onglets fusionnés au panneau, panneau gauche en arborescence. Maximiser l’espace disponible pour les terminaux.
 
 | Zone | Contenu attendu |
 | --- | --- |
@@ -66,7 +66,7 @@ Le titre de la fenêtre, visible dans le menu Fenêtre, Mission Control et Cmd +
 
 ### Repères visuels
 
-Ces valeurs sont des références de réalisation, pas des contraintes de taille absolues : en-tête d’environ 34 px, fond de l’application #17191b, panneaux #1e2123, fond de terminal #121416, accent #7a9f8b, fond de sélection à peine plus clair que le panneau, interface dans la police système de macOS et terminal en police monospace. Préserver la lisibilité sur écran Retina comme sur écran standard.
+Ces valeurs sont des références de réalisation, pas des contraintes de taille absolues : en-tête d’environ 44 px, coins arrondis de 6, 8 et 12 px, accent #0a84ff, fond de sélection à peine plus clair que le panneau, interface dans la police système de macOS et terminal en police monospace. Préserver la lisibilité sur écran Retina comme sur écran standard.
 
 Une seule police pour l’interface (celle du système), y compris pour les chemins, branches, SHA, compteurs, barre de statut, journal, notes et champs de saisie. La police monospace est réservée au contenu dont l’alignement compte : terminaux, diff, aperçu et édition de fichiers, sorties de commandes, texte collé, détail d’une demande MCP et code des notes de version. Échelle de tailles : 11 px pour le secondaire (compteurs, métadonnées, titres de section, messages de liste vide), 12 px pour le contenu des panneaux, des menus et des onglets, 13 px pour les listes principales, 15 px pour les titres de dialogue et l’identité de l’en-tête ; le rendu Markdown de l’aperçu garde sa propre échelle de document.
 
@@ -76,7 +76,7 @@ Police des terminaux choisie dans une liste fixe (section « Terminaux » des Pa
 
 Taille du texte des terminaux : réglage « Taille du texte » (en pixels) de la section « Terminaux » des Paramètres, de 8 à 32 px, 12 par défaut, avec un aperçu. Elle s’applique à l’enregistrement à tous les terminaux ouverts, qui recalculent leurs colonnes et leurs lignes et les transmettent au shell ; elle est conservée dans `appearance.json` et fait partie des préférences exportées. La palette propose aussi « Agrandir le texte des terminaux », « Réduire le texte des terminaux » et « Taille du texte des terminaux par défaut », qui appliquent et enregistrent la nouvelle taille sans ouvrir les Paramètres.
 
-Couleur de Tily : section « Apparence » des Paramètres, ou palette (« Couleur de Tily… »). Une couleur d’accent, choisie parmi des pastilles (Sage par défaut, Bleu) ou saisie en hexadécimal, teinte les accents, les fonds, le terminal et les sélections de toute l’application ; la palette de nuances est calculée côté hôte en OKLCH. Le choix s’aperçoit en direct dans l’application ; fermer les Paramètres sans enregistrer rétablit la couleur enregistrée. Elle est conservée dans `appearance.json` et fait partie des préférences exportées.
+Couleur de Tily : section « Apparence » des Paramètres, ou palette (« Couleur de Tily… »). Une couleur d’accent, choisie parmi des pastilles (Bleu système par défaut, Sage, Bleu) ou saisie en hexadécimal, teinte les accents, les fonds, le terminal et les sélections de toute l’application ; la palette de nuances est calculée côté hôte en OKLCH. Le choix s’aperçoit en direct dans l’application ; fermer les Paramètres sans enregistrer rétablit la couleur enregistrée. Elle est conservée dans `appearance.json` et fait partie des préférences exportées.
 
 Surlignage des noms : « Couleur… » dans le menu d’un workspace, d’un onglet ou dans la palette (« Couleur du workspace ou du projet… », « Couleur de l’onglet… ») ouvre un dialogue de choix de couleur qui surligne le nom du workspace, du projet ou de l’onglet. La couleur d’un projet s’applique à tout workspace dont le pane actif est dans ce projet, worktrees compris (le dépôt principal est retrouvé par `MainRepositoryRoot`) ; celle du workspace l’emporte ; un onglet n’hérite pas de celle de son workspace. Les couleurs de workspace et d’onglet sont enregistrées dans `session.json` (champ facultatif `color`), celles des projets dans `appearance.json` (`projectColors`), listées et retirables dans la section « Apparence ».
 
