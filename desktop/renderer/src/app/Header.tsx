@@ -22,20 +22,22 @@ interface HeaderProps {
 }
 
 export const Header = memo(function Header({ workspaceName, renaming, sidebarCollapsed, leaderActive, onToggleSidebar, onOpenSettings, onStartRename, onCommitRename, onCancelRename }: HeaderProps) {
-  const sidebarTip = useShortcutTip(sidebarCollapsed ? 'Afficher les workspaces' : 'Masquer les workspaces', Command.ToggleSidebar)
+  const sidebarTip = useShortcutTip('Afficher les workspaces', Command.ToggleSidebar)
   const fullscreen = useFullscreen()
   const settingsTip = useShortcutTip('Paramètres', Command.Settings)
   return (
     <header className={`relative flex h-[44px] shrink-0 items-center gap-3 border-b border-tily-line bg-tily-panel pr-3 text-tily-ink [-webkit-app-region:drag] ${fullscreen ? 'pl-3' : 'pl-[84px]'}`}>
-      <button
-        type="button"
-        aria-label={sidebarCollapsed ? 'Afficher les workspaces' : 'Masquer les workspaces'}
-        className="flex h-[28px] cursor-pointer items-center rounded-tily-sm px-2 text-tily-muted [-webkit-app-region:no-drag] hover:bg-tily-green-hover hover:text-tily-ink"
-        data-tip={sidebarTip}
-        onClick={onToggleSidebar}
-      >
-        <Icon name={IconName.Menu} size={14} />
-      </button>
+      {sidebarCollapsed && (
+        <button
+          type="button"
+          aria-label="Afficher les workspaces"
+          className="flex h-[28px] cursor-pointer items-center rounded-tily-sm px-2 text-tily-muted [-webkit-app-region:no-drag] hover:bg-tily-green-hover hover:text-tily-ink"
+          data-tip={sidebarTip}
+          onClick={onToggleSidebar}
+        >
+          <Icon name={IconName.Sidebar} size={14} />
+        </button>
+      )}
       <div className="flex min-w-0 items-baseline gap-4 [-webkit-app-region:no-drag]">
         {(sidebarCollapsed || renaming) &&
           (workspaceName === null ? (

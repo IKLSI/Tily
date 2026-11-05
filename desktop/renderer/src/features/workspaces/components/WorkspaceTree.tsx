@@ -32,6 +32,7 @@ export function WorkspaceTree({ session, renamingWorkspaceId, renamingTabId, act
   const projectsTip = useShortcutTip('Ouvrir un projet', Command.Projects)
   const worktreeTip = useShortcutTip('Créer un worktree', Command.CreateWorktree)
   const newWorkspaceTip = useShortcutTip('Nouveau workspace', Command.NewWorkspace)
+  const hideSidebarTip = useShortcutTip('Masquer les workspaces', Command.ToggleSidebar)
   const { draggingTabId, tabDropTarget, springWorkspaceIds, draggingWorkspaceId, workspaceDropTarget } = useUiStore(
     useShallow((state) => ({
       draggingTabId: state.draggingTabId,
@@ -58,8 +59,11 @@ export function WorkspaceTree({ session, renamingWorkspaceId, renamingTabId, act
 
   return (
     <aside className="@container flex h-full min-h-0 flex-col bg-tily-paper" style={{ width: session.sidebar }}>
-      <div className="flex h-[36px] shrink-0 items-center gap-[2px] pr-[6px] pl-[12px] text-[12px] font-semibold text-tily-muted">
-        <span className="flex-1">Workspaces</span>
+      <div className="flex h-[36px] shrink-0 items-center gap-[2px] px-[6px] text-[12px] font-semibold text-tily-muted">
+        <button type="button" className={HEADER_BUTTON} aria-label="Masquer les workspaces" data-tip={hideSidebarTip} onClick={actions.toggleSidebar}>
+          <Icon name={IconName.Sidebar} />
+        </button>
+        <span className="flex-1 pl-[4px]">Workspaces</span>
         <button type="button" className={HEADER_BUTTON} aria-label="Ouvrir un projet" data-tip={projectsTip} onClick={actions.openProjects}>
           <Icon name={IconName.Project} />
         </button>

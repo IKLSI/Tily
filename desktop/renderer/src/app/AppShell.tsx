@@ -222,6 +222,7 @@ const panelActions: WorkspacePanelActions = {
   joinPane: handleJoinPane,
   newWorkspace: handleNewWorkspace,
   openProjects: handleOpenProjects,
+  toggleSidebar: handleToggleSidebar,
 }
 
 export function AppShell({ session }: AppShellProps) {

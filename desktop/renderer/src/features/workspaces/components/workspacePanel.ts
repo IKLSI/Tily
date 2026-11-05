@@ -27,6 +27,7 @@ export interface WorkspacePanelActions {
   joinPane: (paneId: string) => void
   newWorkspace: () => void
   openProjects: () => void
+  toggleSidebar: () => void
 }
 
 export interface PanelMenuRequest {
