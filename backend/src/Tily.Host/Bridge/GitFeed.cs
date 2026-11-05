@@ -14,6 +14,7 @@ public sealed class GitFeed : IDisposable
     private readonly GitRunner _runner = new();
     private readonly BackgroundQueue _reads;
     private readonly BackgroundQueue _lookups;
+    private readonly BackgroundQueue _follows;
     private readonly GitOperationRunner _operations;
     private readonly Func<bool> _autoFetch;
     private readonly object _sync = new();
@@ -37,6 +38,7 @@ public sealed class GitFeed : IDisposable
         _autoFetch = autoFetch;
         _reads = new BackgroundQueue(onError);
         _lookups = new BackgroundQueue(onError);
+        _follows = new BackgroundQueue(onError);
         _operations = new GitOperationRunner(Open, post, ScheduleRefresh, onError);
     }
 
@@ -80,7 +82,7 @@ public sealed class GitFeed : IDisposable
             _path = path;
         }
 
-        _reads.Enqueue(() => Follow(path));
+        _follows.Enqueue(() => Follow(path));
     }
 
     private void Follow(string path)

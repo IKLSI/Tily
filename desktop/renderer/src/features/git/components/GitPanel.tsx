@@ -65,9 +65,11 @@ export function GitPanel({ folder }: GitPanelProps) {
     [],
   )
 
+  const stale = resolved !== folder
+
   const renderContent = () => {
     if (!state) {
-      const loading = resolved !== folder
+      const loading = stale
       const handleInitialize = () => initializeRepository(folder)
       return (
         <div className="flex flex-col gap-[6px] px-[12px] py-[8px] text-[12px]">
@@ -109,7 +111,10 @@ export function GitPanel({ folder }: GitPanelProps) {
   return (
     <section aria-label="Git" data-git-panel="" tabIndex={-1} className="@container relative flex min-h-0 flex-1 flex-col focus:outline-none" onKeyDown={handleKeyDown}>
       {busy && <div aria-hidden="true" className="absolute inset-x-0 top-0 h-[2px] animate-pulse bg-tily-green" />}
-      {renderContent()}
+      {state && stale && <p role="status" className="shrink-0 px-[12px] pt-[8px] text-[11px] text-tily-ink-soft">Lecture du dépôt Git…</p>}
+      <div inert={state !== null && stale} aria-busy={stale} className={`flex min-h-0 flex-1 flex-col transition-opacity duration-150 ${state && stale ? 'opacity-50' : ''}`}>
+        {renderContent()}
+      </div>
     </section>
   )
 }
