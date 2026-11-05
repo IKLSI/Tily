@@ -39,7 +39,7 @@ export function SettingsNav({ section, panelId, onSelect }: SettingsNavProps) {
             aria-selected={selected}
             aria-controls={panelId}
             tabIndex={selected ? 0 : -1}
-            className={`cursor-pointer rounded-tily-sm px-2.5 py-1.5 text-left text-[12px] ${selected ? 'bg-tily-green-soft text-tily-green-deep' : 'text-tily-ink-soft hover:bg-tily-green-hover hover:text-tily-ink'}`}
+            className={`cursor-pointer rounded-tily-sm px-2.5 py-1.5 text-left text-tily-sm ${selected ? 'bg-tily-green-soft text-tily-green-deep' : 'text-tily-ink-soft hover:bg-tily-green-hover hover:text-tily-ink'}`}
             onClick={handleClick}
           >
             {SETTINGS_SECTION_LABELS[candidate]}

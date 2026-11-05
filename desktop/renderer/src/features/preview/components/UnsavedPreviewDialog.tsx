@@ -32,13 +32,13 @@ export function UnsavedPreviewDialog() {
 
   return (
     <div className="absolute inset-0 z-40 flex items-start justify-center bg-black/30 backdrop-blur-[3px] pt-[12vh]" onPointerDown={handleBackdropPointerDown}>
-      <div role="alertdialog" aria-label={title} className="flex w-[480px] max-w-[94vw] flex-col rounded-tily-lg border border-tily-line bg-tily-panel shadow-tily-dialog" onKeyDown={keepTabInside}>
+      <div role="alertdialog" aria-label={title} className="flex w-[480px] max-w-[94vw] flex-col rounded-tily-lg border border-tily-line bg-tily-raised shadow-tily-dialog" onKeyDown={keepTabInside}>
         <div className="flex items-center justify-between gap-3 border-b border-tily-line px-4 py-3">
-          <h2 className="min-w-0 truncate text-[15px] font-semibold text-tily-ink">{title}</h2>
+          <h2 className="min-w-0 truncate text-tily-lg font-semibold text-tily-ink">{title}</h2>
         </div>
         <div className="flex flex-col gap-2 px-4 py-4">
-          <p className="text-[12px] text-tily-ink">Le fichier contient des modifications non enregistrées.</p>
-          <p className="truncate text-[11px] text-tily-muted">{path}</p>
+          <p className="text-tily-sm text-tily-ink">Le fichier contient des modifications non enregistrées.</p>
+          <p className="truncate text-tily-xs text-tily-muted">{path}</p>
         </div>
         <div className="flex items-center justify-end gap-2 border-t border-tily-line px-4 py-3">
           <button type="button" className={BUTTON_SECONDARY} data-tip="Échap" onClick={cancelPendingAction}>

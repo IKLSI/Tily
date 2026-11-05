@@ -155,7 +155,7 @@ export const BrowserPaneView = memo(function BrowserPaneView({ pane, active, zoo
       data-pane-id={pane.id}
       className={`grid h-full min-h-0 grid-cols-1 grid-rows-[24px_1fr] overflow-hidden rounded-tily border bg-tily-terminal ${active ? 'border-tily-green' : 'border-tily-line'}`}
     >
-      <header className="group @container flex items-center gap-1 bg-tily-panel px-2 text-[11px] text-tily-muted select-none" onMouseDown={handleHeaderMouseDown} onDoubleClick={handleHeaderDoubleClick}>
+      <header className="group @container flex items-center gap-1 bg-tily-panel px-2 text-tily-xs text-tily-muted select-none" onMouseDown={handleHeaderMouseDown} onDoubleClick={handleHeaderDoubleClick}>
         <span className="shrink-0 text-tily-ink" aria-hidden="true">
           <GlobeIcon />
         </span>
@@ -197,7 +197,7 @@ export const BrowserPaneView = memo(function BrowserPaneView({ pane, active, zoo
       </header>
       <div data-browser-body={pane.id} className="relative min-h-0 overflow-hidden" onMouseDown={handleBodyMouseDown}>
         {snapshot && <img src={snapshot} alt="" className="mx-auto block h-full" style={{ width: mobile ? 'min(390px, 100%)' : '100%' }} onLoad={handleSnapshotLoad} />}
-        {failure && <p className="absolute inset-x-4 top-4 rounded-tily-sm border border-tily-line bg-tily-panel p-3 text-[12px] text-tily-error">{failure}</p>}
+        {failure && <p className="absolute inset-x-4 top-4 rounded-tily-sm border border-tily-line bg-tily-panel p-3 text-tily-sm text-tily-error">{failure}</p>}
       </div>
     </section>
   )

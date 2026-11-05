@@ -13,7 +13,7 @@ export function SettingsPanel({ title, tip, grid = true, children }: SettingsPan
   return (
     <section className="flex flex-col gap-4">
       <div className={SETTINGS_ROW}>
-        <h3 className="text-[13px] font-semibold text-tily-ink">{title}</h3>
+        <h3 className="text-tily-base font-semibold text-tily-ink">{title}</h3>
         {tip && <InfoTip text={tip} />}
       </div>
       <div className={grid ? SETTINGS_GRID : 'flex flex-col gap-2'}>{children}</div>

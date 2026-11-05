@@ -28,7 +28,7 @@ export function GitCommitDetail({ state, busy }: GitCommitDetailProps) {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <button type="button" className="mt-[4px] flex h-[28px] shrink-0 cursor-pointer items-center gap-[4px] self-start rounded-tily-sm px-[10px] text-[12px] text-tily-muted hover:text-tily-ink" data-tip="Revenir aux modifications (Échap)" onClick={selectWorkingTree}>
+      <button type="button" className="mt-[4px] flex h-[28px] shrink-0 cursor-pointer items-center gap-[4px] self-start rounded-tily-sm px-[10px] text-tily-sm text-tily-muted hover:text-tily-ink" data-tip="Revenir aux modifications (Échap)" onClick={selectWorkingTree}>
         <Icon name={IconName.Chevron} size={10} className="rotate-180" />
         Modifications
       </button>
@@ -40,7 +40,7 @@ export function GitCommitDetail({ state, busy }: GitCommitDetailProps) {
         heading={
           <span className="flex min-w-0 items-baseline gap-[8px]">
             <span className={SECTION_HEADING}>{stash ? 'Stash' : 'Commit'}</span>
-            <span className="min-w-0 truncate text-[11px] text-tily-green-deep">{stash ? `stash@{${stash.index}}` : shortSha(commit)}</span>
+            <span className="min-w-0 truncate text-tily-xs text-tily-green-deep">{stash ? `stash@{${stash.index}}` : shortSha(commit)}</span>
           </span>
         }
         actions={

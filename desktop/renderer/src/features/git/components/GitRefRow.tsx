@@ -74,7 +74,7 @@ export function GitRefRow({ rowKey, name, meta, metaIcon, metaTip, tip, current 
       tabIndex={focusable ? 0 : -1}
       data-tip={tip}
       style={{ paddingLeft: refIndent(depth) }}
-      className={`group flex h-[24px] cursor-pointer items-center gap-[6px] pr-[4px] text-[12px] select-none ${selected ? 'bg-tily-green-soft' : 'hover:bg-tily-green-hover'} ${current || selected ? 'text-tily-green-deep' : 'text-tily-ink-soft hover:text-tily-ink'} ${dropTarget ? 'outline-2 -outline-offset-2 outline-tily-focus' : ''} ${pending ? 'opacity-60' : ''}`}
+      className={`group flex h-[24px] cursor-pointer items-center gap-[6px] pr-[4px] text-tily-sm select-none ${selected ? 'bg-tily-green-soft' : 'hover:bg-tily-green-hover'} ${current || selected ? 'text-tily-green-deep' : 'text-tily-ink-soft hover:text-tily-ink'} ${dropTarget ? 'outline-2 -outline-offset-2 outline-tily-focus' : ''} ${pending ? 'opacity-60' : ''}`}
       onClick={handleClick}
       onDoubleClick={onActivate}
       onContextMenu={handleContextMenu}
@@ -92,7 +92,7 @@ export function GitRefRow({ rowKey, name, meta, metaIcon, metaTip, tip, current 
           </span>
         )}
         {meta && (
-          <span className="max-w-[45%] min-w-0 truncate text-[11px] text-tily-muted" data-tip={metaTip}>
+          <span className="max-w-[45%] min-w-0 truncate text-tily-xs text-tily-muted" data-tip={metaTip}>
             {meta}
           </span>
         )}

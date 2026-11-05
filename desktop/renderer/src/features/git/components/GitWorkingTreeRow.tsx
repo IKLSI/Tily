@@ -23,7 +23,7 @@ export function GitWorkingTreeRow({ state, graph, selected, layout, onSelect, on
   }
   const renderCount = (value: number, sign: string, tip: string, tone: string) =>
     value > 0 && (
-      <span className={`shrink-0 text-[11px] ${tone}`} data-tip={tip}>
+      <span className={`shrink-0 text-tily-xs ${tone}`} data-tip={tip}>
         {`${sign}${value}`}
       </span>
     )
@@ -33,7 +33,7 @@ export function GitWorkingTreeRow({ state, graph, selected, layout, onSelect, on
       id={graphRowId(WORKING_TREE_KEY)}
       role="option"
       aria-selected={selected}
-      className={`absolute inset-x-0 flex items-center text-[12px] select-none ${selected ? `bg-tily-green-soft ${ROW_FOCUS_OUTLINE}` : 'hover:bg-tily-green-hover'}`}
+      className={`absolute inset-x-0 flex items-center text-tily-sm select-none ${selected ? `bg-tily-green-soft ${ROW_FOCUS_OUTLINE}` : 'hover:bg-tily-green-hover'}`}
       style={{ top: 0, height: GRAPH_ROW_HEIGHT }}
       onClick={onSelect}
       onContextMenu={handleContextMenu}
@@ -44,12 +44,12 @@ export function GitWorkingTreeRow({ state, graph, selected, layout, onSelect, on
         <span className="shrink-0 text-tily-muted italic" data-tip="Modifications de l’arbre de travail">
           {'// WIP'}
         </span>
-        {state.operation && <span className="shrink-0 rounded-tily-sm bg-tily-warning/15 px-[6px] text-[11px] text-tily-warning">{`${OPERATION_LABELS[state.operation]} en cours`}</span>}
+        {state.operation && <span className="shrink-0 rounded-tily-sm bg-tily-warning/15 px-[6px] text-tily-xs text-tily-warning">{`${OPERATION_LABELS[state.operation]} en cours`}</span>}
         {renderCount(counts.conflicts, '!', plural(counts.conflicts, 'fichier en conflit', 'fichiers en conflit'), 'text-tily-error')}
         {renderCount(counts.added, '+', plural(counts.added, 'fichier ajouté ou non suivi', 'fichiers ajoutés ou non suivis'), 'text-tily-green')}
         {renderCount(counts.modified, '~', plural(counts.modified, 'fichier modifié', 'fichiers modifiés'), 'text-tily-warning')}
         {renderCount(counts.deleted, '−', plural(counts.deleted, 'fichier supprimé', 'fichiers supprimés'), 'text-tily-error')}
-        {clean && <span className="truncate text-[11px] text-tily-muted">Aucune modification</span>}
+        {clean && <span className="truncate text-tily-xs text-tily-muted">Aucune modification</span>}
       </div>
     </div>
   )

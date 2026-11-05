@@ -109,7 +109,7 @@ const commandItems = (session: Session, shells: ShellProfile[]): PaletteItem[] =
   ]
   if (workspace) {
     items.push(
-      command('rename-workspace', 'Renommer le workspace', () => ui.startRenamingWorkspace(workspace.id, RenameOrigin.Header)),
+      command('rename-workspace', 'Renommer le workspace', () => ui.startRenamingWorkspace(workspace.id, RenameOrigin.Panel)),
       command('workspace-color', `Couleur du workspace ou du projet…${SEPARATOR}${workspace.name}`, () => runCommand(Command.WorkspaceColor), shortcutText(Command.WorkspaceColor)),
       command('move-workspace-up', 'Monter le workspace', () => store.moveWorkspace(workspace.id, -1)),
       command('move-workspace-down', 'Descendre le workspace', () => store.moveWorkspace(workspace.id, 1)),

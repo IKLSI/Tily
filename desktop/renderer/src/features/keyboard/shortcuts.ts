@@ -197,7 +197,7 @@ export const runCommand = (command: Command): void => {
       sessionStore.splitPane(SplitAxis.Vertical)
       break
     case Command.NewWorkspace:
-      useUiStore.getState().startRenamingWorkspace(sessionStore.newWorkspace(`Workspace ${(sessionStore.session?.workspaces.length ?? 0) + 1}`, hostStore.home, DEFAULT_SHELL), RenameOrigin.Header)
+      useUiStore.getState().startRenamingWorkspace(sessionStore.newWorkspace(`Workspace ${(sessionStore.session?.workspaces.length ?? 0) + 1}`, hostStore.home, DEFAULT_SHELL), RenameOrigin.Panel)
       break
     case Command.Settings:
       openSettings()

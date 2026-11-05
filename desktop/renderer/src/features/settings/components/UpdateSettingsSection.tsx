@@ -56,7 +56,7 @@ export function UpdateSettingsSection({ title, autoCheck, onAutoCheckChange }: U
       <SettingsField label="État">
         <span className="flex items-center gap-2">
           {busy && <Spinner size={11} className="text-tily-green" />}
-          <span className={`min-w-0 flex-1 text-[12px] ${tone}`}>{text}</span>
+          <span className={`min-w-0 flex-1 text-tily-sm ${tone}`}>{text}</span>
           {info?.release && (
             <button type="button" className={SETTINGS_PRIMARY} onClick={showUpdateDialog}>
               Voir la mise à jour

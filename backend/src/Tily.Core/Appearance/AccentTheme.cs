@@ -22,17 +22,19 @@ public static class AccentTheme
 
     private static readonly (string Token, double Lightness, double ChromaRatio)[] Shades =
     [
-        ("paper", 0.210, 0.115),
-        ("panel", 0.2415, 0.13),
-        ("line", 0.3025, 0.165),
+        ("paper", 0.200, 0.115),
+        ("panel", 0.240, 0.13),
+        ("raised", 0.282, 0.15),
+        ("line", 0.335, 0.165),
+        ("line-soft", 0.272, 0.14),
         ("ink", 0.8845, 0.105),
         ("ink-soft", 0.723, 0.175),
-        ("muted", 0.622, 0.205),
+        ("muted", 0.675, 0.205),
         ("green-deep", 0.804, 0.68),
         ("green-soft", 0.286, 0.235),
-        ("green-hover", 0.2705, 0.16),
+        ("green-hover", 0.315, 0.16),
         ("focus", 0.737, 0.88),
-        ("terminal", 0.188, 0.105),
+        ("terminal", 0.178, 0.105),
         ("terminal-ink", 0.853, 0.125),
         ("scrollbar", 0.3735, 0.2),
         ("scrollbar-hover", 0.468, 0.24)
@@ -42,7 +44,9 @@ public static class AccentTheme
     [
         ("paper", 0.985, 0.05),
         ("panel", 0.96, 0.06),
-        ("line", 0.89, 0.09),
+        ("raised", 0.995, 0.03),
+        ("line", 0.87, 0.09),
+        ("line-soft", 0.925, 0.07),
         ("ink", 0.24, 0.06),
         ("ink-soft", 0.42, 0.08),
         ("muted", 0.55, 0.09),

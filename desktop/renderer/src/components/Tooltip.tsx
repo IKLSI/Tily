@@ -122,7 +122,7 @@ export function Tooltip() {
     <div
       ref={bubbleRef}
       role="tooltip"
-      className="pointer-events-none fixed z-50 max-w-[360px] rounded-tily-sm border border-tily-line bg-tily-panel px-2 py-1 text-[11px] leading-snug break-words w-max text-tily-ink shadow-tily-popover"
+      className="pointer-events-none fixed z-50 max-w-[360px] rounded-tily-sm border border-tily-line bg-tily-raised px-2 py-1 text-tily-xs leading-snug break-words w-max text-tily-ink shadow-tily-popover"
       style={{ left: 0, top: state.y, visibility: 'hidden', transform: state.above ? 'translateY(-100%)' : undefined }}
     >
       {state.text}

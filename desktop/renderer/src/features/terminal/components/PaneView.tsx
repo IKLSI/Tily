@@ -219,11 +219,11 @@ export const PaneView = memo(function PaneView({ pane, active, alone = false, zo
   return (
     <section
       data-pane-id={pane.id}
-      className={`grid h-full min-h-0 grid-cols-1 grid-rows-[30px_1fr] overflow-hidden rounded-tily-lg border bg-tily-terminal transition-[border-color] duration-200 ${active && !alone ? 'border-tily-green/60' : 'border-tily-line'}`}
+      className={`grid h-full min-h-0 grid-cols-1 grid-rows-[30px_1fr] overflow-hidden rounded-tily-lg border bg-tily-terminal transition-[border-color,box-shadow] duration-200 ease-tily ${active && !alone ? 'border-tily-green/60 shadow-[0_0_0_1px_color-mix(in_oklab,var(--color-tily-green)_25%,transparent)]' : 'border-tily-line'}`}
       onFocus={handleFocusWithin}
     >
       <header
-        className="group @container flex items-center gap-1 bg-tily-panel px-2 text-[11px] text-tily-muted select-none"
+        className="group @container flex items-center gap-1 bg-tily-panel px-2 text-tily-xs text-tily-muted select-none"
         onMouseDown={handleHeaderMouseDown}
         onDoubleClick={handleHeaderDoubleClick}
       >

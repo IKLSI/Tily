@@ -227,16 +227,16 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
 
   const renderBody = (settings: Settings, current: SettingsSnapshot) => (
     <>
-      {importSource && <p className="rounded-tily-sm border border-tily-green/50 bg-tily-paper px-3 py-2 text-[12px] text-tily-green">Préférences lues depuis {importSource}. Rien n’est écrit tant que vous n’enregistrez pas ; Enregistrer remplace la configuration actuelle.</p>}
+      {importSource && <p className="rounded-tily-sm border border-tily-green/50 bg-tily-paper px-3 py-2 text-tily-sm text-tily-green">Préférences lues depuis {importSource}. Rien n’est écrit tant que vous n’enregistrez pas ; Enregistrer remplace la configuration actuelle.</p>}
       {importWarnings.length > 0 && (
-        <ul className="rounded-tily-sm border border-tily-warning/50 bg-tily-paper px-3 py-2 text-[12px] text-tily-warning">
+        <ul className="rounded-tily-sm border border-tily-warning/50 bg-tily-paper px-3 py-2 text-tily-sm text-tily-warning">
           {importWarnings.map((warning) => (
             <li key={warning}>{warning}</li>
           ))}
         </ul>
       )}
       {current.warnings.length > 0 && (
-        <ul className="rounded-tily-sm border border-tily-warning/50 bg-tily-paper px-3 py-2 text-[12px] text-tily-warning">
+        <ul className="rounded-tily-sm border border-tily-warning/50 bg-tily-paper px-3 py-2 text-tily-sm text-tily-warning">
           {current.warnings.map((warning) => (
             <li key={warning}>{warning}</li>
           ))}
@@ -248,11 +248,11 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
 
   return (
     <div className="absolute inset-0 z-30 flex items-start justify-center bg-black/30 backdrop-blur-[3px] pt-[6vh]" onPointerDown={handleBackdropPointerDown} onMouseDown={handleBackdropMouseDown}>
-      <div ref={dialogRef} role="dialog" aria-label="Paramètres" className="flex h-[min(86vh,680px)] w-[780px] max-w-[94vw] flex-col rounded-tily-lg border border-tily-line bg-tily-panel shadow-tily-dialog" onKeyDown={handleKeyDown}>
+      <div ref={dialogRef} role="dialog" aria-label="Paramètres" className="flex h-[min(86vh,680px)] w-[780px] max-w-[94vw] flex-col rounded-tily-lg border border-tily-line bg-tily-raised shadow-tily-dialog" onKeyDown={handleKeyDown}>
         <div className="flex items-baseline justify-between border-b border-tily-line px-4 py-3">
-          <h2 className="text-[15px] font-semibold text-tily-ink">
+          <h2 className="text-tily-lg font-semibold text-tily-ink">
             Paramètres
-            {version && <span className="ml-2 text-[12px] font-normal text-tily-muted">{`· Tily ${version}`}</span>}
+            {version && <span className="ml-2 text-tily-sm font-normal text-tily-muted">{`· Tily ${version}`}</span>}
           </h2>
           <span className={SETTINGS_HINT}>Ctrl + Entrée enregistre · Échap ferme</span>
         </div>
@@ -272,7 +272,7 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
           <button type="button" className={SETTINGS_ICON_BUTTON} aria-label="Afficher les fichiers" aria-disabled={!snapshot} data-tip="Afficher les fichiers : ouvre le Finder sur le dossier des fichiers de réglages, pour les sauvegarder ou les modifier à la main" onClick={handleRevealFiles}>
             <Icon name={IconName.Folder} />
           </button>
-          <span role="status" className="ml-auto text-[11px] text-tily-warning">
+          <span role="status" className="ml-auto text-tily-xs text-tily-warning">
             {closeHeld && unsaved ? 'Modifications non enregistrées : Enregistrer, ou Annuler pour les abandonner.' : ''}
           </span>
           <button type="button" className={SETTINGS_SECONDARY} onClick={onClose}>

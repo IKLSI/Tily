@@ -61,16 +61,16 @@ export function GitMergeRequests({ root, branch }: GitMergeRequestsProps) {
         <button
           type="button"
           aria-expanded={expanded}
-          className="flex min-w-0 cursor-pointer items-center gap-[4px] rounded-tily-sm text-left text-[11px] font-semibold tracking-[0.06em] text-tily-ink uppercase"
+          className="flex min-w-0 cursor-pointer items-center gap-[4px] rounded-tily-sm text-left text-tily-xs font-semibold tracking-[0.06em] text-tily-ink uppercase"
           onClick={toggleMergeRequests}
         >
           <Icon name={IconName.Chevron} size={10} className={`shrink-0 translate-y-[0.5px] transition-transform ${expanded ? 'rotate-90' : ''}`} />
           <span className="truncate">{sectionTitle(forge?.kind)}</span>
-          <span className="shrink-0 text-[11px] font-normal tracking-normal text-tily-muted normal-case">{count}</span>
+          <span className="shrink-0 text-tily-xs font-normal tracking-normal text-tily-muted normal-case">{count}</span>
         </button>
         {current?.loading && <Spinner />}
         <span className="ml-auto" />
-        {branch && <MergeRequestPill path={root} branch={branch} className="min-w-0 text-[11px]" />}
+        {branch && <MergeRequestPill path={root} branch={branch} className="min-w-0 text-tily-xs" />}
         {branch && <BranchEditMergeRequestButton path={root} branch={branch} />}
         {forge && (
           <button type="button" className={PANEL_HEADER_BUTTON} data-tip={listLabel} aria-label={listLabel} onClick={handleOpenList}>
@@ -88,13 +88,13 @@ export function GitMergeRequests({ root, branch }: GitMergeRequestsProps) {
       </div>
       {expanded && (
         <div className="flex min-h-0 flex-col">
-          {error && <p className="px-[12px] pb-[6px] text-[12px] break-words text-tily-error">{error}</p>}
+          {error && <p className="px-[12px] pb-[6px] text-tily-sm break-words text-tily-error">{error}</p>}
           {list && (
             <>
               <MergeRequestFilters items={list.items} currentUser={list.currentUser} />
               <div className="flex min-h-0 flex-col gap-[2px] overflow-y-auto px-[2px] py-[4px]" role="list" aria-label={sectionTitle(forge?.kind)}>
                 {items.length === 0 ? (
-                  <p className="px-[10px] py-[4px] text-[12px] text-tily-muted italic">{emptyMessage}</p>
+                  <p className="px-[10px] py-[4px] text-tily-sm text-tily-muted italic">{emptyMessage}</p>
                 ) : (
                   items.map((item) => (
                     <div key={item.number} role="listitem">
@@ -102,11 +102,11 @@ export function GitMergeRequests({ root, branch }: GitMergeRequestsProps) {
                     </div>
                   ))
                 )}
-                {list.truncated && <p className="px-[10px] py-[4px] text-[11px] text-tily-muted">{`Seules les ${list.items.length} ${noun} les plus récentes sont chargées.`}</p>}
+                {list.truncated && <p className="px-[10px] py-[4px] text-tily-xs text-tily-muted">{`Seules les ${list.items.length} ${noun} les plus récentes sont chargées.`}</p>}
               </div>
             </>
           )}
-          {!list && !error && current?.loading && <p className="px-[12px] pb-[6px] text-[12px] text-tily-muted">{`Lecture des ${noun}…`}</p>}
+          {!list && !error && current?.loading && <p className="px-[12px] pb-[6px] text-tily-sm text-tily-muted">{`Lecture des ${noun}…`}</p>}
         </div>
       )}
     </div>

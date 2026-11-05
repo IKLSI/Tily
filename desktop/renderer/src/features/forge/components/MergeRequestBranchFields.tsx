@@ -19,7 +19,7 @@ interface MergeRequestBranchFieldsProps {
   editing: boolean
 }
 
-const CHECK_LABEL = 'flex items-center gap-2 text-[12px] text-tily-ink'
+const CHECK_LABEL = 'flex items-center gap-2 text-tily-sm text-tily-ink'
 
 const withValue = (branches: string[], value: string): string[] => (value && !branches.includes(value) ? [value, ...branches] : branches)
 
@@ -50,7 +50,7 @@ export function MergeRequestBranchFields({ data, fields, branch, push, comparing
             ))}
           </select>
         </label>
-        <span className="pb-[7px] text-[12px] text-tily-muted" aria-hidden>
+        <span className="pb-[7px] text-tily-sm text-tily-muted" aria-hidden>
           →
         </span>
         <label className="flex min-w-0 flex-col gap-1">
@@ -72,11 +72,11 @@ export function MergeRequestBranchFields({ data, fields, branch, push, comparing
             Comparaison des branches…
           </span>
         )}
-        {!comparing && compareError && <span className="text-[11px] text-tily-error">{compareError}</span>}
-        {!comparing && branch?.error && <span className="text-[11px] text-tily-error">{branch.error}</span>}
+        {!comparing && compareError && <span className="text-tily-xs text-tily-error">{compareError}</span>}
+        {!comparing && branch?.error && <span className="text-tily-xs text-tily-error">{branch.error}</span>}
         {!comparing && branch && !branch.error && <span className={SETTINGS_HINT}>{commitsNotice(branch)}</span>}
         {!comparing && existing && (
-          <span className="text-[11px] text-tily-warning">
+          <span className="text-tily-xs text-tily-warning">
             {`Une ${noun} est déjà ouverte depuis cette branche : `}
             <button type="button" className="cursor-pointer font-mono underline" data-tip={MERGE_REQUEST_LINK_HINT} onClick={handleOpenExisting}>
               {`${existing.reference} ${existing.title}`}

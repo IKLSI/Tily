@@ -34,20 +34,20 @@ export function CloseConfirmDialog({ confirmation, onConfirm, onCancel }: CloseC
 
   return (
     <div className="absolute inset-0 z-40 flex items-start justify-center bg-black/30 backdrop-blur-[3px] pt-[12vh]" onPointerDown={handleBackdropPointerDown}>
-      <div role="alertdialog" aria-label={confirmation.title} className="flex max-h-[76vh] w-[520px] max-w-[94vw] flex-col rounded-tily-lg border border-tily-line bg-tily-panel shadow-tily-dialog" onKeyDown={keepTabInside}>
+      <div role="alertdialog" aria-label={confirmation.title} className="flex max-h-[76vh] w-[520px] max-w-[94vw] flex-col rounded-tily-lg border border-tily-line bg-tily-raised shadow-tily-dialog" onKeyDown={keepTabInside}>
         <div className="flex items-baseline justify-between border-b border-tily-line px-4 py-3">
-          <h2 className="truncate text-[15px] font-semibold text-tily-ink">{confirmation.title}</h2>
+          <h2 className="truncate text-tily-lg font-semibold text-tily-ink">{confirmation.title}</h2>
         </div>
         <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto px-4 py-4">
           <span className="flex items-center gap-1.5">
-            <p className="text-[12px] text-tily-warning">Ces programmes seront arrêtés de force.</p>
+            <p className="text-tily-sm text-tily-warning">Ces programmes seront arrêtés de force.</p>
             <InfoTip text="Avec tout leur arbre de processus." />
           </span>
           <ul className="flex flex-col divide-y divide-tily-line rounded-tily-sm border border-tily-line bg-tily-paper">
             {confirmation.panes.map((pane) => (
               <li key={pane.paneId} className="flex items-baseline gap-3 px-3 py-1.5">
-                <span className="min-w-0 flex-1 truncate text-[12px] text-tily-ink">{pane.label}</span>
-                <span className="max-w-[50%] shrink-0 truncate text-[11px] text-tily-muted">{pane.processes.join(', ')}</span>
+                <span className="min-w-0 flex-1 truncate text-tily-sm text-tily-ink">{pane.label}</span>
+                <span className="max-w-[50%] shrink-0 truncate text-tily-xs text-tily-muted">{pane.processes.join(', ')}</span>
               </li>
             ))}
           </ul>

@@ -6,7 +6,7 @@ interface MenuShortcutProps {
 }
 
 export function MenuShortcut({ keys }: MenuShortcutProps) {
-  return <span className="text-[11px] text-tily-muted">{keys}</span>
+  return <span className="text-tily-xs text-tily-muted">{keys}</span>
 }
 
 interface CommandShortcutProps {

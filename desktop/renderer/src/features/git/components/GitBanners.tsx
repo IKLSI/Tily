@@ -12,7 +12,7 @@ interface GitBannersProps {
   busy: string | null
 }
 
-const BANNER = 'mx-[8px] mb-[6px] flex flex-col gap-[6px] rounded-tily-sm border bg-tily-panel px-[10px] py-[8px] text-[12px]'
+const BANNER = 'mx-[8px] mb-[6px] flex flex-col gap-[6px] rounded-tily-sm border bg-tily-panel px-[10px] py-[8px] text-tily-sm'
 
 const handleDismissFailure = () => useGitStore.getState().setFailure(null)
 const handleDismissRejection = () => useGitStore.getState().setRejection(null)
@@ -69,7 +69,7 @@ export function GitBanners({ state, busy }: GitBannersProps) {
               <Icon name={IconName.Close} size={10} />
             </button>
           </div>
-          {failure.output && <pre className="max-h-[160px] overflow-auto rounded-tily-sm bg-tily-terminal px-[8px] py-[6px] font-mono text-[11px] whitespace-pre-wrap text-tily-ink-soft">{failure.output}</pre>}
+          {failure.output && <pre className="max-h-[160px] overflow-auto rounded-tily-sm bg-tily-terminal px-[8px] py-[6px] font-mono text-tily-xs whitespace-pre-wrap text-tily-ink-soft">{failure.output}</pre>}
         </div>
       )}
     </>

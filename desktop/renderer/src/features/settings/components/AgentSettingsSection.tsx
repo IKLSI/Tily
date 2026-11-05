@@ -20,7 +20,7 @@ export function AgentSettingsSection({ title, agents, mcp, onInstallHooks, onRem
         tip={`Claude Code signale ses états (en cours, en attente, terminé, en erreur) par des hooks qui exécutent ${agents.script}. Sans hooks, un processus claude ou codex est affiché « État inconnu ». Les états sont écrits dans ${agents.stateDirectory} et purgés à chaque nouveau terminal.`}
       >
         <span className="flex items-center gap-3">
-          <span className={`min-w-0 flex-1 text-[12px] ${agents.hooksInstalled ? 'text-tily-green' : 'text-tily-warning'}`}>{agents.hooksInstalled ? 'Installés' : 'Non installés'}</span>
+          <span className={`min-w-0 flex-1 text-tily-sm ${agents.hooksInstalled ? 'text-tily-green' : 'text-tily-warning'}`}>{agents.hooksInstalled ? 'Installés' : 'Non installés'}</span>
           {agents.hooksInstalled ? (
             <button type="button" className={SETTINGS_SECONDARY} data-tip={`Retire les hooks Tily de ${agents.settingsFile}, sans toucher au reste`} onClick={onRemoveHooks}>
               Retirer

@@ -23,7 +23,7 @@ const PAGE_SANDBOX = 'allow-scripts allow-popups'
 
 const TextEditor = lazy(() => import('./TextEditor').then((module) => ({ default: module.TextEditor })))
 
-const BANNER_BUTTON = 'shrink-0 cursor-pointer rounded-tily-sm border border-tily-line px-[8px] py-[1px] text-[12px] text-tily-ink hover:bg-tily-green-hover'
+const BANNER_BUTTON = 'shrink-0 cursor-pointer rounded-tily-sm border border-tily-line px-[8px] py-[1px] text-tily-sm text-tily-ink hover:bg-tily-green-hover'
 
 
 const handleClose = () => closePreview(focusFileTree)
@@ -114,12 +114,12 @@ export function FilePreviewDrawer() {
   const editorLanguage = preview?.kind === PreviewKind.Markdown ? MARKDOWN_LANGUAGE : preview?.language
 
   return (
-    <aside aria-label="Aperçu du fichier" data-preview-drawer="" className={`absolute inset-y-0 right-0 z-20 flex ${expanded ? 'w-full' : 'w-[min(920px,100%)]'} flex-col border-l border-tily-line bg-tily-panel shadow-tily-popover`} onKeyDown={handleKeyDown}>
+    <aside aria-label="Aperçu du fichier" data-preview-drawer="" className={`absolute inset-y-0 right-0 z-20 flex ${expanded ? 'w-full' : 'w-[min(920px,100%)]'} flex-col border-l border-tily-line bg-tily-raised shadow-tily-popover`} onKeyDown={handleKeyDown}>
       <header className="flex h-[36px] shrink-0 items-center gap-[8px] border-b border-tily-line pr-[6px] pl-[12px]">
-        {preview && !preview.error && <span className="shrink-0 rounded-tily-sm bg-tily-paper px-[6px] py-[1px] text-[11px] text-tily-muted">{preview.kind === PreviewKind.Image && imageSize ? `${KIND_LABELS[preview.kind]} · ${imageSize}` : KIND_LABELS[preview.kind]}</span>}
-        <span className="min-w-0 flex-1 truncate text-[12px] font-semibold text-tily-ink" data-tip={path}>
+        {preview && !preview.error && <span className="shrink-0 rounded-tily-sm bg-tily-paper px-[6px] py-[1px] text-tily-xs text-tily-muted">{preview.kind === PreviewKind.Image && imageSize ? `${KIND_LABELS[preview.kind]} · ${imageSize}` : KIND_LABELS[preview.kind]}</span>}
+        <span className="min-w-0 flex-1 truncate text-tily-sm font-semibold text-tily-ink" data-tip={path}>
           {name}
-          {dirty && <span className="ml-[8px] text-[11px] font-normal text-tily-warning">Modifié</span>}
+          {dirty && <span className="ml-[8px] text-tily-xs font-normal text-tily-warning">Modifié</span>}
         </span>
         {edit ? (
           <>
@@ -139,9 +139,9 @@ export function FilePreviewDrawer() {
           <Icon name={IconName.Close} />
         </button>
       </header>
-      {preview?.truncated && (preview.kind !== PreviewKind.Html || showSource) && <p className="shrink-0 border-b border-tily-line px-[16px] py-[6px] text-[12px] text-tily-warning">Fichier volumineux : seuls les 2 premiers Mo sont affichés, sans modification possible.</p>}
+      {preview?.truncated && (preview.kind !== PreviewKind.Html || showSource) && <p className="shrink-0 border-b border-tily-line px-[16px] py-[6px] text-tily-sm text-tily-warning">Fichier volumineux : seuls les 2 premiers Mo sont affichés, sans modification possible.</p>}
       {conflict && (
-        <div role="status" className="flex shrink-0 items-center gap-[8px] border-b border-tily-line px-[16px] py-[6px] text-[12px] text-tily-warning">
+        <div role="status" className="flex shrink-0 items-center gap-[8px] border-b border-tily-line px-[16px] py-[6px] text-tily-sm text-tily-warning">
           <span className="min-w-0 flex-1 truncate">{preview?.error ?? 'Le fichier a été modifié sur le disque.'}</span>
           <button type="button" className={BANNER_BUTTON} data-tip="Reprendre la version du disque" onClick={reloadPreviewFromDisk}>
             Recharger
@@ -152,7 +152,7 @@ export function FilePreviewDrawer() {
         </div>
       )}
       {edit ? (
-        <Suspense fallback={<p className="px-[24px] py-[18px] text-[12px] text-tily-muted">Chargement de l’éditeur…</p>}>
+        <Suspense fallback={<p className="px-[24px] py-[18px] text-tily-sm text-tily-muted">Chargement de l’éditeur…</p>}>
           <TextEditor key={edit.generation} name={name} language={editorLanguage} />
         </Suspense>
       ) : page !== null ? (
@@ -160,9 +160,9 @@ export function FilePreviewDrawer() {
       ) : (
         <div ref={bodyRef} tabIndex={0} aria-label={`Contenu de ${name}`} className="min-h-0 flex-1 overflow-auto px-[24px] py-[18px] select-text" onClick={handleContentClick} onAuxClick={preventAuxiliaryOpen}>
           {!preview ? (
-            <p className="text-[12px] text-tily-muted">Chargement de l’aperçu…</p>
+            <p className="text-tily-sm text-tily-muted">Chargement de l’aperçu…</p>
           ) : preview.error ? (
-            <p className="text-[12px] text-tily-error">{preview.error}</p>
+            <p className="text-tily-sm text-tily-error">{preview.error}</p>
           ) : preview.kind === PreviewKind.Image ? (
             <img
               src={preview.content}
@@ -175,9 +175,9 @@ export function FilePreviewDrawer() {
           ) : preview.kind === PreviewKind.Markdown && !showSource && html !== null ? (
             <div className="tily-markdown text-tily-ink" dangerouslySetInnerHTML={{ __html: html }} />
           ) : html !== null ? (
-            <pre className="font-mono text-[12px] leading-[1.5] whitespace-pre-wrap text-tily-ink" dangerouslySetInnerHTML={{ __html: html }} />
+            <pre className="font-mono text-tily-sm leading-[1.5] whitespace-pre-wrap text-tily-ink" dangerouslySetInnerHTML={{ __html: html }} />
           ) : (
-            <pre className="font-mono text-[12px] leading-[1.5] whitespace-pre-wrap text-tily-ink">{preview.content}</pre>
+            <pre className="font-mono text-tily-sm leading-[1.5] whitespace-pre-wrap text-tily-ink">{preview.content}</pre>
           )}
         </div>
       )}

@@ -32,15 +32,15 @@ export function GitConfirmDialog({ confirmation, onConfirm, onCancel }: GitConfi
 
   return (
     <div className="absolute inset-0 z-40 flex items-start justify-center bg-black/30 backdrop-blur-[3px] pt-[12vh]" onPointerDown={handleBackdropPointerDown}>
-      <div role="alertdialog" aria-label={confirmation.title} className="flex w-[500px] max-w-[94vw] flex-col rounded-tily-lg border border-tily-line bg-tily-panel shadow-tily-dialog" onKeyDown={keepTabInside}>
+      <div role="alertdialog" aria-label={confirmation.title} className="flex w-[500px] max-w-[94vw] flex-col rounded-tily-lg border border-tily-line bg-tily-raised shadow-tily-dialog" onKeyDown={keepTabInside}>
         <div className="flex items-center justify-between gap-3 border-b border-tily-line px-4 py-3">
-          <h2 className="min-w-0 truncate text-[15px] font-semibold text-tily-ink" data-tip={confirmation.title}>
+          <h2 className="min-w-0 truncate text-tily-lg font-semibold text-tily-ink" data-tip={confirmation.title}>
             {confirmation.title}
           </h2>
         </div>
         <div className="flex flex-col gap-2 px-4 py-4">
-          <p className="text-[12px] text-tily-ink">{confirmation.body}</p>
-          {confirmation.detail && <p className="max-h-[40vh] overflow-auto text-[11px] whitespace-pre-line text-tily-muted">{confirmation.detail}</p>}
+          <p className="text-tily-sm text-tily-ink">{confirmation.body}</p>
+          {confirmation.detail && <p className="max-h-[40vh] overflow-auto text-tily-xs whitespace-pre-line text-tily-muted">{confirmation.detail}</p>}
         </div>
         <div className="flex items-center justify-end gap-2 border-t border-tily-line px-4 py-3">
           <button type="button" className={`${GIT_SECONDARY} py-1.5`} data-tip="Échap" onClick={onCancel}>

@@ -120,7 +120,7 @@ export const runContextCommand = (command: Command): void => {
       searchCommit()
       break
     case Command.RenameWorkspace:
-      withWorkspace((workspace) => useUiStore.getState().startRenamingWorkspace(workspace.id, RenameOrigin.Header))
+      withWorkspace((workspace) => useUiStore.getState().startRenamingWorkspace(workspace.id, RenameOrigin.Panel))
       break
     case Command.WorkspaceColor:
       withWorkspace((workspace) => openColorDialog({ workspaceId: workspace.id }))

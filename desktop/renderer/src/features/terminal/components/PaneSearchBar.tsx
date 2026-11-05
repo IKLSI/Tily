@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type ChangeEvent, type KeyboardEvent } fro
 import type { ISearchOptions } from '@xterm/addon-search'
 import { Icon } from '../../../components/Icon'
 import { IconName } from '../../../components/iconName'
+import { ICON_BUTTON } from '../../../components/controlStyles'
 import { useUiStore } from '../../../stores/uiStore'
 import { focusPane } from '../terminalActions'
 import { terminalRegistry } from '../terminalRegistry'
@@ -16,7 +17,7 @@ interface SearchResults {
 }
 
 const NO_RESULTS: SearchResults = { index: -1, count: 0 }
-const BAR_BUTTON = 'flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded-tily-sm text-tily-muted hover:bg-tily-green-hover hover:text-tily-ink'
+const BAR_BUTTON = `${ICON_BUTTON} size-[20px]`
 
 const HIDDEN_RULER_MARK = '#121416'
 
@@ -102,7 +103,7 @@ export function PaneSearchBar({ paneId }: PaneSearchBarProps) {
   }
 
   return (
-    <div role="search" data-pane-search className="absolute top-2 right-3 z-10 flex items-center gap-1 rounded-tily-sm border border-tily-line bg-tily-panel py-1 pr-1.5 pl-2.5 text-[12px] shadow-lg transition-colors focus-within:border-tily-focus" onMouseDown={(event) => event.stopPropagation()}>
+    <div role="search" data-pane-search className="absolute top-2 right-3 z-10 flex items-center gap-1 rounded-tily-sm border border-tily-line bg-tily-raised py-1 pr-1.5 pl-2.5 text-tily-sm shadow-lg transition-colors focus-within:border-tily-focus" onMouseDown={(event) => event.stopPropagation()}>
       <input
         ref={inputRef}
         type="text"

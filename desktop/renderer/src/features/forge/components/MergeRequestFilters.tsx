@@ -13,7 +13,7 @@ interface MergeRequestFiltersProps {
 }
 
 const SEARCH_INPUT =
-  'h-[24px] min-w-[100px] flex-1 rounded-tily-sm border border-tily-line bg-tily-panel px-2 text-[12px] text-tily-ink outline-none placeholder:text-tily-muted focus:border-tily-focus'
+  'h-[24px] min-w-[100px] flex-1 rounded-tily-sm border border-tily-line bg-tily-panel px-2 text-tily-sm text-tily-ink outline-none placeholder:text-tily-muted focus:border-tily-focus'
 
 const handleTextChange = (event: ChangeEvent<HTMLInputElement>) => setMergeRequestText(event.target.value)
 

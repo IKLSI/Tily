@@ -37,7 +37,7 @@ export function ShellSettingsSection({ title, shellSettings, shells, editor, onS
               <input id={id} type="text" className={SETTINGS_INPUT} value={shells[shell.id] ?? ''} placeholder={shell.defaultExecutable} spellCheck={false} onChange={handleChange} />
               <BrowseButton tip={`Choisir l’exécutable de ${shell.name}`} onClick={handlePick} />
             </span>
-            {!shell.available && <span className="text-[11px] text-tily-warning">Introuvable : le chemin est enregistré, mais le shell reste indisponible.</span>}
+            {!shell.available && <span className="text-tily-xs text-tily-warning">Introuvable : le chemin est enregistré, mais le shell reste indisponible.</span>}
           </SettingsField>
         )
       })}

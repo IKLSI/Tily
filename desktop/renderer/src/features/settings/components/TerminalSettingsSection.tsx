@@ -66,8 +66,8 @@ export function TerminalSettingsSection({ title, fontSize, fontFamily, numberTex
               <span className={NUMBER_BOX}>
                 <input id={id} type="number" className={invalid ? INVALID_INPUT : SETTINGS_INPUT} value={text} min={field.min} max={field.max} aria-invalid={invalid} onChange={handleChange} />
               </span>
-              {field.unit && <span className="text-[12px] text-tily-muted">{field.unit}</span>}
-              {invalid && <span className="text-[11px] text-tily-error">{bounds}</span>}
+              {field.unit && <span className="text-tily-sm text-tily-muted">{field.unit}</span>}
+              {invalid && <span className="text-tily-xs text-tily-error">{bounds}</span>}
             </span>
           </SettingsField>
         )

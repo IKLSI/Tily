@@ -23,8 +23,8 @@ interface WorktreeDialogProps {
 }
 
 const PRIMARY = `${SETTINGS_BUTTON} flex items-center gap-2 border-tily-green text-tily-green-deep hover:bg-tily-green-soft disabled:cursor-default disabled:opacity-50 disabled:hover:bg-transparent`
-const CHECKBOX_LABEL = 'flex items-center gap-2 text-[12px] text-tily-ink'
-const ROW_LABEL = 'flex min-h-[28px] items-center text-[12px] text-tily-muted'
+const CHECKBOX_LABEL = 'flex items-center gap-2 text-tily-sm text-tily-ink'
+const ROW_LABEL = 'flex min-h-[28px] items-center text-tily-sm text-tily-muted'
 const BROWSE_REPOSITORY = 'Parcourir les dépôts'
 const LOCAL_GROUP = 'Locales'
 const REMOTE_GROUP = 'Distantes'
@@ -44,7 +44,7 @@ const handleRepositoryChange = (event: ChangeEvent<HTMLSelectElement>) => change
 const handleRememberChange = (event: ChangeEvent<HTMLInputElement>) => changeWorktreeDraft({ remember: event.target.checked })
 const handleDatabaseChange = (event: ChangeEvent<HTMLInputElement>) => changeWorktreeDraft({ database: event.target.checked })
 
-const modeButton = (pressed: boolean) => `h-[22px] cursor-pointer rounded-tily-sm px-2.5 text-[12px] ${pressed ? 'bg-tily-green-soft text-tily-green-deep' : 'text-tily-ink-soft hover:bg-tily-green-hover'}`
+const modeButton = (pressed: boolean) => `h-[22px] cursor-pointer rounded-tily-sm px-2.5 text-tily-sm ${pressed ? 'bg-tily-green-soft text-tily-green-deep' : 'text-tily-ink-soft hover:bg-tily-green-hover'}`
 
 const branchOptions = (label: string, branches: string[]) =>
   branches.length > 0 && (
@@ -98,11 +98,11 @@ export function WorktreeDialog({ draft, sources, plan, planPending, busy, failur
 
   return (
     <div className="absolute inset-0 z-30 flex items-start justify-center bg-black/30 backdrop-blur-[3px] pt-[10vh]" onPointerDown={handleBackdropPointerDown} onMouseDown={handleBackdropMouseDown}>
-      <form role="dialog" aria-label="Créer un worktree" className="flex max-h-[80vh] w-[560px] max-w-[94vw] flex-col rounded-tily-lg border border-tily-line bg-tily-panel shadow-tily-dialog" onKeyDown={keepTabInside} onSubmit={handleSubmit}>
+      <form role="dialog" aria-label="Créer un worktree" className="flex max-h-[80vh] w-[560px] max-w-[94vw] flex-col rounded-tily-lg border border-tily-line bg-tily-raised shadow-tily-dialog" onKeyDown={keepTabInside} onSubmit={handleSubmit}>
         <div className="flex items-center gap-2 border-b border-tily-line px-4 py-3">
-          <h2 className="flex min-w-0 items-baseline gap-2 text-[15px] font-semibold text-tily-ink">
+          <h2 className="flex min-w-0 items-baseline gap-2 text-tily-lg font-semibold text-tily-ink">
             Créer un worktree
-            <span className="truncate text-[13px] font-normal text-tily-muted" data-tip={draft.project}>{`· ${project}`}</span>
+            <span className="truncate text-tily-base font-normal text-tily-muted" data-tip={draft.project}>{`· ${project}`}</span>
           </h2>
           <InfoTip text="Les ports de développement du worktree sont toujours remplacés par des ports libres. Entrée crée, Échap ferme." />
         </div>

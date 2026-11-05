@@ -242,12 +242,12 @@ export function FileTree({ root, rows, expanded, selectedPath, renamingPath, dra
             return (
               <div key={row.key} className="flex h-[22px] items-center gap-[5px] pr-[8px]" style={{ paddingLeft: leafIndent(row.depth) }}>
                 <Icon name={draft.kind === EntryKind.Folder ? IconName.Folder : IconName.File} className="shrink-0 text-tily-muted" />
-                <InlineNameEditor value="" label={draft.kind === EntryKind.Folder ? 'Nom du nouveau dossier' : 'Nom du nouveau fichier'} className="h-[18px] min-w-0 flex-1 text-[12px]" onCommit={handleCommitDraft} onCancel={handleCancelDraft} />
+                <InlineNameEditor value="" label={draft.kind === EntryKind.Folder ? 'Nom du nouveau dossier' : 'Nom du nouveau fichier'} className="h-[18px] min-w-0 flex-1 text-tily-sm" onCommit={handleCommitDraft} onCancel={handleCancelDraft} />
               </div>
             )
           }
           return (
-            <div key={row.key} className="flex h-[22px] items-center truncate pr-[8px] text-[12px] text-tily-muted italic" style={{ paddingLeft: leafIndent(row.depth) }}>
+            <div key={row.key} className="flex h-[22px] items-center truncate pr-[8px] text-tily-sm text-tily-muted italic" style={{ paddingLeft: leafIndent(row.depth) }}>
               {row.note}
             </div>
           )

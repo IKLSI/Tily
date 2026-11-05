@@ -51,7 +51,7 @@ export function FileExplorer({ root, onOpenTerminal }: FileExplorerProps) {
           <Icon name={IconName.Refresh} />
         </button>
       </div>
-      {empty && <p className="px-[12px] py-[6px] text-[12px] text-tily-muted italic">Dossier vide.</p>}
+      {empty && <p className="px-[12px] py-[6px] text-tily-sm text-tily-muted italic">Dossier vide.</p>}
       <FileTree root={root} rows={rows} expanded={expanded} selectedPath={selectedPath} renamingPath={renamingPath} draft={draft} onOpenTerminal={onOpenTerminal} />
     </section>
   )

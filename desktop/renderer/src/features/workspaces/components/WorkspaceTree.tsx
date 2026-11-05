@@ -58,12 +58,12 @@ export function WorkspaceTree({ session, renamingWorkspaceId, renamingTabId, act
   }, [menu])
 
   return (
-    <aside className="@container flex h-full min-h-0 flex-col bg-tily-paper" style={{ width: session.sidebar }}>
-      <div className="flex h-[36px] shrink-0 items-center gap-[2px] px-[6px] text-[12px] font-semibold text-tily-muted">
+    <aside data-sidebar="" className="@container flex h-full min-h-0 flex-col bg-tily-paper" style={{ width: session.sidebar }}>
+      <div className="flex h-[44px] shrink-0 items-center gap-[2px] border-b border-tily-line-soft px-[8px] text-tily-muted">
         <button type="button" className={HEADER_BUTTON} aria-label="Masquer les workspaces" data-tip={hideSidebarTip} onClick={actions.toggleSidebar}>
           <Icon name={IconName.Sidebar} />
         </button>
-        <span className="flex-1 pl-[4px]">Workspaces</span>
+        <span className="flex-1 pl-[6px] text-tily-xs font-semibold tracking-[0.08em] uppercase">Workspaces</span>
         <button type="button" className={HEADER_BUTTON} aria-label="Ouvrir un projet" data-tip={projectsTip} onClick={actions.openProjects}>
           <Icon name={IconName.Project} />
         </button>
@@ -74,7 +74,7 @@ export function WorkspaceTree({ session, renamingWorkspaceId, renamingTabId, act
           <Icon name={IconName.Plus} />
         </button>
       </div>
-      <nav className="min-h-0 flex-1 overflow-auto px-[8px] pb-[8px]" data-workspace-list="" onKeyDown={handlePanelRowKeys}>
+      <nav className="min-h-0 flex-1 overflow-auto p-[8px]" data-workspace-list="" onKeyDown={handlePanelRowKeys}>
         {session.workspaces.map((workspace) => (
           <WorkspaceItem
             key={workspace.id}

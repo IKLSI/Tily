@@ -34,7 +34,7 @@ export const StatusBar = memo(function StatusBar() {
   return (
     <>
       {logOpen && <StatusLogDrawer />}
-      <footer className={`flex h-[24px] shrink-0 items-center border-t border-tily-line bg-tily-paper text-[11px] ${spinning ? 'text-tily-ink-soft' : STATUS_CLASSES[status.level]}`}>
+      <footer className={`flex h-[24px] shrink-0 items-center border-t border-tily-line bg-tily-paper text-tily-xs ${spinning ? 'text-tily-ink-soft' : STATUS_CLASSES[status.level]}`}>
         <button
           type="button"
           data-status-log-toggle=""

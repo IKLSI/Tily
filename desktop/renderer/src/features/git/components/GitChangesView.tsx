@@ -24,7 +24,7 @@ const KEYBOARD_TIP = 'Entrée : diff · Espace : stage ou unstage · Suppr : aba
 const MENU_OFFSET_PX = 16
 
 const hiddenNote = (shown: number, total: number) =>
-  total > shown ? <p className="py-[2px] pl-[30px] text-[11px] text-tily-muted italic">{`… et ${plural(total - shown, 'autre fichier non affiché', 'autres fichiers non affichés')}`}</p> : null
+  total > shown ? <p className="py-[2px] pl-[30px] text-tily-xs text-tily-muted italic">{`… et ${plural(total - shown, 'autre fichier non affiché', 'autres fichiers non affichés')}`}</p> : null
 
 const applySelection = (rows: GitChangeRow[], row: GitChangeRow, mode: GitSelectMode): void => {
   const { changeSelection, setChangeSelection } = useGitStore.getState()
@@ -189,7 +189,7 @@ export function GitChangesView({ state, busy, footer }: GitChangesViewProps) {
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <div role="listbox" aria-label="Modifications du dépôt" aria-multiselectable="true" className="min-h-0 flex-1 overflow-auto py-[4px]" onKeyDown={handleKeyDown}>
-        {empty && <p className="px-[12px] py-[6px] text-[12px] text-tily-muted italic">Aucune modification : l’arbre de travail est propre.</p>}
+        {empty && <p className="px-[12px] py-[6px] text-tily-sm text-tily-muted italic">Aucune modification : l’arbre de travail est propre.</p>}
         {state.conflicts.length > 0 && (
           <>
             <GitGroupHeader title="Conflits" count={state.conflicts.length} tip="Ouvrez chaque fichier dans l’éditeur, résolvez-le puis marquez-le résolu" />

@@ -109,7 +109,7 @@ export function GitDiffView({ diff, error, placeholder, selectable }: GitDiffVie
   const { range, handleScroll } = useVirtualRows(containerRef, rows.length, LINE_HEIGHT)
 
   if (error || !diff) {
-    return <p className={`px-[12px] py-[10px] text-[12px] ${error ? 'text-tily-error' : 'text-tily-muted italic'}`}>{error ?? placeholder}</p>
+    return <p className={`px-[12px] py-[10px] text-tily-sm ${error ? 'text-tily-error' : 'text-tily-muted italic'}`}>{error ?? placeholder}</p>
   }
 
   const rowAt = (clientY: number): number => {
@@ -243,7 +243,7 @@ export function GitDiffView({ diff, error, placeholder, selectable }: GitDiffVie
         tabIndex={0}
         data-git-diff=""
         aria-label={`Diff de ${diff.path}`}
-        className="group relative min-h-0 flex-1 overflow-auto bg-tily-terminal font-mono text-[12px] leading-[18px] [tab-size:4]"
+        className="group relative min-h-0 flex-1 overflow-auto bg-tily-terminal font-mono text-tily-sm leading-[18px] [tab-size:4]"
         onScroll={handleScroll}
         onKeyDown={handleKeyDown}
         onMouseDown={handleMouseDown}

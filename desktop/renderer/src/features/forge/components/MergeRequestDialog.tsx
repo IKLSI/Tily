@@ -23,7 +23,7 @@ import { SETTINGS_BUTTON, SETTINGS_HINT, SETTINGS_INPUT, SETTINGS_LABEL, SETTING
 import { Spinner } from '../../../components/Spinner'
 
 const PRIMARY = `${SETTINGS_BUTTON} flex items-center gap-2 border-tily-green text-tily-green-deep hover:bg-tily-green-soft disabled:cursor-default disabled:opacity-50 disabled:hover:bg-transparent`
-const CHECK_LABEL = 'flex items-center gap-2 text-[12px] text-tily-ink'
+const CHECK_LABEL = 'flex items-center gap-2 text-tily-sm text-tily-ink'
 
 const DANGER = `${SETTINGS_BUTTON} mr-auto border-tily-error text-tily-error hover:bg-tily-green-hover disabled:cursor-default disabled:opacity-50 disabled:hover:bg-transparent`
 
@@ -84,10 +84,10 @@ export function MergeRequestDialog() {
 
   return (
     <div className="absolute inset-0 z-30 flex items-start justify-center bg-black/30 backdrop-blur-[3px] pt-[6vh]">
-      <form role="dialog" aria-label={title} className="flex max-h-[88vh] w-[680px] max-w-[94vw] flex-col rounded-tily-lg border border-tily-line bg-tily-panel shadow-tily-dialog" onKeyDown={handleFormKeyDown} onSubmit={handleSubmit}>
+      <form role="dialog" aria-label={title} className="flex max-h-[88vh] w-[680px] max-w-[94vw] flex-col rounded-tily-lg border border-tily-line bg-tily-raised shadow-tily-dialog" onKeyDown={handleFormKeyDown} onSubmit={handleSubmit}>
         <div className="flex items-center justify-between gap-3 border-b border-tily-line px-4 py-3">
           <div className="flex min-w-0 flex-col">
-            <h2 className="text-[15px] font-semibold text-tily-ink">{title}</h2>
+            <h2 className="text-tily-lg font-semibold text-tily-ink">{title}</h2>
             {data && <span className={`${SETTINGS_HINT} truncate font-mono`}>{`${data.forge.host} · ${data.forge.project}`}</span>}
           </div>
           <span className={`${SETTINGS_HINT} shrink-0`}>{`Ctrl + Entrée ${editing ? 'enregistre' : 'crée'} · Échap ferme`}</span>
@@ -99,7 +99,7 @@ export function MergeRequestDialog() {
               Lecture du projet, des membres et des labels…
             </span>
           )}
-          {form.loadError && <p className="text-[12px] break-words text-tily-error">{form.loadError}</p>}
+          {form.loadError && <p className="text-tily-sm break-words text-tily-error">{form.loadError}</p>}
           {data && (
             <>
               <MergeRequestBranchFields data={data} fields={fields} branch={form.branch} push={form.push} comparing={form.comparing} compareError={form.compareError} disabled={submitting} editing={editing} />
@@ -126,13 +126,13 @@ export function MergeRequestDialog() {
                 </label>
               </fieldset>
               {data.warnings.map((warning) => (
-                <p key={warning} className="text-[11px] break-words text-tily-warning">
+                <p key={warning} className="text-tily-xs break-words text-tily-warning">
                   {warning}
                 </p>
               ))}
             </>
           )}
-          {form.submitError && <p className="text-[12px] break-words text-tily-error">{form.submitError}</p>}
+          {form.submitError && <p className="text-tily-sm break-words text-tily-error">{form.submitError}</p>}
         </div>
         <div className="flex items-center justify-end gap-2 border-t border-tily-line px-4 py-3">
           {editing && (

@@ -29,7 +29,7 @@ export function McpSettingsField({ mcp }: McpSettingsFieldProps) {
       tip={`Permet à Claude Code, lancé dans un pane, de lire cette instance de Tily (disposition, texte des terminaux, commandes) et de la piloter : onglets, splits, commandes, worktrees. Agir sur un terminal qu’il n’a pas créé demande votre accord. Canal local réservé à votre compte macOS, jamais le réseau. Exécutable : ${mcp.executable}`}
     >
       <span className="flex items-center gap-3">
-        <span className={`min-w-0 flex-1 text-[12px] ${tone}`}>{text}</span>
+        <span className={`min-w-0 flex-1 text-tily-sm ${tone}`}>{text}</span>
         {mcp.installed && (
           <button type="button" className={SETTINGS_SECONDARY} data-tip={`Retire le serveur « tily » de ${mcp.configFile} et ferme le canal local`} onClick={removeMcpServer}>
             Désactiver
@@ -41,8 +41,8 @@ export function McpSettingsField({ mcp }: McpSettingsFieldProps) {
           </button>
         )}
       </span>
-      {!mcp.available && <span className="text-[11px] text-tily-warning">{`tily-mcp est introuvable à côté de Tily : ${mcp.executable}`}</span>}
-      {otherCopy && <span className="text-[11px] text-tily-warning">{`Déclaré pour une autre copie de Tily : ${mcp.command ?? ''}.`}</span>}
+      {!mcp.available && <span className="text-tily-xs text-tily-warning">{`tily-mcp est introuvable à côté de Tily : ${mcp.executable}`}</span>}
+      {otherCopy && <span className="text-tily-xs text-tily-warning">{`Déclaré pour une autre copie de Tily : ${mcp.command ?? ''}.`}</span>}
     </SettingsField>
   )
 }

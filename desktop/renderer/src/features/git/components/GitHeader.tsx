@@ -36,7 +36,7 @@ export function GitHeader({ state, busy }: GitHeaderProps) {
 
   return (
     <div className="flex shrink-0 flex-col gap-[4px] border-y border-tily-line bg-tily-panel px-[10px] pt-[8px] pb-[6px]">
-      <div className="flex min-w-0 items-center gap-[8px] pl-[2px] text-[12px]">
+      <div className="flex min-w-0 items-center gap-[8px] pl-[2px] text-tily-sm">
         <span className="flex min-w-0 items-baseline gap-[8px]">
           {head.upstream && (head.ahead > 0 || head.behind > 0) && (
             <GitAheadBehind ahead={head.ahead} behind={head.behind} tip={trackingTip} />

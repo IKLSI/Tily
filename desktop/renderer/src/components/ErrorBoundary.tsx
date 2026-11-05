@@ -55,7 +55,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     return (
       <div role="alert" className={this.props.className ?? 'flex h-full min-h-0 flex-col items-center justify-center gap-3 p-4 text-center'}>
         <p className="text-tily-ink">Une erreur inattendue a interrompu l’affichage de cette zone.</p>
-        <p className="max-w-md break-words text-[12px] text-tily-muted">{error.message}</p>
+        <p className="max-w-md break-words text-tily-sm text-tily-muted">{error.message}</p>
         <button type="button" className={BUTTON_SECONDARY} onClick={this.reset}>
           Réessayer
         </button>

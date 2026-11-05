@@ -59,7 +59,7 @@ import { WorktreeDialogs } from '../features/worktrees/components/WorktreeDialog
 const ProjectPickers = lazy(() => import('../features/projects/components/ProjectPickers').then((module) => ({ default: module.ProjectPickers })))
 const SettingsDialog = lazy(() => import('../features/settings/components/SettingsDialog').then((module) => ({ default: module.SettingsDialog })))
 
-const OVERLAY_FALLBACK = 'absolute bottom-10 left-1/2 z-50 flex -translate-x-1/2 flex-col items-center gap-3 rounded-tily-sm border border-tily-line bg-tily-panel p-4 text-center shadow-tily-popover'
+const OVERLAY_FALLBACK = 'absolute bottom-10 left-1/2 z-50 flex -translate-x-1/2 flex-col items-center gap-3 rounded-tily-sm border border-tily-line bg-tily-raised p-4 text-center shadow-tily-popover'
 const PANEL_FALLBACK = 'flex w-72 shrink-0 flex-col items-center justify-center gap-3 border-l border-tily-line bg-tily-panel p-4 text-center'
 
 interface AppShellProps {
@@ -144,13 +144,6 @@ const handleToggleSidebar = (): void => {
     focusActivePane()
   }
   toggleSidebar()
-}
-
-const handleStartRenameFromHeader = (): void => {
-  const workspace = currentWorkspace()
-  if (workspace) {
-    useUiStore.getState().startRenamingWorkspace(workspace.id, RenameOrigin.Header)
-  }
 }
 
 const handleNewTabIn = (workspaceId: string): void => {
@@ -344,7 +337,7 @@ export function AppShell({ session }: AppShellProps) {
           onNew={newTab}
           onMove={moveTab}
         />
-        <div className="relative min-h-0 flex-1 border-t border-tily-line bg-tily-panel p-2">
+        <div key={currentTab.id} data-tab-content="" className="relative min-h-0 flex-1 border-t border-tily-line-soft bg-tily-panel p-2">
           <ErrorBoundary resetKey={currentTab.id}>
             <SplitView key={currentTab.id} node={zoomedPane ? { pane: zoomedPane } : currentTab.tree} zoomed={zoomedPane !== undefined} onToggleZoom={togglePaneZoom} activePaneId={currentTab.active} onFocus={selectPane} onClose={closePaneKeepingText} onSplit={handleSplit} onResize={handleResize} shells={availableShells} onRestart={restartPane} onRestartIn={restartPaneIn} onChangeShell={changePaneShell} onDismissState={dismissPaneState} />
           </ErrorBoundary>
@@ -364,15 +357,10 @@ export function AppShell({ session }: AppShellProps) {
   return (
     <div className="relative flex h-full flex-col">
       <Header
-        workspaceName={workspace?.name ?? null}
-        renaming={workspace !== undefined && renamingWorkspaceId === workspace.id && renameOrigin === RenameOrigin.Header}
         sidebarCollapsed={session.sidebarCollapsed}
         leaderActive={leaderActive}
         onToggleSidebar={handleToggleSidebar}
         onOpenSettings={handleOpenSettings}
-        onStartRename={handleStartRenameFromHeader}
-        onCommitRename={handleCommitRename}
-        onCancelRename={finishRename}
       />
       <div className="flex min-h-0 flex-1">
         {!session.sidebarCollapsed && (

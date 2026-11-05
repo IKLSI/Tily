@@ -37,7 +37,7 @@ export function GitGraphToolbar({ state, referencesShown, onToggleReferences }: 
         role="radio"
         aria-checked={entry.scope === scope}
         data-tip={entry.tip}
-        className={`rounded-tily-sm px-[7px] py-[1px] text-[11px] ${entry.scope === scope ? 'bg-tily-green-soft text-tily-green-deep' : 'text-tily-muted hover:text-tily-ink'}`}
+        className={`rounded-tily-sm px-[7px] py-[1px] text-tily-xs ${entry.scope === scope ? 'bg-tily-green-soft text-tily-green-deep' : 'text-tily-muted hover:text-tily-ink'}`}
         onClick={handleScope}
       >
         {entry.label}
@@ -57,10 +57,10 @@ export function GitGraphToolbar({ state, referencesShown, onToggleReferences }: 
       >
         <Icon name={IconName.Sidebar} />
       </button>
-      <span className="min-w-0 truncate text-[12px] font-semibold text-tily-ink" data-tip={state.root}>
+      <span className="min-w-0 truncate text-tily-sm font-semibold text-tily-ink" data-tip={state.root}>
         {state.name}
       </span>
-      {!history && <span className="shrink-0 text-[11px] text-tily-muted">Chargement de l’historique…</span>}
+      {!history && <span className="shrink-0 text-tily-xs text-tily-muted">Chargement de l’historique…</span>}
       <span className="flex-1" />
       <button type="button" className={PANEL_HEADER_BUTTON} aria-label="Rechercher un commit" data-tip="Rechercher un commit" aria-disabled={!history || history.commits.length === 0} onClick={handleSearch}>
         <Icon name={IconName.Search} />

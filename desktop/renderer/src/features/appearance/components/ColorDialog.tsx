@@ -22,7 +22,7 @@ enum ColorScope {
 
 const WORKSPACE_TIP = 'Surligne le nom du workspace. La couleur d’un projet s’applique à tout workspace dont le pane actif est dans ce projet, worktrees compris ; celle du workspace l’emporte.'
 const TAB_TIP = 'Surligne le nom de l’onglet. Un onglet n’hérite pas de la couleur de son workspace.'
-const RADIO = 'flex items-center gap-2 text-[12px] text-tily-ink has-[:disabled]:text-tily-muted'
+const RADIO = 'flex items-center gap-2 text-tily-sm text-tily-ink has-[:disabled]:text-tily-muted'
 
 function ColorContent({ workspace, tab, folder }: ColorContentProps) {
   const presets = useAppearanceStore((store) => store.accentPresets)
@@ -64,15 +64,15 @@ function ColorContent({ workspace, tab, folder }: ColorContentProps) {
 
   return (
     <div className="absolute inset-0 z-40 flex items-start justify-center bg-black/30 backdrop-blur-[3px] pt-[12vh]" onPointerDown={handleBackdropPointerDown}>
-      <div role="dialog" aria-label={title} className="flex w-[460px] max-w-[94vw] flex-col rounded-tily-lg border border-tily-line bg-tily-panel shadow-tily-dialog" onKeyDown={keepTabInside}>
+      <div role="dialog" aria-label={title} className="flex w-[460px] max-w-[94vw] flex-col rounded-tily-lg border border-tily-line bg-tily-raised shadow-tily-dialog" onKeyDown={keepTabInside}>
         <div className="flex items-center gap-1.5 border-b border-tily-line px-4 py-3">
-          <h2 className="min-w-0 truncate text-[15px] font-semibold text-tily-ink">{title}</h2>
+          <h2 className="min-w-0 truncate text-tily-lg font-semibold text-tily-ink">{title}</h2>
           <InfoTip text={tab ? TAB_TIP : WORKSPACE_TIP} />
         </div>
         <div className="flex flex-col gap-3 px-4 py-4">
           {!tab && (
             <fieldset className="flex flex-col gap-1.5">
-              <legend className="mb-1.5 text-[12px] text-tily-muted">S’applique à</legend>
+              <legend className="mb-1.5 text-tily-sm text-tily-muted">S’applique à</legend>
               <label className={RADIO}>
                 <input type="radio" name="color-scope" value={ColorScope.Workspace} checked={!projectScope} onChange={handleScopeChange} />
                 Ce workspace

@@ -23,8 +23,8 @@ interface ShortcutSettingsSectionProps {
 const LEADER_TIMEOUTS = Array.from({ length: MAX_LEADER_TIMEOUT_SECONDS - MIN_LEADER_TIMEOUT_SECONDS + 1 }, (_, index) => MIN_LEADER_TIMEOUT_SECONDS + index)
 const FILTER_ID = 'settings-shortcut-filter'
 const TIMEOUT_ID = 'settings-leader-timeout'
-const COLUMN = 'text-[11px] text-tily-muted'
-const GROUP_TITLE = 'mt-2 text-[11px] font-semibold tracking-wide text-tily-muted uppercase'
+const COLUMN = 'text-tily-xs text-tily-muted'
+const GROUP_TITLE = 'mt-2 text-tily-xs font-semibold tracking-wide text-tily-muted uppercase'
 const RESET_ALL = 'Remet tous les raccourcis, la touche Leader et son délai à leurs valeurs par défaut'
 
 export function ShortcutSettingsSection({ title, shortcuts, defaults, onChange }: ShortcutSettingsSectionProps) {
@@ -67,7 +67,7 @@ export function ShortcutSettingsSection({ title, shortcuts, defaults, onChange }
           <Icon name={IconName.Undo} />
         </button>
       </span>
-      <p role="status" className={error ? 'text-[11px] text-tily-error' : SETTINGS_HINT}>
+      <p role="status" className={error ? 'text-tily-xs text-tily-error' : SETTINGS_HINT}>
         {error ?? notice ?? ''}
       </p>
       <div className="grid grid-cols-[minmax(0,1fr)_150px_150px_20px] gap-2">

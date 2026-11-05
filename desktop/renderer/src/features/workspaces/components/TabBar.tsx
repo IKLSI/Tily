@@ -174,7 +174,7 @@ export const TabBar = memo(function TabBar({ workspace, shells, renamingTabId, p
   const dropLine = (targeted: boolean) => `h-6 w-0.5 shrink-0 rounded-tily-sm ${targeted ? 'bg-tily-focus' : 'bg-transparent'}`
 
   return (
-    <div data-drop-workspace={workspace.id} className="flex shrink-0 items-end gap-1 px-3 pt-1.5 select-none" onMouseDown={handleBarMouseDown} onDoubleClick={handleEmptyDoubleClick}>
+    <div data-drop-workspace={workspace.id} className="flex h-[43px] shrink-0 items-end gap-1 px-3 pt-[8px] select-none" onMouseDown={handleBarMouseDown} onDoubleClick={handleEmptyDoubleClick}>
       <div ref={stripRef} role="tablist" className="flex min-w-0 items-end gap-0.5 overflow-x-auto [scrollbar-width:none]" style={{ maskImage: maskOf(fade) }} onWheel={handleWheel} onScroll={handleStripScroll}>
         {workspace.tabs.map((tab) => {
           const active = tab.id === workspace.active
@@ -219,19 +219,19 @@ export const TabBar = memo(function TabBar({ workspace, shells, renamingTabId, p
               <div
                 data-drop-workspace={workspace.id}
                 data-drop-tab={tab.id}
-                className={`group relative -mb-px flex min-w-[120px] max-w-[220px] items-center rounded-t-[10px] transition-colors duration-150 ${active ? ACTIVE_TAB : INACTIVE_TAB} ${draggingTabId === tab.id ? 'opacity-50' : ''}`}
+                className={`group relative -mb-px flex h-[35px] min-w-[120px] max-w-[220px] items-center rounded-t-[10px] transition-colors duration-150 ease-tily ${active ? ACTIVE_TAB : INACTIVE_TAB} ${draggingTabId === tab.id ? 'opacity-50' : ''}`}
                 onAuxClick={handleAuxClick}
                 onContextMenu={handleTabContextMenu}
               >
                 {tab.id === renamingTabId ? (
-                  <InlineNameEditor value={tab.name} label="Nom de l’onglet" className="mx-1 my-1 min-w-0 flex-1 text-[12px]" onCommit={onCommitRename} onCancel={onCancelRename} />
+                  <InlineNameEditor value={tab.name} label="Nom de l’onglet" className="mx-1 my-1 min-w-0 flex-1 text-tily-sm" onCommit={onCommitRename} onCancel={onCancelRename} />
                 ) : (
                   <button
                     type="button"
                     role="tab"
                     aria-selected={active}
                     data-tip={`${tab.name} · ${activePane(tab).path} · ${paneCountLabel(panesOf(tab.tree).length)} · Double-clic pour renommer, glisser pour déplacer`}
-                    className="flex min-w-0 flex-1 cursor-pointer items-center gap-1.5 py-2 pr-1 pl-3.5 text-left text-[12px] font-medium"
+                    className="flex min-w-0 flex-1 cursor-pointer h-full items-center gap-1.5 pr-1 pl-3.5 text-left text-tily-sm font-medium"
                     onClick={handleSelect}
                     onDoubleClick={handleStartRename}
                     onPointerDown={handlePointerDown}

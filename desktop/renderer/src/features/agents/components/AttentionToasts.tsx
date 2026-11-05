@@ -28,12 +28,12 @@ export function AttentionToasts({ waiting, onJoin, onDismiss }: AttentionToastsP
         const handleDismiss = () => onDismiss(pane.paneId)
         const elapsed = now - (since[pane.paneId] ?? now)
         return (
-          <div key={pane.paneId} role="status" className="pointer-events-auto flex items-start gap-1 rounded-tily-lg border border-tily-status-waiting/60 bg-tily-panel py-1 pr-1.5 pl-1 text-[12px] shadow-tily-popover hover:border-tily-status-waiting">
+          <div key={pane.paneId} role="status" className="pointer-events-auto flex items-start gap-1 rounded-tily-lg border border-tily-status-waiting/60 bg-tily-raised py-1 pr-1.5 pl-1 text-tily-sm shadow-tily-popover hover:border-tily-status-waiting">
             <button type="button" className="flex min-w-0 flex-1 cursor-pointer flex-col gap-0.5 rounded-tily-sm px-2 py-1 text-left hover:bg-tily-green-hover" aria-label={`Rejoindre ${pane.label} : ${pane.reason}`} data-tip={`Rejoindre ${pane.label}`} onClick={handleJoin}>
               <span className="flex w-full items-center gap-2">
                 <AgentStateIcon state={AgentState.Waiting} />
                 <span className="min-w-0 flex-1 truncate font-semibold text-tily-ink">{`${pane.workspaceName} › ${pane.tabName}`}</span>
-                <span aria-hidden="true" className="shrink-0 text-[11px] text-tily-muted" data-tip={waitedFor(elapsed)}>
+                <span aria-hidden="true" className="shrink-0 text-tily-xs text-tily-muted" data-tip={waitedFor(elapsed)}>
                   {waitedShort(elapsed)}
                 </span>
               </span>

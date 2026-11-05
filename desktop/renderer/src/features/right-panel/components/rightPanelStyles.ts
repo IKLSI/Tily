@@ -1,8 +1,8 @@
-export const PANEL_HEADER_BUTTON =
-  'flex size-[24px] shrink-0 cursor-pointer items-center justify-center rounded-md text-tily-muted hover:bg-tily-green-hover hover:text-tily-ink aria-disabled:cursor-default aria-disabled:opacity-60 aria-disabled:hover:bg-transparent aria-disabled:hover:text-tily-muted'
+import { BUTTON_DANGER_SMALL, BUTTON_PRIMARY_SMALL, BUTTON_SECONDARY_SMALL, FIELD, ICON_BUTTON } from '../../../components/controlStyles'
 
-export const ROW_ACTION =
-  'flex size-[20px] shrink-0 cursor-pointer items-center justify-center rounded text-tily-muted hover:bg-tily-panel hover:text-tily-ink'
+export const PANEL_HEADER_BUTTON = `${ICON_BUTTON} size-[24px]`
+
+export const ROW_ACTION = `${ICON_BUTTON} size-[20px]`
 
 const BOXED_BUTTON = 'flex shrink-0 cursor-pointer items-center justify-center rounded-[4px] border'
 
@@ -18,16 +18,14 @@ export const ROW_STAGE_BUTTON = `${BOXED_BUTTON} mx-[1px] size-[18px] ${STAGE_CO
 
 export const ROW_UNSTAGE_BUTTON = `${BOXED_BUTTON} mx-[1px] size-[18px] ${UNSTAGE_COLORS}`
 
-export const SECTION_TITLE = 'text-[11px] font-semibold tracking-[0.06em] text-tily-muted uppercase'
+export const SECTION_TITLE = 'text-tily-xs font-semibold tracking-[0.06em] text-tily-muted uppercase'
 
-export const SECTION_HEADING = 'text-[11px] font-semibold tracking-[0.06em] text-tily-ink uppercase'
+export const SECTION_HEADING = 'text-tily-xs font-semibold tracking-[0.06em] text-tily-ink uppercase'
 
-const GIT_BUTTON = 'cursor-pointer rounded border px-3 py-1 text-[12px] aria-disabled:cursor-default aria-disabled:opacity-60'
+export const GIT_PRIMARY = BUTTON_PRIMARY_SMALL
 
-export const GIT_PRIMARY = `${GIT_BUTTON} border-tily-green text-tily-green-deep hover:bg-tily-green-soft aria-disabled:hover:bg-transparent`
+export const GIT_SECONDARY = BUTTON_SECONDARY_SMALL
 
-export const GIT_SECONDARY = `${GIT_BUTTON} border-tily-line text-tily-ink hover:bg-tily-green-hover aria-disabled:hover:bg-transparent`
+export const GIT_DANGER = BUTTON_DANGER_SMALL
 
-export const GIT_DANGER = `${GIT_BUTTON} border-tily-error text-tily-error hover:bg-tily-green-hover`
-
-export const GIT_INPUT = 'w-full rounded border border-tily-line bg-tily-panel px-2 py-1 text-[12px] text-tily-ink outline-none placeholder:text-tily-muted focus:border-tily-focus'
+export const GIT_INPUT = FIELD

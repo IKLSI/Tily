@@ -2,7 +2,6 @@ import { create } from 'zustand'
 import { SettingsSection } from '../features/settings/components/settingsSections'
 
 export enum RenameOrigin {
-  Header = 'header',
   Panel = 'panel',
   TabBar = 'tabBar',
 }
@@ -73,7 +72,7 @@ interface UiState {
 
 export const useUiStore = create<UiState>()((set) => ({
   renamingWorkspaceId: null,
-  renameOrigin: RenameOrigin.Header,
+  renameOrigin: RenameOrigin.Panel,
   renamingTabId: null,
   tabRenameOrigin: RenameOrigin.TabBar,
   draggingTabId: null,

@@ -11,7 +11,7 @@ interface AccentSwatchesProps {
 
 const SWATCH = 'h-6 w-6 shrink-0 cursor-pointer rounded-full border border-tily-line'
 const SELECTED = 'outline-2 outline-offset-2 outline-tily-ink'
-const FALLBACK = 'flex h-6 shrink-0 cursor-pointer items-center gap-1.5 rounded-full border border-tily-line px-2 text-[11px] text-tily-ink-soft hover:bg-tily-green-hover'
+const FALLBACK = 'flex h-6 shrink-0 cursor-pointer items-center gap-1.5 rounded-full border border-tily-line px-2 text-tily-xs text-tily-ink-soft hover:bg-tily-green-hover'
 const PICKER_START = '#808080'
 
 export function AccentSwatches({ presets, value, fallback, fallbackLabel, onChange }: AccentSwatchesProps) {

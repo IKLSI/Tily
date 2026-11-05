@@ -72,7 +72,7 @@ export function GitPanel({ folder }: GitPanelProps) {
       const loading = stale
       const handleInitialize = () => initializeRepository(folder)
       return (
-        <div className="flex flex-col gap-[6px] px-[12px] py-[8px] text-[12px]">
+        <div className="flex flex-col gap-[6px] px-[12px] py-[8px] text-tily-sm">
           <p className="text-tily-ink">{loading ? 'Lecture du dépôt Git…' : 'Aucun dépôt Git'}</p>
           {!loading && <p className="break-all text-tily-muted">{error ?? `Le dossier du pane actif n’appartient à aucun dépôt : ${folder}`}</p>}
           {!loading && !error && folder && (
@@ -99,7 +99,7 @@ export function GitPanel({ folder }: GitPanelProps) {
           <>
             <div className="mt-[6px] flex h-[30px] shrink-0 items-center gap-[8px] px-[12px]">
               <span className={SECTION_HEADING}>Modifications</span>
-              <span className="text-[11px] text-tily-muted">{changeCount > 0 ? plural(changeCount, 'fichier', 'fichiers') : 'aucune'}</span>
+              <span className="text-tily-xs text-tily-muted">{changeCount > 0 ? plural(changeCount, 'fichier', 'fichiers') : 'aucune'}</span>
             </div>
             <GitChangesView state={state} busy={busy} footer={mergeRequests} />
           </>
@@ -111,7 +111,7 @@ export function GitPanel({ folder }: GitPanelProps) {
   return (
     <section aria-label="Git" data-git-panel="" tabIndex={-1} className="@container relative flex min-h-0 flex-1 flex-col focus:outline-none" onKeyDown={handleKeyDown}>
       {busy && <div aria-hidden="true" className="absolute inset-x-0 top-0 h-[2px] animate-pulse bg-tily-green" />}
-      {state && stale && <p role="status" className="shrink-0 px-[12px] pt-[8px] text-[11px] text-tily-ink-soft">Lecture du dépôt Git…</p>}
+      {state && stale && <p role="status" className="shrink-0 px-[12px] pt-[8px] text-tily-xs text-tily-ink-soft">Lecture du dépôt Git…</p>}
       <div inert={state !== null && stale} aria-busy={stale} className={`flex min-h-0 flex-1 flex-col transition-opacity duration-150 ${state && stale ? 'opacity-50' : ''}`}>
         {renderContent()}
       </div>

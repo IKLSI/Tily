@@ -26,7 +26,7 @@ export function GitCommitSummary({ details, error, selected, stash, heading, act
     return (
       <div className={CARD}>
         {heading}
-        <p className={`text-[12px] ${error ? 'text-tily-error' : 'text-tily-muted italic'}`}>{error ?? 'Lecture du commit…'}</p>
+        <p className={`text-tily-sm ${error ? 'text-tily-error' : 'text-tily-muted italic'}`}>{error ?? 'Lecture du commit…'}</p>
       </div>
     )
   }
@@ -61,15 +61,15 @@ export function GitCommitSummary({ details, error, selected, stash, heading, act
         aria-selected={isSelected}
         data-git-row={change.path}
         tabIndex={change.path === focusable ? 0 : -1}
-        className={`flex h-[22px] w-full shrink-0 cursor-pointer items-center gap-[6px] px-[12px] text-left text-[12px] ${isSelected ? 'bg-tily-green-soft text-tily-green-deep' : 'text-tily-ink-soft hover:bg-tily-green-hover hover:text-tily-ink'}`}
+        className={`flex h-[22px] w-full shrink-0 cursor-pointer items-center gap-[6px] px-[12px] text-left text-tily-sm ${isSelected ? 'bg-tily-green-soft text-tily-green-deep' : 'text-tily-ink-soft hover:bg-tily-green-hover hover:text-tily-ink'}`}
         onClick={handleSelect}
       >
         <span className="flex min-w-0 flex-1 items-baseline gap-[6px]">
-          <span className={`w-[12px] shrink-0 text-center text-[11px] font-semibold ${CHANGE_CLASSES[change.kind]}`} data-tip={change.oldPath ? `${CHANGE_LABELS[change.kind]} depuis ${change.oldPath}` : CHANGE_LABELS[change.kind]}>
+          <span className={`w-[12px] shrink-0 text-center text-tily-xs font-semibold ${CHANGE_CLASSES[change.kind]}`} data-tip={change.oldPath ? `${CHANGE_LABELS[change.kind]} depuis ${change.oldPath}` : CHANGE_LABELS[change.kind]}>
             {CHANGE_LETTERS[change.kind]}
           </span>
           <span className="min-w-0 shrink truncate">{fileName(change.path)}</span>
-          <span className="min-w-0 flex-1 truncate text-[11px] text-tily-muted">{fileFolder(change.path)}</span>
+          <span className="min-w-0 flex-1 truncate text-tily-xs text-tily-muted">{fileFolder(change.path)}</span>
         </span>
       </button>
     )
@@ -80,8 +80,8 @@ export function GitCommitSummary({ details, error, selected, stash, heading, act
       <div className={CARD}>
         {heading}
         <p className="text-[13.5px] font-semibold break-words text-tily-ink">{subjectOf(details.message)}</p>
-        {body && <pre className="max-h-[160px] overflow-auto font-sans text-[12px] whitespace-pre-wrap text-tily-ink-soft">{body}</pre>}
-        <div className="flex flex-wrap items-baseline gap-x-[12px] gap-y-[2px] text-[11px] text-tily-muted">
+        {body && <pre className="max-h-[160px] overflow-auto font-sans text-tily-sm whitespace-pre-wrap text-tily-ink-soft">{body}</pre>}
+        <div className="flex flex-wrap items-baseline gap-x-[12px] gap-y-[2px] text-tily-xs text-tily-muted">
           <button type="button" className="cursor-pointer text-tily-green-deep hover:underline" data-tip="Copier le SHA" onClick={handleCopySha}>
             {details.sha.slice(0, 12)}
           </button>

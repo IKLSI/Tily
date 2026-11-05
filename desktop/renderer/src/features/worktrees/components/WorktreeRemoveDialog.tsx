@@ -13,8 +13,8 @@ interface WorktreeRemoveDialogProps {
 
 const DANGER = `${SETTINGS_BUTTON} border-tily-error text-tily-error hover:bg-tily-green-hover aria-disabled:cursor-default aria-disabled:opacity-50`
 const ARM_DELAY_MS = 600
-const CHECK_LABEL = 'flex items-center gap-2 text-[12px] text-tily-ink'
-const ROW_LABEL = 'flex min-h-[28px] items-center text-[12px] text-tily-muted'
+const CHECK_LABEL = 'flex items-center gap-2 text-tily-sm text-tily-ink'
+const ROW_LABEL = 'flex min-h-[28px] items-center text-tily-sm text-tily-muted'
 const ROW_VALUE = 'flex min-h-[28px] min-w-0 items-center'
 
 const handleBackdropPointerDown = (event: PointerEvent<HTMLDivElement>) => {
@@ -59,15 +59,15 @@ export function WorktreeRemoveDialog({ removal }: WorktreeRemoveDialogProps) {
 
   return (
     <div className="absolute inset-0 z-30 flex items-start justify-center bg-black/30 backdrop-blur-[3px] pt-[12vh]" onPointerDown={handleBackdropPointerDown}>
-      <div role="alertdialog" aria-label={title} className="flex max-h-[76vh] w-[540px] max-w-[94vw] flex-col rounded-tily-lg border border-tily-line bg-tily-panel shadow-tily-dialog" onKeyDown={keepTabInside}>
+      <div role="alertdialog" aria-label={title} className="flex max-h-[76vh] w-[540px] max-w-[94vw] flex-col rounded-tily-lg border border-tily-line bg-tily-raised shadow-tily-dialog" onKeyDown={keepTabInside}>
         <div className="flex items-baseline justify-between border-b border-tily-line px-4 py-3">
-          <h2 className="truncate text-[15px] font-semibold text-tily-ink">{title}</h2>
+          <h2 className="truncate text-tily-lg font-semibold text-tily-ink">{title}</h2>
         </div>
         <div className="grid min-h-0 flex-1 grid-cols-[auto_minmax(0,1fr)] items-start gap-x-4 gap-y-4 overflow-y-auto px-4 py-4">
           {requestedBy && (
             <>
               <span className={ROW_LABEL}>Demandé par</span>
-              <span className={`${ROW_VALUE} gap-1.5 text-[12px] text-tily-ink`}>
+              <span className={`${ROW_VALUE} gap-1.5 text-tily-sm text-tily-ink`}>
                 {requestedBy}
                 <InfoTip text="Sans réponse dans les 2 minutes, la demande est refusée." />
               </span>
@@ -78,13 +78,13 @@ export function WorktreeRemoveDialog({ removal }: WorktreeRemoveDialogProps) {
             <span className={ROW_VALUE}>
               <WorktreePathLabel path={path} />
             </span>
-            <span className="text-[11px] text-tily-warning">Supprimé avec ses modifications non commitées.</span>
+            <span className="text-tily-xs text-tily-warning">Supprimé avec ses modifications non commitées.</span>
           </div>
           {branch && (
             <>
               <span className={ROW_LABEL}>Branche</span>
               <span className={`${ROW_VALUE} gap-4`}>
-                <span className="min-w-0 truncate text-[12px] text-tily-ink">{branch}</span>
+                <span className="min-w-0 truncate text-tily-sm text-tily-ink">{branch}</span>
                 <label className={`${CHECK_LABEL} shrink-0`}>
                   <input type="checkbox" checked={keepBranch} onChange={handleKeepBranchChange} />
                   Garder
@@ -98,9 +98,9 @@ export function WorktreeRemoveDialog({ removal }: WorktreeRemoveDialogProps) {
               <div className="flex min-w-0 flex-col gap-2">
                 <ul className="flex flex-col divide-y divide-tily-line rounded-tily-sm border border-tily-line bg-tily-paper">
                   {panes.map((pane) => (
-                    <li key={pane.paneId} className="flex min-h-[28px] items-center gap-2 px-3 py-1 text-[12px] text-tily-ink">
+                    <li key={pane.paneId} className="flex min-h-[28px] items-center gap-2 px-3 py-1 text-tily-sm text-tily-ink">
                       <span className="min-w-0 flex-1 truncate">{pane.label}</span>
-                      {pane.agent && <span className="shrink-0 text-[11px] text-tily-warning">agent actif</span>}
+                      {pane.agent && <span className="shrink-0 text-tily-xs text-tily-warning">agent actif</span>}
                     </li>
                   ))}
                 </ul>
@@ -111,7 +111,7 @@ export function WorktreeRemoveDialog({ removal }: WorktreeRemoveDialogProps) {
                   </label>
                   <InfoTip text="Leurs programmes sont arrêtés." />
                 </span>
-                {!closePanes && <p className="text-[11px] text-tily-warning">Un shell ouvert verrouille le dossier : la suppression échouera sans doute.</p>}
+                {!closePanes && <p className="text-tily-xs text-tily-warning">Un shell ouvert verrouille le dossier : la suppression échouera sans doute.</p>}
               </div>
             </>
           )}

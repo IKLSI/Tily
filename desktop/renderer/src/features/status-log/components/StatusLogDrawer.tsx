@@ -11,7 +11,7 @@ import { useShortcutText } from '../../keyboard/shortcutLabels'
 export const STATUS_LOG_ID = 'status-log'
 
 const BOTTOM_TOLERANCE_PX = 8
-const TEXT_BUTTON = 'cursor-pointer rounded-tily px-[8px] py-[3px] text-[11px] text-tily-muted hover:bg-tily-green-hover hover:text-tily-ink aria-disabled:cursor-default aria-disabled:opacity-40 aria-disabled:hover:bg-transparent aria-disabled:hover:text-tily-muted'
+const TEXT_BUTTON = 'cursor-pointer rounded-tily px-[8px] py-[3px] text-tily-xs text-tily-muted hover:bg-tily-green-hover hover:text-tily-ink aria-disabled:cursor-default aria-disabled:opacity-40 aria-disabled:hover:bg-transparent aria-disabled:hover:text-tily-muted'
 
 const LEVEL_CLASSES: Record<StatusLevel, string> = {
   [StatusLevel.Info]: 'text-tily-ink-soft',
@@ -74,7 +74,7 @@ export function StatusLogDrawer() {
     >
       <div className="flex h-[32px] shrink-0 items-center gap-[6px] pr-[6px] pl-[12px]">
         <span className={SECTION_TITLE}>Journal</span>
-        <span className="text-[11px] text-tily-muted">{problemsOnly ? `${shown.length} sur ${countLabel(entries.length)}` : countLabel(entries.length)}</span>
+        <span className="text-tily-xs text-tily-muted">{problemsOnly ? `${shown.length} sur ${countLabel(entries.length)}` : countLabel(entries.length)}</span>
         <span className="flex-1" />
         <button type="button" className={`${TEXT_BUTTON} aria-pressed:bg-tily-green-soft aria-pressed:text-tily-green-deep`} aria-pressed={problemsOnly} data-tip={problemsOnly ? 'Afficher tous les messages' : 'N’afficher que les avertissements et les erreurs'} onClick={handleToggleProblems}>
           Avertissements et erreurs
@@ -89,11 +89,11 @@ export function StatusLogDrawer() {
           <Icon name={IconName.Close} />
         </button>
       </div>
-      <div ref={listRef} role="log" data-status-log-list="" tabIndex={0} aria-label="Messages" className="min-h-0 flex-1 overflow-y-auto px-[12px] pb-[8px] text-[11px] leading-[1.6]" onScroll={handleScroll}>
+      <div ref={listRef} role="log" data-status-log-list="" tabIndex={0} aria-label="Messages" className="min-h-0 flex-1 overflow-y-auto px-[12px] pb-[8px] text-tily-xs leading-[1.6]" onScroll={handleScroll}>
         {empty ? (
-          <p className="font-sans text-[12px] text-tily-muted">Aucun message : ceux de la barre de statut s’afficheront ici.</p>
+          <p className="font-sans text-tily-sm text-tily-muted">Aucun message : ceux de la barre de statut s’afficheront ici.</p>
         ) : shown.length === 0 ? (
-          <p className="font-sans text-[12px] text-tily-muted">Aucun avertissement ni erreur dans le journal.</p>
+          <p className="font-sans text-tily-sm text-tily-muted">Aucun avertissement ni erreur dans le journal.</p>
         ) : (
           <ol>
             {shown.map(({ entry, position }) => (

@@ -47,7 +47,7 @@ export function WorkspaceTabRow({ workspaceId, tab, siblings, active, renaming, 
   const commandNotice = useCommandStore((state) => tabCommandNotice(tab, state.notices))
   const customShell = shell === DEFAULT_SHELL ? null : shell
   const tip = [tab.name, pane.path, customShell && (SHELL_NAMES[customShell] ?? customShell), paneCountLabel(panesOf(tab.tree).length), summary?.tip ?? (commandNotice && commandNoticeTip(commandNotice))].filter(Boolean).join(' · ')
-  const rowState = active ? 'bg-tily-green-soft text-tily-green-deep' : 'text-tily-ink-soft hover:bg-tily-panel hover:text-tily-ink'
+  const rowState = active ? 'bg-tily-green-soft text-tily-green-deep' : 'text-tily-ink-soft hover:bg-tily-raised hover:text-tily-ink'
   const lead = summary ? <AgentStateIcon state={summary.state} tip={summary.tip} /> : commandNotice ? <CommandNoticeIcon notice={commandNotice} /> : <TabLayoutGlyph tree={tab.tree} />
 
   const joinTargetOf = (event: MouseEvent): string | undefined =>
@@ -102,13 +102,13 @@ export function WorkspaceTabRow({ workspaceId, tab, siblings, active, renaming, 
       <div
         data-drop-workspace={workspaceId}
         data-drop-tab={tab.id}
-        className={`group relative flex h-[28px] items-center rounded-tily pr-[2px] pl-[6px] select-none before:absolute before:top-1/2 before:-left-[7px] before:h-px before:w-[6px] before:bg-tily-line ${rowState} ${dragging ? 'opacity-40' : ''}`}
+        className={`group relative flex h-[26px] items-center rounded-tily pr-[2px] pl-[6px] select-none before:absolute before:top-0 before:-left-[8px] before:h-[13px] before:w-[8px] before:rounded-bl-[2px] before:border-b before:border-l before:border-tily-line transition-colors duration-150 ${rowState} ${dragging ? 'opacity-40' : ''}`}
         onContextMenu={handleContextMenu}
       >
         {renaming ? (
           <span className="flex min-w-0 flex-1 items-center gap-[8px]" onContextMenu={stopPropagation}>
             <span className={LEAD}>{lead}</span>
-            <InlineNameEditor value={tab.name} label="Nom de l’onglet" className="h-[22px] min-w-0 flex-1 text-[13px]" onCommit={actions.commitRenameTab} onCancel={actions.cancelRenameTab} />
+            <InlineNameEditor value={tab.name} label="Nom de l’onglet" className="h-[22px] min-w-0 flex-1 text-tily-sm" onCommit={actions.commitRenameTab} onCancel={actions.cancelRenameTab} />
           </span>
         ) : (
           <button
@@ -117,7 +117,7 @@ export function WorkspaceTabRow({ workspaceId, tab, siblings, active, renaming, 
             data-panel-row=""
             data-row-name={tab.name}
             data-tip={tip}
-            className="flex h-full min-w-0 flex-1 cursor-pointer items-center gap-[8px] text-left text-[13px]"
+            className="flex h-full min-w-0 flex-1 cursor-pointer items-center gap-[8px] text-left text-tily-sm"
             onClick={handleClick}
             onDoubleClick={handleRename}
             onAuxClick={handleAuxClick}
@@ -129,7 +129,7 @@ export function WorkspaceTabRow({ workspaceId, tab, siblings, active, renaming, 
             </span>
             <TruncatedName name={tab.name} siblings={siblings} className="flex-1" highlight={tab.color} />
             {tab.owner && <AgentOwnerMark owner={tab.owner} />}
-            {customShell && <span className="shrink-0 text-[11px] text-tily-muted/70 @max-[260px]:hidden">{SHELL_LABELS[customShell] ?? customShell}</span>}
+            {customShell && <span className="shrink-0 text-tily-xs text-tily-muted/70 @max-[260px]:hidden">{SHELL_LABELS[customShell] ?? customShell}</span>}
           </button>
         )}
         <button type="button" className={PANEL_HOVER_BUTTON} data-tip={inRepository ? WORKTREE_TIP : NO_REPOSITORY_TIP} aria-label={`Créer un worktree depuis l’onglet ${tab.name}`} aria-disabled={!inRepository} onClick={handleCreateWorktree}>

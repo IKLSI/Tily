@@ -56,7 +56,7 @@ export const FileTreeRow = memo(function FileTreeRow({ entry, parent, depth, sel
       aria-level={depth + 1}
       aria-selected={selected}
       aria-expanded={entry.isDirectory ? expanded : undefined}
-      className={`flex h-[22px] cursor-pointer items-center gap-[5px] pr-[8px] text-[12px] select-none ${selected ? 'bg-tily-green-soft text-tily-green-deep' : 'text-tily-ink-soft hover:bg-tily-green-hover hover:text-tily-ink'}`}
+      className={`flex h-[22px] cursor-pointer items-center gap-[5px] pr-[8px] text-tily-sm select-none ${selected ? 'bg-tily-green-soft text-tily-green-deep' : 'text-tily-ink-soft hover:bg-tily-green-hover hover:text-tily-ink'}`}
       style={{ paddingLeft: rowIndent(depth) }}
       onClick={handleClick}
       onDoubleClick={handleDoubleClick}
@@ -69,12 +69,12 @@ export const FileTreeRow = memo(function FileTreeRow({ entry, parent, depth, sel
       </span>
       <Icon name={entry.isDirectory ? IconName.Folder : IconName.File} className="shrink-0 text-tily-muted" />
       {renaming ? (
-        <InlineNameEditor value={entry.name} label={`Nouveau nom de ${entry.name}`} className="h-[18px] min-w-0 flex-1 text-[12px]" selectionEnd={renameSelectionEnd(entry)} onCommit={handleCommitRename} onCancel={handlers.cancelRename} />
+        <InlineNameEditor value={entry.name} label={`Nouveau nom de ${entry.name}`} className="h-[18px] min-w-0 flex-1 text-tily-sm" selectionEnd={renameSelectionEnd(entry)} onCommit={handleCommitRename} onCancel={handlers.cancelRename} />
       ) : (
         <span className={`min-w-0 truncate ${markView && !selected ? markView.className : ''}`}>{entry.name}</span>
       )}
       {markView && !renaming && (
-        <span className={`ml-auto w-[12px] shrink-0 text-center text-[11px] font-semibold ${markView.className}`} data-tip={markView.label}>
+        <span className={`ml-auto w-[12px] shrink-0 text-center text-tily-xs font-semibold ${markView.className}`} data-tip={markView.label}>
           {markView.letter}
         </span>
       )}

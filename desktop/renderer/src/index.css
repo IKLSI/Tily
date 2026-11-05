@@ -8,22 +8,24 @@
 }
 
 @theme {
-  --color-tily-paper: #161719;
-  --color-tily-panel: #1e1f22;
-  --color-tily-line: #3a3d44;
-  --color-tily-ink: #dcdee2;
-  --color-tily-ink-soft: #a6a9b0;
-  --color-tily-muted: #9ba0a8;
+  --color-tily-paper: #14161a;
+  --color-tily-panel: #1c2024;
+  --color-tily-line: #33373d;
+  --color-tily-line-soft: #24272c;
+  --color-tily-raised: #262a2f;
+  --color-tily-ink: #d6d9de;
+  --color-tily-ink-soft: #a1a6ad;
+  --color-tily-muted: #9197a0;
   --color-tily-green: #0a84ff;
-  --color-tily-green-deep: #8cc2ff;
-  --color-tily-green-soft: #1d2a3d;
-  --color-tily-green-hover: #26282d;
-  --color-tily-focus: #4da3ff;
-  --color-tily-terminal: #121315;
-  --color-tily-terminal-ink: #d3d5da;
+  --color-tily-green-deep: #94c2ff;
+  --color-tily-green-soft: #252b33;
+  --color-tily-green-hover: #2e3237;
+  --color-tily-focus: #6cacff;
+  --color-tily-terminal: #0f1114;
+  --color-tily-terminal-ink: #cbcfd4;
   --color-tily-page: #ffffff;
-  --color-tily-scrollbar: #3d4046;
-  --color-tily-scrollbar-hover: #565a62;
+  --color-tily-scrollbar: #3c4148;
+  --color-tily-scrollbar-hover: #545b64;
   --color-tily-warning: #ffd60a;
   --color-tily-error: #ff6961;
   --color-tily-forge-merged: #bf5af2;
@@ -54,9 +56,14 @@
   --color-tily-syntax-comment: #94a1ae;
   --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
   --font-mono: 'SF Mono', Menlo, 'Symbols Nerd Font Mono', monospace;
+  --text-tily-xs: 11px;
+  --text-tily-sm: 12px;
+  --text-tily-base: 13px;
+  --text-tily-lg: 15px;
   --radius-tily-sm: 6px;
   --radius-tily: 8px;
   --radius-tily-lg: 12px;
+  --ease-tily: cubic-bezier(0.22, 1, 0.36, 1);
   --shadow-tily-popover: 0 0 0 0.5px rgb(0 0 0 / 0.28), 0 8px 24px rgb(0 0 0 / 0.32), 0 2px 6px rgb(0 0 0 / 0.2);
   --shadow-tily-dialog: 0 0 0 0.5px rgb(0 0 0 / 0.3), 0 24px 64px rgb(0 0 0 / 0.45), 0 4px 12px rgb(0 0 0 / 0.25);
   --shadow-tily-control: 0 0.5px 1px rgb(0 0 0 / 0.2);
@@ -64,6 +71,22 @@
 
 @media (prefers-color-scheme: light) {
   :root {
+    --color-tily-paper: #f8fafc;
+    --color-tily-panel: #f0f2f5;
+    --color-tily-raised: #fcfdff;
+    --color-tily-line: #d1d4d8;
+    --color-tily-line-soft: #e4e6e9;
+    --color-tily-ink: #1e1f21;
+    --color-tily-ink-soft: #4b4d50;
+    --color-tily-muted: #6f7275;
+    --color-tily-green-deep: #2a5893;
+    --color-tily-green-soft: #dae6f5;
+    --color-tily-green-hover: #e3eaf3;
+    --color-tily-focus: #4181d2;
+    --color-tily-terminal: #fafcfe;
+    --color-tily-terminal-ink: #252728;
+    --color-tily-scrollbar: #b4b8bc;
+    --color-tily-scrollbar-hover: #8f9297;
     --color-tily-page: #ffffff;
     --color-tily-warning: #b25000;
     --color-tily-error: #d70015;
@@ -392,6 +415,17 @@ select {
   }
 }
 
+@keyframes tily-slide-left {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
 @keyframes tily-slide {
   from {
     opacity: 0;
@@ -420,6 +454,18 @@ select {
     animation: tily-slide 160ms ease-out;
   }
 
+  [data-sidebar] {
+    animation: tily-slide-left 200ms var(--ease-tily);
+  }
+
+  [data-right-panel] {
+    animation: tily-slide 200ms var(--ease-tily);
+  }
+
+  [data-tab-content] {
+    animation: tily-fade 160ms var(--ease-tily);
+  }
+
   button:not([aria-disabled='true']):not(:disabled):active {
     filter: brightness(0.92);
   }
@@ -427,4 +473,15 @@ select {
 
 .xterm .xterm-scrollable-element > .scrollbar {
   display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
 }

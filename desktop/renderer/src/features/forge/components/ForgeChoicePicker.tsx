@@ -14,7 +14,7 @@ interface ForgeChoicePickerProps {
   onToggle: (id: string) => void
 }
 
-const CHIP = 'flex max-w-[220px] items-center gap-[4px] rounded-tily-sm border border-tily-line bg-tily-paper py-[1px] pr-[2px] pl-[6px] text-[11px] text-tily-ink'
+const CHIP = 'flex max-w-[220px] items-center gap-[4px] rounded-tily-sm border border-tily-line bg-tily-paper py-[1px] pr-[2px] pl-[6px] text-tily-xs text-tily-ink'
 
 const POPUP_WIDTH = 320
 const POPUP_MARGIN = 8
@@ -160,7 +160,7 @@ export function ForgeChoicePicker({ label, options, selected, multiple, emptyMes
           aria-haspopup="listbox"
           aria-expanded={open}
           disabled={disabled}
-          className="flex h-[22px] cursor-pointer items-center gap-[4px] rounded-tily-sm border border-dashed border-tily-line px-[6px] text-[11px] text-tily-ink-soft hover:bg-tily-green-hover disabled:cursor-default disabled:opacity-50"
+          className="flex h-[22px] cursor-pointer items-center gap-[4px] rounded-tily-sm border border-dashed border-tily-line px-[6px] text-tily-xs text-tily-ink-soft hover:bg-tily-green-hover disabled:cursor-default disabled:opacity-50"
           onClick={handleOpen}
         >
           <Icon name={multiple || selected.length === 0 ? IconName.Plus : IconName.Pencil} size={9} />
@@ -168,7 +168,7 @@ export function ForgeChoicePicker({ label, options, selected, multiple, emptyMes
         </button>
       </div>
       {open && placement && (
-        <div ref={popupRef} className="fixed z-40 flex flex-col gap-1 rounded-tily border border-tily-line bg-tily-panel p-1 shadow-tily-popover" style={{ ...placement.style, width: POPUP_WIDTH }}>
+        <div ref={popupRef} className="fixed z-40 flex flex-col gap-1 rounded-tily border border-tily-line bg-tily-raised p-1 shadow-tily-popover" style={{ ...placement.style, width: POPUP_WIDTH }}>
           <input
             type="text"
             className={SETTINGS_INPUT}
@@ -199,7 +199,7 @@ export function ForgeChoicePicker({ label, options, selected, multiple, emptyMes
                 {selected.includes(option.id) ? <Icon name={IconName.Check} className="shrink-0 text-tily-green-deep" /> : <span className="size-[12px] shrink-0" />}
                 {colorDot(option.color)}
                 <span className="min-w-0 truncate">{option.label}</span>
-                {option.hint && <span className="ml-auto min-w-0 shrink truncate pl-2 text-[11px] text-tily-muted">{option.hint}</span>}
+                {option.hint && <span className="ml-auto min-w-0 shrink truncate pl-2 text-tily-xs text-tily-muted">{option.hint}</span>}
               </button>
             ))}
           </div>

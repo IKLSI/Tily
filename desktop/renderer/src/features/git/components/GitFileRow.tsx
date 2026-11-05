@@ -53,17 +53,17 @@ export const GitFileRow = memo(function GitFileRow({ row, selected, focusable, h
       aria-selected={selected}
       data-git-row={row.key}
       tabIndex={focusable ? 0 : -1}
-      className={`group flex h-[24px] cursor-pointer items-center gap-[6px] pr-[4px] pl-[12px] text-[12px] select-none ${selected ? 'bg-tily-green-soft text-tily-green-deep' : 'text-tily-ink-soft hover:bg-tily-green-hover hover:text-tily-ink'}`}
+      className={`group flex h-[24px] cursor-pointer items-center gap-[6px] pr-[4px] pl-[12px] text-tily-sm select-none ${selected ? 'bg-tily-green-soft text-tily-green-deep' : 'text-tily-ink-soft hover:bg-tily-green-hover hover:text-tily-ink'}`}
       onClick={handleClick}
       onDoubleClick={handleDoubleClick}
       onContextMenu={handleContextMenu}
     >
       <span className="flex min-w-0 flex-1 items-baseline gap-[6px]">
-        <span className={`w-[12px] shrink-0 text-center text-[11px] font-semibold ${letterClass}`} data-tip={statusTip(row)}>
+        <span className={`w-[12px] shrink-0 text-center text-tily-xs font-semibold ${letterClass}`} data-tip={statusTip(row)}>
           {letter}
         </span>
         <span className="min-w-0 shrink truncate">{fileName(path)}</span>
-        <span className="min-w-0 flex-1 truncate text-[11px] text-tily-ink-soft" data-tip={path}>
+        <span className="min-w-0 flex-1 truncate text-tily-xs text-tily-ink-soft" data-tip={path}>
           {fileFolder(path)}
         </span>
       </span>

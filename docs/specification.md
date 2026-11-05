@@ -75,6 +75,8 @@ Police des terminaux choisie dans une liste fixe (section « Terminaux » des Pa
 
 Taille du texte des terminaux : réglage « Taille du texte » (en pixels) de la section « Terminaux » des Paramètres, de 8 à 32 px, 12 par défaut, avec un aperçu. Elle s’applique à l’enregistrement à tous les terminaux ouverts, qui recalculent leurs colonnes et leurs lignes et les transmettent au shell ; elle est conservée dans `appearance.json` et fait partie des préférences exportées. La palette propose aussi « Agrandir le texte des terminaux », « Réduire le texte des terminaux » et « Taille du texte des terminaux par défaut », qui appliquent et enregistrent la nouvelle taille sans ouvrir les Paramètres.
 
+Thème : section « Apparence » des Paramètres, `Système` (par défaut, suit macOS), `Clair` ou `Sombre`. Le choix s’aperçoit en direct comme la couleur, est conservé dans `appearance.json` (`ColorScheme`) et fait partie des préférences exportées. Le panneau de gauche et le panneau de droite glissent à l’ouverture, le contenu d’un onglet apparaît en fondu au changement d’onglet. Les animations et transitions sont neutralisées quand macOS demande de réduire les animations.
+
 Couleur de Tily : section « Apparence » des Paramètres, ou palette (« Couleur de Tily… »). Une couleur d’accent, choisie parmi des pastilles (Bleu système par défaut, Sage, Bleu) ou saisie en hexadécimal, teinte les accents, les fonds, le terminal et les sélections de toute l’application ; la palette de nuances est calculée côté hôte en OKLCH. Le choix s’aperçoit en direct dans l’application ; fermer les Paramètres sans enregistrer rétablit la couleur enregistrée. Elle est conservée dans `appearance.json` et fait partie des préférences exportées.
 
 Surlignage des noms : « Couleur… » dans le menu d’un workspace, d’un onglet ou dans la palette (« Couleur du workspace ou du projet… », « Couleur de l’onglet… ») ouvre un dialogue de choix de couleur qui surligne le nom du workspace, du projet ou de l’onglet. La couleur d’un projet s’applique à tout workspace dont le pane actif est dans ce projet, worktrees compris (le dépôt principal est retrouvé par `MainRepositoryRoot`) ; celle du workspace l’emporte ; un onglet n’hérite pas de celle de son workspace. Les couleurs de workspace et d’onglet sont enregistrées dans `session.json` (champ facultatif `color`), celles des projets dans `appearance.json` (`projectColors`), listées et retirables dans la section « Apparence ».
@@ -137,9 +139,9 @@ Le tiroir du journal porte une bascule « Avertissements et erreurs » qui n’a
 | --- | --- |
 | WS-01 | Créer plusieurs workspaces et naviguer entre eux sans association obligatoire à un projet. |
 | WS-02 | Disposer d’un workspace par défaut ; aucun terminal autonome hors workspace. |
-| WS-03 | Renommer le workspace directement dans le titre de l’en-tête, sans popup. |
+| WS-03 | Renommer le workspace directement dans le panneau des workspaces, sans popup. |
 | WS-04 | Afficher les workspaces à gauche et leurs onglets sous forme d’arborescence. |
-| WS-05 | Chaque chevron déplie ou replie les onglets de son workspace, indépendamment des autres. |
+| WS-05 | Un clic sur la ligne d’un workspace ou sur son chevron déplie ou replie ses onglets, indépendamment des autres workspaces. |
 | WS-06 | Cliquer sur un onglet de l’arborescence active son workspace et cet onglet. |
 | WS-07 | Mémoriser les états déplié/replié, la largeur et la visibilité du panneau. |
 | WS-08 | Permettre de masquer entièrement le panneau et de le réafficher via le bouton toujours accessible dans l’en-tête ou la palette. |
@@ -167,7 +169,7 @@ Au clavier, dans le panneau des workspaces, ↑ / ↓ / Début / Fin passent d�
 
 Un workspace replié affiche en gris, à droite de son nom, son nombre d’onglets ; le chevron le dit aussi aux lecteurs d’écran (« Afficher les 3 onglets de gd »).
 
-Un workspace créé depuis le sélecteur de projets porte automatiquement le nom du dossier choisi. Un workspace créé sans projet reçoit un nom automatique descriptif ; un nom saisi manuellement reste prioritaire et n’est jamais écrasé. Le premier onglet zsh reprend le dossier du pane actif ou, au premier lancement, le dossier utilisateur. Un clic sur un workspace rejoint son dernier onglet et son dernier pane actifs. Replier une branche ne change pas la sélection.
+Un workspace créé depuis le sélecteur de projets porte automatiquement le nom du dossier choisi. Un workspace créé sans projet reçoit un nom automatique descriptif ; un nom saisi manuellement reste prioritaire et n’est jamais écrasé. Le premier onglet zsh reprend le dossier du pane actif ou, au premier lancement, le dossier utilisateur. Un clic sur un workspace rejoint son dernier onglet et son dernier pane actifs, puis déplie ou replie ses onglets. Replier une branche ne change pas la sélection.
 
 Fermer le dernier onglet ou le dernier pane d’un workspace ferme ce workspace et arrête ses processus. S’il ne reste aucun workspace, afficher un état vide avec un message accueillant et une action pour en créer un. La suppression explicite d’un workspace demande une confirmation lorsqu’il contient des onglets ou des processus actifs ; la confirmation arrête alors tous ses processus et supprime le workspace.
 
