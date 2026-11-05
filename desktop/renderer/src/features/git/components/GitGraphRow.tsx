@@ -59,12 +59,12 @@ export const GitGraphRow = memo(function GitGraphRow({ commit, index, selected, 
         </span>
       </div>
       {layout.authorShown && (
-        <span className="shrink-0 truncate px-[8px] text-tily-muted" style={{ width: layout.authorWidth }} data-tip={commit.email}>
+        <span className="shrink-0 truncate px-[8px] text-tily-ink-soft" style={{ width: layout.authorWidth }} data-tip={commit.email}>
           {commit.author}
         </span>
       )}
       {layout.dateShown && (
-        <span className="shrink-0 truncate px-[8px] text-tily-muted tabular-nums" style={{ width: layout.dateWidth }} data-tip={`${fullDate(commit.date)} (${relativeDate(commit.date)})`}>
+        <span className="shrink-0 truncate px-[8px] text-tily-ink-soft tabular-nums" style={{ width: layout.dateWidth }} data-tip={`${fullDate(commit.date)} (${relativeDate(commit.date)})`}>
           {shortDate(commit.date)}
         </span>
       )}

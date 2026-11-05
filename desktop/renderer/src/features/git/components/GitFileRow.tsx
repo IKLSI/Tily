@@ -63,7 +63,7 @@ export const GitFileRow = memo(function GitFileRow({ row, selected, focusable, h
           {letter}
         </span>
         <span className="min-w-0 shrink truncate">{fileName(path)}</span>
-        <span className="min-w-0 flex-1 truncate text-[11px] text-tily-muted" data-tip={path}>
+        <span className="min-w-0 flex-1 truncate text-[11px] text-tily-ink-soft" data-tip={path}>
           {fileFolder(path)}
         </span>
       </span>

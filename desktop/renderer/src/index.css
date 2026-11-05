@@ -10,10 +10,10 @@
 @theme {
   --color-tily-paper: #161719;
   --color-tily-panel: #1e1f22;
-  --color-tily-line: #2e3035;
+  --color-tily-line: #3a3d44;
   --color-tily-ink: #dcdee2;
   --color-tily-ink-soft: #a6a9b0;
-  --color-tily-muted: #82858d;
+  --color-tily-muted: #9ba0a8;
   --color-tily-green: #0a84ff;
   --color-tily-green-deep: #8cc2ff;
   --color-tily-green-soft: #1d2a3d;
@@ -51,7 +51,7 @@
   --color-tily-syntax-number: #d0bf69;
   --color-tily-syntax-title: #6bdfff;
   --color-tily-syntax-attr: #75b6ff;
-  --color-tily-syntax-comment: #7f8c98;
+  --color-tily-syntax-comment: #94a1ae;
   --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
   --font-mono: 'SF Mono', Menlo, 'Symbols Nerd Font Mono', monospace;
   --radius-tily-sm: 6px;

@@ -1,5 +1,5 @@
 export const PANEL_HEADER_BUTTON =
-  'flex size-[24px] shrink-0 cursor-pointer items-center justify-center rounded-md text-tily-muted hover:bg-tily-green-hover hover:text-tily-ink aria-disabled:cursor-default aria-disabled:opacity-40 aria-disabled:hover:bg-transparent aria-disabled:hover:text-tily-muted'
+  'flex size-[24px] shrink-0 cursor-pointer items-center justify-center rounded-md text-tily-muted hover:bg-tily-green-hover hover:text-tily-ink aria-disabled:cursor-default aria-disabled:opacity-60 aria-disabled:hover:bg-transparent aria-disabled:hover:text-tily-muted'
 
 export const ROW_ACTION =
   'flex size-[20px] shrink-0 cursor-pointer items-center justify-center rounded text-tily-muted hover:bg-tily-panel hover:text-tily-ink'
@@ -22,7 +22,7 @@ export const SECTION_TITLE = 'text-[11px] font-semibold tracking-[0.06em] text-t
 
 export const SECTION_HEADING = 'text-[11px] font-semibold tracking-[0.06em] text-tily-ink uppercase'
 
-const GIT_BUTTON = 'cursor-pointer rounded border px-3 py-1 text-[12px] aria-disabled:cursor-default aria-disabled:opacity-50'
+const GIT_BUTTON = 'cursor-pointer rounded border px-3 py-1 text-[12px] aria-disabled:cursor-default aria-disabled:opacity-60'
 
 export const GIT_PRIMARY = `${GIT_BUTTON} border-tily-green text-tily-green-deep hover:bg-tily-green-soft aria-disabled:hover:bg-transparent`
 

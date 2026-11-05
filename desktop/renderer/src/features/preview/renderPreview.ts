@@ -40,6 +40,10 @@ export const renderMarkdown = (content: string, baseUrl: string): string => {
 export const highlightText = (content: string, language: string | undefined): string | null =>
   language && hljs.getLanguage(language) && content.length <= MAX_HIGHLIGHTED_CHARS ? hljs.highlight(content, { language }).value : null
 
+export const isHighlightable = (language: string): boolean => hljs.getLanguage(language) !== undefined
+
+export const highlightLine = (text: string, language: string): string => hljs.highlight(text, { language, ignoreIllegals: true }).value
+
 export const anchorTarget = (root: HTMLElement, anchor: string): HTMLElement | null => {
   const escaped = CSS.escape(anchor)
   return root.querySelector<HTMLElement>(`[id="${CSS.escape(HEADING_PREFIX + anchor.toLowerCase())}"], [id="${escaped}"], [name="${escaped}"]`)
