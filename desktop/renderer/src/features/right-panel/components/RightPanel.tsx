@@ -27,9 +27,6 @@ const viewContent = (view: RightPanelView, root: string, onOpenTerminal: (path: 
   if (view === RightPanelView.Git) {
     return <GitPanel folder={root} />
   }
-  if (view === RightPanelView.Notes) {
-    return <WorkspaceNotes />
-  }
   return <FileExplorer root={root} onOpenTerminal={onOpenTerminal} />
 }
 
@@ -59,7 +56,10 @@ export const RightPanel = memo(function RightPanel({ view, root, width, onClose,
           <Icon name={IconName.Close} />
         </button>
       </div>
-      <Suspense fallback={null}>{viewContent(view, root, onOpenTerminal)}</Suspense>
+      {view !== RightPanelView.Notes && <Suspense fallback={null}>{viewContent(view, root, onOpenTerminal)}</Suspense>}
+      <div className={view === RightPanelView.Notes ? 'contents' : 'hidden'}>
+        <WorkspaceNotes />
+      </div>
     </aside>
   )
 })
