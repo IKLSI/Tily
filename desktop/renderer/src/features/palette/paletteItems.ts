@@ -123,6 +123,7 @@ const commandItems = (session: Session, shells: ShellProfile[]): PaletteItem[] =
       command('copy-path', 'Copier le chemin du pane actif', () => copyPanePath(paneId)),
       command('previous-command', 'Remonter à la commande précédente du pane actif', () => runCommand(Command.PreviousCommand), shortcutText(Command.PreviousCommand)),
       command('next-command', 'Descendre à la commande suivante du pane actif', () => runCommand(Command.NextCommand), shortcutText(Command.NextCommand)),
+      command('search-terminal', 'Rechercher dans le terminal du pane actif', () => runCommand(Command.SearchTerminal), shortcutText(Command.SearchTerminal)),
       command('copy-last-output', 'Copier la sortie de la dernière commande du pane actif', () => copyLastCommandOutput(paneId)),
       ...devServers.map((url) => command(`open-dev-server-${url}`, `Ouvrir le serveur de dev dans un navigateur${SEPARATOR}${url}`, () => openDevServer(paneId, url))),
       command('clear-scrollback', 'Effacer l’historique de défilement du pane actif', () => clearPaneScrollback(paneId)),

@@ -190,6 +190,10 @@ select {
   outline: none;
 }
 
+[data-pane-search] input:focus-visible {
+  outline: none;
+}
+
 [aria-invalid='true']:focus-visible {
   outline-color: var(--color-tily-error);
 }
@@ -419,4 +423,8 @@ select {
   button:not([aria-disabled='true']):not(:disabled):active {
     filter: brightness(0.92);
   }
+}
+
+.xterm .xterm-scrollable-element > .scrollbar {
+  display: none;
 }

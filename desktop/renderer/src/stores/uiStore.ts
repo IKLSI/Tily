@@ -38,6 +38,10 @@ interface UiState {
   springWorkspaceIds: string[]
   draggingWorkspaceId: string | null
   workspaceDropTarget: WorkspaceDropTarget | null
+  paneSearchId: string | null
+  paneSearchRequest: number
+  openPaneSearch: (paneId: string) => void
+  closePaneSearch: () => void
   paletteOpen: boolean
   openPalette: () => void
   closePalette: () => void
@@ -77,6 +81,10 @@ export const useUiStore = create<UiState>()((set) => ({
   springWorkspaceIds: [],
   draggingWorkspaceId: null,
   workspaceDropTarget: null,
+  paneSearchId: null,
+  paneSearchRequest: 0,
+  openPaneSearch: (paneId) => set((state) => ({ paneSearchId: paneId, paneSearchRequest: state.paneSearchRequest + 1 })),
+  closePaneSearch: () => set({ paneSearchId: null }),
   paletteOpen: false,
   openPalette: () => set({ paletteOpen: true, projectPickerOpen: false, settingsOpen: false }),
   closePalette: () => set({ paletteOpen: false }),

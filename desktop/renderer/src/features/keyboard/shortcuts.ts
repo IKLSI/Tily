@@ -261,6 +261,9 @@ export const runCommand = (command: Command): void => {
     case Command.NextCommand:
       scrollPaneToCommand(currentPaneId(), CommandDirection.Next)
       break
+    case Command.SearchTerminal:
+      useUiStore.getState().openPaneSearch(currentPaneId())
+      break
     case Command.EqualizePanes:
       equalizeActiveTab()
       break

@@ -84,6 +84,7 @@ export const COMMAND_GROUPS: CommandGroup[] = [
     entries: [
       { command: Command.PreviousCommand, label: 'Remonter à la commande précédente', hint: 'commande précédente' },
       { command: Command.NextCommand, label: 'Descendre à la commande suivante', hint: 'commande suivante' },
+      { command: Command.SearchTerminal, label: 'Rechercher dans le terminal', hint: 'rechercher' },
       { command: Command.CopyPath, label: 'Copier le chemin du pane actif', hint: 'copier le chemin' },
       { command: Command.CopyBranch, label: 'Copier la branche Git du pane actif', hint: 'copier la branche' },
       { command: Command.CopyLastOutput, label: 'Copier la sortie de la dernière commande', hint: 'copier la dernière sortie' },

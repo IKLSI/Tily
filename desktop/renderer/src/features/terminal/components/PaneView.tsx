@@ -17,6 +17,8 @@ import { BranchEditMergeRequestButton } from '../../forge/components/BranchEditM
 import { CreateMergeRequestButton } from '../../forge/components/CreateMergeRequestButton'
 import { MergeRequestPill } from '../../forge/components/MergeRequestPill'
 import { PaneOverlay } from './PaneOverlay'
+import { PaneSearchBar } from './PaneSearchBar'
+import { useUiStore } from '../../../stores/uiStore'
 import { Command } from '../../keyboard/commands'
 import { useShortcutTip } from '../../keyboard/shortcutLabels'
 import { usePaneHeaderTips } from '../paneHeaderTips'
@@ -118,6 +120,7 @@ export const PaneView = memo(function PaneView({ pane, active, alone = false, zo
   const context = useHostStore((state) => state.contexts[pane.id])
   const gitTip = useShortcutTip(context?.branch ? 'Ctrl+clic : vue Git' : 'Clic : vue Git', Command.ToggleGit)
   const devServers = usePaneStore((state) => state.devServers[pane.id]) ?? NO_DEV_SERVERS
+  const searching = useUiStore((state) => state.paneSearchId === pane.id)
   const [devServerMenuOpen, setDevServerMenuOpen] = useState(false)
   const devServerButtonRef = useRef<HTMLButtonElement>(null)
   const [menu, setMenu] = useState<TerminalMenuRequest | null>(null)
@@ -294,6 +297,7 @@ export const PaneView = memo(function PaneView({ pane, active, alone = false, zo
       </header>
       <div className="relative min-h-0">
         <TerminalPane pane={pane} active={active} onFocus={onFocus} onContextMenu={handleContextMenu} />
+        {searching && <PaneSearchBar paneId={pane.id} />}
         {paneState && <PaneOverlay state={paneState} active={active} shells={shells} onRestart={handleRestart} onRestartIn={handleRestartIn} onChangeShell={handleChangeShell} onDismiss={handleDismissState} onClose={handleClose} />}
       </div>
       {menu && <TerminalContextMenu request={menu} canCopy={hasPaneSelection(pane.id)} zoomed={zoomed} actions={menuActions} onDismiss={handleDismissMenu} />}

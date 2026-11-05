@@ -44,6 +44,7 @@ public static class ShortcutCatalog
         new("previousTab", "Ctrl+Shift+Tab"),
         new("previousCommand", "Alt+PageUp"),
         new("nextCommand", "Alt+PageDown"),
+        new("searchTerminal", "Cmd+F"),
         new("browserBelow"),
         new("browserTab"),
         new("openWorktree"),

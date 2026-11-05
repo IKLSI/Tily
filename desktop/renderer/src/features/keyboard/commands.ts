@@ -14,6 +14,7 @@ export enum Command {
   FocusPaneDown = 'focusPaneDown',
   PreviousCommand = 'previousCommand',
   NextCommand = 'nextCommand',
+  SearchTerminal = 'searchTerminal',
   SwapPaneLeft = 'swapPaneLeft',
   SwapPaneRight = 'swapPaneRight',
   SwapPaneUp = 'swapPaneUp',

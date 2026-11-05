@@ -4,6 +4,7 @@ import { WebglAddon } from '@xterm/addon-webgl'
 import { Unicode11Addon } from '@xterm/addon-unicode11'
 import { ClipboardAddon } from '@xterm/addon-clipboard'
 import { SerializeAddon } from '@xterm/addon-serialize'
+import { SearchAddon } from '@xterm/addon-search'
 import { WebLinksAddon } from '@xterm/addon-web-links'
 import { bridge } from '../../bridge/bridge'
 import { DEFAULT_FONT_FAMILY, DEFAULT_FONT_SIZE, fontStack } from '../../model/appearance'
@@ -50,6 +51,7 @@ export interface TerminalHandle {
   terminal: Terminal
   fit: FitAddon
   serializer: SerializeAddon
+  search: SearchAddon
   renderer: Renderer
   rendererAddon?: WebglAddon
   shownAt: number
@@ -204,13 +206,15 @@ const createHandle = (pane: Pane): TerminalHandle => {
   })
   const fit = new FitAddon()
   const serializer = new SerializeAddon()
+  const search = new SearchAddon()
   terminal.loadAddon(fit)
   terminal.loadAddon(serializer)
+  terminal.loadAddon(search)
   terminal.loadAddon(new Unicode11Addon())
   terminal.loadAddon(new ClipboardAddon())
   terminal.loadAddon(new WebLinksAddon(openLinkOnCtrlClick, { urlRegex: LINK_PATTERN }))
   terminal.unicode.activeVersion = '11'
-  const handle: TerminalHandle = { paneId: pane.id, terminal, fit, serializer, renderer: Renderer.Dom, shownAt: 0, started: false, unackedChars: 0, dirty: true, chunks: [] }
+  const handle: TerminalHandle = { paneId: pane.id, terminal, fit, serializer, search, renderer: Renderer.Dom, shownAt: 0, started: false, unackedChars: 0, dirty: true, chunks: [] }
   terminal.onData((data) => bridge.send({ type: 'terminal.input', pane: pane.id, data }))
   terminal.parser.registerOscHandler(COMMAND_DONE_OSC, (data) => {
     receiveCommandDone(pane.id, data)
