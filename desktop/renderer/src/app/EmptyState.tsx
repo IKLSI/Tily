@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { Command } from '../features/keyboard/commands'
 import { useLeaderText, useShortcutText, useShortcutTip } from '../features/keyboard/shortcutLabels'
+import { BUTTON_PRIMARY, BUTTON_SECONDARY } from '../components/buttonStyles'
 
 interface EmptyStateProps {
   canRestore: boolean
@@ -8,8 +9,6 @@ interface EmptyStateProps {
   onOpenProject: () => void
   onRestoreTab: () => void
 }
-
-const SECONDARY_BUTTON = 'cursor-pointer rounded-tily-sm border border-tily-line px-3 py-1.5 text-[13px] text-tily-ink hover:bg-tily-green-hover'
 
 export function EmptyState({ canRestore, onNewWorkspace, onOpenProject, onRestoreTab }: EmptyStateProps) {
   const newWorkspaceRef = useRef<HTMLButtonElement>(null)
@@ -32,14 +31,14 @@ export function EmptyState({ canRestore, onNewWorkspace, onOpenProject, onRestor
         <p className="text-[12px]">Créez-en un pour lancer un terminal, ou ouvrez un dossier de projet.</p>
       </div>
       <div className="flex flex-wrap justify-center gap-3">
-        <button ref={newWorkspaceRef} type="button" className="cursor-pointer rounded-tily-sm border border-tily-green px-3 py-1.5 text-[13px] text-tily-green-deep hover:bg-tily-green-soft" data-tip={newWorkspaceTip} onClick={onNewWorkspace}>
+        <button ref={newWorkspaceRef} type="button" className={BUTTON_PRIMARY} data-tip={newWorkspaceTip} onClick={onNewWorkspace}>
           Nouveau workspace
         </button>
-        <button type="button" className={SECONDARY_BUTTON} data-tip={openProjectTip} onClick={onOpenProject}>
+        <button type="button" className={BUTTON_SECONDARY} data-tip={openProjectTip} onClick={onOpenProject}>
           Ouvrir un projet…
         </button>
         {canRestore && (
-          <button type="button" className={SECONDARY_BUTTON} data-tip={restoreTip} onClick={onRestoreTab}>
+          <button type="button" className={BUTTON_SECONDARY} data-tip={restoreTip} onClick={onRestoreTab}>
             Rouvrir le dernier onglet fermé
           </button>
         )}

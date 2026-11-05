@@ -1,6 +1,7 @@
 import { useEffect, useRef, type PointerEvent } from 'react'
 import type { DeleteRequest } from '../features/explorer/explorerStore'
 import { keepTabInside } from './focusTrap'
+import { BUTTON_DANGER, BUTTON_SECONDARY } from './buttonStyles'
 
 interface DeleteConfirmDialogProps {
   request: DeleteRequest
@@ -8,9 +9,6 @@ interface DeleteConfirmDialogProps {
   onCancel: () => void
 }
 
-const BUTTON = 'cursor-pointer rounded-tily-sm border px-3 py-1.5 text-[12px]'
-const DANGER = `${BUTTON} border-tily-error text-tily-error hover:bg-tily-green-hover`
-const SECONDARY = `${BUTTON} border-tily-line text-tily-ink hover:bg-tily-green-hover`
 
 export function DeleteConfirmDialog({ request, onConfirm, onCancel }: DeleteConfirmDialogProps) {
   const confirmRef = useRef<HTMLButtonElement>(null)
@@ -48,10 +46,10 @@ export function DeleteConfirmDialog({ request, onConfirm, onCancel }: DeleteConf
           <p className="truncate text-[11px] text-tily-muted">{request.path}</p>
         </div>
         <div className="flex items-center justify-end gap-2 border-t border-tily-line px-4 py-3">
-          <button type="button" className={SECONDARY} data-tip="Échap" onClick={onCancel}>
+          <button type="button" className={BUTTON_SECONDARY} data-tip="Échap" onClick={onCancel}>
             Annuler
           </button>
-          <button ref={confirmRef} type="button" className={DANGER} data-tip="Entrée" onClick={handleConfirm}>
+          <button ref={confirmRef} type="button" className={BUTTON_DANGER} data-tip="Entrée" onClick={handleConfirm}>
             Placer dans la Corbeille
           </button>
         </div>

@@ -2,6 +2,7 @@ import { useEffect, useRef, type PointerEvent } from 'react'
 import type { CloseConfirmation } from '../../../stores/uiStore'
 import { keepTabInside } from '../../../components/focusTrap'
 import { InfoTip } from '../../../components/InfoTip'
+import { BUTTON_DANGER, BUTTON_SECONDARY } from '../../../components/buttonStyles'
 
 interface CloseConfirmDialogProps {
   confirmation: CloseConfirmation
@@ -9,9 +10,6 @@ interface CloseConfirmDialogProps {
   onCancel: () => void
 }
 
-const BUTTON = 'cursor-pointer rounded-tily-sm border px-3 py-1.5 text-[12px] focus-visible:outline-none'
-const DANGER = `${BUTTON} border-tily-error text-tily-error hover:bg-tily-green-hover`
-const SECONDARY = `${BUTTON} border-tily-line text-tily-ink hover:bg-tily-green-hover`
 
 export function CloseConfirmDialog({ confirmation, onConfirm, onCancel }: CloseConfirmDialogProps) {
   const confirmRef = useRef<HTMLButtonElement>(null)
@@ -55,10 +53,10 @@ export function CloseConfirmDialog({ confirmation, onConfirm, onCancel }: CloseC
           </ul>
         </div>
         <div className="flex items-center justify-end gap-2 border-t border-tily-line px-4 py-3">
-          <button type="button" className={SECONDARY} data-tip="Échap" onClick={onCancel}>
+          <button type="button" className={BUTTON_SECONDARY} data-tip="Échap" onClick={onCancel}>
             Annuler
           </button>
-          <button ref={confirmRef} type="button" className={DANGER} data-tip="Entrée" onClick={onConfirm}>
+          <button ref={confirmRef} type="button" className={BUTTON_DANGER} data-tip="Entrée" onClick={onConfirm}>
             {confirmation.confirmLabel ?? 'Arrêter et fermer'}
           </button>
         </div>

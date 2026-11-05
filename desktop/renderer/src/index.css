@@ -158,7 +158,6 @@ html[data-git-dragging] * {
 :focus-visible {
   outline: 3px solid color-mix(in srgb, var(--color-tily-focus) 55%, transparent);
   outline-offset: -1px;
-  border-radius: 6px;
 }
 
 select {
@@ -380,10 +379,44 @@ select {
   }
 }
 
+@keyframes tily-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes tily-slide {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
 @media (prefers-reduced-motion: no-preference) {
   [role='dialog'],
   [role='alertdialog'],
   [role='menu'] {
     animation: tily-pop 140ms ease-out;
+  }
+
+  div:has(> [role='dialog']),
+  div:has(> [role='alertdialog']) {
+    animation: tily-fade 140ms ease-out;
+  }
+
+  [data-git-drawer],
+  [data-preview-drawer] {
+    animation: tily-slide 160ms ease-out;
+  }
+
+  button:not([aria-disabled='true']):not(:disabled):active {
+    filter: brightness(0.92);
   }
 }

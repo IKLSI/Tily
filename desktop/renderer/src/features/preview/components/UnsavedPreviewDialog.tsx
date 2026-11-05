@@ -4,11 +4,8 @@ import { folderName } from '../../../model/session'
 import { cancelPendingAction, discardBeforePendingAction, saveBeforePendingAction } from '../previewEdit'
 import { usePreviewStore } from '../previewStore'
 import { keepTabInside } from '../../../components/focusTrap'
+import { BUTTON_DANGER, BUTTON_PRIMARY, BUTTON_SECONDARY } from '../../../components/buttonStyles'
 
-const BUTTON = 'cursor-pointer rounded-tily-sm border px-3 py-1.5 text-[12px] aria-disabled:cursor-default aria-disabled:opacity-50'
-const PRIMARY = `${BUTTON} border-tily-green text-tily-green-deep hover:bg-tily-green-soft`
-const DANGER = `${BUTTON} border-tily-error text-tily-error hover:bg-tily-green-hover`
-const SECONDARY = `${BUTTON} border-tily-line text-tily-ink hover:bg-tily-green-hover`
 
 const handleBackdropPointerDown = (event: PointerEvent<HTMLDivElement>) => {
   if (event.target === event.currentTarget) {
@@ -44,13 +41,13 @@ export function UnsavedPreviewDialog() {
           <p className="truncate text-[11px] text-tily-muted">{path}</p>
         </div>
         <div className="flex items-center justify-end gap-2 border-t border-tily-line px-4 py-3">
-          <button type="button" className={SECONDARY} data-tip="Échap" onClick={cancelPendingAction}>
+          <button type="button" className={BUTTON_SECONDARY} data-tip="Échap" onClick={cancelPendingAction}>
             Annuler
           </button>
-          <button type="button" className={DANGER} onClick={discardBeforePendingAction}>
+          <button type="button" className={BUTTON_DANGER} onClick={discardBeforePendingAction}>
             Abandonner les modifications
           </button>
-          <button ref={saveRef} type="button" className={PRIMARY} aria-disabled={saving} onClick={saveBeforePendingAction}>
+          <button ref={saveRef} type="button" className={BUTTON_PRIMARY} aria-disabled={saving} onClick={saveBeforePendingAction}>
             {saving ? 'Enregistrement…' : 'Enregistrer'}
           </button>
         </div>

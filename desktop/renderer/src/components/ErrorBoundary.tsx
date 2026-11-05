@@ -1,4 +1,5 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react'
+import { BUTTON_SECONDARY } from './buttonStyles'
 
 interface ErrorBoundaryProps {
   children: ReactNode
@@ -12,7 +13,6 @@ interface ErrorBoundaryState {
 }
 
 const RECOVERY_INTERVAL_MS = 1_000
-const BUTTON = 'cursor-pointer rounded-tily-sm border border-tily-line px-3 py-1.5 text-[12px] text-tily-ink hover:bg-tily-green-hover'
 
 export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   state: ErrorBoundaryState = { error: null }
@@ -56,7 +56,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       <div role="alert" className={this.props.className ?? 'flex h-full min-h-0 flex-col items-center justify-center gap-3 p-4 text-center'}>
         <p className="text-tily-ink">Une erreur inattendue a interrompu l’affichage de cette zone.</p>
         <p className="max-w-md break-words text-[12px] text-tily-muted">{error.message}</p>
-        <button type="button" className={BUTTON} onClick={this.reset}>
+        <button type="button" className={BUTTON_SECONDARY} onClick={this.reset}>
           Réessayer
         </button>
       </div>

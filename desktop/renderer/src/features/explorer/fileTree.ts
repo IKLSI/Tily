@@ -22,6 +22,7 @@ interface FileTreeView {
 }
 
 const LOADING_NOTE = 'Chargement…'
+const EMPTY_NOTE = 'Dossier vide'
 
 const hiddenNote = (listing: DirectoryListing): string | undefined => {
   const hidden = listing.total - listing.entries.length
@@ -44,6 +45,10 @@ export const buildFileTree = (root: string, listings: Record<string, DirectoryLi
     }
     if (listing.error) {
       note(folder, depth, listing.error)
+      return
+    }
+    if (listing.entries.length === 0 && listing.total === 0 && draft?.parent !== folder) {
+      note(folder, depth, EMPTY_NOTE)
       return
     }
     for (const entry of listing.entries) {

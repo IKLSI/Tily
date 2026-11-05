@@ -2,11 +2,9 @@ import { useEffect, useRef, type PointerEvent } from 'react'
 import { usePasteStore, type PasteRequest } from '../pasteStore'
 import { cancelPaste, confirmPaste } from '../terminalActions'
 import { keepTabInside } from '../../../components/focusTrap'
+import { BUTTON_PRIMARY, BUTTON_SECONDARY } from '../../../components/buttonStyles'
 
 const PREVIEW_LINES = 8
-const BUTTON = 'cursor-pointer rounded-tily-sm border px-3 py-1.5 text-[12px]'
-const PRIMARY = `${BUTTON} border-tily-green text-tily-green-deep hover:bg-tily-green-soft`
-const SECONDARY = `${BUTTON} border-tily-line text-tily-ink hover:bg-tily-green-hover`
 
 const hiddenLinesLabel = (hidden: number): string => (hidden === 1 ? '… et 1 autre ligne' : `… et ${hidden} autres lignes`)
 
@@ -47,10 +45,10 @@ function PasteConfirmContent({ request }: { request: PasteRequest }) {
           {hidden > 0 && <p className="text-[11px] text-tily-muted">{hiddenLinesLabel(hidden)}</p>}
         </div>
         <div className="flex items-center justify-end gap-2 border-t border-tily-line px-4 py-3">
-          <button type="button" className={SECONDARY} data-tip="Échap" onClick={cancelPaste}>
+          <button type="button" className={BUTTON_SECONDARY} data-tip="Échap" onClick={cancelPaste}>
             Annuler
           </button>
-          <button ref={confirmRef} type="button" className={PRIMARY} data-tip="Entrée" onClick={confirmPaste}>
+          <button ref={confirmRef} type="button" className={BUTTON_PRIMARY} data-tip="Entrée" onClick={confirmPaste}>
             Coller et exécuter
           </button>
         </div>

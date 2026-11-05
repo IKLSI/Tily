@@ -139,7 +139,7 @@ export function SearchDialog<T extends SearchItem>({ label, placeholder, emptyMe
                     aria-pressed={item.favorite}
                     aria-label={item.favorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
                     data-tip={item.favorite ? 'Retirer des favoris (Ctrl + Entrée)' : 'Ajouter aux favoris (Ctrl + Entrée)'}
-                    className={`flex size-6 shrink-0 translate-y-px cursor-pointer items-center justify-center self-center rounded-tily-sm hover:bg-tily-green-hover focus:outline-none ${item.favorite ? 'text-tily-warning' : 'text-tily-muted opacity-50 hover:opacity-100'}`}
+                    className={`flex size-6 shrink-0 translate-y-px cursor-pointer items-center justify-center self-center rounded-tily-sm hover:bg-tily-green-hover focus:outline-none ${item.favorite ? 'text-tily-warning' : 'text-tily-muted opacity-70 hover:opacity-100'}`}
                     onPointerDown={handleResultPointerDown}
                     onClick={handleToggleFavorite}
                   >

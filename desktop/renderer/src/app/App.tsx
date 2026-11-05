@@ -49,6 +49,7 @@ import { receiveStatusLogCleared, receiveStatusLogEntry, startStatusLog } from '
 import { useShortcutStore } from '../stores/shortcutStore'
 import { useStatusLogStore } from '../features/status-log/statusLogStore'
 import { forgetRemovedText, markTextSaveFailed, primeSessionText, startTextAutosave } from '../features/terminal/textPersistence'
+import { Spinner } from '../components/Spinner'
 
 const SAVE_DEBOUNCE_MS = 500
 
@@ -261,7 +262,12 @@ export default function App() {
   }, [])
 
   if (!session || !connected) {
-    return <div className="flex h-full items-center justify-center text-tily-muted">{status.text}</div>
+    return (
+      <div role="status" className="flex h-full items-center justify-center gap-2 text-tily-muted">
+        <Spinner size={14} />
+        <span>{status.text}</span>
+      </div>
+    )
   }
 
   return (

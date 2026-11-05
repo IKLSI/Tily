@@ -2,11 +2,9 @@ import { useEffect, useRef, useState } from 'react'
 import { answerConsent, ConsentAnswer } from '../mcpConsent'
 import { useMcpConsentStore, type McpConsentRequest } from '../mcpConsentStore'
 import { keepTabInside } from '../../../components/focusTrap'
+import { BUTTON_PRIMARY, BUTTON_SECONDARY } from '../../../components/buttonStyles'
 
 const ARM_DELAY_MS = 600
-const BUTTON = 'cursor-pointer rounded-tily-sm border px-3 py-1.5 text-[12px]'
-const PRIMARY = `${BUTTON} border-tily-green text-tily-green-deep hover:bg-tily-green-soft aria-disabled:cursor-default aria-disabled:opacity-50`
-const SECONDARY = `${BUTTON} border-tily-line text-tily-ink hover:bg-tily-green-hover`
 const LABEL = 'text-[11px] text-tily-muted'
 const VALUE = 'text-[12px] text-tily-ink'
 const TITLE = 'Claude Code demande votre accord'
@@ -63,10 +61,10 @@ function McpConsentContent({ request, waiting }: { request: McpConsentRequest; w
           <p className="text-[11px] text-tily-muted">Sans réponse dans les 2 minutes, la demande est refusée.{waiting > 0 ? ` ${waitingLabel(waiting)}` : ''}</p>
         </div>
         <div className="flex items-center justify-end gap-2 border-t border-tily-line px-4 py-3">
-          <button ref={refuseRef} type="button" className={SECONDARY} data-tip="Entrée ou Échap" onClick={handleRefuse}>
+          <button ref={refuseRef} type="button" className={BUTTON_SECONDARY} data-tip="Entrée ou Échap" onClick={handleRefuse}>
             Refuser
           </button>
-          <button type="button" className={PRIMARY} aria-disabled={!armed} onClick={handleAllow}>
+          <button type="button" className={BUTTON_PRIMARY} aria-disabled={!armed} onClick={handleAllow}>
             Autoriser
           </button>
         </div>

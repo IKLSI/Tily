@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState, type FocusEvent, type Keyboar
 import type { ShellProfile } from '../../../bridge/messages'
 import { PaneStateKind, type PaneState } from '../paneStore'
 import { ShellMenu } from './ShellMenu'
+import { BUTTON_PRIMARY, BUTTON_SECONDARY } from '../../../components/buttonStyles'
 
 interface PaneOverlayProps {
   state: PaneState
@@ -24,10 +25,7 @@ const PANE_SELECTOR = '[data-pane-id]'
 const ACTIVATION_GUARD_MS = 600
 const ACTIVATION_KEYS = new Set(['Enter', ' '])
 
-const BUTTON = 'cursor-pointer rounded-tily-sm border px-3 py-1.5 text-[12px]'
-const PRIMARY = `${BUTTON} border-tily-green text-tily-green-deep hover:bg-tily-green-soft`
-const SECONDARY = `${BUTTON} border-tily-line text-tily-ink hover:bg-tily-green-hover`
-const DANGER = `${BUTTON} border-tily-line text-tily-muted hover:text-tily-error`
+const DANGER = `${BUTTON_SECONDARY} text-tily-muted hover:text-tily-error`
 
 export function PaneOverlay({ state, active, shells, onRestart, onRestartIn, onChangeShell, onDismiss, onClose }: PaneOverlayProps) {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -81,20 +79,20 @@ export function PaneOverlay({ state, active, shells, onRestart, onRestartIn, onC
       <div className="flex flex-wrap items-center justify-center gap-2">
         {pathMissing ? (
           <>
-            <button type="button" className={PRIMARY} data-tip={`Relancer un shell neuf dans ${state.fallback ?? ''}`} onClick={handleRestartInFallback}>
+            <button type="button" className={BUTTON_PRIMARY} data-tip={`Relancer un shell neuf dans ${state.fallback ?? ''}`} onClick={handleRestartInFallback}>
               Relancer dans le dossier de repli
             </button>
-            <button ref={defaultRef} type="button" className={SECONDARY} data-overlay-default data-tip="Garder ce shell (Entrée)" onClick={onDismiss}>
+            <button ref={defaultRef} type="button" className={BUTTON_SECONDARY} data-overlay-default data-tip="Garder ce shell (Entrée)" onClick={onDismiss}>
               Ignorer
             </button>
           </>
         ) : (
           <>
-            <button ref={defaultRef} type="button" className={PRIMARY} data-overlay-default data-tip="Relancer le shell (Entrée)" onClick={onRestart}>
+            <button ref={defaultRef} type="button" className={BUTTON_PRIMARY} data-overlay-default data-tip="Relancer le shell (Entrée)" onClick={onRestart}>
               Relancer
             </button>
             <div className="relative">
-              <button ref={shellButtonRef} type="button" className={SECONDARY} aria-haspopup="menu" aria-expanded={menuOpen} data-tip="Relancer avec un autre shell" onClick={handleOpenMenu}>
+              <button ref={shellButtonRef} type="button" className={BUTTON_SECONDARY} aria-haspopup="menu" aria-expanded={menuOpen} data-tip="Relancer avec un autre shell" onClick={handleOpenMenu}>
                 Choisir un shell
               </button>
               {menuOpen && <ShellMenu shells={shells} onSelect={handleSelectShell} onClose={handleCloseMenu} />}
