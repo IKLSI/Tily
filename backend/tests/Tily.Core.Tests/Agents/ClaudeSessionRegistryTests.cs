@@ -137,7 +137,7 @@ public sealed class ClaudeSessionRegistryTests : IDisposable
     {
         "unixMilliseconds" => UnixMillisecondsOf(time).ToString(CultureInfo.InvariantCulture),
         "unixSeconds" => new DateTimeOffset(time).ToUnixTimeSeconds().ToString(CultureInfo.InvariantCulture),
-        _ => time.ToLocalTime().ToString("ddd MMM d HH:mm:ss yyyy", CultureInfo.InvariantCulture)
+        _ => time.ToUniversalTime().ToString("ddd MMM d HH:mm:ss yyyy", CultureInfo.InvariantCulture)
     };
 
     private static long UnixMillisecondsOf(DateTime time) => new DateTimeOffset(time).ToUnixTimeMilliseconds();

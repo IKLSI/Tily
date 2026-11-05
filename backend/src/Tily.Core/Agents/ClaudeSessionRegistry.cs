@@ -114,7 +114,7 @@ public sealed class ClaudeSessionRegistry
             return new[] { FromFileTime(number), FromUnixMilliseconds(number), FromUnixSeconds(number) }.FirstOrDefault(Plausible);
         }
 
-        return DateTime.TryParseExact(text.Trim(), StartFormats, CultureInfo.InvariantCulture, DateTimeStyles.AllowWhiteSpaces | DateTimeStyles.AssumeLocal, out var parsed) && Plausible(parsed.ToUniversalTime())
+        return DateTime.TryParseExact(text.Trim(), StartFormats, CultureInfo.InvariantCulture, DateTimeStyles.AllowWhiteSpaces | DateTimeStyles.AssumeUniversal, out var parsed) && Plausible(parsed.ToUniversalTime())
             ? parsed.ToUniversalTime()
             : null;
     }

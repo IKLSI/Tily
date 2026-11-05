@@ -23,11 +23,13 @@ public sealed class ClaudeCodeAdapterTests : IDisposable
     }
 
     [Theory]
-    [InlineData(AgentState.Working)]
-    [InlineData(AgentState.Waiting)]
-    public void Detect_WhenRegistryIdleAfterHookState_ThenAgentIsInterrupted(AgentState reportedState)
+    [InlineData(AgentState.Working, "idle")]
+    [InlineData(AgentState.Waiting, "idle")]
+    [InlineData(AgentState.Working, "shell")]
+    [InlineData(AgentState.Waiting, "shell")]
+    public void Detect_WhenRegistryIdleAfterHookState_ThenAgentIsInterrupted(AgentState reportedState, string registryStatus)
     {
-        WriteRegistry("idle", HookWrittenAt.AddSeconds(5));
+        WriteRegistry(registryStatus, HookWrittenAt.AddSeconds(5));
 
         var agent = _adapter.Detect(Probe(), Reported(reportedState));
 

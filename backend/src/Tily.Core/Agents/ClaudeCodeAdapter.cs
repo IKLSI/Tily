@@ -30,7 +30,7 @@ public sealed class ClaudeCodeAdapter : IAgentAdapter
     private PaneAgentModel Reconcile(PaneAgentModel agent, AgentStateModel reported, ClaudeSessionModel? session)
     {
         var interrupted = reported.State is AgentState.Working or AgentState.Waiting
-            && session is { Status: ClaudeSessionStatus.Idle, StatusUpdatedAtUtc: { } idleSince }
+            && session is { Status: ClaudeSessionStatus.Idle or ClaudeSessionStatus.Shell, StatusUpdatedAtUtc: { } idleSince }
             && idleSince > reported.UpdatedAtUtc
             && _clock() - idleSince >= InterruptionGrace;
         return interrupted
