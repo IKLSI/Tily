@@ -9,9 +9,9 @@ Tily est un terminal **macOS** organisé en **workspaces → onglets → panes**
 - `backend/tests/` : tests xUnit ;
 - `desktop/` : application Electron, selon la convention `main` / `preload` / `renderer` : `src/main/` (processus principal : fenêtre, menus, dialogues, notifications, protocoles, panes navigateur, lancement de l'hôte et relais de ses messages), `src/preload/` (pont `window.tily`), `renderer/` (interface React + TypeScript + Vite + Tailwind + Zustand, projet pnpm autonome), `resources/` (icône, entitlements).
 
-Tily (de *mitily*, « guetter » en malgache) s'appelait Dock jusqu'au 30 septembre 2026 : l'historique Git, les issues GitHub et les releases antérieures emploient encore ce nom. Jusqu'à la version 2.2.0 incluse, Tily était une application Windows (WinUI 3 + WebView2, ConPTY, PowerShell 5.1, installeur Inno Setup) ; le port macOS du 5 octobre 2026 a supprimé tout le code Windows, qui reste consultable dans l'historique Git.
+Tily (de *mitily*, « guetter » en malgache) s'appelait Dock jusqu'au 30 septembre 2026 : l'historique Git et les releases antérieures emploient encore ce nom. Jusqu'à la version 2.2.0 incluse, Tily était une application Windows (WinUI 3 + WebView2, ConPTY, PowerShell 5.1, installeur Inno Setup) ; le port macOS du 5 octobre 2026 a supprimé tout le code Windows, qui reste consultable dans l'historique Git.
 
-Toute évolution de l'application suit `docs/architecture/backend.md`, `docs/architecture/frontend.md` et `docs/testing.md`.
+Toute évolution de l'application suit `docs/architecture/backend.md`, `docs/architecture/frontend.md` et `docs/TESTING.md`.
 
 Tout le contenu est rédigé en **français**.
 
@@ -41,11 +41,9 @@ node scripts/generate-icon.js          # régénère desktop/resources/icon.png 
 
 La version vient de la propriété `Version` de `backend/src/Tily.Host/Tily.Host.csproj` (recopiée dans `desktop/package.json` par le script) ; chaque version est publiée en release GitHub avec ses deux `.dmg`. La CI `.github/workflows/macos.yml` construit et teste sur `macos-latest` à chaque push sur `main` et à chaque pull request ; sur un tag `v*`, elle empaquette aussi les deux `.dmg` et publie la release. Les captures du README sont dans `docs/images/`.
 
-Les issues GitHub `[Fxx]` référencent les **numéros de sections** de la spec et les **identifiants de recette `Rxx`** (section 16). La spec a été renumérotée le 6 octobre 2026 (sections 2 à 17 devenues 1 à 16) : les anciennes issues citent l'ancienne numérotation. Renuméroter une section impose de revoir ces références.
-
 ## Choix établis
 
-`docs/specification.md` décrit le comportement actuel de Tily, sans statut ni point en suspens : toute évolution la met à jour pour qu'elle reste factuelle. Choix à ne pas rouvrir : Leader = Cmd + K (délai 5 s ; Ctrl + Espace reste accepté, mais macOS le réserve par défaut au changement de source de saisie), palette = Ctrl + P, shell par défaut = zsh (`/bin/zsh -l`, profil de l'utilisateur chargé ; bash disponible), agents suivis = Claude Code (`claude`) et Codex CLI (`codex`), projets = premier niveau du dossier des projets (`~/Developer` par défaut, réglage `ProjectsRoot`) hors `worktrees`, recherche dans les terminaux **hors périmètre**, F13 retirée.
+`docs/specification.md` décrit le comportement actuel de Tily, sans statut ni point en suspens : toute évolution la met à jour pour qu'elle reste factuelle. Choix à ne pas rouvrir : Leader = Cmd + K (délai 5 s ; Ctrl + Espace reste accepté, mais macOS le réserve par défaut au changement de source de saisie), palette = Ctrl + P, shell par défaut = zsh (`/bin/zsh -l`, profil de l'utilisateur chargé ; bash disponible), agents suivis = Claude Code (`claude`) et Codex CLI (`codex`), projets = premier niveau du dossier des projets (`~/Developer` par défaut, réglage `ProjectsRoot`) hors `worktrees`, F13 retirée.
 
 ## Application (`backend/`, `desktop/`, `desktop/renderer/`)
 
