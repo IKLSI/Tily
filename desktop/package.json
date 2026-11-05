@@ -1,7 +1,7 @@
 {
   "name": "tily",
   "productName": "Tily",
-  "version": "3.1.3",
+  "version": "3.2.0",
   "description": "Terminal macOS organisé en workspaces, onglets et panes",
   "author": "IKLSI",
   "private": true,
