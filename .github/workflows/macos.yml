@@ -9,6 +9,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/v') }}
+
 jobs:
   check:
     runs-on: macos-latest
@@ -32,11 +36,19 @@ jobs:
           cache-dependency-path: |
             desktop/pnpm-lock.yaml
             desktop/renderer/pnpm-lock.yaml
+      - uses: actions/cache@v6
+        with:
+          path: |
+            ~/Library/Caches/electron
+            ~/Library/Caches/electron-builder
+          key: electron-${{ runner.os }}-${{ hashFiles('desktop/pnpm-lock.yaml') }}
+          restore-keys: electron-${{ runner.os }}-
       - name: Renderer
         working-directory: desktop/renderer
         run: |
           pnpm install --frozen-lockfile
           pnpm lint
+          pnpm test
           pnpm build
       - name: Desktop
         working-directory: desktop
@@ -48,6 +60,9 @@ jobs:
         run: pnpm exec electron-builder --mac --dir --publish never -c.mac.identity=null
       - name: Tests
         run: dotnet test backend/Tily.slnx
+      - name: Test de bout en bout
+        working-directory: desktop
+        run: pnpm e2e
 
   release:
     if: startsWith(github.ref, 'refs/tags/v')

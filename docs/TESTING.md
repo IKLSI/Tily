@@ -31,3 +31,11 @@ Les tests d'intégration dépendent de la machine (profils zsh et bash de l'util
 - Messages d'assertion et messages d'erreur attendus en français, comme le code.
 - Ne jamais lancer `wtr` / `rmwt` réels dans un test, ni `PostgresDockerReplicator` : ils créent des worktrees et des bases de données. Injecter un `IDatabaseReplicator` factice dans `WorktreeDatabase`.
 - Aucun test ne doit laisser de processus vivant ; utiliser `TerminalManager.Stop` ou `Dispose`.
+
+# Tests du renderer (vitest)
+
+Dans `desktop/renderer/` : `pnpm test` lance vitest (environnement Node, fichiers `src/**/*.test.ts`). `src/stores/sessionStore.test.ts` vérifie le store de session : fermeture et restauration d'onglet (workspace supprimé puis recréé avec sa note, plafond des onglets fermés), déplacement d'onglet (fusion des notes, ordre), découpage et fermeture de pane.
+
+# Test de bout en bout (Electron)
+
+Dans `desktop/` : `pnpm e2e` lance `e2e/parcours.test.mjs` (`node:test` et `playwright-core`, via `_electron.launch`, sans navigateur Playwright). Prérequis : `pnpm build` dans `desktop/renderer/` et dans `desktop/`, et `dotnet build backend/Tily.slnx` (l'hôte de `backend/src/Tily.Host/bin/Debug/net10.0/Tily`). Le test utilise un dossier temporaire pour `HOME`, `TILY_DATA_DIR` et `--user-data-dir`, supprimé à la fin, sans toucher à la session de l'utilisateur. Parcours : pane du workspace de départ, split côte à côte, commande `touch` saisie dans le vrai shell et fichier créé, Cmd + F ouvre la recherche et Échap la ferme. La CI l'exécute après `dotnet test`.
