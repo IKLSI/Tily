@@ -2,7 +2,6 @@ import { memo, useCallback, useEffect, useRef, useState, type MouseEvent } from 
 import { OpenTarget, type ShellProfile } from '../../../bridge/messages'
 import { activeTab, activeWorkspace, DEFAULT_SHELL, panesOf, RightPanelView, SplitAxis, type Pane } from '../../../model/session'
 import { openPanelView } from '../../right-panel/rightPanel'
-import { useAgentStore } from '../../agents/agentStore'
 import { useHostStore } from '../../../stores/hostStore'
 import { useSessionStore } from '../../../stores/sessionStore'
 import { usePaneStore } from '../paneStore'
@@ -13,7 +12,6 @@ import { openDevServer } from '../../browser/browserActions'
 import { ActionMenu } from '../../../components/ActionMenu'
 import { REVEALED_ON_HOVER } from '../../../components/paneHeaderStyles'
 import { TerminalPane } from './TerminalPane'
-import { AgentBadge } from '../../agents/components/AgentBadge'
 import { AgentOwnerMark } from '../../agents/components/AgentOwnerMark'
 import { BranchEditMergeRequestButton } from '../../forge/components/BranchEditMergeRequestButton'
 import { CreateMergeRequestButton } from '../../forge/components/CreateMergeRequestButton'
@@ -119,7 +117,6 @@ export const PaneView = memo(function PaneView({ pane, active, alone = false, zo
   const tips = usePaneHeaderTips()
   const context = useHostStore((state) => state.contexts[pane.id])
   const gitTip = useShortcutTip(context?.branch ? 'Ctrl+clic : vue Git' : 'Clic : vue Git', Command.ToggleGit)
-  const agent = useAgentStore((state) => state.agents[pane.id])
   const devServers = usePaneStore((state) => state.devServers[pane.id]) ?? NO_DEV_SERVERS
   const [devServerMenuOpen, setDevServerMenuOpen] = useState(false)
   const devServerButtonRef = useRef<HTMLButtonElement>(null)
@@ -229,11 +226,6 @@ export const PaneView = memo(function PaneView({ pane, active, alone = false, zo
       >
         <span className="flex min-w-0 flex-1 items-baseline gap-1">
           {pane.shell !== DEFAULT_SHELL && <span className="mr-1 min-w-[2em] truncate text-tily-muted">{pane.shell}</span>}
-          {agent && tabName === null && (
-            <span className="flex min-w-0 self-center">
-              <AgentBadge agent={agent} />
-            </span>
-          )}
           {pane.owner && (
             <span className="flex min-w-0 self-center">
               <AgentOwnerMark owner={pane.owner} />
