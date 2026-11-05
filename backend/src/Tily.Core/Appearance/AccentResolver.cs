@@ -4,7 +4,7 @@ using Tily.Core.Worktrees;
 
 namespace Tily.Core.Appearance;
 
-public sealed record AppearanceStateModel(AccentThemeModel Theme, string DefaultColor);
+public sealed record AppearanceStateModel(AccentThemeModel Theme, string DefaultColor, string ColorScheme);
 
 public sealed record FolderProjectModel(string Path, string? Project, string? Color)
 {
@@ -17,7 +17,7 @@ public static class AccentResolver
     {
         var defaultColor = AccentPresets.System;
         var theme = AccentTheme.Build(HexColor.Normalize(appearance.Accent) ?? defaultColor);
-        return new AppearanceStateModel(theme, defaultColor);
+        return new AppearanceStateModel(theme, defaultColor, appearance.ColorScheme);
     }
 
     public static IReadOnlyList<FolderProjectModel> ProjectsOf(SettingsModel settings, IEnumerable<string> paths)

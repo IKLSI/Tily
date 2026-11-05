@@ -21,6 +21,24 @@ public sealed class AccentResolverTests : IDisposable
     }
 
     [Fact]
+    public void Resolve_WhenNoScheme_ThenSystem()
+    {
+        Assert.Equal(AppearanceSettingsModel.SchemeSystem, AccentResolver.Resolve(AppearanceSettingsModel.Default).ColorScheme);
+    }
+
+    [Theory]
+    [InlineData("dark", "dark")]
+    [InlineData(" LIGHT ", "light")]
+    [InlineData("sepia", "system")]
+    [InlineData(null, "system")]
+    public void Normalized_ThenColorSchemeIsKnownValue(string? input, string expected)
+    {
+        var normalized = (AppearanceSettingsModel.Default with { ColorScheme = input! }).Normalized();
+
+        Assert.Equal(expected, normalized.ColorScheme);
+    }
+
+    [Fact]
     public void Resolve_WhenGlobalAccent_ThenThemeUsesIt()
     {
         var state = AccentResolver.Resolve(AppearanceSettingsModel.Default with { Accent = "#c98fa5" });

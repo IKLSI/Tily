@@ -20,9 +20,12 @@ export interface AccentTheme extends AccentScheme {
   light: AccentScheme
 }
 
+export type ColorScheme = 'system' | 'light' | 'dark'
+
 export interface AppearanceState {
   theme: AccentTheme
   defaultColor: string
+  colorScheme: ColorScheme
 }
 
 export interface FolderProject {
@@ -43,5 +46,5 @@ export type AppearanceHostMessage =
 
 export type AppearanceWebMessage =
   | { type: 'appearance.projects'; paths: string[] }
-  | { type: 'appearance.preview'; color?: string }
+  | { type: 'appearance.preview'; color?: string; colorScheme?: ColorScheme }
   | { type: 'appearance.projectColor'; project: string; color?: string }

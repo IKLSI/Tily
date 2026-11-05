@@ -42,7 +42,7 @@ public sealed class AppearanceFeed
                 RefreshProjects();
                 break;
             case "appearance.preview":
-                Preview(command.Color);
+                Preview(command.Color, command.ColorScheme);
                 break;
             default:
                 throw new InvalidOperationException($"Commande inconnue : {command.Type}");
@@ -51,7 +51,11 @@ public sealed class AppearanceFeed
 
     public void Refresh() => PostTheme(_settings.Current.Appearance);
 
-    private void Preview(string? accent) => PostTheme(_settings.Current.Appearance with { Accent = accent });
+    private void Preview(string? accent, string? colorScheme)
+    {
+        var current = _settings.Current.Appearance;
+        PostTheme((current with { Accent = accent, ColorScheme = colorScheme ?? current.ColorScheme }).Normalized());
+    }
 
     private void PostTheme(AppearanceSettingsModel appearance)
     {

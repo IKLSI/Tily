@@ -50,9 +50,10 @@ const applyScheme = (): void => {
   if (!currentState) {
     return
   }
-  const light = scheme.matches
+  const light = currentState.colorScheme === 'system' ? scheme.matches : currentState.colorScheme === 'light'
   const colors = light ? currentState.theme.light : currentState.theme
   const root = document.documentElement.style
+  document.documentElement.style.colorScheme = light ? 'light' : 'dark'
   Object.entries(colors.tokens).forEach(([token, color]) => root.setProperty(`${TOKEN_PREFIX}${token}`, color))
   terminalRegistry.setTheme(terminalTheme(colors, light))
 }

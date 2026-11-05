@@ -41,6 +41,7 @@ public sealed class BridgeCommandModel
     public string? Fingerprint { get; init; }
     public string? Content { get; init; }
     public string? Color { get; init; }
+    public string? ColorScheme { get; init; }
     public string? Version { get; init; }
     public string[]? Panes { get; init; }
     public string[]? Keep { get; init; }

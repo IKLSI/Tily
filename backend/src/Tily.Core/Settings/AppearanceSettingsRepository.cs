@@ -12,9 +12,15 @@ public sealed record AppearanceSettingsModel(int FontSize = AppearanceSettingsMo
     public const string DefaultFontFamily = "JetBrainsMono Nerd Font";
     public static readonly IReadOnlyList<string> FontFamilies = ["Menlo", "Monaco", "Courier New", "CaskaydiaCove Nerd Font", "MesloLGS Nerd Font", "Hack Nerd Font", DefaultFontFamily, "FiraCode Nerd Font"];
 
+    public const string SchemeSystem = "system";
+    public const string SchemeLight = "light";
+    public const string SchemeDark = "dark";
+    public static readonly IReadOnlyList<string> ColorSchemes = [SchemeSystem, SchemeLight, SchemeDark];
+
     public static readonly AppearanceSettingsModel Default = new();
 
     public string? Accent { get; init; }
+    public string ColorScheme { get; init; } = SchemeSystem;
     public Dictionary<string, string> ProjectColors { get; init; } = new(StringComparer.OrdinalIgnoreCase);
 
     public AppearanceSettingsModel Normalized() => this with
@@ -22,6 +28,7 @@ public sealed record AppearanceSettingsModel(int FontSize = AppearanceSettingsMo
         FontSize = Math.Clamp(FontSize, MinFontSize, MaxFontSize),
         FontFamily = FontFamilies.FirstOrDefault(known => string.Equals(known, FontFamily?.Trim(), StringComparison.OrdinalIgnoreCase)) ?? DefaultFontFamily,
         Accent = HexColor.Normalize(Accent),
+        ColorScheme = ColorSchemes.FirstOrDefault(known => string.Equals(known, ColorScheme?.Trim(), StringComparison.OrdinalIgnoreCase)) ?? SchemeSystem,
         ProjectColors = (ProjectColors ?? [])
             .Where(pair => !string.IsNullOrWhiteSpace(pair.Key) && HexColor.Normalize(pair.Value) is not null)
             .GroupBy(pair => pair.Key.Trim(), StringComparer.OrdinalIgnoreCase)
@@ -48,10 +55,11 @@ public sealed record AppearanceSettingsModel(int FontSize = AppearanceSettingsMo
         && FontSize == other.FontSize
         && FontFamily == other.FontFamily
         && Accent == other.Accent
+        && ColorScheme == other.ColorScheme
         && ProjectColors.Count == other.ProjectColors.Count
         && ProjectColors.All(pair => other.ProjectColors.TryGetValue(pair.Key, out var color) && color == pair.Value);
 
-    public override int GetHashCode() => HashCode.Combine(FontSize, FontFamily, Accent, ProjectColors.Count);
+    public override int GetHashCode() => HashCode.Combine(FontSize, FontFamily, Accent, ColorScheme, ProjectColors.Count);
 }
 
 public sealed class AppearanceSettingsRepository

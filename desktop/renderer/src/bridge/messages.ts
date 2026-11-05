@@ -1,5 +1,5 @@
 import type { Session } from '../model/session'
-import type { AppearanceCatalog, AppearanceHostMessage, AppearanceWebMessage } from './appearanceMessages'
+import type { AppearanceCatalog, AppearanceHostMessage, AppearanceWebMessage, ColorScheme } from './appearanceMessages'
 import type { BrowserHostMessage, BrowserWebMessage } from './browserMessages'
 import type { ForgeHostMessage, ForgeWebMessage } from './forgeMessages'
 import type { GitChangeKind, GitHostMessage, GitSettings, GitWebMessage } from './gitMessages'
@@ -84,6 +84,7 @@ export interface AppearanceSettings {
   fontSize: number
   fontFamily: TerminalFont
   accent?: string
+  colorScheme: ColorScheme
   projectColors: Record<string, string>
 }
 
