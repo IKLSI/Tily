@@ -1,11 +1,11 @@
-import { useMemo, useState, type KeyboardEvent, type ReactNode } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { GitDiffSource, type GitState } from '../../../bridge/gitMessages'
 import { changeMenu, changeMenuLabel, discardSelection, toggleSelection } from '../gitChangeMenu'
 import { focusGitPanel, focusGitRow } from '../gitFocus'
 import { plural } from '../gitLabels'
 import { discardChanges, openGitMenu, openInEditor, resolveConflict, stageChanges, unstageChanges } from '../gitRequests'
-import { changeRows, drawerShowsWorkingFile, GitRowGroup, GitSelectMode, nextSelection, openChangeRow, rowKey, type GitChangeRow, type GitRowHandlers } from '../gitRows'
+import { changeRows, GitRowGroup, GitSelectMode, nextSelection, openChangeRow, rowKey, type GitChangeRow, type GitRowHandlers } from '../gitRows'
 import { useGitStore } from '../gitStore'
 import { GitCommitBox } from './GitCommitBox'
 import { GitFileRow } from './GitFileRow'
@@ -55,18 +55,64 @@ const openSelectionMenu = (rows: GitChangeRow[], row: GitChangeRow, x: number, y
   openGitMenu({ x, y, label: changeMenuLabel(selected), items: changeMenu(selected, state), restoreFocus })
 }
 
+interface PendingAdvance {
+  gone: string[]
+  target: string
+}
+
+const advanceTarget = (rows: GitChangeRow[], acted: GitChangeRow[]): string | null => {
+  const actedKeys = new Set(acted.map((row) => row.key))
+  const indexes = acted.map((row) => rows.findIndex((candidate) => candidate.key === row.key)).filter((index) => index >= 0)
+  const first = acted[0]
+  if (!first || indexes.length === 0) {
+    return null
+  }
+  const sameGroup = (row: GitChangeRow) => row.group === first.group && !actedKeys.has(row.key)
+  const after = rows.slice(Math.max(...indexes) + 1).find(sameGroup)
+  const before = rows.slice(0, Math.min(...indexes)).findLast(sameGroup)
+  return (after ?? before)?.key ?? null
+}
+
 export function GitChangesView({ state, busy, footer }: GitChangesViewProps) {
   const { file, commit, selection } = useGitStore(useShallow((store) => ({ file: store.file, commit: store.commit, selection: store.changeSelection.keys })))
   const [focusKey, setFocusKey] = useState<string | null>(null)
+  const pendingAdvance = useRef<PendingAdvance | null>(null)
   const rows = useMemo(() => changeRows(state.conflicts, state.staged, state.unstaged), [state.conflicts, state.staged, state.unstaged])
   const selectedKey = file && !commit ? rowKey(file.source === GitDiffSource.Staged ? GitRowGroup.Staged : GitRowGroup.Unstaged, file.path) : null
   const focusableKey = rows.find((row) => row.key === focusKey)?.key ?? rows.find((row) => row.key === selectedKey)?.key ?? rows[0]?.key
   const highlighted = useMemo(() => (rows.some((row) => selection.has(row.key)) ? selection : new Set(selectedKey ? [selectedKey] : [])), [rows, selection, selectedKey])
+  const prepareAdvance = useCallback((all: GitChangeRow[], acted: GitChangeRow[]) => {
+    const target = advanceTarget(all, acted)
+    pendingAdvance.current = target ? { gone: acted.map((row) => row.key), target } : null
+  }, [])
+  useEffect(() => {
+    const pending = pendingAdvance.current
+    if (!pending || pending.gone.some((key) => rows.some((row) => row.key === key))) {
+      return
+    }
+    pendingAdvance.current = null
+    const row = rows.find((candidate) => candidate.key === pending.target)
+    if (!row) {
+      return
+    }
+    setFocusKey(row.key)
+    applySelection(rows, row, GitSelectMode.Replace)
+    if (!row.conflict) {
+      openChangeRow(row)
+    }
+    focusGitRow(row.key)
+  }, [rows])
   const handlers: GitRowHandlers = useMemo(
     () => ({
       open: openChangeRow,
-      stage: (change) => stageChanges([change]),
-      unstage: (change) => unstageChanges([change]),
+      stage: (change) => {
+        prepareAdvance(rows, rows.filter((row) => row.change === change))
+        stageChanges([change])
+      },
+      unstage: (change) => {
+        prepareAdvance(rows, rows.filter((row) => row.change === change))
+        unstageChanges([change])
+      },
       discard: (change) => discardChanges([change], 1),
       edit: openInEditor,
       resolve: resolveConflict,
@@ -82,7 +128,7 @@ export function GitChangesView({ state, busy, footer }: GitChangesViewProps) {
         openSelectionMenu(rows, row, x, y)
       },
     }),
-    [rows],
+    [rows, prepareAdvance],
   )
   const empty = rows.length === 0
 
@@ -90,10 +136,11 @@ export function GitChangesView({ state, busy, footer }: GitChangesViewProps) {
     if (!row) {
       return
     }
+    pendingAdvance.current = null
     setFocusKey(row.key)
     focusGitRow(row.key)
     applySelection(rows, row, extend ? GitSelectMode.Range : GitSelectMode.Replace)
-    if (!extend && drawerShowsWorkingFile() && !row.conflict) {
+    if (!extend && !row.conflict) {
       openChangeRow(row)
     }
   }
@@ -117,7 +164,9 @@ export function GitChangesView({ state, busy, footer }: GitChangesViewProps) {
     } else if (event.key === 'Enter') {
       openChangeRow(current)
     } else if (event.key === ' ') {
-      toggleSelection(actedRows(rows, current))
+      const acted = actedRows(rows, current)
+      prepareAdvance(rows, acted)
+      toggleSelection(acted)
     } else if (event.key === 'Delete') {
       discardSelection(actedRows(rows, current))
     } else if (event.key === 'ContextMenu' || (extend && event.key === 'F10')) {
