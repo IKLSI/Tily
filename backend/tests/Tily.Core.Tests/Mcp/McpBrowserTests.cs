@@ -21,6 +21,109 @@ public sealed class McpBrowserTests : IDisposable
     }
 
     [Theory]
+    [InlineData(McpBrowser.Click, true)]
+    [InlineData(McpBrowser.Type, true)]
+    [InlineData(McpBrowser.Evaluate, true)]
+    [InlineData(McpBrowser.Snapshot, false)]
+    [InlineData(McpBrowser.WaitFor, false)]
+    public void MayAskConsent_WhenTool_ThenOnlyInteractions(string tool, bool expected)
+    {
+        var asks = McpBrowser.MayAskConsent(tool);
+
+        Assert.Equal(expected, asks);
+    }
+
+    [Theory]
+    [InlineData(McpBrowser.Snapshot)]
+    [InlineData(McpBrowser.Click)]
+    [InlineData(McpBrowser.WaitFor)]
+    public void IsLong_WhenInteractionTool_ThenLong(string tool)
+    {
+        var isLong = McpBrowser.IsLong(tool);
+
+        Assert.True(isLong);
+    }
+
+    [Theory]
+    [InlineData(" e12 ", "e12")]
+    [InlineData("e1", "e1")]
+    public void Ref_WhenValid_ThenTrimmed(string reference, string expected)
+    {
+        var value = McpBrowser.Ref(reference);
+
+        Assert.Equal(expected, value);
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("12")]
+    [InlineData("e")]
+    [InlineData("eabc")]
+    [InlineData("e123456789")]
+    public void Ref_WhenInvalid_ThenFailsInFrench(string? reference)
+    {
+        var error = Assert.Throws<InvalidOperationException>(() => McpBrowser.Ref(reference));
+
+        Assert.StartsWith("Référence invalide", error.Message);
+    }
+
+    [Fact]
+    public void Text_WhenTooLong_ThenFailsInFrench()
+    {
+        var error = Assert.Throws<InvalidOperationException>(() => McpBrowser.Text(new string('a', McpBrowser.MaxTextChars + 1)));
+
+        Assert.StartsWith("Texte trop long", error.Message);
+    }
+
+    [Fact]
+    public void Expression_WhenTooLong_ThenFailsInFrench()
+    {
+        var error = Assert.Throws<InvalidOperationException>(() => McpBrowser.Expression(new string('a', McpBrowser.MaxExpressionChars + 1)));
+
+        Assert.StartsWith("Expression trop longue", error.Message);
+    }
+
+    [Theory]
+    [InlineData(0, McpBrowser.DefaultWaitMs)]
+    [InlineData(5, 100)]
+    [InlineData(500, 500)]
+    [InlineData(999_999, McpBrowser.MaxWaitMs)]
+    public void WaitMs_WhenRequested_ThenBounded(int requested, int expected)
+    {
+        var value = McpBrowser.WaitMs(requested);
+
+        Assert.Equal(expected, value);
+    }
+
+    [Fact]
+    public void Condition_WhenOnlyText_ThenKept()
+    {
+        var condition = McpBrowser.Condition("Bienvenue", null, null);
+
+        Assert.Equal(("Bienvenue", null, null), condition);
+    }
+
+    [Theory]
+    [InlineData(null, null, null)]
+    [InlineData("a", "e1", null)]
+    [InlineData("a", null, "/b")]
+    public void Condition_WhenNotExactlyOne_ThenFailsInFrench(string? text, string? reference, string? url)
+    {
+        var error = Assert.Throws<InvalidOperationException>(() => McpBrowser.Condition(text, reference, url));
+
+        Assert.StartsWith("Indiquez exactement une condition", error.Message);
+    }
+
+    [Fact]
+    public void Chord_WhenUnknownKey_ThenFailsInFrench()
+    {
+        var error = Assert.Throws<InvalidOperationException>(() => McpBrowser.Chord("Ctrl+Foo"));
+
+        Assert.StartsWith("Touche inconnue", error.Message);
+    }
+
+    [Theory]
     [InlineData(0, 1)]
     [InlineData(50, 50)]
     [InlineData(10_000, McpBrowser.MaxLimit)]

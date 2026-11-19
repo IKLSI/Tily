@@ -21,6 +21,13 @@ export enum McpTool {
   BrowserConsole = 'browserConsole',
   BrowserNetwork = 'browserNetwork',
   BrowserScreenshot = 'browserScreenshot',
+  BrowserSnapshot = 'browserSnapshot',
+  BrowserClick = 'browserClick',
+  BrowserType = 'browserType',
+  BrowserPress = 'browserPress',
+  BrowserSelect = 'browserSelect',
+  BrowserWaitFor = 'browserWaitFor',
+  BrowserEvaluate = 'browserEvaluate',
 }
 
 export interface McpServerInfo {

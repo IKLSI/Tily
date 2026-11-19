@@ -78,6 +78,40 @@ export interface BrowserCapture {
   title: string
 }
 
+export interface BrowserSnapshot {
+  url: string
+  title: string
+  count: number
+  total: number
+  truncated: boolean
+  text: string
+}
+
+export interface BrowserAction {
+  action: string
+  target?: string
+  detail?: string
+  url: string
+  title: string
+  loading: boolean
+  errors: number
+}
+
+export interface BrowserWait {
+  found: boolean
+  elapsedMs: number
+  url: string
+  title: string
+}
+
+export interface BrowserEvaluation {
+  value: string
+  type: string
+  truncated: boolean
+  url: string
+  title: string
+}
+
 export type BrowserHostMessage =
   | { type: 'browser.state'; state: BrowserState }
   | { type: 'browser.newPane'; pane: string; url: string }
@@ -100,3 +134,10 @@ export type BrowserWebMessage =
   | { type: 'browser.console'; pane: string; request: number; level: BrowserLogLevel; sinceLoad: boolean; limit: number }
   | { type: 'browser.network'; pane: string; request: number; failedOnly: boolean; sinceLoad: boolean; limit: number }
   | { type: 'browser.screenshot'; pane: string; request: number; viewport: BrowserViewport; fullPage: boolean }
+  | { type: 'browser.pageSnapshot'; pane: string; request: number }
+  | { type: 'browser.click'; pane: string; request: number; ref: string }
+  | { type: 'browser.type'; pane: string; request: number; ref: string; text: string; clear: boolean; submit: boolean }
+  | { type: 'browser.press'; pane: string; request: number; chord: string }
+  | { type: 'browser.select'; pane: string; request: number; ref: string; option: string }
+  | { type: 'browser.waitFor'; pane: string; request: number; text?: string; ref?: string; url?: string; gone: boolean; timeoutMs: number }
+  | { type: 'browser.evaluate'; pane: string; request: number; expression: string }

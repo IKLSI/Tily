@@ -11,6 +11,14 @@ internal sealed record BrowserCaptureModel(string Png, int Width, int Height, do
     public const double MaxFullPageHeight = 16000;
 }
 
+internal sealed record BrowserSnapshotModel(string Url, string Title, int Count, int Total, bool Truncated, string Text);
+
+internal sealed record BrowserActionModel(string Action, string? Target, string? Detail, string Url, string Title, bool Loading, int Errors);
+
+internal sealed record BrowserWaitModel(bool Found, int ElapsedMs, string Url, string Title);
+
+internal sealed record BrowserEvaluationModel(string Value, string Type, bool Truncated, string Url, string Title);
+
 internal sealed record BrowserCallbacks(Action<BrowserView> StateChanged, Action<BrowserView, string> NewPane, Action<BrowserView, JsonElement> Key, Action<BrowserView> Focused);
 
 internal sealed class BrowserCommandModel
@@ -24,6 +32,15 @@ internal sealed class BrowserCommandModel
     public string? Viewport { get; init; }
     public string? Level { get; init; }
     public string? Method { get; init; }
+    public string? Ref { get; init; }
+    public string? Text { get; init; }
+    public string? Option { get; init; }
+    public string? Chord { get; init; }
+    public string? Expression { get; init; }
+    public bool Clear { get; init; }
+    public bool Submit { get; init; }
+    public bool Gone { get; init; }
+    public int TimeoutMs { get; init; }
     public string? Error { get; init; }
     public JsonElement? Params { get; init; }
     public JsonElement? Result { get; init; }

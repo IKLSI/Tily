@@ -134,6 +134,20 @@ public sealed class BrowserFeed : IDisposable
                 return Require(command).Log.Network(command.FailedOnly, command.SinceLoad, Math.Max(1, command.Limit));
             case "browser.screenshot":
                 return await Require(command).CaptureAsync(BrowserViewports.Parse(command.Viewport), command.FullPage);
+            case "browser.pageSnapshot":
+                return await Require(command).PageSnapshotAsync();
+            case "browser.click":
+                return await Require(command).ClickAsync(Reference(command));
+            case "browser.type":
+                return await Require(command).TypeAsync(Reference(command), command.Text ?? throw new InvalidOperationException("Indiquez le texte à saisir."), command.Clear, command.Submit);
+            case "browser.press":
+                return await Require(command).PressAsync(command.Chord ?? throw new InvalidOperationException("Indiquez la touche à presser."));
+            case "browser.select":
+                return await Require(command).SelectOptionAsync(Reference(command), command.Option ?? throw new InvalidOperationException("Indiquez l’option à choisir."));
+            case "browser.waitFor":
+                return await Require(command).WaitForAsync(command.Text, command.Ref, command.Url, command.Gone, command.TimeoutMs);
+            case "browser.evaluate":
+                return await Require(command).EvaluateAsync(command.Expression ?? throw new InvalidOperationException("Indiquez l’expression à évaluer."));
             default:
                 throw new InvalidOperationException($"Commande inconnue : {command.Type}");
         }
@@ -184,6 +198,8 @@ public sealed class BrowserFeed : IDisposable
         "error" => BrowserLogLevel.Error,
         _ => throw new InvalidOperationException($"Niveau inconnu : « {level} ». Choisissez debug, log, warn ou error.")
     };
+
+    private static string Reference(BrowserCommandModel command) => command.Ref ?? throw new InvalidOperationException("Indiquez la référence de l’élément (tily_browser_snapshot).");
 
     private BrowserView? Find(BrowserCommandModel command) => command.Pane is { } paneId && _views.TryGetValue(paneId, out var view) ? view : null;
 

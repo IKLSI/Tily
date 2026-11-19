@@ -1,4 +1,4 @@
-import type { BrowserCapture, BrowserConsoleEntry, BrowserEntries, BrowserLogLevel, BrowserNavigation, BrowserNetworkEntry, BrowserState } from '../../bridge/browserMessages'
+import type { BrowserAction, BrowserCapture, BrowserConsoleEntry, BrowserEvaluation, BrowserSnapshot, BrowserWait, BrowserEntries, BrowserLogLevel, BrowserNavigation, BrowserNetworkEntry, BrowserState } from '../../bridge/browserMessages'
 import { isBrowserStarted } from '../browser/browserLayer'
 import { requestBrowser } from '../browser/browserRequests'
 import { BLANK_PAGE, BrowserViewport } from '../../model/browser'
@@ -6,6 +6,7 @@ import { createOwnedBrowserPane, isBrowserPane, splitLeaf, SplitAxis, tabOfPane 
 import { useBrowserStore } from '../browser/browserStore'
 import { useSessionStore } from '../../stores/sessionStore'
 import { flagArgument, numberArgument, textArgument, type McpArguments } from './mcpArguments'
+import { paneLabel, requireConsent } from './mcpConsent'
 import { requireCaller } from './mcpOrganize'
 import { locationOf, placeOf, placesOf, requirePlace, requireSession, type PanePlace } from './mcpPanes'
 
@@ -19,6 +20,9 @@ const NAVIGATION_TIMEOUT_MS = 40_000
 const CAPTURE_TIMEOUT_MS = 40_000
 const START_TIMEOUT_MS = 15_000
 const START_POLL_MS = 100
+const ACTION_TIMEOUT_MS = 40_000
+const WAIT_MARGIN_MS = 10_000
+const DETAIL_MAX_CHARS = 500
 const DEFAULT_LIMIT = 50
 
 const lastBrowserOf = new Map<string, string>()
@@ -70,6 +74,23 @@ const startedBrowser = async (values: McpArguments, caller: string | undefined):
   await waitForStart(place.pane.id)
   return place
 }
+
+const confirmInteraction = async (place: PanePlace, caller: string | undefined, action: string, detail?: string): Promise<void> => {
+  if (place.pane.owner) {
+    return
+  }
+  await requireConsent({ caller, action, target: paneLabel(place), detail: detail && detail.length > DETAIL_MAX_CHARS ? `${detail.slice(0, DETAIL_MAX_CHARS)}…` : detail })
+}
+
+const requiredText = (values: McpArguments, name: string, message: string): string => {
+  const value = textArgument(values, name)
+  if (!value) {
+    throw new Error(message)
+  }
+  return value
+}
+
+const referenceOf = (values: McpArguments): string => requiredText(values, 'reference', 'Indiquez la référence de l’élément (tily_browser_snapshot).')
 
 const describe = (place: PanePlace) => ({ pane: place.pane.id, location: locationOf(place) })
 
@@ -161,4 +182,58 @@ export const browserScreenshot = async (values: McpArguments, caller: string | u
   const viewport = viewportOf(textArgument(values, 'viewport')) ?? place.pane.viewport ?? BrowserViewport.Desktop
   const capture = await requestBrowser<BrowserCapture>({ type: 'browser.screenshot', pane: place.pane.id, viewport, fullPage: flagArgument(values, 'fullPage') }, CAPTURE_TIMEOUT_MS)
   return { ...describe(place), ...capture }
+}
+
+export const browserSnapshot = async (values: McpArguments, caller: string | undefined) => {
+  const place = await startedBrowser(values, caller)
+  const snapshot = await requestBrowser<BrowserSnapshot>({ type: 'browser.pageSnapshot', pane: place.pane.id }, ACTION_TIMEOUT_MS)
+  return { ...describe(place), ...snapshot }
+}
+
+export const browserClick = async (values: McpArguments, caller: string | undefined) => {
+  const place = await startedBrowser(values, caller)
+  const ref = referenceOf(values)
+  await confirmInteraction(place, caller, 'Cliquer sur un élément de la page', `Élément ${ref}`)
+  return { ...describe(place), ...(await requestBrowser<BrowserAction>({ type: 'browser.click', pane: place.pane.id, ref }, ACTION_TIMEOUT_MS)) }
+}
+
+export const browserType = async (values: McpArguments, caller: string | undefined) => {
+  const place = await startedBrowser(values, caller)
+  const ref = referenceOf(values)
+  const text = requiredText(values, 'text', 'Indiquez le texte à saisir.')
+  await confirmInteraction(place, caller, 'Saisir du texte dans la page', `Élément ${ref} : ${text}`)
+  const action = await requestBrowser<BrowserAction>({ type: 'browser.type', pane: place.pane.id, ref, text, clear: flagArgument(values, 'clear'), submit: flagArgument(values, 'submit') }, ACTION_TIMEOUT_MS)
+  return { ...describe(place), ...action }
+}
+
+export const browserPress = async (values: McpArguments, caller: string | undefined) => {
+  const place = await startedBrowser(values, caller)
+  const chord = requiredText(values, 'chord', 'Indiquez la touche à presser.')
+  await confirmInteraction(place, caller, 'Presser une touche dans la page', chord)
+  return { ...describe(place), ...(await requestBrowser<BrowserAction>({ type: 'browser.press', pane: place.pane.id, chord }, ACTION_TIMEOUT_MS)) }
+}
+
+export const browserSelect = async (values: McpArguments, caller: string | undefined) => {
+  const place = await startedBrowser(values, caller)
+  const ref = referenceOf(values)
+  const option = requiredText(values, 'option', 'Indiquez l’option à choisir.')
+  await confirmInteraction(place, caller, 'Choisir une option dans la page', `Élément ${ref} : ${option}`)
+  return { ...describe(place), ...(await requestBrowser<BrowserAction>({ type: 'browser.select', pane: place.pane.id, ref, option }, ACTION_TIMEOUT_MS)) }
+}
+
+export const browserWaitFor = async (values: McpArguments, caller: string | undefined) => {
+  const place = await startedBrowser(values, caller)
+  const timeoutMs = numberArgument(values, 'timeoutMs') ?? 10_000
+  const wait = await requestBrowser<BrowserWait>(
+    { type: 'browser.waitFor', pane: place.pane.id, text: textArgument(values, 'text'), ref: textArgument(values, 'reference'), url: textArgument(values, 'url'), gone: flagArgument(values, 'gone'), timeoutMs },
+    timeoutMs + WAIT_MARGIN_MS,
+  )
+  return { ...describe(place), ...wait }
+}
+
+export const browserEvaluate = async (values: McpArguments, caller: string | undefined) => {
+  const place = await startedBrowser(values, caller)
+  const expression = requiredText(values, 'expression', 'Indiquez l’expression JavaScript à évaluer.')
+  await confirmInteraction(place, caller, 'Exécuter du JavaScript dans la page', expression)
+  return { ...describe(place), ...(await requestBrowser<BrowserEvaluation>({ type: 'browser.evaluate', pane: place.pane.id, expression }, ACTION_TIMEOUT_MS)) }
 }

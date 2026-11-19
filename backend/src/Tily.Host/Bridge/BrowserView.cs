@@ -1,5 +1,7 @@
+using System.Diagnostics;
 using System.Text.Json;
 using Tily.Core.Browser;
+using Tily.Core.Mcp;
 
 namespace Tily.Host.Bridge;
 
@@ -9,6 +11,8 @@ internal sealed class BrowserView
     private static readonly TimeSpan ErrorsDelay = TimeSpan.FromMilliseconds(250);
     private static readonly string[] ConsoleEvents = [DevToolsConsole.ConsoleApiCalled, DevToolsConsole.ExceptionThrown, DevToolsConsole.EntryAdded];
     private const string BindingCalled = "Runtime.bindingCalled";
+    private static readonly TimeSpan SettleDelay = TimeSpan.FromMilliseconds(300);
+    private static readonly TimeSpan PollDelay = TimeSpan.FromMilliseconds(150);
 
     private readonly BrowserDriver _driver;
     private readonly BrowserCallbacks _callbacks;
@@ -133,6 +137,94 @@ internal sealed class BrowserView
             await ApplyViewportAsync();
             await LayoutAsync();
         }
+    }
+
+    public Task<BrowserSnapshotModel> PageSnapshotAsync() => InteractAsync(async () =>
+    {
+        var value = await RunAgentAsync("window.__tilyAgent.snapshot()");
+        return new BrowserSnapshotModel(
+            value.GetProperty("url").GetString() ?? Url,
+            value.GetProperty("title").GetString() ?? Title,
+            value.GetProperty("count").GetInt32(),
+            value.GetProperty("total").GetInt32(),
+            value.GetProperty("truncated").GetBoolean(),
+            value.GetProperty("text").GetString() ?? string.Empty);
+    });
+
+    public Task<BrowserActionModel> ClickAsync(string reference) => InteractAsync(async () =>
+    {
+        var target = await RunAgentAsync($"window.__tilyAgent.target({Quote(reference)})");
+        var x = target.GetProperty("x").GetDouble();
+        var y = target.GetProperty("y").GetDouble();
+        await CdpAsync("Input.dispatchMouseEvent", new { type = "mouseMoved", x, y });
+        await CdpAsync("Input.dispatchMouseEvent", new { type = "mousePressed", x, y, button = "left", buttons = 1, clickCount = 1 });
+        await CdpAsync("Input.dispatchMouseEvent", new { type = "mouseReleased", x, y, button = "left", buttons = 0, clickCount = 1 });
+        await Task.Delay(SettleDelay);
+        return Acted("click", Describe(target), null);
+    });
+
+    public Task<BrowserActionModel> TypeAsync(string reference, string text, bool clear, bool submit) => InteractAsync(async () =>
+    {
+        var target = await RunAgentAsync($"window.__tilyAgent.focus({Quote(reference)}, {(clear ? "true" : "false")})");
+        await CdpAsync("Input.insertText", new { text });
+        if (submit)
+        {
+            await PressKeyAsync(BrowserKeys.Parse("Enter"));
+        }
+
+        await Task.Delay(SettleDelay);
+        return Acted("type", Describe(target), submit ? "validé avec Entrée" : null);
+    });
+
+    public Task<BrowserActionModel> PressAsync(string chord) => InteractAsync(async () =>
+    {
+        await PressKeyAsync(BrowserKeys.Parse(chord));
+        await Task.Delay(SettleDelay);
+        return Acted("press", null, chord);
+    });
+
+    public Task<BrowserActionModel> SelectOptionAsync(string reference, string option) => InteractAsync(async () =>
+    {
+        var chosen = await RunAgentAsync($"window.__tilyAgent.select({Quote(reference)}, {Quote(option)})");
+        await Task.Delay(SettleDelay);
+        return Acted("select", reference, chosen.GetProperty("selected").GetString());
+    });
+
+    public Task<BrowserWaitModel> WaitForAsync(string? text, string? reference, string? url, bool gone, int timeoutMs) => InteractAsync(async () =>
+    {
+        var condition = JsonSerializer.Serialize(new { text, @ref = reference, url });
+        var clock = Stopwatch.StartNew();
+        while (true)
+        {
+            var met = false;
+            try
+            {
+                met = (await RunAgentAsync($"window.__tilyAgent.check({condition})")).GetBoolean();
+            }
+            catch (InvalidOperationException)
+            {
+            }
+
+            if (met != gone || clock.ElapsedMilliseconds >= timeoutMs)
+            {
+                return new BrowserWaitModel(met != gone, (int)clock.ElapsedMilliseconds, Url, Title);
+            }
+
+            await Task.Delay(PollDelay);
+        }
+    });
+
+    public async Task<BrowserEvaluationModel> EvaluateAsync(string expression)
+    {
+        var response = await CdpAsync("Runtime.evaluate", new { expression, returnByValue = true, awaitPromise = true, userGesture = true });
+        ThrowIfFailed(response);
+        var result = response.GetProperty("result");
+        var type = result.TryGetProperty("type", out var kind) ? kind.GetString() ?? "undefined" : "undefined";
+        var value = result.TryGetProperty("value", out var raw)
+            ? raw.ValueKind == JsonValueKind.String ? raw.GetString() ?? string.Empty : raw.GetRawText()
+            : result.TryGetProperty("description", out var description) ? description.GetString() ?? type : type;
+        var truncated = value.Length > McpBrowser.MaxResultChars;
+        return new BrowserEvaluationModel(truncated ? value[..McpBrowser.MaxResultChars] : value, type, truncated, Url, Title);
     }
 
     public void Receive(BrowserCommandModel message)
@@ -261,6 +353,61 @@ internal sealed class BrowserView
         {
         }
     }
+
+    private async Task<T> InteractAsync<T>(Func<Task<T>> action)
+    {
+        _capturing = true;
+        try
+        {
+            if (!_visible)
+            {
+                var size = BrowserViewports.Capture(Viewport);
+                await _driver.SendAsync("layout", PaneId, new { x = OffscreenLeft, y = 0, width = size.Width, height = size.Height, visible = true });
+            }
+
+            return await action();
+        }
+        finally
+        {
+            _capturing = false;
+            await LayoutAsync();
+        }
+    }
+
+    private async Task<JsonElement> RunAgentAsync(string call)
+    {
+        var response = await CdpAsync("Runtime.evaluate", new { expression = BrowserAgentScript.Prepare(call), returnByValue = true });
+        ThrowIfFailed(response);
+        return response.GetProperty("result").GetProperty("value");
+    }
+
+    private static void ThrowIfFailed(JsonElement response)
+    {
+        if (!response.TryGetProperty("exceptionDetails", out var details))
+        {
+            return;
+        }
+
+        var text = details.TryGetProperty("exception", out var exception) && exception.TryGetProperty("description", out var description)
+            ? description.GetString() ?? string.Empty
+            : details.TryGetProperty("text", out var fallback) ? fallback.GetString() ?? string.Empty : string.Empty;
+        var line = text.Split('\n')[0];
+        throw new InvalidOperationException(line.StartsWith("Error: ", StringComparison.Ordinal) ? line[7..] : line);
+    }
+
+    private async Task PressKeyAsync(BrowserKeyModel key)
+    {
+        var type = key.Text is null ? "rawKeyDown" : "keyDown";
+        await CdpAsync("Input.dispatchKeyEvent", new { type, modifiers = key.Modifiers, key = key.Key, code = key.Code, windowsVirtualKeyCode = key.VirtualKeyCode, text = key.Text, unmodifiedText = key.Text });
+        await CdpAsync("Input.dispatchKeyEvent", new { type = "keyUp", modifiers = key.Modifiers, key = key.Key, code = key.Code, windowsVirtualKeyCode = key.VirtualKeyCode });
+    }
+
+    private BrowserActionModel Acted(string action, string? target, string? detail) => new(action, target, detail, Url, Title, Loading, Log.ErrorCount());
+
+    private static string Describe(JsonElement target) =>
+        $"{target.GetProperty("role").GetString()} \"{target.GetProperty("name").GetString()}\"";
+
+    private static string Quote(string value) => JsonSerializer.Serialize(value);
 
     private async Task<(int Width, int Height)> ContentSizeAsync()
     {

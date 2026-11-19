@@ -147,7 +147,7 @@ public sealed class McpFeed : IDisposable
     private static TimeSpan AnswerTimeoutOf(McpPipeRequestModel request) => request.Tool switch
     {
         McpWaitFor.Tool => McpWaitFor.AnswerTimeout(request.Arguments),
-        var tool when McpActions.MayAskConsent(tool) => McpActions.ConsentAnswerTimeout,
+        var tool when McpActions.MayAskConsent(tool) || McpBrowser.MayAskConsent(tool) => McpActions.ConsentAnswerTimeout,
         var tool when McpWorktrees.IsLongOperation(tool) => McpWorktrees.OperationAnswerTimeout,
         var tool when McpBrowser.IsLong(tool) => McpBrowser.AnswerTimeout,
         _ => AnswerTimeout
