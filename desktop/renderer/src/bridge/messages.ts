@@ -5,7 +5,6 @@ import type { ForgeHostMessage, ForgeWebMessage } from './forgeMessages'
 import type { GitChangeKind, GitHostMessage, GitSettings, GitWebMessage } from './gitMessages'
 import type { McpHostMessage, McpServerInfo, McpWebMessage } from './mcpMessages'
 import type { PreviewHostMessage, PreviewKind, PreviewWebMessage } from './previewMessages'
-import type { StatusLogEntry, StatusLogHostMessage, StatusLogWebMessage } from './statusLogMessages'
 import type { UpdateHostMessage, UpdateSettings, UpdateWebMessage } from './updateMessages'
 import type { WorktreeHostMessage, WorktreeProjectFolder, WorktreeSettings, WorktreeSources, WorktreeWebMessage } from './worktreeMessages'
 
@@ -200,7 +199,7 @@ export interface PaneAgent {
 
 export type HostToWebMessage =
   | { type: 'appearance.changed'; fontSize: number }
-  | { type: 'app.hello'; version: string; session: Session; shells: ShellProfile[]; home: string; text: Record<string, string>; persistence: PersistenceSettings; appearance: AppearanceSettings; theme: AppearanceCatalog; shortcuts: ShortcutSettings; statusLog: StatusLogEntry[]; recovery?: string }
+  | { type: 'app.hello'; version: string; session: Session; shells: ShellProfile[]; home: string; text: Record<string, string>; persistence: PersistenceSettings; appearance: AppearanceSettings; theme: AppearanceCatalog; shortcuts: ShortcutSettings; recovery?: string }
   | { type: 'app.closing'; activity: PaneActivity[] }
   | { type: 'session.saved' }
   | { type: 'session.saveFailed'; message: string }
@@ -234,7 +233,6 @@ export type HostToWebMessage =
   | PreviewHostMessage
   | WorktreeHostMessage
   | UpdateHostMessage
-  | StatusLogHostMessage
   | McpHostMessage
   | BrowserHostMessage
 
@@ -285,7 +283,6 @@ export type WebToHostMessage =
   | PreviewWebMessage
   | WorktreeWebMessage
   | UpdateWebMessage
-  | StatusLogWebMessage
   | McpWebMessage
   | BrowserWebMessage
 

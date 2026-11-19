@@ -107,7 +107,6 @@ export const COMMAND_GROUPS: CommandGroup[] = [
       { command: Command.ToggleExplorer, label: 'Afficher / masquer les fichiers', hint: 'fichiers' },
       { command: Command.ToggleGit, label: 'Afficher / masquer Git', hint: 'git' },
       { command: Command.ToggleNotes, label: 'Afficher / masquer les notes du workspace', hint: 'notes' },
-      { command: Command.ToggleStatusLog, label: 'Afficher / masquer le journal des messages', hint: 'journal' },
       { command: Command.CollapseFiles, label: 'Tout replier dans l’arbre des fichiers', hint: 'tout replier' },
       { command: Command.RefreshFiles, label: 'Actualiser l’arbre des fichiers', hint: 'actualiser les fichiers' },
       { command: Command.RefreshGit, label: 'Actualiser la vue Git', hint: 'actualiser Git' },

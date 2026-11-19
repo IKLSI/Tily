@@ -1,18 +1,11 @@
 import { memo } from 'react'
 import { useShallow } from 'zustand/react/shallow'
-import { busyLabel } from '../../git/gitBusy'
-import { useGitStore } from '../../git/gitStore'
-import { StatusLevel, useHostStore } from '../../../stores/hostStore'
-import { useStatusLogStore } from '../statusLogStore'
-import { useWorktreeStore } from '../../worktrees/worktreeStore'
-import { toggleStatusLog } from '../statusLogActions'
-import { formatCommandDuration } from '../../terminal/commandNotices'
-import { Icon } from '../../../components/Icon'
-import { IconName } from '../../../components/iconName'
-import { Spinner } from '../../../components/Spinner'
-import { STATUS_LOG_ID, StatusLogDrawer } from './StatusLogDrawer'
-import { Command } from '../../keyboard/commands'
-import { useShortcutTip } from '../../keyboard/shortcutLabels'
+import { busyLabel } from '../features/git/gitBusy'
+import { useGitStore } from '../features/git/gitStore'
+import { StatusLevel, useHostStore } from '../stores/hostStore'
+import { useWorktreeStore } from '../features/worktrees/worktreeStore'
+import { formatCommandDuration } from '../features/terminal/commandNotices'
+import { Spinner } from '../components/Spinner'
 
 const STATUS_CLASSES: Record<StatusLevel, string> = {
   [StatusLevel.Info]: 'text-tily-muted',
@@ -27,28 +20,14 @@ export const StatusBar = memo(function StatusBar() {
   const { worktreeTasks, purge } = useWorktreeStore(useShallow((state) => ({ worktreeTasks: state.tasks.length, purge: state.purge })))
   const worktreeBusy = worktreeTasks > 0
   const waiting = worktreeTasks - 1
-  const logOpen = useStatusLogStore((state) => state.open)
-  const logTip = useShortcutTip(logOpen ? 'Masquer le journal' : 'Afficher le journal', Command.ToggleStatusLog)
   const spinning = Boolean(busy) || worktreeBusy
 
   return (
-    <>
-      {logOpen && <StatusLogDrawer />}
-      <footer className={`flex h-[24px] shrink-0 items-center border-t border-tily-line bg-tily-paper text-tily-xs ${spinning ? 'text-tily-ink-soft' : STATUS_CLASSES[status.level]}`}>
-        <button
-          type="button"
-          data-status-log-toggle=""
-          aria-expanded={logOpen}
-          aria-controls={logOpen ? STATUS_LOG_ID : undefined}
-          className="flex h-full min-w-0 flex-1 cursor-pointer items-center gap-[6px] px-3 text-left hover:bg-tily-green-hover"
-          onClick={toggleStatusLog}
-        >
-          <span className="flex shrink-0" data-tip={logTip}>
-            <Icon name={IconName.Chevron} size={10} className={`text-tily-muted transition-transform ${logOpen ? 'rotate-90' : '-rotate-90'}`} />
-          </span>
+    <footer className={`flex h-[24px] shrink-0 items-center border-t border-tily-line bg-tily-paper text-tily-xs ${spinning ? 'text-tily-ink-soft' : STATUS_CLASSES[status.level]}`}>
+        <span className="flex h-full min-w-0 flex-1 items-center gap-[6px] px-3">
           {spinning && <Spinner size={10} className="shrink-0 text-tily-green" />}
           <span className="truncate py-1 [text-box:trim-both_cap_alphabetic]">{busy ? busyLabel(busy, busyRefs) : status.text}</span>
-        </button>
+        </span>
         <span role="status" className="sr-only">
           {status.text}
         </span>
@@ -69,6 +48,5 @@ export const StatusBar = memo(function StatusBar() {
           </span>
         )}
       </footer>
-    </>
   )
 })

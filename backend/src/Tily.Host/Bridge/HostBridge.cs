@@ -35,7 +35,6 @@ public sealed class HostBridge : IDisposable
     private readonly ForgeFeed _forge;
     private readonly WorktreeFeed _worktrees;
     private readonly UpdateFeed _updates;
-    private readonly StatusLogFeed _statusLog;
     private readonly McpFeed _mcp;
     private readonly BrowserFeed _browsers;
     private readonly AppearanceFeed _appearance;
@@ -50,8 +49,7 @@ public sealed class HostBridge : IDisposable
         _queries = new BackgroundQueue(PostBackgroundError);
         _settings = new SettingsFeed(loop, dataDirectory, DescribeAgents, DescribeMcp, ApplySettings, Post, PostNow);
         _appearance = new AppearanceFeed(_settings, Post, PostBackgroundError);
-        _statusLog = new StatusLogFeed(dataDirectory, _writes, Post);
-        _session = new SessionFeed(dataDirectory, ApplicationVersion, _settings, _appearance, _statusLog, _writes, Post);
+        _session = new SessionFeed(dataDirectory, ApplicationVersion, _settings, _appearance, _writes, Post);
         _terminals = new TerminalManager(integrationDirectory: Path.Combine(dataDirectory, ShellIntegrationFolder));
         _windowClose = new WindowCloseFeed(loop, _terminals, PostNow);
         _agents = new AgentStateFeed(dataDirectory, _terminals, Post);
@@ -204,9 +202,6 @@ public sealed class HostBridge : IDisposable
                 break;
             case var type when type.StartsWith("update.", StringComparison.Ordinal):
                 _updates.Handle(command);
-                break;
-            case var type when type.StartsWith("statusLog.", StringComparison.Ordinal):
-                _statusLog.Handle(command);
                 break;
             case "link.open":
                 LocalActions.OpenLink(command.Url ?? throw new InvalidOperationException("Lien manquant."));

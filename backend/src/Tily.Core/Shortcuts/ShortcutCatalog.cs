@@ -21,7 +21,6 @@ public static class ShortcutCatalog
         new("toggleExplorer", "Ctrl+Shift+E", "E"),
         new("toggleGit", "Ctrl+Shift+G", "G"),
         new("toggleNotes", "Ctrl+Shift+O", "O"),
-        new("toggleStatusLog", "Ctrl+Shift+L", "L"),
         new("toggleSidebar", "Ctrl+Shift+B", "B"),
         new("closePane", "Ctrl+Shift+X", "X"),
         new("togglePaneZoom", "Ctrl+Shift+M", "M"),

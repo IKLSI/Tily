@@ -14,19 +14,17 @@ public sealed class SessionFeed
     private readonly SessionRepository _sessions;
     private readonly SettingsFeed _settings;
     private readonly AppearanceFeed _appearance;
-    private readonly StatusLogFeed _statusLog;
     private readonly BackgroundQueue _writes;
     private readonly Action<object> _post;
     private PaneTextRepository _texts;
 
-    public SessionFeed(string dataDirectory, string version, SettingsFeed settings, AppearanceFeed appearance, StatusLogFeed statusLog, BackgroundQueue writes, Action<object> post)
+    public SessionFeed(string dataDirectory, string version, SettingsFeed settings, AppearanceFeed appearance, BackgroundQueue writes, Action<object> post)
     {
         _dataDirectory = dataDirectory;
         _version = version;
         _sessions = new SessionRepository(dataDirectory);
         _settings = settings;
         _appearance = appearance;
-        _statusLog = statusLog;
         _writes = writes;
         _post = post;
         _texts = new PaneTextRepository(dataDirectory, PersistenceSettingsModel.Default.MaxTextBytes);
@@ -55,7 +53,7 @@ public sealed class SessionFeed
         var loaded = _sessions.Load();
         var session = loaded.Session ?? SessionFactory.Initial();
         var text = _texts.Load();
-        var recovery = string.Join(" ", new[] { loaded.Error, _statusLog.LoadError }.Where(error => error is not null));
+        var recovery = string.Join(" ", new[] { loaded.Error }.Where(error => error is not null));
         _post(new
         {
             type = "app.hello",
@@ -68,7 +66,6 @@ public sealed class SessionFeed
             appearance = _settings.Current.Appearance,
             theme = _appearance.Hello(),
             shortcuts = _settings.Current.Shortcuts,
-            statusLog = _statusLog.Entries(),
             recovery = recovery.Length > 0 ? recovery : null
         });
     }

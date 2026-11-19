@@ -92,7 +92,6 @@ const commandItems = (session: Session, shells: ShellProfile[]): PaletteItem[] =
     command('toggle-explorer', 'Afficher / masquer les fichiers', () => runCommand(Command.ToggleExplorer), shortcutText(Command.ToggleExplorer)),
     command('toggle-git', 'Afficher / masquer Git', () => runCommand(Command.ToggleGit), shortcutText(Command.ToggleGit)),
     command('toggle-notes', 'Afficher / masquer les notes du workspace', () => runCommand(Command.ToggleNotes), shortcutText(Command.ToggleNotes)),
-    command('toggle-status-log', 'Afficher / masquer le journal des messages', () => runCommand(Command.ToggleStatusLog), shortcutText(Command.ToggleStatusLog)),
     command('settings', 'Paramètres', () => runCommand(Command.Settings), shortcutText(Command.Settings)),
     command('appearance-settings', 'Couleur de Tily…', () => runCommand(Command.AppearanceSettings), shortcutText(Command.AppearanceSettings)),
     command('settings-export', 'Exporter les préférences…', () => {

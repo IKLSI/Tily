@@ -27,7 +27,6 @@ export enum Command {
   ToggleExplorer = 'toggleExplorer',
   ToggleGit = 'toggleGit',
   ToggleNotes = 'toggleNotes',
-  ToggleStatusLog = 'toggleStatusLog',
   ToggleSidebar = 'toggleSidebar',
   TogglePaneZoom = 'togglePaneZoom',
   EqualizePanes = 'equalizePanes',

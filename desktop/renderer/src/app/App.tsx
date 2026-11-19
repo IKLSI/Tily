@@ -45,9 +45,7 @@ import {
 } from '../features/worktrees/worktreeReceivers'
 import { terminalRegistry } from '../features/terminal/terminalRegistry'
 import { receiveUpdateRestart, receiveUpdateState } from '../features/updates/updateActions'
-import { receiveStatusLogCleared, receiveStatusLogEntry, startStatusLog } from '../features/status-log/statusLogActions'
 import { useShortcutStore } from '../stores/shortcutStore'
-import { useStatusLogStore } from '../features/status-log/statusLogStore'
 import { forgetRemovedText, markTextSaveFailed, primeSessionText, startTextAutosave } from '../features/terminal/textPersistence'
 import { Spinner } from '../components/Spinner'
 
@@ -64,7 +62,6 @@ export default function App() {
     let stopAutosave: (() => void) | undefined
     const stopNotifier = startAttentionNotifier()
     const stopExternalDrops = startExternalDrops()
-    const stopStatusLog = startStatusLog()
     const stopDeferredPreviews = startDeferredPreviews()
     const stopBrowserLayer = startBrowserLayer()
     const stopAppearanceProjects = startAppearanceProjects()
@@ -75,7 +72,6 @@ export default function App() {
         setHello(message.version, message.shells, message.home, message.persistence)
         receiveAppearanceCatalog(message.theme)
         useShortcutStore.getState().setShortcuts(message.shortcuts)
-        useStatusLogStore.getState().load(message.statusLog)
         terminalRegistry.configure(message.persistence.linesPerPane)
         terminalRegistry.setFontSize(message.appearance.fontSize)
         terminalRegistry.setFontFamily(message.appearance.fontFamily)
@@ -202,8 +198,6 @@ export default function App() {
       bridge.on('worktrees.purged', (message) => receiveWorktreePurged(message.names, message.files, message.elapsedMs, message.remaining)),
       bridge.on('update.state', (message) => receiveUpdateState(message)),
       bridge.on('update.restart', receiveUpdateRestart),
-      bridge.on('statusLog.added', (message) => receiveStatusLogEntry(message.entry)),
-      bridge.on('statusLog.cleared', receiveStatusLogCleared),
       bridge.on('mcp.request', (message) => void receiveMcpRequest(message)),
       bridge.on('browser.state', (message) => receiveBrowserState(message.state)),
       bridge.on('browser.newPane', (message) => receiveNewBrowserPane(message.pane, message.url)),
@@ -231,7 +225,6 @@ export default function App() {
     return () => {
       stopNotifier()
       stopExternalDrops()
-      stopStatusLog()
       stopDeferredPreviews()
       stopBrowserLayer()
       stopAppearanceProjects()

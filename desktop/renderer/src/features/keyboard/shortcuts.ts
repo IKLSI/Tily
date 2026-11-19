@@ -15,7 +15,6 @@ import { togglePanelView } from '../right-panel/rightPanel'
 import { RenameOrigin, useUiStore } from '../../stores/uiStore'
 import { startWorktreeCreation } from '../worktrees/worktreeActions'
 import { openProjectPicker } from '../projects/projectOpenActions'
-import { toggleStatusLog } from '../status-log/statusLogActions'
 import { useShortcutStore } from '../../stores/shortcutStore'
 import { SettingsSection } from '../settings/components/settingsSections'
 import { Command } from './commands'
@@ -245,9 +244,6 @@ export const runCommand = (command: Command): void => {
       break
     case Command.ToggleNotes:
       togglePanelView(RightPanelView.Notes, true)
-      break
-    case Command.ToggleStatusLog:
-      toggleStatusLog()
       break
     case Command.ToggleSidebar:
       toggleSidebar()
