@@ -4,7 +4,7 @@ using Tily.Core.Processes;
 
 namespace Tily.Core.Git;
 
-public sealed record GitRunOptionsModel(string? Input = null, bool NeutralLocale = false, bool LiteralPaths = false, TimeSpan? Timeout = null);
+public sealed record GitRunOptionsModel(string? Input = null, bool NeutralLocale = false, bool LiteralPaths = false, TimeSpan? Timeout = null, Action<string>? Progress = null);
 
 public sealed record GitOutputModel(int ExitCode, string Output, string Error)
 {
@@ -78,7 +78,7 @@ public sealed partial class GitRunner
             environment[name] = value;
         }
 
-        return new ProcessRequestModel(executable, allArguments, options.Timeout ?? DefaultTimeout, directory, environment, options.Input, Encoding: Utf8);
+        return new ProcessRequestModel(executable, allArguments, options.Timeout ?? DefaultTimeout, directory, environment, options.Input, Encoding: Utf8, ErrorReader: options.Progress is { } progress ? reader => GitProgressReader.ReadAsync(reader, progress) : null);
     }
 
     private static ProcessOutputModel Execute(ProcessRequestModel request)

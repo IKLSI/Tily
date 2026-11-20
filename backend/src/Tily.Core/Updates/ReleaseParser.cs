@@ -10,6 +10,27 @@ public static class ReleaseParser
 
     public static UpdateReleaseModel Parse(string json) => Parse(json, RuntimeInformation.OSArchitecture);
 
+    public static IReadOnlyList<ReleaseHistoryModel> ParseHistory(string json)
+    {
+        try
+        {
+            using var document = JsonDocument.Parse(json);
+            return document.RootElement.EnumerateArray()
+                .Where(release => release.ValueKind == JsonValueKind.Object && !Flag(release, "draft") && !Flag(release, "prerelease"))
+                .Select(History)
+                .OfType<ReleaseHistoryModel>()
+                .ToList();
+        }
+        catch (JsonException)
+        {
+            throw new UpdateException("Réponse de GitHub illisible.");
+        }
+        catch (InvalidOperationException)
+        {
+            throw new UpdateException("Réponse de GitHub inattendue.");
+        }
+    }
+
     public static UpdateReleaseModel Parse(string json, Architecture architecture)
     {
         try
@@ -24,13 +45,12 @@ public static class ReleaseParser
             }
 
             var name = Text(root, "name");
-            DateTimeOffset? publishedAt = root.TryGetProperty("published_at", out var published) && published.ValueKind == JsonValueKind.String && published.TryGetDateTimeOffset(out var date) ? date : null;
             return new UpdateReleaseModel(
                 version,
                 name.Length > 0 ? name : $"Tily {version}",
                 ReleaseNotes.Highlights(Text(root, "body")),
                 Text(root, "html_url"),
-                publishedAt,
+                PublishedAt(root),
                 Installer(root, version, architecture));
         }
         catch (JsonException)
@@ -42,6 +62,19 @@ public static class ReleaseParser
             throw new UpdateException("Réponse de GitHub inattendue.");
         }
     }
+
+    private static ReleaseHistoryModel? History(JsonElement root)
+    {
+        var version = Text(root, "tag_name").TrimStart('v', 'V');
+        return System.Version.TryParse(version, out _)
+            ? new ReleaseHistoryModel(version, PublishedAt(root), Text(root, "html_url"), ReleaseNotes.Sections(Text(root, "body")))
+            : null;
+    }
+
+    private static DateTimeOffset? PublishedAt(JsonElement root) =>
+        root.TryGetProperty("published_at", out var published) && published.ValueKind == JsonValueKind.String && published.TryGetDateTimeOffset(out var date) ? date : null;
+
+    private static bool Flag(JsonElement release, string property) => release.TryGetProperty(property, out var flag) && flag.ValueKind == JsonValueKind.True;
 
     private static UpdateAssetModel Installer(JsonElement root, string version, Architecture architecture)
     {

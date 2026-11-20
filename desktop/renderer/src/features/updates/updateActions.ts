@@ -1,5 +1,5 @@
 import { bridge } from '../../bridge/bridge'
-import { UpdateStatus, type UpdateInfo } from '../../bridge/updateMessages'
+import { UpdateStatus, type ReleaseHistoryEntry, type UpdateInfo } from '../../bridge/updateMessages'
 import { activePane, activeTab, activeWorkspace, allPanes } from '../../model/session'
 import { StatusLevel, useHostStore } from '../../stores/hostStore'
 import { useSessionStore } from '../../stores/sessionStore'
@@ -59,6 +59,23 @@ export const cancelUpdateDownload = (): void => {
 }
 
 export const openReleasePage = (info: UpdateInfo): void => bridge.send({ type: 'link.open', url: info.release?.url ?? info.releasesPage })
+
+export const requestReleaseHistory = (): void => {
+  const { history, historyLoading, startHistory } = useUpdateStore.getState()
+  if (history === null && !historyLoading) {
+    startHistory()
+    bridge.send({ type: 'update.history' })
+  }
+}
+
+export const retryReleaseHistory = (): void => {
+  useUpdateStore.getState().startHistory()
+  bridge.send({ type: 'update.history' })
+}
+
+export const receiveReleaseHistory = (releases: ReleaseHistoryEntry[] | undefined, error: string | undefined): void => useUpdateStore.getState().setHistory(releases ?? null, error ?? null)
+
+export const openReleaseHistoryPage = (entry: ReleaseHistoryEntry): void => bridge.send({ type: 'link.open', url: entry.pageUrl })
 
 export const showUpdateDialog = (): void => {
   useUiStore.getState().closeSettings()

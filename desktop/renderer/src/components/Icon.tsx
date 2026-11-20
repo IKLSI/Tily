@@ -128,6 +128,12 @@ const SHAPES: Record<IconName, ReactNode> = {
       <path d="M6.3 1.5v2.7H9M9 7.6v3M7.5 9.1h3" />
     </>
   ),
+  [IconName.Clone]: (
+    <>
+      <path d="M6 1.5v6.3M3.6 5.6 6 8l2.4-2.4" />
+      <path d="M2 8.5v1.2a.8.8 0 0 0 .8.8h6.4a.8.8 0 0 0 .8-.8V8.5" />
+    </>
+  ),
   [IconName.NewFolder]: (
     <>
       <path d="M5.8 10H2.3a.8.8 0 0 1-.8-.8V2.8a.8.8 0 0 1 .8-.8h2.5l1 1.1h3.9a.8.8 0 0 1 .8.8v1.8" />
@@ -141,6 +147,7 @@ const SHAPES: Record<IconName, ReactNode> = {
       <path d="M4.3 4h3.4M4.3 6h3.4M4.3 8h2" />
     </>
   ),
+  [IconName.Play]: <path d="M3.8 2.3v7.4L9.6 6Z" />,
   [IconName.Plus]: <path d="M6 2.2v7.6M2.2 6h7.6" />,
   [IconName.Project]: (
     <>

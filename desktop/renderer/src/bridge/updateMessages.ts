@@ -29,10 +29,22 @@ export interface UpdateInfo {
   releasesPage: string
 }
 
+export interface ReleaseNoteSection {
+  title?: string
+  notes: string[]
+}
+
+export interface ReleaseHistoryEntry {
+  version: string
+  publishedAt?: string
+  pageUrl: string
+  sections: ReleaseNoteSection[]
+}
+
 export interface UpdateSettings {
   autoCheck: boolean
 }
 
-export type UpdateHostMessage = ({ type: 'update.state' } & UpdateInfo) | { type: 'update.restart' }
+export type UpdateHostMessage = ({ type: 'update.state' } & UpdateInfo) | { type: 'update.restart' } | { type: 'update.history'; releases?: ReleaseHistoryEntry[]; error?: string }
 
-export type UpdateWebMessage = { type: 'update.check' } | { type: 'update.install' } | { type: 'update.cancel' } | { type: 'update.apply' }
+export type UpdateWebMessage = { type: 'update.check' } | { type: 'update.install' } | { type: 'update.cancel' } | { type: 'update.apply' } | { type: 'update.history' }

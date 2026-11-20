@@ -6,6 +6,7 @@ import type { GitChangeKind, GitHostMessage, GitSettings, GitWebMessage } from '
 import type { McpHostMessage, McpServerInfo, McpWebMessage } from './mcpMessages'
 import type { PreviewHostMessage, PreviewKind, PreviewWebMessage } from './previewMessages'
 import type { UpdateHostMessage, UpdateSettings, UpdateWebMessage } from './updateMessages'
+import type { CloneHostMessage, CloneWebMessage } from './cloneMessages'
 import type { WorktreeHostMessage, WorktreeProjectFolder, WorktreeSettings, WorktreeSources, WorktreeWebMessage } from './worktreeMessages'
 
 export interface ShellProfile {
@@ -232,6 +233,7 @@ export type HostToWebMessage =
   | ForgeHostMessage
   | PreviewHostMessage
   | WorktreeHostMessage
+  | CloneHostMessage
   | UpdateHostMessage
   | McpHostMessage
   | BrowserHostMessage
@@ -282,6 +284,7 @@ export type WebToHostMessage =
   | ForgeWebMessage
   | PreviewWebMessage
   | WorktreeWebMessage
+  | CloneWebMessage
   | UpdateWebMessage
   | McpWebMessage
   | BrowserWebMessage

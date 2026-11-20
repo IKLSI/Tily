@@ -1,5 +1,6 @@
 import { current } from 'immer'
 import { activePane, activeTab, CLOSED_TABS_MAX, cloneTabWithNewIds, createTab, disownTab, findWorkspace, mergedNote, tabAt, paneName, tabOfPane, type ClosedTab } from '../../model/session'
+import { moveTabInto } from '../paneMoves'
 import { mutateSession, mutateWorkspace } from './helpers'
 import type { SessionSlice, TabSlice } from './types'
 
@@ -54,6 +55,13 @@ export const createTabSlice: SessionSlice<TabSlice> = (set, get) => ({
         }
       }),
     })),
+
+  mergeTabIntoPane: (tabId, paneId, edge) => {
+    const before = get().session
+    const after = mutateSession(before, (draft) => moveTabInto(draft, tabId, paneId, edge))
+    set({ session: after })
+    return after !== before
+  },
 
   moveTab: (tabId, targetWorkspaceId, beforeTabId) =>
     set((state) => ({

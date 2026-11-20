@@ -8,8 +8,10 @@ import { focusWorkspacePanel } from '../workspaces/components/workspacePanel'
 import { useSessionStore } from '../../stores/sessionStore'
 import { requestApplicationClose } from '../terminal/closeGuard'
 import { closePaneKeepingText, movePaneToNewTab, openClaudeTab, restoreClosedTab } from '../terminal/tabLifecycle'
+import { openTabMergePicker } from '../terminal/tabMerge'
 import { focusPane, joinNextWaitingPane, scrollPaneToCommand } from '../terminal/terminalActions'
 import { CommandDirection } from '../terminal/commandOutput'
+import { openTerminalSearch } from '../terminal/globalSearch'
 import { togglePaneZoom } from '../terminal/paneZoom'
 import { togglePanelView } from '../right-panel/rightPanel'
 import { RenameOrigin, useUiStore } from '../../stores/uiStore'
@@ -204,6 +206,9 @@ export const runCommand = (command: Command): void => {
     case Command.AppearanceSettings:
       openSettings(SettingsSection.Appearance)
       break
+    case Command.ReleaseNotes:
+      openSettings(SettingsSection.ReleaseNotes)
+      break
     case Command.SettingsExport:
       openSettings()
       bridge.send({ type: 'settings.export' })
@@ -260,11 +265,17 @@ export const runCommand = (command: Command): void => {
     case Command.SearchTerminal:
       useUiStore.getState().openPaneSearch(currentPaneId())
       break
+    case Command.SearchTerminals:
+      openTerminalSearch()
+      break
     case Command.EqualizePanes:
       equalizeActiveTab()
       break
     case Command.MovePaneToNewTab:
       movePaneToNewTab(currentPaneId())
+      break
+    case Command.MergeTab:
+      openTabMergePicker()
       break
     case Command.JoinWaitingAgent:
       joinNextWaitingPane()

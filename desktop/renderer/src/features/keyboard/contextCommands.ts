@@ -3,6 +3,7 @@ import { OpenTarget } from '../../bridge/messages'
 import { openColorDialog } from '../appearance/appearanceActions'
 import { BrowserPlacement, openBrowser } from '../browser/browserActions'
 import { refreshFolders } from '../explorer/fileExplorerActions'
+import { openCloneDialog } from '../clone/cloneActions'
 import { openFilePicker } from '../explorer/projectFileActions'
 import { canSearchCommits, openCommitPicker } from '../git/commitSearch'
 import { refreshRepository } from '../git/gitRequests'
@@ -106,6 +107,9 @@ export const runContextCommand = (command: Command): void => {
       break
     case Command.BrowserTab:
       openBrowser(BrowserPlacement.Tab)
+      break
+    case Command.CloneRepository:
+      openCloneDialog()
       break
     case Command.OpenWorktree:
       openWorktreePicker(WorktreePickerKind.Open)

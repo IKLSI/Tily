@@ -1,5 +1,6 @@
 import { useEffect, type KeyboardEvent } from 'react'
 import { useShallow } from 'zustand/react/shallow'
+import { openCloneDialog } from '../../clone/cloneActions'
 import { focusActivePane } from '../../explorer/fileExplorerActions'
 import { focusGitGraph } from '../gitFocus'
 import { plural } from '../gitLabels'
@@ -71,6 +72,7 @@ export function GitPanel({ folder }: GitPanelProps) {
     if (!state) {
       const loading = stale
       const handleInitialize = () => initializeRepository(folder)
+      const handleClone = () => openCloneDialog()
       return (
         <div className="flex flex-col gap-[6px] px-[12px] py-[8px] text-tily-sm">
           <p className="text-tily-ink">{loading ? 'Lecture du dépôt Git…' : 'Aucun dépôt Git'}</p>
@@ -78,6 +80,11 @@ export function GitPanel({ folder }: GitPanelProps) {
           {!loading && !error && folder && (
             <button type="button" className={`${GIT_SECONDARY} self-start`} data-tip="git init dans le dossier du pane actif" onClick={handleInitialize}>
               Initialiser un dépôt Git ici
+            </button>
+          )}
+          {!loading && !error && folder && (
+            <button type="button" className={`${GIT_SECONDARY} self-start`} data-tip="Cloner un dépôt depuis une adresse" onClick={handleClone}>
+              Cloner un dépôt ici…
             </button>
           )}
         </div>

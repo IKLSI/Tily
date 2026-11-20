@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { createTab, createWorkspace, DEFAULT_GIT_GRAPH, EXPLORER_DEFAULT, SIDEBAR_DEFAULT, SplitAxis, panesOf, activeTab, type Session, type Workspace } from '../model/session'
+import { createPane, createTab, createWorkspace, DEFAULT_GIT_GRAPH, EXPLORER_DEFAULT, isLeaf, PaneEdge, SIDEBAR_DEFAULT, SPLIT_DEPTH_MAX, SplitAxis, panesOf, splitLeaf, activeTab, type Session, type Tab, type Workspace } from '../model/session'
 import { useSessionStore } from './sessionStore'
 
 const sessionOf = (workspaces: Workspace[]): Session => ({
@@ -182,6 +182,96 @@ describe('sessionStore', () => {
 
       useSessionStore.getState().closePane('inconnu')
 
+      expect(session()).toBe(before)
+    })
+  })
+
+  describe('mergeTabIntoPane', () => {
+    const tabsOf = (workspace: Workspace): string[] => workspace.tabs.map((tab) => tab.id)
+
+    it('place l’onglet fusionné à droite du pane visé et en conserve les panes', () => {
+      const workspace = workspaceWithTabs('A', 2)
+      const [target, source] = workspace.tabs as [Tab, Tab]
+      source.tree = splitLeaf(source.tree, source.active, SplitAxis.Vertical, createPane('/tmp/autre', 'zsh'))
+      loaded([workspace])
+      const movedPaneIds = panesOf(source.tree).map((pane) => pane.id)
+
+      const merged = useSessionStore.getState().mergeTabIntoPane(source.id, target.active, PaneEdge.Right)
+
+      const result = session().workspaces[0]!
+      expect(merged).toBe(true)
+      expect(tabsOf(result)).toEqual([target.id])
+      const resultTab = result.tabs[0]!
+      expect(panesOf(resultTab.tree).map((pane) => pane.id)).toEqual([target.active, ...movedPaneIds])
+      expect(resultTab.active).toBe(source.active)
+      expect(result.active).toBe(target.id)
+      expect(session().closed).toHaveLength(0)
+    })
+
+    it('place l’onglet fusionné avant le pane visé pour le bord gauche ou haut', () => {
+      const workspace = workspaceWithTabs('A', 2)
+      const [target, source] = workspace.tabs as [Tab, Tab]
+      loaded([workspace])
+
+      useSessionStore.getState().mergeTabIntoPane(source.id, target.active, PaneEdge.Top)
+
+      const tree = session().workspaces[0]!.tabs[0]!.tree
+      expect(isLeaf(tree)).toBe(false)
+      if (!isLeaf(tree)) {
+        expect(tree.axis).toBe(SplitAxis.Vertical)
+        expect(panesOf(tree).map((pane) => pane.id)).toEqual([source.active, target.active])
+      }
+    })
+
+    it('active le workspace cible quand l’onglet vient d’un autre workspace et y reporte la note du workspace vidé', () => {
+      const source = workspaceWithTabs('Source', 1)
+      source.note = 'note source'
+      const target = workspaceWithTabs('Cible', 1)
+      target.note = 'note cible'
+      loaded([source, target])
+
+      useSessionStore.getState().mergeTabIntoPane(source.tabs[0]!.id, target.tabs[0]!.active, PaneEdge.Right)
+
+      expect(session().workspaces.map((workspace) => workspace.id)).toEqual([target.id])
+      expect(session().workspaces[0]!.note).toBe('note cible\n\nSource :\nnote source')
+      expect(session().active).toBe(target.id)
+    })
+
+    it('active l’onglet voisin quand l’onglet fusionné était actif et que son workspace subsiste', () => {
+      const workspace = workspaceWithTabs('A', 3)
+      const [first, second, third] = workspace.tabs as [Tab, Tab, Tab]
+      const other = workspaceWithTabs('B', 1)
+      workspace.active = second.id
+      loaded([workspace, other])
+
+      useSessionStore.getState().mergeTabIntoPane(second.id, other.tabs[0]!.active, PaneEdge.Bottom)
+
+      expect(tabsOf(session().workspaces[0]!)).toEqual([first.id, third.id])
+      expect(session().workspaces[0]!.active).toBe(third.id)
+    })
+
+    it('ne fait rien pour le même onglet ou un pane inconnu', () => {
+      const workspace = workspaceWithTabs('A', 2)
+      loaded([workspace])
+      const before = session()
+
+      expect(useSessionStore.getState().mergeTabIntoPane(workspace.tabs[0]!.id, workspace.tabs[0]!.active, PaneEdge.Right)).toBe(false)
+      expect(useSessionStore.getState().mergeTabIntoPane(workspace.tabs[0]!.id, 'inconnu', PaneEdge.Right)).toBe(false)
+      expect(session()).toBe(before)
+    })
+
+    it('refuse une fusion dont la disposition dépasserait la profondeur acceptée par l’hôte', () => {
+      const workspace = workspaceWithTabs('A', 2)
+      const [target, source] = workspace.tabs as [Tab, Tab]
+      for (let depth = 0; depth < SPLIT_DEPTH_MAX; depth++) {
+        source.tree = splitLeaf(source.tree, source.active, SplitAxis.Horizontal, createPane('/tmp/profond', 'zsh'))
+      }
+      loaded([workspace])
+      const before = session()
+
+      const merged = useSessionStore.getState().mergeTabIntoPane(source.id, target.active, PaneEdge.Right)
+
+      expect(merged).toBe(false)
       expect(session()).toBe(before)
     })
   })

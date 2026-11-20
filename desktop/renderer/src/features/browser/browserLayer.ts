@@ -4,6 +4,7 @@ import { activeTab, activeWorkspace, findPane, isBrowserPane, panesOf, type Sess
 import { useBrowserStore } from './browserStore'
 import { useHostStore } from '../../stores/hostStore'
 import { useSessionStore } from '../../stores/sessionStore'
+import { useUiStore } from '../../stores/uiStore'
 import { requestBrowser } from './browserRequests'
 
 const BODY_SELECTOR = '[data-browser-body]'
@@ -42,8 +43,8 @@ const sampledCover = (body: Element, rect: DOMRect): boolean => {
   return false
 }
 
-const isCovered = (body: Element, rect: DOMRect, modal: boolean): boolean =>
-  modal || Array.from(document.querySelectorAll(FLOATING_SELECTOR)).some((element) => intersects(element.getBoundingClientRect(), rect)) || sampledCover(body, rect)
+const isCovered = (body: Element, rect: DOMRect, frozen: boolean): boolean =>
+  frozen || Array.from(document.querySelectorAll(FLOATING_SELECTOR)).some((element) => intersects(element.getBoundingClientRect(), rect)) || sampledCover(body, rect)
 
 const attach = (paneId: string): void => {
   const session = useSessionStore.getState().session
@@ -106,7 +107,7 @@ const uncover = (paneId: string, slot: BrowserSlot): void => {
 }
 
 const frame = (): void => {
-  const modal = document.querySelector(MODAL_SELECTOR) !== null
+  const frozen = document.querySelector(MODAL_SELECTOR) !== null || useUiStore.getState().draggingTabId !== null
   const seen = new Set<string>()
   for (const body of document.querySelectorAll<HTMLElement>(BODY_SELECTOR)) {
     const paneId = body.dataset.browserBody
@@ -117,7 +118,7 @@ const frame = (): void => {
     const slot = slotOf(paneId)
     const rect = body.getBoundingClientRect()
     const displayed = rect.width > 0 && rect.height > 0
-    const covered = displayed && isCovered(body, rect, modal)
+    const covered = displayed && isCovered(body, rect, frozen)
     if (covered && !slot.covered) {
       cover(paneId, slot)
     } else if (!covered && slot.covered) {

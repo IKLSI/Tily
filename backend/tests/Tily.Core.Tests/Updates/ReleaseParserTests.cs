@@ -99,6 +99,38 @@ public sealed class ReleaseParserTests
         Assert.Equal("Réponse de GitHub illisible.", exception.Message);
     }
 
+    [Fact]
+    public void ParseHistory_WhenSeveralReleases_ThenSkipsBetasDraftsAndUnreadableTagsKeepingOrder()
+    {
+        var draft = ReleaseJson("v1.6.0").Replace("\"tag_name\"", "\"draft\": true, \"tag_name\"");
+        var beta = ReleaseJson("v1.5.0").Replace("\"tag_name\"", "\"prerelease\": true, \"tag_name\"");
+        var json = $"[{draft}, {beta}, {ReleaseJson("nightly")}, {ReleaseJson()}, {ReleaseJson("v1.3.0")}]";
+
+        var history = ReleaseParser.ParseHistory(json);
+
+        Assert.Equal(["1.4.0", "1.3.0"], history.Select(release => release.Version));
+    }
+
+    [Fact]
+    public void ParseHistory_WhenReleaseHasNoInstaller_ThenKeepsItsNotesWithoutInstallation()
+    {
+        var json = $"[{ReleaseJson(assetName: "Tily-1.4.0-portable.zip", digest: null)}]";
+
+        var release = Assert.Single(ReleaseParser.ParseHistory(json));
+
+        Assert.Equal([null, "Nouveautés"], release.Sections.Select(section => section.Title));
+        Assert.Equal("https://github.com/IKLSI/Tily/releases/tag/v1.4.0", release.PageUrl);
+        Assert.Equal(new DateTimeOffset(2026, 9, 30, 8, 0, 0, TimeSpan.Zero), release.PublishedAt);
+    }
+
+    [Fact]
+    public void ParseHistory_WhenAnswerNotAList_ThenFailsInFrench()
+    {
+        var exception = Assert.Throws<UpdateException>(() => ReleaseParser.ParseHistory(ReleaseJson()));
+
+        Assert.Equal("Réponse de GitHub inattendue.", exception.Message);
+    }
+
     [Theory]
     [InlineData("1.4.0", "1.3.0", true)]
     [InlineData("1.10.0", "1.9.2", true)]

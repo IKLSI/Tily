@@ -12,7 +12,8 @@ public sealed record ProcessRequestModel(
     string? Input = null,
     bool InheritsInput = false,
     Encoding? Encoding = null,
-    Stream? OutputDestination = null);
+    Stream? OutputDestination = null,
+    Func<TextReader, Task<string>>? ErrorReader = null);
 
 public sealed record ProcessOutputModel(int ExitCode, string Output, string Error, bool TimedOut)
 {
@@ -26,7 +27,7 @@ public static class ProcessRunner
         using var process = new Process { StartInfo = StartInfo(request) };
         process.Start();
         var output = request.OutputDestination is null ? process.StandardOutput.ReadToEndAsync() : CopyOutputAsync(process, request.OutputDestination);
-        var error = process.StandardError.ReadToEndAsync();
+        var error = request.ErrorReader is { } readError ? readError(process.StandardError) : process.StandardError.ReadToEndAsync();
         if (!request.InheritsInput)
         {
             WriteInput(process, request.Input);

@@ -11,22 +11,33 @@ interface ProjectPickerProps {
   error: string | null
   onClose: () => void
   onSelect: (project: Project, inActiveWorkspace: boolean) => void
+  onClone: () => void
 }
 
 interface ProjectItem extends SearchItem {
-  project: Project
+  project?: Project
 }
 
 const WORKTREE_HINT = 'worktree · '
 export const PROJECTS_LOADING = 'Chargement des projets…'
 
+const CLONE_ITEM: ProjectItem = { id: 'cloner', label: 'Cloner un dépôt…', hint: 'git clone depuis une adresse' }
+const LAST_ITEMS = [CLONE_ITEM]
+
 const hintOf = (project: Project): string => (project.worktree ? `${WORKTREE_HINT}${project.path}` : project.path)
 
-export function ProjectPicker({ projects, root, error, onClose, onSelect }: ProjectPickerProps) {
+export function ProjectPicker({ projects, root, error, onClose, onSelect, onClone }: ProjectPickerProps) {
   const settingsText = withShortcut('Paramètres', useShortcutText(Command.Settings))
   const items = useMemo<ProjectItem[]>(() => projects.map((project) => ({ id: project.path, label: project.name, hint: hintOf(project), project })), [projects])
-  const handleRun = (item: ProjectItem) => onSelect(item.project, false)
-  const handleRunInActiveWorkspace = (item: ProjectItem) => onSelect(item.project, true)
+  const run = (item: ProjectItem, inActiveWorkspace: boolean) => {
+    if (item.project) {
+      onSelect(item.project, inActiveWorkspace)
+    } else {
+      onClone()
+    }
+  }
+  const handleRun = (item: ProjectItem) => run(item, false)
+  const handleRunInActiveWorkspace = (item: ProjectItem) => run(item, true)
 
   return (
     <SearchDialog
@@ -34,6 +45,7 @@ export function ProjectPicker({ projects, root, error, onClose, onSelect }: Proj
       placeholder={root ? `Dossier dans ${root}…` : 'Dossier de projet…'}
       emptyMessage={error ?? (root === '' ? PROJECTS_LOADING : projects.length === 0 ? `Aucun projet dans ${root} : le dossier des projets se change dans ${settingsText}.` : 'Aucun dossier ne correspond à la recherche.')}
       items={items}
+      lastItems={LAST_ITEMS}
       onClose={onClose}
       onRun={handleRun}
       onRunAlternate={handleRunInActiveWorkspace}

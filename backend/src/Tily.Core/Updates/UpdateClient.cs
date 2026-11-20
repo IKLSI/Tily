@@ -18,11 +18,19 @@ public sealed class UpdateClient(HttpClient http)
 
     public async Task<UpdateReleaseModel> LatestAsync(CancellationToken cancellationToken)
     {
-        using var request = new HttpRequestMessage(HttpMethod.Get, UpdateSource.LatestReleaseUrl);
+        return ReleaseParser.Parse(await ReadApiAsync(UpdateSource.LatestReleaseUrl, cancellationToken));
+    }
+
+    public async Task<IReadOnlyList<ReleaseHistoryModel>> HistoryAsync(CancellationToken cancellationToken) =>
+        ReleaseParser.ParseHistory(await ReadApiAsync(UpdateSource.HistoryUrl, cancellationToken));
+
+    private async Task<string> ReadApiAsync(string url, CancellationToken cancellationToken)
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Get, url);
         request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/vnd.github+json"));
         request.Headers.Add("X-GitHub-Api-Version", "2022-11-28");
         using var response = await SendAsync(request, cancellationToken);
-        return ReleaseParser.Parse(await response.Content.ReadAsStringAsync(cancellationToken));
+        return await response.Content.ReadAsStringAsync(cancellationToken);
     }
 
     public async Task<string> DownloadAsync(UpdateAssetModel asset, string directory, Action<long, long> progress, CancellationToken cancellationToken)

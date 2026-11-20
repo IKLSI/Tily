@@ -3,6 +3,7 @@ import { useShallow } from 'zustand/react/shallow'
 import type { Session } from '../../../model/session'
 import { useAgentStore } from '../../agents/agentStore'
 import { useHostStore } from '../../../stores/hostStore'
+import { openCloneDialog } from '../../clone/cloneActions'
 import { WorktreePickerKind } from '../../worktrees/worktreeStore'
 import { openWorktreePicker } from '../../worktrees/worktreeActions'
 import { worktreesOfTabs } from '../../worktrees/worktreePaths'
@@ -26,6 +27,7 @@ interface WorkspaceTreeProps {
 const NAME_SEPARATOR = '\n'
 const HEADER_BUTTON = 'flex size-[24px] cursor-pointer items-center justify-center rounded-tily text-tily-muted hover:bg-tily-green-hover hover:text-tily-ink'
 
+const handleCloneRepository = (): void => openCloneDialog()
 const handleCreateWorktree = (): void => openWorktreePicker(WorktreePickerKind.Source)
 
 export function WorkspaceTree({ session, renamingWorkspaceId, renamingTabId, actions }: WorkspaceTreeProps) {
@@ -66,6 +68,9 @@ export function WorkspaceTree({ session, renamingWorkspaceId, renamingTabId, act
         <span className="flex-1 pl-[6px] text-tily-xs font-semibold tracking-[0.08em] uppercase">Workspaces</span>
         <button type="button" className={HEADER_BUTTON} aria-label="Ouvrir un projet" data-tip={projectsTip} onClick={actions.openProjects}>
           <Icon name={IconName.Project} />
+        </button>
+        <button type="button" className={HEADER_BUTTON} aria-label="Cloner un dépôt" data-tip="Cloner un dépôt" onClick={handleCloneRepository}>
+          <Icon name={IconName.Clone} />
         </button>
         <button type="button" className={HEADER_BUTTON} aria-label="Créer un worktree" data-tip={worktreeTip} onClick={handleCreateWorktree}>
           <Icon name={IconName.Worktree} />

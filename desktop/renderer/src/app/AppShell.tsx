@@ -20,9 +20,13 @@ import { usePreviewStore } from '../features/preview/previewStore'
 import { useMcpConsentStore } from '../features/mcp/mcpConsentStore'
 import { usePasteStore } from '../features/terminal/pasteStore'
 import { mergeRequestFormOpen } from '../features/forge/mergeRequestFormStore'
+import { cloneDialogOpen } from '../features/clone/cloneStore'
 import { worktreeModalOpen } from '../features/worktrees/worktreeStore'
 import { filePickerOpen } from '../features/explorer/filePickerStore'
+import { terminalSearchOpen } from '../features/terminal/terminalSearchStore'
+import { TerminalSearchDialog } from '../features/terminal/components/TerminalSearchDialog'
 import { commitPickerOpen } from '../features/git/commitPickerStore'
+import { tabMergePickerOpen } from '../features/terminal/tabMergePickerStore'
 import { changePaneShell, dismissPaneState, restartPane, restartPaneIn } from '../features/terminal/paneLifecycle'
 import { closeOtherTabsKeepingText, closePaneKeepingText, closeTabKeepingText, closeWorkspaceKeepingText, duplicateTabKeepingLayout, restoreClosedTab } from '../features/terminal/tabLifecycle'
 import { focusPane, joinPane } from '../features/terminal/terminalActions'
@@ -44,6 +48,8 @@ import { GitConfirmDialog, GitContextMenu, GitDiffDrawer, GitGraphView } from '.
 import { Header } from './Header'
 import { FilePicker } from '../features/explorer/components/FilePicker'
 import { CommitPicker } from '../features/git/components/CommitPicker'
+import { PaneDropIndicator } from '../features/terminal/components/PaneDropIndicator'
+import { TabMergePicker } from '../features/terminal/components/TabMergePicker'
 import { RightPanel } from '../features/right-panel/components/RightPanel'
 import { SidebarResizer } from './SidebarResizer'
 import { SplitView } from '../features/terminal/components/SplitView'
@@ -53,6 +59,7 @@ import type { WorkspacePanelActions } from '../features/workspaces/components/wo
 import { WorkspaceTree } from '../features/workspaces/components/WorkspaceTree'
 import { MergeRequestContextMenu } from '../features/forge/components/MergeRequestContextMenu'
 import { MergeRequestDialog } from '../features/forge/components/MergeRequestDialog'
+import { CloneDialogs } from '../features/clone/components/CloneDialogs'
 import { WorktreeDialogs } from '../features/worktrees/components/WorktreeDialogs'
 
 const ProjectPickers = lazy(() => import('../features/projects/components/ProjectPickers').then((module) => ({ default: module.ProjectPickers })))
@@ -183,7 +190,7 @@ const handleDialogError = (): void => {
 
 const confirmationOpen = (): boolean => {
   const { settingsOpen, closeConfirmation } = useUiStore.getState()
-  return settingsOpen || closeConfirmation !== null || useExplorerStore.getState().deleteRequest !== null || useGitStore.getState().confirmation !== null || usePasteStore.getState().request !== null || useAppearanceStore.getState().colorTarget !== null || useMcpConsentStore.getState().queue.length > 0 || worktreeModalOpen() || mergeRequestFormOpen() || filePickerOpen() || commitPickerOpen() || usePreviewStore.getState().pendingAction !== null
+  return settingsOpen || closeConfirmation !== null || useExplorerStore.getState().deleteRequest !== null || useGitStore.getState().confirmation !== null || usePasteStore.getState().request !== null || useAppearanceStore.getState().colorTarget !== null || useMcpConsentStore.getState().queue.length > 0 || worktreeModalOpen() || cloneDialogOpen() || mergeRequestFormOpen() || filePickerOpen() || terminalSearchOpen() || commitPickerOpen() || tabMergePickerOpen() || usePreviewStore.getState().pendingAction !== null
 }
 
 const modalOpen = (): boolean => {
@@ -388,7 +395,9 @@ export function AppShell({ session }: AppShellProps) {
       <AttentionToasts waiting={waiting} onJoin={handleJoinPane} onDismiss={handleDismissAttention} />
       <ErrorBoundary className={OVERLAY_FALLBACK} onRecover={handleDialogError}>
         <FilePicker />
+        <TerminalSearchDialog />
         <CommitPicker />
+        <TabMergePicker />
         {projectPickerOpen && (
           <Suspense fallback={null}>
             <ProjectPickers />
@@ -402,6 +411,7 @@ export function AppShell({ session }: AppShellProps) {
         {paletteOpen && <CommandPalette session={session} shells={availableShells} onClose={handleClosePalette} onRun={handleRunPaletteItem} onToggleFavorite={toggleFavoriteCommand} />}
         {deleteRequest && <DeleteConfirmDialog request={deleteRequest} onConfirm={confirmDelete} onCancel={handleCancelDelete} />}
         <WorktreeDialogs />
+        <CloneDialogs />
         <MergeRequestDialog />
         <MergeRequestContextMenu />
         {gitConfirmation && (
@@ -415,6 +425,7 @@ export function AppShell({ session }: AppShellProps) {
         {unsavedPreview && <UnsavedPreviewDialog />}
         <McpConsentDialog />
       </ErrorBoundary>
+      <PaneDropIndicator />
       <Tooltip />
     </div>
   )

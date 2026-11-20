@@ -4,6 +4,7 @@ import { Icon } from '../../../components/Icon'
 import { IconName } from '../../../components/iconName'
 import { ICON_BUTTON } from '../../../components/controlStyles'
 import { useUiStore } from '../../../stores/uiStore'
+import { openTerminalSearch } from '../globalSearch'
 import { focusPane } from '../terminalActions'
 import { terminalRegistry } from '../terminalRegistry'
 
@@ -89,6 +90,10 @@ export function PaneSearchBar({ paneId }: PaneSearchBarProps) {
       event.preventDefault()
       event.stopPropagation()
       close()
+    } else if (event.key === 'Enter' && event.altKey) {
+      event.preventDefault()
+      useUiStore.getState().closePaneSearch()
+      openTerminalSearch(term)
     } else if (event.key === 'Enter') {
       event.preventDefault()
       if (event.shiftKey) {
@@ -122,7 +127,7 @@ export function PaneSearchBar({ paneId }: PaneSearchBarProps) {
       <button type="button" className={BAR_BUTTON} data-tip="Résultat précédent (Maj + Entrée)" aria-label="Résultat précédent" onClick={findPrevious}>
         <Icon name={IconName.Chevron} className="-rotate-90" />
       </button>
-      <button type="button" className={BAR_BUTTON} data-tip="Résultat suivant (Entrée)" aria-label="Résultat suivant" onClick={findNext}>
+      <button type="button" className={BAR_BUTTON} data-tip="Résultat suivant (Entrée) · Alt + Entrée : chercher dans tous les terminaux" aria-label="Résultat suivant" onClick={findNext}>
         <Icon name={IconName.Chevron} className="rotate-90" />
       </button>
       <button type="button" className={BAR_BUTTON} data-tip="Fermer (Échap)" aria-label="Fermer la recherche" onClick={close}>

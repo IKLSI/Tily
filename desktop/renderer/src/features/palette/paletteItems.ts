@@ -5,7 +5,7 @@ import { BrowserPlacement, openBrowser, openDevServer } from '../browser/browser
 import { Command, revealWorkspacePanel, runCommand } from '../keyboard/shortcuts'
 import { shortcutText } from '../keyboard/shortcutLabels'
 import { DEFAULT_FONT_SIZE, MAX_FONT_SIZE, MIN_FONT_SIZE } from '../../model/appearance'
-import { activePane, activeTab, activeWorkspace, distinctWorkspaceName, FAVORITES_MAX, folderName, isLeaf, panesOf, RightPanelView, type Pane, type Session, type Tab, type Workspace } from '../../model/session'
+import { activePane, activeTab, activeWorkspace, distinctTabName, distinctWorkspaceName, FAVORITES_MAX, folderName, isLeaf, panesOf, RightPanelView, type Pane, type Session } from '../../model/session'
 import { openPanelView } from '../right-panel/rightPanel'
 import { refreshFolders } from '../explorer/fileExplorerActions'
 import { openFilePicker } from '../explorer/projectFileActions'
@@ -17,6 +17,7 @@ import { useHostStore } from '../../stores/hostStore'
 import { useSessionStore } from '../../stores/sessionStore'
 import { RenameOrigin, useUiStore } from '../../stores/uiStore'
 import { closeOtherTabsKeepingText, closeTabKeepingText, closeTabsToRightKeepingText, closeWorkspaceKeepingText, duplicateTabKeepingLayout, movePaneToTab, restoreClosedTab, restoreClosedTabAt } from '../terminal/tabLifecycle'
+import { MergePlacement, mergeTabIntoTab, tabMergeTargets } from '../terminal/tabMerge'
 import { clearPaneScrollback, copyLastCommandOutput, joinPane } from '../terminal/terminalActions'
 import { terminalRegistry } from '../terminal/terminalRegistry'
 import { usePaneStore } from '../terminal/paneStore'
@@ -47,6 +48,8 @@ const FAVORITES_FULL_NOTICE = `Pas plus de ${FAVORITES_MAX} favoris : retirez un
 const ATTENTION_PREFIX = 'attention-'
 const MOVE_TAB_PREFIX = 'move-tab-'
 const JOIN_TAB_PREFIX = 'join-tab-'
+const MERGE_TAB_PREFIX = 'merge-tab-'
+const MERGE_TAB_PREFIXES = Object.values(MergePlacement).map((placement) => `${MERGE_TAB_PREFIX}${placement}-`)
 
 const requestFontSize = (fontSize: number): void => bridge.send({ type: 'appearance.fontSize', fontSize })
 
@@ -88,11 +91,13 @@ const commandItems = (session: Session, shells: ShellProfile[]): PaletteItem[] =
     command('new-workspace', 'Nouveau workspace', () => runCommand(Command.NewWorkspace), shortcutText(Command.NewWorkspace)),
     command('projects', 'Ouvrir un projet', () => runCommand(Command.Projects), shortcutText(Command.Projects)),
     command('create-worktree', 'Créer un worktree…', () => runCommand(Command.CreateWorktree), shortcutText(Command.CreateWorktree)),
+    command('clone-repository', 'Cloner un dépôt…', () => runCommand(Command.CloneRepository)),
     command('open-worktree', 'Ouvrir un worktree…', () => openWorktreePicker(WorktreePickerKind.Open)),
     command('toggle-explorer', 'Afficher / masquer les fichiers', () => runCommand(Command.ToggleExplorer), shortcutText(Command.ToggleExplorer)),
     command('toggle-git', 'Afficher / masquer Git', () => runCommand(Command.ToggleGit), shortcutText(Command.ToggleGit)),
     command('toggle-notes', 'Afficher / masquer les notes du workspace', () => runCommand(Command.ToggleNotes), shortcutText(Command.ToggleNotes)),
     command('settings', 'Paramètres', () => runCommand(Command.Settings), shortcutText(Command.Settings)),
+    command('release-notes', 'Notes de version…', () => runCommand(Command.ReleaseNotes), shortcutText(Command.ReleaseNotes)),
     command('appearance-settings', 'Couleur de Tily…', () => runCommand(Command.AppearanceSettings), shortcutText(Command.AppearanceSettings)),
     command('settings-export', 'Exporter les préférences…', () => {
       runCommand(Command.Settings)
@@ -102,6 +107,7 @@ const commandItems = (session: Session, shells: ShellProfile[]): PaletteItem[] =
       runCommand(Command.Settings)
       bridge.send({ type: 'settings.import' })
     }),
+    command('search-terminals', 'Rechercher dans tous les terminaux…', () => runCommand(Command.SearchTerminals), shortcutText(Command.SearchTerminals)),
     command('restore-tab', 'Rouvrir le dernier onglet fermé', restoreClosedTab, shortcutText(Command.RestoreTab)),
     command('toggle-sidebar', session.sidebarCollapsed ? 'Afficher les workspaces' : 'Masquer les workspaces', () => runCommand(Command.ToggleSidebar), shortcutText(Command.ToggleSidebar)),
     command('focus-sidebar', 'Aller au panneau des workspaces', revealWorkspacePanel),
@@ -186,6 +192,13 @@ const commandItems = (session: Session, shells: ShellProfile[]): PaletteItem[] =
     for (const target of session.workspaces.filter((candidate) => candidate.id !== workspace?.id)) {
       items.push(command(`${MOVE_TAB_PREFIX}${target.id}`, `Déplacer l’onglet vers${SEPARATOR}${distinctWorkspaceName(session.workspaces, target)}`, () => store.moveTab(tab.id, target.id)))
     }
+    const mergeTargets = tabMergeTargets(session, tab.id)
+    if (mergeTargets.length > 0) {
+      items.push(command('merge-tab', 'Fusionner l’onglet actif dans un autre onglet…', () => runCommand(Command.MergeTab), shortcutText(Command.MergeTab)))
+    }
+    for (const target of mergeTargets) {
+      items.push(command(`${MERGE_TAB_PREFIX}${target.placement}-${target.tab.id}`, `Fusionner l’onglet actif dans l’onglet${SEPARATOR}${target.name}, ${target.placementLabel}`, () => mergeTabIntoTab(tab.id, target.tab.id, target.placement)))
+    }
   }
   return items
 }
@@ -219,9 +232,6 @@ const paneHint = (pane: Pane, contexts: Record<string, GitContext>): string => {
   return branch ? `${branch}${SEPARATOR}${pane.path}` : pane.path
 }
 
-const distinctTabName = (workspace: Workspace, tab: Tab): string =>
-  workspace.tabs.some((other) => other !== tab && other.name === tab.name) ? `${tab.name} (onglet ${workspace.tabs.indexOf(tab) + 1})` : tab.name
-
 const navigationItems = (session: Session): PaletteItem[] => {
   const { selectWorkspace, selectTab, selectPane } = useSessionStore.getState()
   const { contexts } = useHostStore.getState()
@@ -252,8 +262,9 @@ const isOrphanFavorite = (session: Session, commandId: string): boolean => {
   if (commandId.startsWith(ATTENTION_PREFIX)) {
     return true
   }
-  if (commandId.startsWith(JOIN_TAB_PREFIX)) {
-    const tabId = commandId.slice(JOIN_TAB_PREFIX.length)
+  const tabPrefix = [JOIN_TAB_PREFIX, ...MERGE_TAB_PREFIXES].find((prefix) => commandId.startsWith(prefix))
+  if (tabPrefix) {
+    const tabId = commandId.slice(tabPrefix.length)
     return !session.workspaces.some((workspace) => workspace.tabs.some((tab) => tab.id === tabId))
   }
   const workspaceId = commandId.startsWith(MOVE_TAB_PREFIX) ? commandId.slice(MOVE_TAB_PREFIX.length) : null

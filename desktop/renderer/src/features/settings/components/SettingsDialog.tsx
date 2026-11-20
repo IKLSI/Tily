@@ -10,6 +10,7 @@ import { Icon } from '../../../components/Icon'
 import { IconName } from '../../../components/iconName'
 import { AgentSettingsSection } from './AgentSettingsSection'
 import { AppearanceSettingsSection } from './AppearanceSettingsSection'
+import { ReleaseNotesSettingsSection } from './ReleaseNotesSettingsSection'
 import { NotificationSettingsSection } from './NotificationSettingsSection'
 import { NUMBER_FIELDS, numberFieldId, numberTextOf, valueWithin, type NumberField, type NumberTexts } from './persistenceFields'
 import { ProjectSettingsSection } from './ProjectSettingsSection'
@@ -222,6 +223,8 @@ export function SettingsDialog({ snapshot, pickedPath, imported, onClose, onSave
         return <AgentSettingsSection title={title} agents={current.agents} mcp={current.mcp} onInstallHooks={onInstallHooks} onRemoveHooks={onRemoveHooks} />
       case SettingsSection.Updates:
         return <UpdateSettingsSection title={title} autoCheck={settings.updates.autoCheck} onAutoCheckChange={handleAutoCheckChange} />
+      case SettingsSection.ReleaseNotes:
+        return <ReleaseNotesSettingsSection title={title} />
     }
   }
 

@@ -32,4 +32,44 @@ public sealed class ReleaseNotesTests
 
         Assert.Empty(notes);
     }
+
+    [Fact]
+    public void Sections_WhenBodyHasIntroAndHeadings_ThenKeepsEachSectionInOrder()
+    {
+        var body = "Intro.\n\n## Nouveautés\n- Nouveauté.\n\n## Corrections\n- Notes rétablies.";
+
+        var sections = ReleaseNotes.Sections(body);
+
+        Assert.Equal(
+            ["|Intro.", "Nouveautés|Nouveauté.", "Corrections|Notes rétablies."],
+            sections.Select(section => $"{section.Title}|{string.Join(" / ", section.Notes)}"));
+    }
+
+    [Fact]
+    public void Sections_WhenInstallationSection_ThenLeavesItOut()
+    {
+        var body = "## Installation\n1. Ouvrir le dmg.\n\n## Nouveautés\n- Point.";
+
+        var sections = ReleaseNotes.Sections(body);
+
+        Assert.Equal(["Nouveautés"], sections.Select(section => section.Title));
+    }
+
+    [Fact]
+    public void Sections_WhenHeadingWithoutLines_ThenLeavesItOut()
+    {
+        var body = "## Limites connues\n\n## Corrections\n- Point.";
+
+        var sections = ReleaseNotes.Sections(body);
+
+        Assert.Equal(["Corrections"], sections.Select(section => section.Title));
+    }
+
+    [Fact]
+    public void Sections_WhenBodyMissing_ThenReturnsNothing()
+    {
+        var sections = ReleaseNotes.Sections(null);
+
+        Assert.Empty(sections);
+    }
 }

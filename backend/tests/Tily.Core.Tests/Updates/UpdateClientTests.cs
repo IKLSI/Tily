@@ -27,6 +27,16 @@ public sealed class UpdateClientTests : IDisposable
         Assert.Equal("1.4.0", release.Version);
     }
 
+    [Fact]
+    public async Task HistoryAsync_WhenGitHubAnswers_ThenParsesReleases()
+    {
+        var client = ClientAnswering(HttpStatusCode.OK, Encoding.UTF8.GetBytes($"[{ReleaseParserTests.ReleaseJson()}]"));
+
+        var history = await client.HistoryAsync(CancellationToken.None);
+
+        Assert.Equal(["1.4.0"], history.Select(release => release.Version));
+    }
+
     [Theory]
     [InlineData(HttpStatusCode.NotFound, "Aucune version de Tily n’est publiée sur GitHub.")]
     [InlineData(HttpStatusCode.Forbidden, "GitHub limite le nombre de vérifications : réessayez dans une heure.")]

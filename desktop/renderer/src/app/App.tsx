@@ -29,6 +29,8 @@ import { receivePreview, receivePreviewRequest, startDeferredPreviews } from '..
 import { receivePreviewSaved, receivePreviewSaveFailed } from '../features/preview/previewEdit'
 import { receiveGitAutoFetchEnded, receiveGitAutoFetchStarted, receiveGitChanged, receiveGitDetails, receiveGitDiff, receiveGitDone, receiveGitFailed, receiveGitHistory, receiveGitPushRejected, receiveGitState } from '../features/git/gitReceivers'
 import { insertIntoPane, joinPane } from '../features/terminal/terminalActions'
+import { CLONE_FOLDER_FIELD } from '../features/clone/cloneActions'
+import { receiveCloneDone, receiveCloneFailed, receiveCloneFolderPicked, receiveClonePlan, receiveCloneProgress, receiveCloneSuggestion } from '../features/clone/cloneReceivers'
 import { WORKTREE_FOLDER_FIELD, WORKTREE_REPOSITORY_FIELD } from '../features/worktrees/worktreeActions'
 import { PROJECT_REPOSITORY_FIELD, receiveProjectRepositories, receiveProjectRepositoryPicked, receiveProjectRepositoryRemembered } from '../features/projects/projectOpenActions'
 import {
@@ -44,7 +46,7 @@ import {
   receiveWorktreeSources,
 } from '../features/worktrees/worktreeReceivers'
 import { terminalRegistry } from '../features/terminal/terminalRegistry'
-import { receiveUpdateRestart, receiveUpdateState } from '../features/updates/updateActions'
+import { receiveReleaseHistory, receiveUpdateRestart, receiveUpdateState } from '../features/updates/updateActions'
 import { useShortcutStore } from '../stores/shortcutStore'
 import { forgetRemovedText, markTextSaveFailed, primeSessionText, startTextAutosave } from '../features/terminal/textPersistence'
 import { Spinner } from '../components/Spinner'
@@ -117,6 +119,8 @@ export default function App() {
           receiveWorktreeRepositoryPicked(message.path)
         } else if (message.field === WORKTREE_FOLDER_FIELD) {
           receiveWorktreeFolderPicked(message.path)
+        } else if (message.field === CLONE_FOLDER_FIELD) {
+          receiveCloneFolderPicked(message.path)
         } else if (message.field === PROJECT_REPOSITORY_FIELD) {
           receiveProjectRepositoryPicked(message.path)
         } else {
@@ -181,6 +185,11 @@ export default function App() {
       bridge.on('git.pushRejected', (message) => receiveGitPushRejected(message.operation, message.branch, message.message, message.output)),
       bridge.on('git.autoFetchStarted', (message) => receiveGitAutoFetchStarted(message.path)),
       bridge.on('git.autoFetchEnded', receiveGitAutoFetchEnded),
+      bridge.on('clone.suggested', (message) => receiveCloneSuggestion(message.request, message.address)),
+      bridge.on('clone.planned', (message) => receiveClonePlan(message.request, message.plan, message.roots)),
+      bridge.on('clone.progress', (message) => receiveCloneProgress(message.message)),
+      bridge.on('clone.done', (message) => receiveCloneDone(message.request, message.path, message.name, message.install, message.claude, message.message)),
+      bridge.on('clone.failed', (message) => receiveCloneFailed(message.request, message.message, message.output)),
       bridge.on('worktrees.sourcesFound', (message) => dispatchReply(message.type, message.request, message) || receiveWorktreeSources(message.request, message.sources)),
       bridge.on('worktrees.planned', (message) => dispatchReply(message.type, message.request, message) || receiveWorktreePlan(message.request, message.plan)),
       bridge.on('worktrees.listed', (message) => dispatchReply(message.type, message.request, message)),
@@ -198,6 +207,7 @@ export default function App() {
       bridge.on('worktrees.purged', (message) => receiveWorktreePurged(message.names, message.files, message.elapsedMs, message.remaining)),
       bridge.on('update.state', (message) => receiveUpdateState(message)),
       bridge.on('update.restart', receiveUpdateRestart),
+      bridge.on('update.history', (message) => receiveReleaseHistory(message.releases, message.error)),
       bridge.on('mcp.request', (message) => void receiveMcpRequest(message)),
       bridge.on('browser.state', (message) => receiveBrowserState(message.state)),
       bridge.on('browser.newPane', (message) => receiveNewBrowserPane(message.pane, message.url)),

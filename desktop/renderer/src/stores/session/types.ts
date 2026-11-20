@@ -1,6 +1,6 @@
 import type { StateCreator } from 'zustand'
 import type { BrowserViewport } from '../../model/browser'
-import type { GitGraphLayout, Pane, RightPanelView, Session, SplitAxis, SplitPath, Tab } from '../../model/session'
+import type { GitGraphLayout, Pane, PaneEdge, RightPanelView, Session, SplitAxis, SplitPath, Tab } from '../../model/session'
 
 export interface CoreSlice {
   session: Session | null
@@ -45,6 +45,7 @@ export interface TabSlice {
   moveActiveTab: (offset: number) => void
   shiftTab: (tabId: string, offset: number) => void
   duplicateTab: (tabId: string) => void
+  mergeTabIntoPane: (tabId: string, paneId: string, edge: PaneEdge) => boolean
   selectAdjacentTab: (offset: number) => void
   closeTab: (tabId: string) => void
   restoreTab: (position?: number) => { tab: Tab; paneIds: Record<string, string> } | null
