@@ -53,6 +53,7 @@ public sealed class HostBridge : IDisposable
         _terminals = new TerminalManager(integrationDirectory: Path.Combine(dataDirectory, ShellIntegrationFolder));
         _windowClose = new WindowCloseFeed(loop, _terminals, PostNow);
         _agents = new AgentStateFeed(dataDirectory, _terminals, Post);
+        _terminals.IdleAgentPanes = _agents.IdleAgentPanes;
         _notifier = new AttentionNotifier(PostNow);
         _files = new FileExplorerFeed(() => _settings.Current.Editor, Post, PostBackgroundError);
         _preview = new FilePreviewFeed(() => _settings.Current.Editor, Post, PostBackgroundError);

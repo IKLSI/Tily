@@ -1,5 +1,8 @@
 appId: com.iklsi.tily
 productName: Tily
+electronLanguages:
+  - en
+  - fr
 directories:
   output: release
   buildResources: resources

@@ -44,6 +44,12 @@ public sealed class AgentStateFeed : IDisposable
 
     public ClaudeHooksInstaller Hooks { get; }
 
+    public IReadOnlySet<string> IdleAgentPanes() =>
+        _monitor.Resolve(_terminals.Probes())
+            .Where(agent => agent.State is not (AgentState.Working or AgentState.Waiting))
+            .Select(agent => agent.PaneId)
+            .ToHashSet();
+
     public object Describe()
     {
         var status = Hooks.Status();

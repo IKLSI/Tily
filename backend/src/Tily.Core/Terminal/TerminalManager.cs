@@ -22,6 +22,8 @@ public sealed class TerminalManager : IDisposable
 
     public void UpdatePaths(ShellPathsModel paths) => _paths = paths;
 
+    public Func<IReadOnlySet<string>>? IdleAgentPanes { get; set; }
+
     public event Action<string, ReadOnlyMemory<byte>>? OutputReceived;
     public event Action<string, string>? CurrentDirectoryChanged;
     public event Action<string, string>? DevServerDetected;
@@ -134,6 +136,12 @@ public sealed class TerminalManager : IDisposable
             {
                 activity.Add(new PaneActivityModel(session.PaneId, processes));
             }
+        }
+
+        if (activity.Count > 0 && IdleAgentPanes is not null)
+        {
+            var idle = IdleAgentPanes();
+            activity.RemoveAll(entry => idle.Contains(entry.PaneId));
         }
 
         return activity;

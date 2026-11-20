@@ -52,6 +52,8 @@ Thème clair ou sombre selon l’apparence du système : fonds gris neutres à l
 | En-tête d’un pane | Dernier dossier du chemin (chemin complet en infobulle), shell s’il n’est pas celui par défaut, et action de fermeture. |
 | Panneau gauche | Workspaces, chevrons de dépliage, onglets enfants, accès aux projets et indications d’attention ; ou, au choix, la vue Agents (section 11). |
 
+Il n’y a pas de barre de statut en pied de fenêtre : les messages d’état et de progression qu’elle affichait ne sont plus montrés.
+
 Le titre de la fenêtre, visible dans le menu Fenêtre, Mission Control et Cmd + Tab, est toujours « Tily » : il ne reprend ni le workspace, ni l’onglet, ni le dossier du terminal.
 
 ### Règles de présentation

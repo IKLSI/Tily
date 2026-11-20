@@ -47,7 +47,6 @@ import { CommitPicker } from '../features/git/components/CommitPicker'
 import { RightPanel } from '../features/right-panel/components/RightPanel'
 import { SidebarResizer } from './SidebarResizer'
 import { SplitView } from '../features/terminal/components/SplitView'
-import { StatusBar } from './StatusBar'
 import { TabBar } from '../features/workspaces/components/TabBar'
 import { Tooltip } from '../components/Tooltip'
 import type { WorkspacePanelActions } from '../features/workspaces/components/workspacePanel'
@@ -417,7 +416,6 @@ export function AppShell({ session }: AppShellProps) {
         <McpConsentDialog />
       </ErrorBoundary>
       <Tooltip />
-      <StatusBar />
     </div>
   )
 }
